@@ -1,65 +1,79 @@
-import Image from "next/image";
+import Link from "next/link";
+import { chapters } from "@/content/chapters";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-navy relative overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(239,34,58,0.08)_0%,transparent_70%)]" />
+
+      <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
+        {/* Twilio logo mark */}
+        <div className="w-16 h-16 rounded-2xl bg-twilio-red flex items-center justify-center mx-auto mb-8">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <circle cx="8" cy="8" r="2.5" fill="white" />
+            <circle cx="16" cy="8" r="2.5" fill="white" />
+            <circle cx="8" cy="16" r="2.5" fill="white" />
+            <circle cx="16" cy="16" r="2.5" fill="white" />
+          </svg>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        <h1 className="font-display font-extrabold text-5xl md:text-6xl text-text-primary leading-tight mb-4">
+          Build a Voice AI Agent
+        </h1>
+
+        <p className="text-xl text-text-secondary mb-3 font-text">
+          A 90-minute guided workshop with{" "}
+          <span className="text-twilio-red font-semibold">
+            Twilio ConversationRelay
+          </span>
+        </p>
+
+        <p className="text-text-muted mb-10 max-w-lg mx-auto">
+          By the end of this workshop, you&apos;ll have a working voice AI agent
+          that callers can talk to over the phone &mdash; with a custom persona,
+          voice, tool calling, and more.
+        </p>
+
+        <Link
+          href="/workshop"
+          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-twilio-red text-white font-display font-bold text-lg hover:bg-twilio-red/90 transition-all duration-200 shadow-[0_0_30px_rgba(239,34,58,0.3)] hover:shadow-[0_0_40px_rgba(239,34,58,0.5)]"
+        >
+          Start Workshop
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </Link>
+
+        {/* Chapter preview */}
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-3 gap-3 text-left">
+          {chapters.map((ch) => (
+            <div
+              key={ch.id}
+              className="rounded-xl bg-white/[0.03] border border-navy-border p-4 hover:bg-white/[0.05] transition-colors"
+            >
+              <div className="text-2xl mb-2">{ch.badgeIcon}</div>
+              <div className="text-xs font-mono text-twilio-red mb-1">
+                Chapter {ch.id} &middot; {ch.duration}
+              </div>
+              <div className="font-display font-semibold text-sm text-text-primary">
+                {ch.title}
+              </div>
+              <div className="text-xs text-text-muted mt-1">{ch.subtitle}</div>
+            </div>
+          ))}
         </div>
-      </main>
+      </div>
     </div>
   );
 }
