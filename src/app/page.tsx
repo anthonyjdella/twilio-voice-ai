@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import workshopConfig from "@/workshop.config";
+import { AudienceProvider } from "@/lib/AudienceContext";
+import { OnboardingModal } from "@/components/layout/OnboardingModal";
 
 const stagger = {
   hidden: {},
@@ -24,6 +26,8 @@ export default function Home() {
   const { title, hero, chapters, branding, duration } = workshopConfig;
 
   return (
+    <AudienceProvider>
+    <OnboardingModal />
     <div className="min-h-screen flex flex-col items-center justify-center bg-navy relative overflow-hidden">
       {/* Animated gradient background */}
       <div
@@ -186,5 +190,6 @@ export default function Home() {
         </motion.div>
       </motion.div>
     </div>
+    </AudienceProvider>
   );
 }

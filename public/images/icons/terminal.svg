@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 72 72" class="icon--decorative" role="presentation">
+<svg xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" viewBox="0 0 72 72" class="icon--decorative" role="presentation">
 <title>Browser with code terminal cursor</title>
   <g class="browsers_browser--code-2">
     <path fill-rule="evenodd" d="M8.267 10.267A2.267 2.267 0 0 0 6 12.533v3.334h60v-3.334a2.267 2.267 0 0 0-2.267-2.266H8.267ZM70 12.533a6.267 6.267 0 0 0-6.267-6.266H8.267A6.267 6.267 0 0 0 2 12.533v46.934a6.267 6.267 0 0 0 6.267 6.266h55.466A6.267 6.267 0 0 0 70 59.467V12.533Zm-4 7.334H6v39.6a2.267 2.267 0 0 0 2.267 2.266h55.466A2.267 2.267 0 0 0 66 59.467v-39.6ZM22.852 30.32a2 2 0 0 1 2.828-.002l8.533 8.523a2 2 0 0 1 0 2.83l-8.533 8.524a2 2 0 1 1-2.827-2.83l7.117-7.109-7.117-7.108a2 2 0 0 1-.001-2.828ZM34 49.11a2 2 0 0 1 2-2h11.733a2 2 0 0 1 0 4H36a2 2 0 0 1-2-2Z" class="path-fill" clip-rule="evenodd"/>
