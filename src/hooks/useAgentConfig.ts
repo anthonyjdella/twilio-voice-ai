@@ -1,20 +1,13 @@
 "use client";
 
-import { useProgress } from "./useProgress";
-import type { AgentConfig } from "@/lib/types";
+import { useProgressContext } from "@/components/layout/ProgressContext";
 
-export function useAgentConfig() {
-  const { progress, updateAgentConfig } = useProgress();
+/** Generic workshop state hook — reads/writes to progress.workshopState */
+export function useWorkshopState() {
+  const { progress, updateWorkshopState } = useProgressContext();
 
   return {
-    config: progress.agentConfig,
-    update: (partial: Partial<AgentConfig>) => updateAgentConfig(partial),
-    addFeature: (feature: string) => {
-      if (!progress.agentConfig.features.includes(feature)) {
-        updateAgentConfig({
-          features: [...progress.agentConfig.features, feature],
-        });
-      }
-    },
+    state: progress.workshopState,
+    update: (partial: Record<string, string>) => updateWorkshopState(partial),
   };
 }

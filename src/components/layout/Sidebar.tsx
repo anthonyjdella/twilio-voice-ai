@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { chapters, getChapter } from "@/content/chapters";
+import { useWorkshop } from "@/lib/WorkshopContext";
 import { useProgressContext } from "./ProgressContext";
 
 function StepIcon({ state }: { state: "pending" | "active" | "completed" }) {
@@ -29,10 +29,13 @@ export function Sidebar() {
   const params = useParams();
   const chapterSlug = params.chapter as string | undefined;
   const stepSlug = params.step as string | undefined;
+  const { config, chapters, getChapter } = useWorkshop();
   const chapter = chapterSlug ? getChapter(chapterSlug) : chapters[0];
   const { progress } = useProgressContext();
 
   if (!chapter) return null;
+
+  const sidebarConfig = config.sidebar;
 
   return (
     <aside className="w-72 border-r border-navy-border bg-navy/50 flex flex-col shrink-0 overflow-hidden">
@@ -80,61 +83,51 @@ export function Sidebar() {
 
       <div className="h-px bg-navy-border mx-4" />
 
-      {/* Agent card */}
-      <div className="p-4">
-        <div className="rounded-xl bg-white/[0.03] border border-navy-border p-4">
-          <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">
-            Your Agent
-          </div>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-text-muted">Name</span>
-              <span className="text-text-primary font-medium">
-                {progress.agentConfig.name || "\u2014"}
-              </span>
+      {/* Config-driven sidebar widget */}
+      {sidebarConfig.widget === "custom" && sidebarConfig.fields && (
+        <div className="p-4">
+          <div className="rounded-xl bg-white/[0.03] border border-navy-border p-4">
+            <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">
+              {sidebarConfig.title || "Workshop State"}
             </div>
-            <div className="flex justify-between">
-              <span className="text-text-muted">Voice</span>
-              <span className="text-text-primary font-medium">
-                {progress.agentConfig.voice || "\u2014"}
-              </span>
+            <div className="space-y-2 text-sm">
+              {sidebarConfig.fields.map((field) => (
+                <div key={field.key} className="flex justify-between">
+                  <span className="text-text-muted">{field.label}</span>
+                  <span className="text-text-primary font-medium">
+                    {progress.workshopState[field.key] || "\u2014"}
+                  </span>
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between">
-              <span className="text-text-muted">Language</span>
-              <span className="text-text-primary font-medium">
-                {progress.agentConfig.language || "\u2014"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-muted">Calls</span>
-              <span className="text-text-primary font-mono font-medium">
-                {progress.callCount}
-              </span>
-            </div>
-          </div>
 
-          {/* Badges */}
-          {progress.badges.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-navy-border">
-              <div className="flex flex-wrap gap-1.5">
-                {progress.badges.map((badge) => {
-                  const ch = chapters.find((c) => `chapter-${c.id}` === badge);
-                  if (!ch) return null;
-                  return (
-                    <span
-                      key={badge}
-                      className="text-base"
-                      title={ch.badgeName}
-                    >
-                      {ch.badgeIcon}
-                    </span>
-                  );
-                })}
+            {/* Badges */}
+            {progress.badges.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-navy-border">
+                <div className="flex flex-wrap gap-1.5">
+                  {progress.badges.map((badge) => {
+                    const ch = chapters.find((c) => `chapter-${c.id}` === badge);
+                    if (!ch) return null;
+                    return (
+                      <span
+                        key={badge}
+                        className="text-base"
+                        title={ch.badgeName}
+                      >
+                        {ch.badgeIcon.startsWith("/") ? (
+                          <img src={ch.badgeIcon} alt="" className="w-5 h-5 inline-block" />
+                        ) : (
+                          ch.badgeIcon
+                        )}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   );
 }

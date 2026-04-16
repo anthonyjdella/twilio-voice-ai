@@ -1,5 +1,8 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
+import { Smartphone, PhoneCall, Server, Brain, Wrench, UserRound } from "lucide-react";
+
 type Highlight =
   | "none"
   | "all"
@@ -25,25 +28,30 @@ function NodeBox({
   y,
   label,
   sublabel,
-  icon,
+  Icon,
   active,
   completed,
+  width = 130,
 }: {
   x: number;
   y: number;
   label: string;
   sublabel?: string;
-  icon: string;
+  Icon: LucideIcon;
   active: boolean;
   completed?: boolean;
+  width?: number;
 }) {
+  const fillColor = active || completed ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.3)";
+  const halfW = width / 2;
+
   return (
     <g transform={`translate(${x}, ${y})`}>
       <rect
-        x={-60}
-        y={-30}
-        width={120}
-        height={60}
+        x={-halfW}
+        y={-28}
+        width={width}
+        height={56}
         rx={12}
         fill={active ? "rgba(239, 34, 58, 0.1)" : "rgba(255, 255, 255, 0.03)"}
         stroke={
@@ -56,18 +64,32 @@ function NodeBox({
         strokeWidth={active ? 1.5 : 1}
         className={active ? "animate-pulse-glow" : ""}
       />
-      <text
-        y={-6}
-        textAnchor="middle"
-        fill={active || completed ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.3)"}
-        fontSize={12}
-        fontFamily="var(--font-text)"
-      >
-        {icon} {label}
-      </text>
+      <foreignObject x={-halfW + 5} y={sublabel ? -22 : -14} width={width - 10} height={28}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 5,
+            height: "100%",
+          }}
+        >
+          <Icon size={14} color={fillColor} style={{ flexShrink: 0 }} />
+          <span
+            style={{
+              fontSize: 11,
+              fontFamily: "var(--font-text)",
+              color: fillColor,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {label}
+          </span>
+        </div>
+      </foreignObject>
       {sublabel && (
         <text
-          y={12}
+          y={14}
           textAnchor="middle"
           fill="rgba(255,255,255,0.2)"
           fontSize={9}
@@ -108,16 +130,15 @@ function Arrow({
         className={active ? "animate-flow" : ""}
         style={active ? { strokeDashoffset: 0 } : undefined}
       />
-      {/* Arrow head */}
       <circle
-        cx={x2 - (x2 > x1 ? 4 : -4)}
+        cx={x2 - (x2 > x1 ? 4 : x2 < x1 ? -4 : 0)}
         cy={y2 - (y2 > y1 ? 4 : y2 < y1 ? -4 : 0)}
         r={2}
         fill={active ? "#EF223A" : "rgba(255,255,255,0.1)"}
       />
       {bidirectional && (
         <circle
-          cx={x1 + (x2 > x1 ? 4 : -4)}
+          cx={x1 + (x2 > x1 ? 4 : x2 < x1 ? -4 : 0)}
           cy={y1 + (y2 > y1 ? 4 : y2 < y1 ? -4 : 0)}
           r={2}
           fill={active ? "#EF223A" : "rgba(255,255,255,0.1)"}
@@ -127,6 +148,16 @@ function Arrow({
   );
 }
 
+// Layout constants
+const ROW1_Y = 55;
+const ROW2_Y = 155;
+const CALLER_X = 90;
+const TWILIO_X = 290;
+const SERVER_X = 490;
+const LLM_X = 490;
+const TOOLS_X = 320;
+const HANDOFF_X = 160;
+
 export function ArchitectureDiagram({
   highlight = "none",
   showTools = false,
@@ -134,21 +165,23 @@ export function ArchitectureDiagram({
 }: ArchitectureDiagramProps) {
   const isAll = highlight === "all" || highlight === "complete";
   const isComplete = highlight === "complete";
+  const hasBottomRow = showTools || showHandoff || isAll || highlight === "llm" || highlight === "tools" || highlight === "handoff" || highlight === "server";
+  const viewHeight = hasBottomRow ? 195 : 115;
 
   return (
     <div className="rounded-xl bg-white/[0.02] border border-navy-border p-4 mb-8">
       <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">
         Architecture
       </div>
-      <svg viewBox="0 0 700 160" className="w-full" style={{ maxHeight: 140 }}>
-        {/* Arrows */}
+      <svg viewBox={`0 0 580 ${viewHeight}`} className="w-full">
+        {/* Top row arrows */}
         <Arrow
-          x1={130} y1={70} x2={240} y2={70}
+          x1={CALLER_X + 65} y1={ROW1_Y} x2={TWILIO_X - 65} y2={ROW1_Y}
           active={isAll || highlight === "setup"}
           bidirectional
         />
         <Arrow
-          x1={360} y1={70} x2={470} y2={70}
+          x1={TWILIO_X + 65} y1={ROW1_Y} x2={SERVER_X - 65} y2={ROW1_Y}
           active={
             isAll ||
             highlight === "websocket" ||
@@ -157,75 +190,35 @@ export function ArchitectureDiagram({
           }
           bidirectional
         />
-        <Arrow
-          x1={590} y1={70} x2={590} y2={130}
-          active={isAll || highlight === "llm" || highlight === "server"}
-        />
 
+        {/* Server → LLM arrow (vertical) */}
+        {hasBottomRow && (
+          <Arrow
+            x1={LLM_X} y1={ROW1_Y + 28} x2={LLM_X} y2={ROW2_Y - 28}
+            active={isAll || highlight === "llm" || highlight === "server"}
+          />
+        )}
+
+        {/* Server → Tools arrow */}
         {showTools && (
           <Arrow
-            x1={530} y1={100} x2={460} y2={130}
+            x1={SERVER_X - 40} y1={ROW1_Y + 28} x2={TOOLS_X + 40} y2={ROW2_Y - 28}
             active={highlight === "tools" || isAll}
           />
         )}
 
-        {/* Nodes */}
-        <NodeBox
-          x={70} y={70}
-          label="Caller" icon="\u{1F4F1}"
-          active={isAll || highlight === "setup"}
-          completed={isComplete}
-        />
-        <NodeBox
-          x={300} y={70}
-          label="Twilio Voice" sublabel="STT + TTS" icon="\u{1F4DE}"
-          active={isAll || highlight === "stt-tts" || highlight === "setup"}
-          completed={isComplete}
-        />
-        <NodeBox
-          x={530} y={70}
-          label="Your Server" sublabel="WebSocket" icon="\u{1F5A5}\u{FE0F}"
-          active={
-            isAll ||
-            highlight === "server" ||
-            highlight === "websocket" ||
-            highlight === "websocket-prompt" ||
-            highlight === "websocket-response"
-          }
-          completed={isComplete}
-        />
-        <NodeBox
-          x={590} y={150}
-          label="LLM" sublabel="OpenAI" icon="\u{1F9E0}"
-          active={isAll || highlight === "llm"}
-          completed={isComplete}
-        />
-
-        {showTools && (
-          <NodeBox
-            x={420} y={150}
-            label="Tools" sublabel="Functions" icon="\u{1F527}"
-            active={highlight === "tools" || isAll}
-            completed={isComplete}
-          />
-        )}
-
+        {/* Server → Human Agent arrow */}
         {showHandoff && (
-          <>
-            <Arrow x1={460} y1={100} x2={420} y2={130} active={highlight === "handoff" || isAll} />
-            <NodeBox
-              x={350} y={150}
-              label="Human Agent" icon="\u{1F468}\u{200D}\u{1F4BC}"
-              active={highlight === "handoff" || isAll}
-              completed={isComplete}
-            />
-          </>
+          <Arrow
+            x1={SERVER_X - 60} y1={ROW1_Y + 28} x2={HANDOFF_X + 50} y2={ROW2_Y - 28}
+            active={highlight === "handoff" || isAll}
+          />
         )}
 
         {/* WebSocket label */}
         <text
-          x={415}
-          y={58}
+          x={(TWILIO_X + SERVER_X) / 2}
+          y={ROW1_Y - 18}
           textAnchor="middle"
           fill={
             highlight === "websocket" ||
@@ -240,6 +233,63 @@ export function ArchitectureDiagram({
         >
           WebSocket
         </text>
+
+        {/* Top row nodes */}
+        <NodeBox
+          x={CALLER_X} y={ROW1_Y}
+          label="Caller" Icon={Smartphone}
+          active={isAll || highlight === "setup"}
+          completed={isComplete}
+        />
+        <NodeBox
+          x={TWILIO_X} y={ROW1_Y}
+          label="Twilio Voice" sublabel="STT + TTS" Icon={PhoneCall}
+          active={isAll || highlight === "stt-tts" || highlight === "setup"}
+          completed={isComplete}
+          width={140}
+        />
+        <NodeBox
+          x={SERVER_X} y={ROW1_Y}
+          label="Your Server" sublabel="WebSocket" Icon={Server}
+          active={
+            isAll ||
+            highlight === "server" ||
+            highlight === "websocket" ||
+            highlight === "websocket-prompt" ||
+            highlight === "websocket-response"
+          }
+          completed={isComplete}
+          width={140}
+        />
+
+        {/* Bottom row nodes */}
+        {hasBottomRow && (
+          <NodeBox
+            x={LLM_X} y={ROW2_Y}
+            label="LLM" sublabel="OpenAI" Icon={Brain}
+            active={isAll || highlight === "llm"}
+            completed={isComplete}
+          />
+        )}
+
+        {showTools && (
+          <NodeBox
+            x={TOOLS_X} y={ROW2_Y}
+            label="Tools" sublabel="Functions" Icon={Wrench}
+            active={highlight === "tools" || isAll}
+            completed={isComplete}
+          />
+        )}
+
+        {showHandoff && (
+          <NodeBox
+            x={HANDOFF_X} y={ROW2_Y}
+            label="Human Agent" Icon={UserRound}
+            active={highlight === "handoff" || isAll}
+            completed={isComplete}
+            width={140}
+          />
+        )}
       </svg>
     </div>
   );

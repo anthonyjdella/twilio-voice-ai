@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import { chapters } from "@/content/chapters";
+import workshopConfig from "@/workshop.config";
 
 export default function WorkshopIndex() {
-  const first = chapters[0];
+  const first = workshopConfig.chapters[0];
   redirect(`/workshop/${first.slug}/${first.steps[0].slug}`);
 }

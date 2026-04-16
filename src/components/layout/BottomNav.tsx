@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { getAdjacentSteps } from "@/content/chapters";
+import { useWorkshop } from "@/lib/WorkshopContext";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function BottomNav() {
   const params = useParams();
   const chapterSlug = params.chapter as string;
   const stepSlug = params.step as string;
+  const { getAdjacentSteps } = useWorkshop();
 
   if (!chapterSlug || !stepSlug) return null;
 

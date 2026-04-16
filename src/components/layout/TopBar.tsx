@@ -2,12 +2,16 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { chapters } from "@/content/chapters";
+import { useWorkshop } from "@/lib/WorkshopContext";
+import { useAudienceMode } from "@/lib/AudienceContext";
 import { useProgressContext } from "./ProgressContext";
+import { Code, Eye } from "lucide-react";
 
 export function TopBar() {
   const params = useParams();
   const currentChapterSlug = params.chapter as string | undefined;
+  const { config, chapters } = useWorkshop();
+  const { mode, setMode } = useAudienceMode();
   const { progress, completionPercentage } = useProgressContext();
   const pct = completionPercentage();
 
@@ -24,7 +28,7 @@ export function TopBar() {
           </svg>
         </div>
         <span className="font-display font-bold text-sm text-text-primary whitespace-nowrap">
-          Voice AI Workshop
+          {config.shortTitle}
         </span>
       </Link>
 
@@ -78,6 +82,36 @@ export function TopBar() {
           );
         })}
       </nav>
+
+      {/* Audience mode toggle */}
+      {config.features.audienceToggle && (
+        <div className="flex items-center shrink-0 ml-6 mr-2">
+          <div className="flex rounded-lg bg-white/[0.04] border border-navy-border p-0.5">
+            <button
+              onClick={() => setMode("builder")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                mode === "builder"
+                  ? "bg-twilio-red text-white shadow-sm"
+                  : "text-text-muted hover:text-text-secondary"
+              }`}
+            >
+              <Code className="w-3 h-3" />
+              Builder
+            </button>
+            <button
+              onClick={() => setMode("explorer")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                mode === "explorer"
+                  ? "bg-twilio-red text-white shadow-sm"
+                  : "text-text-muted hover:text-text-secondary"
+              }`}
+            >
+              <Eye className="w-3 h-3" />
+              Explorer
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Progress bar */}
       <div className="flex items-center gap-3 shrink-0 ml-8">

@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import type { Progress, AgentConfig } from "@/lib/types";
+import { useState, useCallback, useEffect } from "react";
+import type { Progress } from "@/lib/types";
 import { DEFAULT_PROGRESS } from "@/lib/types";
+import workshopConfig from "@/workshop.config";
 
-const STORAGE_KEY = "twilio-voice-ai-progress";
+const STORAGE_KEY = `workshop-${workshopConfig.id}-progress`;
 
 function loadProgress(): Progress {
-  if (typeof window === "undefined") return DEFAULT_PROGRESS;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_PROGRESS;
@@ -26,11 +26,18 @@ function saveProgress(progress: Progress) {
 }
 
 export function useProgress() {
-  const [progress, setProgress] = useState<Progress>(() => {
-    if (typeof window === "undefined") return DEFAULT_PROGRESS;
-    return loadProgress();
-  });
-  const loaded = typeof window !== "undefined";
+  const [progress, setProgress] = useState<Progress>(DEFAULT_PROGRESS);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setProgress(loadProgress());
+    setLoaded(true);
+  }, []);
+
+  const totalSteps = workshopConfig.chapters.reduce(
+    (sum, ch) => sum + ch.steps.length,
+    0
+  );
 
   const update = useCallback((partial: Partial<Progress>) => {
     setProgress((prev) => {
@@ -69,11 +76,11 @@ export function useProgress() {
     });
   }, []);
 
-  const updateAgentConfig = useCallback((partial: Partial<AgentConfig>) => {
+  const updateWorkshopState = useCallback((partial: Record<string, string>) => {
     setProgress((prev) => {
       const next = {
         ...prev,
-        agentConfig: { ...prev.agentConfig, ...partial },
+        workshopState: { ...prev.workshopState, ...partial },
       };
       saveProgress(next);
       return next;
@@ -89,10 +96,8 @@ export function useProgress() {
   }, []);
 
   const completionPercentage = useCallback(() => {
-    // Total steps across all chapters
-    const totalSteps = 29; // 5+5+5+5+5+4
     return Math.round((progress.completedSteps.length / totalSteps) * 100);
-  }, [progress.completedSteps]);
+  }, [progress.completedSteps, totalSteps]);
 
   return {
     progress,
@@ -101,7 +106,7 @@ export function useProgress() {
     completeStep,
     isStepCompleted,
     earnBadge,
-    updateAgentConfig,
+    updateWorkshopState,
     incrementCalls,
     completionPercentage,
   };

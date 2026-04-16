@@ -1,6 +1,10 @@
 "use client";
 
+import { WorkshopProvider } from "@/lib/WorkshopContext";
+import { AudienceProvider } from "@/lib/AudienceContext";
 import { ProgressProvider } from "@/components/layout/ProgressContext";
+import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
+import { OnboardingModal } from "@/components/layout/OnboardingModal";
 import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -11,17 +15,24 @@ export default function WorkshopLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProgressProvider>
-      <div className="h-screen flex flex-col bg-navy overflow-hidden">
-        <TopBar />
-        <div className="flex flex-1 overflow-hidden">
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto">
-            <div className="max-w-4xl mx-auto px-8 py-8">{children}</div>
-          </main>
-        </div>
-        <BottomNav />
-      </div>
-    </ProgressProvider>
+    <WorkshopProvider>
+      <AudienceProvider>
+        <ProgressProvider>
+          <OnboardingModal />
+          <div className="h-screen flex flex-col bg-navy overflow-hidden">
+            <TopBar />
+            <div className="flex flex-1 overflow-hidden">
+              <Sidebar />
+              <main className="flex-1 overflow-y-auto">
+                <div className="max-w-4xl mx-auto px-8 py-8">
+                  <ErrorBoundary>{children}</ErrorBoundary>
+                </div>
+              </main>
+            </div>
+            <BottomNav />
+          </div>
+        </ProgressProvider>
+      </AudienceProvider>
+    </WorkshopProvider>
   );
 }

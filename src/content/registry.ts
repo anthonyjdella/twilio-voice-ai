@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { StepDefinition } from "@/lib/content-blocks";
 
 // Chapter 1: Mission Briefing
 import Ch1Step1 from "./chapter-1/step-1-overview";
@@ -41,7 +41,7 @@ import Ch6Step2 from "./chapter-6/step-2-deploy";
 import Ch6Step3 from "./chapter-6/step-3-showcase";
 import Ch6Step4 from "./chapter-6/step-4-next-steps";
 
-export const stepRegistry: Record<string, ComponentType> = {
+export const stepRegistry: Record<string, StepDefinition> = {
   "mission-briefing/overview": Ch1Step1,
   "mission-briefing/architecture": Ch1Step2,
   "mission-briefing/setup": Ch1Step3,

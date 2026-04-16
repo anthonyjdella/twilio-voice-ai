@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { chapters, getStep } from "@/content/chapters";
+import workshopConfig from "@/workshop.config";
 import { StepContent } from "./StepContent";
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 
 export function generateStaticParams() {
   const params: { chapter: string; step: string }[] = [];
-  for (const chapter of chapters) {
+  for (const chapter of workshopConfig.chapters) {
     for (const step of chapter.steps) {
       params.push({ chapter: chapter.slug, step: step.slug });
     }
@@ -18,8 +18,11 @@ export function generateStaticParams() {
 
 export default async function StepPage({ params }: Props) {
   const { chapter: chapterSlug, step: stepSlug } = await params;
-  const result = getStep(chapterSlug, stepSlug);
-  if (!result) notFound();
+
+  const chapter = workshopConfig.chapters.find((c) => c.slug === chapterSlug);
+  if (!chapter) notFound();
+  const step = chapter.steps.find((s) => s.slug === stepSlug);
+  if (!step) notFound();
 
   return <StepContent chapterSlug={chapterSlug} stepSlug={stepSlug} />;
 }
