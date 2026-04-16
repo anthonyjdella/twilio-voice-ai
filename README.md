@@ -73,6 +73,16 @@ On your first visit, you'll be asked to pick an experience:
 
 You can switch between tracks anytime using the **Builder / Explorer** toggle in the top bar.
 
+## Theming
+
+The workshop ships with both **dark** and **light** themes, each built around the Twilio brand palette. The default theme is admin-configurable (`defaultTheme` in `src/workshop.config.ts`), and learners can flip between themes at any time using the sun/moon toggle in the top bar. Their preference is persisted across sessions.
+
+Admins can hide the toggle entirely by setting `features.themeToggle: false` in the config.
+
+## Share Your Win
+
+On the final celebration screen, learners can share their accomplishment on **X** or **LinkedIn**. The share messaging, event name, Twilio handle, and hashtags are all admin-configurable under the `sharing` block in `src/workshop.config.ts` — or disabled entirely with `sharing.enabled: false`.
+
 ## Key Technologies
 
 | Technology | Role |

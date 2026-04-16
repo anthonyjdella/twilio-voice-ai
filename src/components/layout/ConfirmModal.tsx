@@ -41,7 +41,7 @@ export function ConfirmModal({
             exit={{ scale: 0.95, opacity: 0, y: 5 }}
             transition={{ type: "spring", stiffness: 400, damping: 28 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative z-10 w-full max-w-sm mx-4 rounded-2xl bg-[#0d1b3e] border border-navy-border shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden"
+            className="relative z-10 w-full max-w-sm mx-4 rounded-2xl bg-panel border border-navy-border shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden"
           >
             {/* Top accent line */}
             <div className="h-px bg-gradient-to-r from-transparent via-twilio-red/50 to-transparent" />
@@ -64,7 +64,7 @@ export function ConfirmModal({
               <div className="flex items-center justify-end gap-3 mt-6">
                 <button
                   onClick={onCancel}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors"
                 >
                   {cancelLabel}
                 </button>

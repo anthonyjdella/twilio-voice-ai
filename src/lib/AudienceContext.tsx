@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import workshopConfig from "@/workshop.config";
 
 export type AudienceMode = "builder" | "explorer";
 
@@ -12,7 +13,7 @@ interface AudienceContextValue {
   needsOnboarding: boolean;
 }
 
-const STORAGE_KEY = "workshop-audience-mode";
+const STORAGE_KEY = `workshop-${workshopConfig.id}-audience-mode`;
 
 const AudienceContext = createContext<AudienceContextValue | null>(null);
 

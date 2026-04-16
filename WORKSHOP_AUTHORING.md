@@ -75,11 +75,38 @@ const workshopConfig: WorkshopConfig = {
   features: {
     audienceToggle: true,   // show Builder/Explorer toggle in top bar
     celebrations: true,     // show milestone badges on chapter completion
+    themeToggle: true,      // show light/dark theme toggle in top bar
+  },
+
+  // Default theme applied on first visit. Learners can override via the
+  // top-bar toggle; their choice is persisted to localStorage.
+  defaultTheme: "dark",     // "dark" | "light"
+
+  // Social sharing on the final celebration screen. Omit or set
+  // `enabled: false` to hide the share buttons entirely.
+  sharing: {
+    enabled: true,
+    eventName: "Twilio SIGNAL 2026",
+    shareUrl: "https://signal.twilio.com",
+    platforms: {
+      x: {
+        handle: "twilio",
+        url: "https://x.com/twilio",
+        message: "Just built a voice AI agent at {event}! Built with @twilio ConversationRelay.",
+        hashtags: ["TwilioSIGNAL", "VoiceAI"],
+      },
+      linkedin: {
+        url: "https://www.linkedin.com/company/twilio-inc-",
+        message: "I just completed the \"{title}\" workshop at {event}!",
+      },
+    },
   },
 };
 
 export default workshopConfig;
 ```
+
+The `sharing.platforms.*.message` fields support `{title}` and `{event}` placeholders, which are substituted with the workshop's `title` and the configured `sharing.eventName` at render time.
 
 ### Chapter & Step Metadata
 

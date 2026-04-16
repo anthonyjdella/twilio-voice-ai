@@ -25,7 +25,7 @@ function StepIcon({ state }: { state: "pending" | "active" | "completed" }) {
       </div>
     );
   }
-  return <div className="w-5 h-5 rounded-full border border-white/15 shrink-0" />;
+  return <div className="w-5 h-5 rounded-full border border-surface-5 shrink-0" />;
 }
 
 export function Sidebar() {
@@ -74,8 +74,8 @@ export function Sidebar() {
                 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150
                 ${
                   isActive
-                    ? "bg-white/[0.06] text-text-primary"
-                    : "text-text-secondary hover:bg-white/[0.03] hover:text-text-primary"
+                    ? "bg-surface-3 text-text-primary"
+                    : "text-text-secondary hover:bg-surface-1 hover:text-text-primary"
                 }
               `}
             >
@@ -91,7 +91,7 @@ export function Sidebar() {
       {/* Agent profile widget */}
       {sidebarConfig.widget === "custom" && sidebarConfig.fields && (
         <div className="p-4">
-          <div className="rounded-xl bg-gradient-to-b from-white/[0.05] to-white/[0.02] border border-twilio-red/20 p-4 relative overflow-hidden">
+          <div className="rounded-xl bg-gradient-to-b from-surface-2 to-surface-1 border border-twilio-red/20 p-4 relative overflow-hidden">
             {/* Accent glow */}
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-twilio-red/40 to-transparent" />
 
@@ -116,7 +116,7 @@ export function Sidebar() {
                     <span className={`font-mono text-xs px-2 py-0.5 rounded-md ${
                       val
                         ? "bg-twilio-red/10 text-twilio-red border border-twilio-red/20"
-                        : "bg-white/[0.03] text-text-muted border border-white/[0.06]"
+                        : "bg-surface-1 text-text-muted border border-navy-border"
                     }`}>
                       {val || "\u2014"}
                     </span>
@@ -127,7 +127,7 @@ export function Sidebar() {
 
             {/* Badges */}
             {progress.badges.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-white/[0.06]">
+              <div className="mt-3 pt-3 border-t border-navy-border">
                 <div className="text-[10px] font-mono text-text-muted uppercase tracking-wider mb-2">Badges</div>
                 <div className="flex flex-wrap gap-2">
                   {progress.badges.map((badge) => {
@@ -136,11 +136,11 @@ export function Sidebar() {
                     return (
                       <div
                         key={badge}
-                        className="w-7 h-7 rounded-lg bg-white/[0.06] border border-white/[0.08] flex items-center justify-center"
+                        className="w-7 h-7 rounded-lg bg-surface-3 border border-surface-4 flex items-center justify-center"
                         title={ch.badgeName}
                       >
                         {ch.badgeIcon.startsWith("/") ? (
-                          <img src={ch.badgeIcon} alt="" className="w-4 h-4" />
+                          <img src={ch.badgeIcon} alt="" className="w-4 h-4 theme-icon" />
                         ) : (
                           <span className="text-sm">{ch.badgeIcon}</span>
                         )}
@@ -161,7 +161,7 @@ export function Sidebar() {
           <div className="p-4">
             <button
               onClick={() => setShowResetModal(true)}
-              className="flex items-center gap-2 text-xs text-text-muted hover:text-twilio-red transition-colors w-full px-3 py-2 rounded-lg hover:bg-white/[0.03]"
+              className="flex items-center gap-2 text-xs text-text-muted hover:text-twilio-red transition-colors w-full px-3 py-2 rounded-lg hover:bg-surface-1"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Reset progress

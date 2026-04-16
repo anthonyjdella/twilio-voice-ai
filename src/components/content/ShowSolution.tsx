@@ -22,10 +22,10 @@ export function ShowSolution({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="rounded-xl border border-navy-border bg-white/[0.02] overflow-hidden mb-6">
+    <div className="rounded-xl border border-navy-border bg-surface-1 overflow-hidden mb-6">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-surface-1 transition-colors"
       >
         <KeyRound className="w-5 h-5 text-warning shrink-0" />
         <span className="text-sm font-medium text-text-secondary flex-1">

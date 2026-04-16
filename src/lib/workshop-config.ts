@@ -60,7 +60,12 @@ export interface WorkshopConfig {
     audienceToggle: boolean;
     /** Enable chapter completion celebrations */
     celebrations: boolean;
+    /** Enable dark/light theme toggle */
+    themeToggle: boolean;
   };
+
+  /** Default theme — "dark" or "light" (users can override via toggle) */
+  defaultTheme?: "dark" | "light";
 
   /** Social media sharing configuration (shown on final celebration) */
   sharing?: {

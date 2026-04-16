@@ -22,7 +22,7 @@ export function DiffView({ file, lines }: DiffViewProps) {
   return (
     <div className="rounded-xl bg-navy-light border border-navy-border overflow-hidden mb-6">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-navy-border bg-white/[0.02]">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-navy-border bg-surface-1">
         <div className="flex items-center gap-2 text-xs">
           <span className="font-mono text-text-secondary">{file}</span>
           <span className="font-mono text-warning">CHANGES</span>

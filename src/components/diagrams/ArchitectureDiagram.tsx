@@ -169,7 +169,7 @@ export function ArchitectureDiagram({
   const viewHeight = hasBottomRow ? 195 : 115;
 
   return (
-    <div className="rounded-xl bg-white/[0.02] border border-navy-border p-4 mb-8">
+    <div className="rounded-xl bg-surface-1 border border-navy-border p-4 mb-8">
       <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">
         Architecture
       </div>

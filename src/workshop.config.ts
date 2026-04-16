@@ -143,7 +143,10 @@ const workshopConfig: WorkshopConfig = {
   features: {
     audienceToggle: true,
     celebrations: true,
+    themeToggle: true,
   },
+
+  defaultTheme: "dark",
 
   sharing: {
     enabled: true,

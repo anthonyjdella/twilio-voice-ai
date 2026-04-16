@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { CopyButton } from "./CopyButton";
-import { getHighlighter } from "@/lib/highlighter";
+import { getHighlighter, CODE_THEME_DARK, CODE_THEME_LIGHT } from "@/lib/highlighter";
 import { useAudienceMode } from "@/lib/AudienceContext";
+import { useTheme } from "@/lib/ThemeContext";
 import { Code, ChevronDown } from "lucide-react";
 
 const LANG_ALIASES: Record<string, string> = {
@@ -45,9 +46,11 @@ export function CodeBlock({
   const [highlightedHtml, setHighlightedHtml] = useState<string | null>(null);
   const [explorerOpen, setExplorerOpen] = useState(false);
   const { isExplorer } = useAudienceMode();
+  const { isDark } = useTheme();
 
   const resolvedLang = LANG_ALIASES[language] ?? language;
   const canHighlight = SUPPORTED_LANGS.has(resolvedLang);
+  const codeTheme = isDark ? CODE_THEME_DARK : CODE_THEME_LIGHT;
 
   useEffect(() => {
     if (!canHighlight) return;
@@ -59,7 +62,7 @@ export function CodeBlock({
         if (cancelled) return;
         const html = highlighter.codeToHtml(code, {
           lang: resolvedLang,
-          theme: "tokyo-night",
+          theme: codeTheme,
         });
         setHighlightedHtml(html);
       })
@@ -70,7 +73,7 @@ export function CodeBlock({
     return () => {
       cancelled = true;
     };
-  }, [code, resolvedLang, canHighlight]);
+  }, [code, resolvedLang, canHighlight, codeTheme]);
 
   const lines = code.split("\n");
   if (lines[lines.length - 1] === "") lines.pop();
@@ -81,7 +84,7 @@ export function CodeBlock({
       <div className="rounded-xl bg-navy-light border border-navy-border overflow-hidden mb-6">
         <button
           onClick={() => setExplorerOpen(!explorerOpen)}
-          className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-surface-1 transition-colors"
         >
           <Code className="w-4 h-4 text-twilio-blue shrink-0" />
           <span className="text-sm text-text-muted flex-1">
@@ -93,7 +96,7 @@ export function CodeBlock({
         </button>
         {explorerOpen && (
           <div className="border-t border-navy-border">
-            <div className="flex justify-end px-4 py-2 bg-white/[0.02]">
+            <div className="flex justify-end px-4 py-2 bg-surface-1">
               <CopyButton text={code} />
             </div>
             <div className="overflow-x-auto">
@@ -121,7 +124,7 @@ export function CodeBlock({
   return (
     <div className="rounded-xl bg-navy-light border border-navy-border overflow-hidden mb-6 group">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-navy-border bg-white/[0.02]">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-navy-border bg-surface-1">
         <div className="flex items-center gap-2 text-xs">
           {file && (
             <span className="font-mono text-text-secondary">

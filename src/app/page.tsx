@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import workshopConfig from "@/workshop.config";
 import { AudienceProvider, useAudienceMode } from "@/lib/AudienceContext";
+import { ThemeProvider } from "@/lib/ThemeContext";
 import { OnboardingModal } from "@/components/layout/OnboardingModal";
 
 const stagger = {
@@ -24,9 +25,11 @@ const cardVariant = {
 
 export default function Home() {
   return (
-    <AudienceProvider>
-      <HomeContent />
-    </AudienceProvider>
+    <ThemeProvider defaultTheme={workshopConfig.defaultTheme ?? "dark"}>
+      <AudienceProvider>
+        <HomeContent />
+      </AudienceProvider>
+    </ThemeProvider>
   );
 }
 
@@ -64,10 +67,8 @@ function HomeContent() {
 
       {/* Subtle grid pattern */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.03] theme-grid"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
         }}
       />
@@ -115,7 +116,7 @@ function HomeContent() {
 
         {/* Duration badge */}
         <motion.div variants={fadeUp} className="mb-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-navy-border text-xs font-mono text-text-muted">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-3 border border-navy-border text-xs font-mono text-text-muted">
             <svg
               width="12"
               height="12"
@@ -169,11 +170,11 @@ function HomeContent() {
               key={ch.id}
               variants={cardVariant}
               whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="rounded-xl bg-white/[0.03] border border-navy-border p-5 hover:bg-white/[0.06] hover:border-white/[0.08] transition-colors cursor-default"
+              className="rounded-xl bg-surface-1 border border-navy-border p-5 hover:bg-surface-3 hover:border-surface-4 transition-colors cursor-default"
             >
               <div className="w-8 h-8 mb-2.5">
                 {ch.badgeIcon.startsWith("/") ? (
-                  <img src={ch.badgeIcon} alt="" className="w-8 h-8" />
+                  <img src={ch.badgeIcon} alt="" className="w-8 h-8 theme-icon" />
                 ) : (
                   <span className="text-2xl">{ch.badgeIcon}</span>
                 )}
@@ -205,7 +206,7 @@ function HomeContent() {
             alt="Twilio"
             width={60}
             height={20}
-            className="opacity-40"
+            className="opacity-40 theme-logo"
           />
         </motion.div>
       </motion.div>

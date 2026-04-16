@@ -21,7 +21,7 @@ export function Terminal({ commands }: TerminalProps) {
 
   const terminalContent = (
     <>
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/5 bg-white/[0.02]">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-navy-border bg-surface-1">
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
           <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
@@ -40,7 +40,7 @@ export function Terminal({ commands }: TerminalProps) {
               {isCommand ? (
                 <span className="text-green-400">{line}</span>
               ) : (
-                <span className="text-white/40">{line}</span>
+                <span className="text-text-muted">{line}</span>
               )}
             </div>
           );
@@ -51,10 +51,10 @@ export function Terminal({ commands }: TerminalProps) {
 
   if (isExplorer) {
     return (
-      <div className="rounded-xl bg-black border border-navy-border overflow-hidden mb-6">
+      <div className="rounded-xl bg-navy-light border border-navy-border overflow-hidden mb-6">
         <button
           onClick={() => setExplorerOpen(!explorerOpen)}
-          className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-surface-1 transition-colors"
         >
           <TerminalSquare className="w-4 h-4 text-green-400 shrink-0" />
           <span className="text-sm text-text-muted flex-1">Show Commands</span>
@@ -62,13 +62,13 @@ export function Terminal({ commands }: TerminalProps) {
             className={`w-4 h-4 text-text-muted transition-transform duration-200 ${explorerOpen ? "rotate-180" : ""}`}
           />
         </button>
-        {explorerOpen && <div className="border-t border-white/5">{terminalContent}</div>}
+        {explorerOpen && <div className="border-t border-navy-border">{terminalContent}</div>}
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl bg-black border border-navy-border overflow-hidden mb-6">
+    <div className="rounded-xl bg-navy-light border border-navy-border overflow-hidden mb-6">
       {terminalContent}
     </div>
   );

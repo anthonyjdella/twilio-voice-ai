@@ -39,7 +39,7 @@ function renderMarkdownLine(text: string): ReactNode {
         handler: (m) => (
           <code
             key={key++}
-            className="bg-white/[0.06] px-1 py-0.5 rounded font-mono text-[0.9em]"
+            className="bg-surface-3 px-1 py-0.5 rounded font-mono text-[0.9em]"
           >
             {m[1]}
           </code>

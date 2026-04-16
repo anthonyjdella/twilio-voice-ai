@@ -22,7 +22,7 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/90 backdrop-blur-sm">
-      <div className="relative max-w-xl w-full mx-4 rounded-2xl bg-[#0d1f3c] border border-navy-border shadow-2xl overflow-hidden">
+      <div className="relative max-w-xl w-full mx-4 rounded-2xl bg-panel border border-navy-border shadow-2xl overflow-hidden">
         {/* Accent stripe */}
         <div className="h-1 bg-twilio-red" />
 
@@ -49,7 +49,7 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
               className={`flex-1 group relative rounded-xl border-2 p-6 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-twilio-red ${
                 selected === "builder"
                   ? "border-twilio-red bg-twilio-red/[0.1] ring-1 ring-twilio-red/30"
-                  : "border-navy-border bg-white/[0.02] hover:border-twilio-red/40 hover:bg-twilio-red/[0.04]"
+                  : "border-navy-border bg-surface-1 hover:border-twilio-red/40 hover:bg-twilio-red/[0.04]"
               }`}
             >
               <span className="absolute top-3 right-3 text-[10px] font-mono font-medium uppercase tracking-wider text-twilio-red bg-twilio-red/10 px-2 py-0.5 rounded-full">
@@ -82,11 +82,11 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
               className={`flex-1 group relative rounded-xl border-2 p-6 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-twilio-red ${
                 selected === "explorer"
                   ? "border-twilio-red bg-twilio-red/[0.1] ring-1 ring-twilio-red/30"
-                  : "border-navy-border bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.05]"
+                  : "border-navy-border bg-surface-1 hover:border-surface-5 hover:bg-surface-2"
               }`}
             >
               <div className={`w-11 h-11 rounded-lg flex items-center justify-center mb-4 transition-colors ${
-                selected === "explorer" ? "bg-twilio-red/25" : "bg-white/[0.06] group-hover:bg-white/[0.1]"
+                selected === "explorer" ? "bg-twilio-red/25" : "bg-surface-3 group-hover:bg-surface-4"
               }`}>
                 <Eye className={`w-5 h-5 ${selected === "explorer" ? "text-twilio-red" : "text-text-muted"}`} />
               </div>
@@ -105,7 +105,7 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
         <div className="px-8 pb-3">
           <button
             onClick={handleContinue}
-            className="w-full py-3 rounded-xl bg-twilio-red text-white font-display font-bold text-base transition-all duration-200 hover:brightness-110 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-twilio-red focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1f3c]"
+            className="w-full py-3 rounded-xl bg-twilio-red text-white font-display font-bold text-base transition-all duration-200 hover:brightness-110 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-twilio-red focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
           >
             Continue as {selected === "builder" ? "Builder" : "Explorer"}
           </button>

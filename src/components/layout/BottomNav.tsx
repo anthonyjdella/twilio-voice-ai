@@ -61,7 +61,7 @@ export function BottomNav() {
 
       {/* Center: Progress bar */}
       <div className="flex-1 flex flex-col items-center gap-1.5 px-6">
-        <div className="w-full max-w-md h-2.5 rounded-full bg-white/[0.06] overflow-hidden border border-white/[0.04]">
+        <div className="w-full max-w-md h-2.5 rounded-full bg-surface-3 overflow-hidden border border-navy-border">
           <div
             className="h-full rounded-full bg-gradient-to-r from-twilio-red via-red-400 to-success transition-all duration-700 ease-out relative"
             style={{ width: `${pct}%` }}
@@ -76,7 +76,7 @@ export function BottomNav() {
         </div>
         <div className="flex items-center gap-2 text-[11px] font-mono text-text-muted">
           <span>Step {currentIndex + 1}/{totalSteps}</span>
-          <span className="text-white/10">|</span>
+          <span className="text-text-muted">|</span>
           <span className={pct === 100 ? "text-success font-semibold" : ""}>{pct}% complete</span>
         </div>
       </div>

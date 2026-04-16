@@ -22,7 +22,7 @@ export function VisualStep({ steps }: VisualStepProps) {
       {steps.map((step, i) => (
         <div
           key={i}
-          className="flex items-start gap-4 rounded-xl bg-white/[0.03] border border-navy-border p-4 hover:bg-white/[0.05] transition-colors"
+          className="flex items-start gap-4 rounded-xl bg-surface-1 border border-navy-border p-4 hover:bg-surface-2 transition-colors"
         >
           {/* Step number + icon */}
           <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-twilio-red/10 shrink-0">

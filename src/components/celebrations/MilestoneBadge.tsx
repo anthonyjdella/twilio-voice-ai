@@ -450,7 +450,7 @@ export function MilestoneBadge({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.08] border border-white/[0.12] hover:bg-white/[0.14] hover:border-white/[0.2] transition-all duration-200 group"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-4 border border-surface-5 hover:bg-surface-5 hover:border-surface-5 transition-all duration-200 group"
                     >
                       {/* X / Twitter icon */}
                       <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current text-text-secondary group-hover:text-white transition-colors" aria-hidden="true">
@@ -472,7 +472,7 @@ export function MilestoneBadge({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.08] border border-white/[0.12] hover:bg-white/[0.14] hover:border-white/[0.2] transition-all duration-200 group"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-4 border border-surface-5 hover:bg-surface-5 hover:border-surface-5 transition-all duration-200 group"
                     >
                       {/* LinkedIn icon */}
                       <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current text-text-secondary group-hover:text-[#0A66C2] transition-colors" aria-hidden="true">

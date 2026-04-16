@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useWorkshop } from "@/lib/WorkshopContext";
 import { useAudienceMode, type AudienceMode } from "@/lib/AudienceContext";
+import { useTheme } from "@/lib/ThemeContext";
 import { useProgressContext } from "./ProgressContext";
-import { Code, Eye, ChevronDown, Check } from "lucide-react";
+import { Code, Eye, ChevronDown, Check, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const MODE_INFO: Record<AudienceMode, { icon: typeof Code; label: string; description: string }> = {
@@ -27,6 +28,7 @@ export function TopBar() {
   const currentChapterSlug = params.chapter as string | undefined;
   const { config, chapters } = useWorkshop();
   const { mode, setMode } = useAudienceMode();
+  const { theme, toggleTheme, isDark } = useTheme();
   const { progress } = useProgressContext();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -78,7 +80,7 @@ export function TopBar() {
                       ? "bg-twilio-red text-white shadow-[0_0_12px_rgba(239,34,58,0.4)]"
                       : isCompleted || allStepsCompleted
                         ? "bg-success/20 text-success"
-                        : "bg-white/5 text-text-muted hover:bg-white/10 hover:text-text-secondary"
+                        : "bg-surface-2 text-text-muted hover:bg-surface-4 hover:text-text-secondary"
                   }
                 `}
                 title={chapter.title}
@@ -99,19 +101,34 @@ export function TopBar() {
                 {chapter.title}
               </span>
               {chapter.id < chapters.length && (
-                <div className="w-4 h-px bg-white/10 hidden lg:block" />
+                <div className="w-4 h-px bg-surface-4 hidden lg:block" />
               )}
             </Link>
           );
         })}
       </nav>
 
+      {/* Theme toggle */}
+      {config.features.themeToggle && (
+        <button
+          onClick={toggleTheme}
+          className="shrink-0 ml-6 flex items-center justify-center w-8 h-8 rounded-lg bg-surface-2 border border-navy-border hover:bg-surface-3 transition-colors"
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {isDark ? (
+            <Sun className="w-4 h-4 text-text-secondary" />
+          ) : (
+            <Moon className="w-4 h-4 text-text-secondary" />
+          )}
+        </button>
+      )}
+
       {/* Audience mode toggle with popover */}
       {config.features.audienceToggle && (
         <div className="relative shrink-0 ml-6" ref={popoverRef}>
           <button
             onClick={() => setPopoverOpen((v) => !v)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-navy-border hover:bg-white/[0.07] transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-2 border border-navy-border hover:bg-surface-3 transition-colors"
           >
             <ActiveIcon className="w-3.5 h-3.5 text-twilio-red" />
             <span className="text-xs font-medium text-text-primary">
@@ -127,7 +144,7 @@ export function TopBar() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.97 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-full mt-2 w-80 rounded-xl bg-[#0d1b3e] border border-navy-border shadow-[0_16px_48px_rgba(0,0,0,0.4)] overflow-hidden z-50"
+                className="absolute right-0 top-full mt-2 w-80 rounded-xl bg-panel border border-navy-border shadow-[0_16px_48px_rgba(0,0,0,0.4)] overflow-hidden z-50"
               >
                 {/* Header */}
                 <div className="px-4 pt-4 pb-2">
@@ -154,11 +171,11 @@ export function TopBar() {
                         className={`w-full flex items-start gap-3 p-3 rounded-lg text-left transition-all duration-150 ${
                           isActive
                             ? "bg-twilio-red/10 border border-twilio-red/25"
-                            : "hover:bg-white/[0.04] border border-transparent"
+                            : "hover:bg-surface-2 border border-transparent"
                         }`}
                       >
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                          isActive ? "bg-twilio-red/20" : "bg-white/[0.05]"
+                          isActive ? "bg-twilio-red/20" : "bg-surface-2"
                         }`}>
                           <Icon className={`w-4 h-4 ${isActive ? "text-twilio-red" : "text-text-muted"}`} />
                         </div>
