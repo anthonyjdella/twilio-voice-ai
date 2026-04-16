@@ -61,4 +61,33 @@ export interface WorkshopConfig {
     /** Enable chapter completion celebrations */
     celebrations: boolean;
   };
+
+  /** Social media sharing configuration (shown on final celebration) */
+  sharing?: {
+    /** Whether sharing buttons are enabled */
+    enabled: boolean;
+    /** Event/context name (e.g. "Twilio SIGNAL 2026") */
+    eventName?: string;
+    /** URL to share (e.g. workshop URL or event landing page) */
+    shareUrl?: string;
+    /** Platform-specific configs */
+    platforms: {
+      x?: {
+        /** The account handle to tag, without @ (e.g. "twilio") */
+        handle: string;
+        /** Profile URL for display purposes */
+        url: string;
+        /** Pre-filled tweet text. Supports {title}, {event} placeholders */
+        message: string;
+        /** Hashtags without # (e.g. ["TwilioSIGNAL", "VoiceAI"]) */
+        hashtags?: string[];
+      };
+      linkedin?: {
+        /** Company page URL */
+        url: string;
+        /** Share message text. Supports {title}, {event} placeholders */
+        message: string;
+      };
+    };
+  };
 }

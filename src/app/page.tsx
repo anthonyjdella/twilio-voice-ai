@@ -80,17 +80,13 @@ function HomeContent() {
       >
         {/* Twilio logo */}
         <motion.div variants={fadeUp} className="mb-10">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
-            style={{ backgroundColor: branding.accentColor }}
-          >
-            <img
-              src="/images/twilio-bug-white.svg"
-              alt="Twilio"
-              width={28}
-              height={28}
-            />
-          </div>
+          <img
+            src="/images/twilio-bug-red.svg"
+            alt="Twilio"
+            width={56}
+            height={56}
+            className="mx-auto"
+          />
         </motion.div>
 
         {/* Title */}

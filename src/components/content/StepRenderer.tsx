@@ -18,22 +18,31 @@ import { ConceptCard } from "./ConceptCard";
 
 interface StepRendererProps {
   step: StepDefinition;
+  chapterId?: number;
+  stepId?: number;
+  onVerifySuccess?: () => void;
 }
 
-export function StepRenderer({ step }: StepRendererProps) {
+export function StepRenderer({ step, onVerifySuccess }: StepRendererProps) {
   const { mode } = useAudienceMode();
 
   return (
     <>
       {step.blocks.map((block, i) => {
         if (block.audience && block.audience !== mode) return null;
-        return <BlockRenderer key={`${block.type}-${i}`} block={block} />;
+        return (
+          <BlockRenderer
+            key={`${block.type}-${i}`}
+            block={block}
+            onVerifySuccess={onVerifySuccess}
+          />
+        );
       })}
     </>
   );
 }
 
-function BlockRenderer({ block }: { block: ContentBlock }) {
+function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVerifySuccess?: () => void }) {
   switch (block.type) {
     case "section":
       return <SectionHeader>{block.title}</SectionHeader>;
@@ -87,7 +96,7 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
       );
 
     case "verify":
-      return <Verify question={block.question} />;
+      return <Verify question={block.question} onSuccess={onVerifySuccess} />;
 
     case "diagram": {
       const h = block.highlight;

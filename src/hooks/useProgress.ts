@@ -11,7 +11,8 @@ function loadProgress(): Progress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_PROGRESS;
-    return { ...DEFAULT_PROGRESS, ...JSON.parse(raw) };
+    // pendingBadge/pendingStep are ephemeral — never restore from storage
+    return { ...DEFAULT_PROGRESS, ...JSON.parse(raw), pendingBadge: null, pendingStep: null };
   } catch {
     return DEFAULT_PROGRESS;
   }
@@ -30,7 +31,8 @@ export function useProgress() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setProgress(loadProgress());
+    const stored = loadProgress();
+    setProgress(stored);
     setLoaded(true);
   }, []);
 
@@ -47,13 +49,36 @@ export function useProgress() {
     });
   }, []);
 
-  const completeStep = useCallback((chapterId: number, stepId: number) => {
+  const completeStep = useCallback((chapterId: number, stepId: number, options?: { silent?: boolean }) => {
     const key = `chapter-${chapterId}:step-${stepId}`;
+    const silent = options?.silent ?? false;
     setProgress((prev) => {
       if (prev.completedSteps.includes(key)) return prev;
+      const newCompleted = [...prev.completedSteps, key];
+
+      // Check if all steps in this chapter are now complete → earn badge
+      const chapter = workshopConfig.chapters.find((c) => c.id === chapterId);
+      const badgeId = `chapter-${chapterId}`;
+      let newBadges = prev.badges;
+      let newPendingBadge = prev.pendingBadge;
+
+      if (chapter && !prev.badges.includes(badgeId)) {
+        const allDone = chapter.steps.every((s) =>
+          newCompleted.includes(`chapter-${chapterId}:step-${s.id}`)
+        );
+        if (allDone) {
+          newBadges = [...prev.badges, badgeId];
+          newPendingBadge = badgeId;
+        }
+      }
+
       const next = {
         ...prev,
-        completedSteps: [...prev.completedSteps, key],
+        completedSteps: newCompleted,
+        badges: newBadges,
+        pendingBadge: newPendingBadge,
+        // Silent completions skip the step toast, but chapter celebrations still fire
+        pendingStep: (silent || newPendingBadge) ? null : key,
       };
       saveProgress(next);
       return next;
@@ -95,6 +120,30 @@ export function useProgress() {
     });
   }, []);
 
+  const dismissBadge = useCallback(() => {
+    setProgress((prev) => {
+      const next = { ...prev, pendingBadge: null };
+      saveProgress(next);
+      return next;
+    });
+  }, []);
+
+  const dismissStep = useCallback(() => {
+    setProgress((prev) => {
+      if (!prev.pendingStep) return prev;
+      return { ...prev, pendingStep: null };
+    });
+  }, []);
+
+  const resetProgress = useCallback(() => {
+    setProgress(DEFAULT_PROGRESS);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const completionPercentage = useCallback(() => {
     return Math.round((progress.completedSteps.length / totalSteps) * 100);
   }, [progress.completedSteps, totalSteps]);
@@ -106,6 +155,9 @@ export function useProgress() {
     completeStep,
     isStepCompleted,
     earnBadge,
+    dismissBadge,
+    dismissStep,
+    resetProgress,
     updateWorkshopState,
     incrementCalls,
     completionPercentage,

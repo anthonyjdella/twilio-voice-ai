@@ -49,8 +49,8 @@ export function Verify({ question, onSuccess }: VerifyProps) {
           <p className="font-medium text-text-primary mb-2">Troubleshooting:</p>
           <ul className="list-disc list-inside space-y-1">
             <li>Make sure your server is running (<code className="bg-white/[0.06] px-1 py-0.5 rounded font-mono text-xs">node server.js</code>)</li>
-            <li>Check that ngrok is forwarding to the correct port</li>
-            <li>Verify your Twilio phone number webhook points to your ngrok URL</li>
+            <li>Check that your Codespace port is set to <strong>Public</strong> visibility</li>
+            <li>Verify your <code className="bg-white/[0.06] px-1 py-0.5 rounded font-mono text-xs">.env</code> file has the correct credentials loaded</li>
             <li>Check the terminal for error messages</li>
           </ul>
           <button

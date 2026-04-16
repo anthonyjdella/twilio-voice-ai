@@ -7,6 +7,8 @@ import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { CelebrationManager } from "@/components/celebrations/CelebrationManager";
+import { ProgressTracker } from "@/components/layout/ProgressTracker";
 
 export default function WorkshopLayout({
   children,
@@ -28,6 +30,8 @@ export default function WorkshopLayout({
               </main>
             </div>
             <BottomNav />
+            <ProgressTracker />
+            <CelebrationManager />
           </div>
         </ProgressProvider>
       </AudienceProvider>

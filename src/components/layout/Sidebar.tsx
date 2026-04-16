@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useWorkshop } from "@/lib/WorkshopContext";
 import { useProgressContext } from "./ProgressContext";
+import { ConfirmModal } from "./ConfirmModal";
+import { RotateCcw } from "lucide-react";
 
 function StepIcon({ state }: { state: "pending" | "active" | "completed" }) {
   if (state === "completed") {
@@ -31,7 +34,9 @@ export function Sidebar() {
   const stepSlug = params.step as string | undefined;
   const { config, chapters, getChapter } = useWorkshop();
   const chapter = chapterSlug ? getChapter(chapterSlug) : chapters[0];
-  const { progress } = useProgressContext();
+  const { progress, resetProgress, completionPercentage } = useProgressContext();
+
+  const [showResetModal, setShowResetModal] = useState(false);
 
   if (!chapter) return null;
 
@@ -83,43 +88,63 @@ export function Sidebar() {
 
       <div className="h-px bg-navy-border mx-4" />
 
-      {/* Config-driven sidebar widget */}
+      {/* Agent profile widget */}
       {sidebarConfig.widget === "custom" && sidebarConfig.fields && (
         <div className="p-4">
-          <div className="rounded-xl bg-white/[0.03] border border-navy-border p-4">
-            <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">
-              {sidebarConfig.title || "Workshop State"}
+          <div className="rounded-xl bg-gradient-to-b from-white/[0.05] to-white/[0.02] border border-twilio-red/20 p-4 relative overflow-hidden">
+            {/* Accent glow */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-twilio-red/40 to-transparent" />
+
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-lg bg-twilio-red/15 flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#EF223A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+              <div className="text-xs font-display font-bold text-text-primary uppercase tracking-wider">
+                {sidebarConfig.title || "Workshop State"}
+              </div>
             </div>
-            <div className="space-y-2 text-sm">
-              {sidebarConfig.fields.map((field) => (
-                <div key={field.key} className="flex justify-between">
-                  <span className="text-text-muted">{field.label}</span>
-                  <span className="text-text-primary font-medium">
-                    {progress.workshopState[field.key] || "\u2014"}
-                  </span>
-                </div>
-              ))}
+
+            <div className="space-y-2.5 text-sm">
+              {sidebarConfig.fields.map((field) => {
+                const val = progress.workshopState[field.key];
+                return (
+                  <div key={field.key} className="flex justify-between items-center">
+                    <span className="text-text-muted text-xs">{field.label}</span>
+                    <span className={`font-mono text-xs px-2 py-0.5 rounded-md ${
+                      val
+                        ? "bg-twilio-red/10 text-twilio-red border border-twilio-red/20"
+                        : "bg-white/[0.03] text-text-muted border border-white/[0.06]"
+                    }`}>
+                      {val || "\u2014"}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Badges */}
             {progress.badges.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-navy-border">
-                <div className="flex flex-wrap gap-1.5">
+              <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                <div className="text-[10px] font-mono text-text-muted uppercase tracking-wider mb-2">Badges</div>
+                <div className="flex flex-wrap gap-2">
                   {progress.badges.map((badge) => {
                     const ch = chapters.find((c) => `chapter-${c.id}` === badge);
                     if (!ch) return null;
                     return (
-                      <span
+                      <div
                         key={badge}
-                        className="text-base"
+                        className="w-7 h-7 rounded-lg bg-white/[0.06] border border-white/[0.08] flex items-center justify-center"
                         title={ch.badgeName}
                       >
                         {ch.badgeIcon.startsWith("/") ? (
-                          <img src={ch.badgeIcon} alt="" className="w-5 h-5 inline-block" />
+                          <img src={ch.badgeIcon} alt="" className="w-4 h-4" />
                         ) : (
-                          ch.badgeIcon
+                          <span className="text-sm">{ch.badgeIcon}</span>
                         )}
-                      </span>
+                      </div>
                     );
                   })}
                 </div>
@@ -128,6 +153,35 @@ export function Sidebar() {
           </div>
         </div>
       )}
+
+      {/* Reset progress */}
+      {completionPercentage() > 0 && (
+        <>
+          <div className="h-px bg-navy-border mx-4" />
+          <div className="p-4">
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="flex items-center gap-2 text-xs text-text-muted hover:text-twilio-red transition-colors w-full px-3 py-2 rounded-lg hover:bg-white/[0.03]"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset progress
+            </button>
+          </div>
+        </>
+      )}
+
+      <ConfirmModal
+        open={showResetModal}
+        title="Reset Progress"
+        message="This will clear all completed steps, badges, and celebrations. You'll start the workshop from scratch."
+        confirmLabel="Reset Everything"
+        cancelLabel="Keep Progress"
+        onConfirm={() => {
+          resetProgress();
+          setShowResetModal(false);
+        }}
+        onCancel={() => setShowResetModal(false)}
+      />
     </aside>
   );
 }

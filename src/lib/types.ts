@@ -23,6 +23,10 @@ export interface Progress {
   workshopState: Record<string, string>;
   badges: string[];
   callCount: number;
+  /** Ephemeral: which chapter badge was just earned (triggers celebration) */
+  pendingBadge: string | null;
+  /** Ephemeral: which step was just completed (triggers mini-celebration) */
+  pendingStep: string | null;
 }
 
 export const DEFAULT_PROGRESS: Progress = {
@@ -32,4 +36,6 @@ export const DEFAULT_PROGRESS: Progress = {
   workshopState: {},
   badges: [],
   callCount: 0,
+  pendingBadge: null,
+  pendingStep: null,
 };

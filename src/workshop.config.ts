@@ -144,6 +144,26 @@ const workshopConfig: WorkshopConfig = {
     audienceToggle: true,
     celebrations: true,
   },
+
+  sharing: {
+    enabled: true,
+    eventName: "Twilio SIGNAL 2026",
+    shareUrl: "https://signal.twilio.com",
+    platforms: {
+      x: {
+        handle: "twilio",
+        url: "https://x.com/twilio",
+        message:
+          "Just built a conversational AI voice agent at {event}! Went from zero to a fully working voice bot with custom persona, tool calling, and live agent handoff using @twilio ConversationRelay.",
+        hashtags: ["TwilioSIGNAL", "VoiceAI", "ConversationalAI"],
+      },
+      linkedin: {
+        url: "https://www.linkedin.com/company/twilio-inc-",
+        message:
+          "Excited to share that I just completed the \"{title}\" workshop at {event}! Built a fully functional conversational AI voice agent from scratch using Twilio ConversationRelay \u2014 complete with a custom persona, ElevenLabs voice synthesis, tool calling, and live agent handoff. Incredible hands-on session!",
+      },
+    },
+  },
 };
 
 export default workshopConfig;
