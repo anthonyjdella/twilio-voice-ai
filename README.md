@@ -1,38 +1,31 @@
-# Twilio Workshop Platform
+# Build a Voice AI Agent
 
-A reusable, interactive workshop companion built with Next.js. Define your workshop content as typed data — no React knowledge required. The platform handles rendering, navigation, progress tracking, syntax highlighting, and audience adaptation.
+A 90-minute guided workshop where you build an AI-powered phone agent using [Twilio ConversationRelay](https://www.twilio.com/docs/voice/conversationrelay), OpenAI, and Node.js.
 
-**Currently configured for:** Build a Voice AI Agent — a 90-minute guided workshop using Twilio ConversationRelay, OpenAI, and Node.js.
+By the end, you'll have a working voice agent that listens to callers, responds with an LLM, uses tools, handles interruptions, and can hand off to a human -- all running on a real phone number.
 
-## Features
+## What is ConversationRelay?
 
-- **Declarative content** — Write workshop steps as typed data blocks (prose, code, terminal, images, callouts, etc.) in `.ts` files. No JSX authoring required.
-- **Single config file** — One `workshop.config.ts` drives the entire app: title, branding, chapters, sidebar, feature flags.
-- **Builder / Explorer modes** — Toggle between technical (full code, diffs, terminal) and non-technical (collapsed code, visual step cards, concept explanations) views.
-- **Syntax highlighting** — Shiki with Tokyo Night theme, lazy-loaded. Supports JS, TS, JSON, Bash, HTML, CSS, Python, and more.
-- **Progress tracking** — localStorage-backed progress per workshop with step completion, badges, and chapter milestones.
-- **Smooth transitions** — Framer Motion page transitions and staggered hero animations.
-- **Twilio branded** — Accent colors, logos, and visual identity baked in and configurable.
-- **Fully static** — Generates all routes at build time via `generateStaticParams`. Deploy to any static host.
+ConversationRelay is a Twilio service that bridges phone calls and AI. It handles the hard parts -- speech-to-text, text-to-speech, audio encoding, barge-in detection -- so your server only works with simple text messages over a WebSocket.
 
-## Quick Start
-
-```bash
-git clone <repo-url>
-cd twilio-voice-ai
-pnpm install
-pnpm dev
+```
+Caller speaks  -->  Twilio (STT)  -->  Your Server  -->  LLM (OpenAI)
+Caller hears   <--  Twilio (TTS)  <--  Your Server  <--  LLM streams tokens
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and follow along with the workshop.
+You send text, Twilio turns it into speech. The caller speaks, Twilio sends you text. That's it.
 
-## Prerequisites (for the Voice AI Workshop)
+## What You'll Build
 
-- **Node.js 20+** — [download](https://nodejs.org/)
-- **pnpm** — install via `corepack enable`
-- **Twilio account** — [sign up free](https://www.twilio.com/try-twilio) with a Voice-capable phone number
-- **OpenAI API key** — [get one here](https://platform.openai.com/api-keys)
-- **ngrok** — [download](https://ngrok.com/) for tunneling your local server
+- A **WebSocket server** that receives real-time speech transcripts from Twilio
+- **TwiML configuration** that routes incoming calls through ConversationRelay
+- A **streaming LLM integration** with OpenAI for natural, low-latency responses
+- A **custom persona** with a chosen voice, language, and personality
+- **Interruption handling** so callers can cut in mid-sentence naturally
+- **DTMF support** for keypad-driven menus ("Press 1 for billing")
+- **Silence detection** that nudges idle callers or gracefully ends dead calls
+- **Tool calling** so the agent can check the weather, look up orders, or hit any API
+- **Live agent handoff** to transfer complex calls to a human
 
 ## Workshop Structure
 
@@ -45,59 +38,45 @@ Open [http://localhost:3000](http://localhost:3000) and follow along with the wo
 | 5 | **Superpowers** | Add tool calling, custom functions, and live agent handoff | 20 min |
 | 6 | **Launch** | Polish, deploy, and showcase your agent | 15 min |
 
-## Audience Modes
+## Prerequisites
 
-On first visit, users are greeted with an **onboarding modal** that asks them to choose their experience — Builder or Explorer. The choice is saved to `localStorage` and can be changed anytime using the **Builder / Explorer** toggle in the top bar.
+- **Node.js 18+** -- [download](https://nodejs.org/)
+- **A Twilio account** with a Voice-capable phone number -- [sign up free](https://www.twilio.com/try-twilio)
+- **An OpenAI API key** -- [get one here](https://platform.openai.com/api-keys)
+- **ngrok** for tunneling your local server -- [download](https://ngrok.com/)
 
-| Mode | For | Behavior |
-|------|-----|----------|
-| **Builder** | Developers | Full code blocks, terminal commands, diffs, deep dives, solutions |
-| **Explorer** | Non-technical | Code collapsed behind buttons, diffs/deep-dives hidden, visual step cards prominent |
-
-Both modes see the same prose, callouts, images, and verification checkpoints.
-
-## Creating a New Workshop
-
-This platform is designed to be reused for completely different workshop topics. See **[WORKSHOP_AUTHORING.md](./WORKSHOP_AUTHORING.md)** for the full guide, including:
-
-- `WorkshopConfig` schema with annotated examples
-- All 15 content block types with usage examples
-- Directory conventions and registry setup
-- Audience mode authoring tips
-- Deployment instructions
-
-**TL;DR:**
-1. Edit `src/workshop.config.ts` with your chapters, branding, and sidebar
-2. Create content files in `src/content/chapter-N/step-N-slug.ts`
-3. Register them in `src/content/registry.ts`
-4. `pnpm dev`
-
-## Scripts
+## Getting Started
 
 ```bash
-pnpm dev        # Start development server
-pnpm build      # Production build (static export)
-pnpm start      # Serve production build
-pnpm typecheck  # TypeScript type checking
-pnpm lint       # ESLint
+git clone git@github.com:anthonyjdella/twilio-voice-ai.git
+cd twilio-voice-ai
+pnpm install
+pnpm dev
 ```
 
-## Tech Stack
+Open [http://localhost:3000](http://localhost:3000) and start the workshop.
 
-- [Next.js](https://nextjs.org/) 16 (App Router, static export)
-- [React](https://react.dev/) 19
-- [TypeScript](https://www.typescriptlang.org/)
-- [Tailwind CSS](https://tailwindcss.com/) 4
-- [Framer Motion](https://www.framer.com/motion/) for animations
-- [Shiki](https://shiki.style/) for syntax highlighting
-- [Lucide](https://lucide.dev/) for icons
+## Choose Your Track
 
-## Troubleshooting
+On your first visit, you'll be asked to pick an experience:
 
-**`pnpm install` fails** — Make sure you have Node.js 20+. Run `corepack enable` if pnpm is not found.
+| Track | For | What You Get |
+|-------|-----|--------------|
+| **Builder** | Developers who want to code along | Full code blocks, terminal commands, diffs, deep dives, copy-paste solutions |
+| **Explorer** | Anyone who wants to understand the concepts | Visual summaries, concept cards, high-level overviews, no code required |
 
-**Port 3000 in use** — Start on a different port: `pnpm dev -- -p 3001`
+You can switch between tracks anytime using the **Builder / Explorer** toggle in the top bar.
 
-**Blank page** — Clear browser cache or try incognito. Check terminal for errors.
+## Key Technologies
 
-**ngrok not working** — Ensure ngrok is running (`ngrok http 8080`) and the URL matches your Twilio webhook config.
+| Technology | Role |
+|-----------|------|
+| [Twilio ConversationRelay](https://www.twilio.com/docs/voice/conversationrelay) | Bridges phone calls and your server via WebSocket. Handles STT, TTS, and audio. |
+| [Twilio Voice TwiML](https://www.twilio.com/docs/voice/twiml) | XML instructions that tell Twilio how to handle incoming calls. |
+| [OpenAI Chat Completions](https://platform.openai.com/docs/api-reference/chat) | Streams LLM responses for natural, low-latency conversation. |
+| [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) | Persistent bidirectional connection between Twilio and your server. |
+| [ngrok](https://ngrok.com/) | Exposes your local server to the internet so Twilio can reach it. |
+
+## Reusing This Platform
+
+The workshop companion app is built as a reusable platform -- you can swap in completely different workshop content without touching React. See **[WORKSHOP_AUTHORING.md](./WORKSHOP_AUTHORING.md)** for the full authoring guide, content block reference, and platform architecture.

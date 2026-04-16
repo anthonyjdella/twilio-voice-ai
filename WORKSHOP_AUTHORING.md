@@ -485,23 +485,37 @@ Progress is automatically tracked per-workshop using localStorage key `workshop-
 
 Each workshop ID gets its own progress, so multiple workshops can coexist on the same domain without collisions.
 
-## Deployment
+## Platform Tech Stack
+
+- [Next.js](https://nextjs.org/) 16 (App Router, static generation)
+- [React](https://react.dev/) 19
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/) 4
+- [Framer Motion](https://www.framer.com/motion/) for page transitions and hero animations
+- [Shiki](https://shiki.style/) for syntax highlighting (Tokyo Night theme)
+- [Lucide](https://lucide.dev/) for UI icons
+
+## Scripts
 
 ```bash
-# Development
-pnpm dev
-
-# Type check
-pnpm typecheck
-
-# Production build (static export — generates all routes)
-pnpm build
-
-# Start production server
-pnpm start
+pnpm dev        # Start development server (http://localhost:3000)
+pnpm build      # Production build — generates static HTML for all routes
+pnpm start      # Serve production build locally
+pnpm typecheck  # TypeScript type checking (no emit)
+pnpm lint       # ESLint
 ```
 
+## Deployment
+
 The build generates static HTML for all routes via `generateStaticParams`. No server-side runtime required — deploy to any static host (Vercel, Netlify, S3, etc.).
+
+## Troubleshooting
+
+**`pnpm install` fails** — Make sure you have Node.js 20+. Run `corepack enable` if pnpm is not found.
+
+**Port 3000 in use** — Start on a different port: `pnpm dev -- -p 3001`
+
+**Blank page** — Clear browser cache or try incognito. Check terminal for errors.
 
 ## Architecture Overview
 
