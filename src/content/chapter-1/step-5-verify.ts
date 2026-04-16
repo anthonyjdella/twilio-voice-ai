@@ -15,51 +15,39 @@ export default {
     {
       type: "prose",
       content:
-        "**1. Twilio Account and Phone Number** -- You have a Twilio account with a phone number that has voice capability. You can verify this in the [Twilio Console](https://console.twilio.com/us1/develop/phone-numbers/manage/incoming) under Phone Numbers \u2192 Active Numbers.",
+        "**1. GitHub Codespace is running** -- You have a Codespace open with the terminal ready. All dependencies are pre-installed.",
     },
 
     {
       type: "prose",
       content:
-        "**2. Twilio Credentials** -- Your `.env` file contains a valid `TWILIO_ACCOUNT_SID` (starts with `AC`) and `TWILIO_AUTH_TOKEN`. These are on the [Twilio Console dashboard](https://console.twilio.com).",
+        "**2. Shared credentials are loaded** -- Your `.env` file contains the shared `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `OPENAI_API_KEY`, and `TWILIO_PHONE_NUMBER`. These are pre-configured in the Codespace.",
     },
 
     {
       type: "prose",
       content:
-        "**3. OpenAI API Key** -- Your `.env` file contains a valid `OPENAI_API_KEY` (starts with `sk-`). Make sure the key is active and your account has available credits at [platform.openai.com](https://platform.openai.com/settings/organization/billing/overview).",
+        "**3. You have a phone to receive calls** -- The workshop uses outbound calls. Your server will call your personal phone number, so have it nearby and ready to answer.",
     },
 
     {
       type: "prose",
       content:
-        "**4. ngrok Running** -- ngrok is running in a terminal window and forwarding HTTPS traffic to `localhost:8080`. The public URL is copied into your `.env` as `PUBLIC_URL`.",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**5. Twilio Webhook Configured** -- Your Twilio phone number's \"A call comes in\" webhook is set to your ngrok URL followed by `/incoming`, with HTTP method set to POST.",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**6. Dependencies Installed** -- You ran `npm install` in the project directory and it completed without errors.",
+        "**4. Port 8080 is ready** -- When you start your server in the next chapter, you'll need to make port 8080 **Public** in the Codespace Ports tab so Twilio can reach it.",
     },
 
     {
       type: "callout",
       variant: "warning",
       content:
-        "The most common issue at this stage is a mismatch between your ngrok URL and your Twilio webhook configuration. Double-check that the URL in the Twilio Console matches exactly what ngrok is showing. Also ensure you are using the `https://` version (not `http://`).",
+        "The most common issue is forgetting to set the port to **Public** in the Codespace Ports tab. Private ports require GitHub authentication, which Twilio cannot provide. If your first call fails silently, check this first.",
     },
 
     {
       type: "callout",
       variant: "tip",
       content:
-        "If you are using a Twilio trial account, you can only make calls to verified phone numbers. Go to [Phone Numbers \u2192 Verified Caller IDs](https://console.twilio.com/us1/develop/phone-numbers/manage/verified) to add your personal phone number so you can call your AI agent during testing.",
+        "If you are using a Twilio trial account with your own credentials (not the shared workshop account), you can only make calls to verified phone numbers. Go to [Phone Numbers → Verified Caller IDs](https://console.twilio.com/us1/develop/phone-numbers/manage/verified) to add your personal phone number.",
     },
 
     { type: "section", title: "Ready to Build" },
@@ -67,13 +55,13 @@ export default {
     {
       type: "prose",
       content:
-        "If everything checks out, you are ready to start building. In the next chapter, you will write the WebSocket server, connect it to ConversationRelay, pipe caller speech through an LLM, and make your very first AI phone call. It is going to be incredible.",
+        "If everything checks out, you are ready to start building. In the next chapter, you will write the WebSocket server, create the TwiML endpoint, pipe caller speech through an LLM, and make your very first AI phone call. It is going to be incredible.",
     },
 
     {
       type: "verify",
       question:
-        "Is everything on the checklist complete? Twilio account, API keys, ngrok running, and webhook configured?",
+        "Is your Codespace running with credentials loaded and a phone nearby to receive calls?",
     },
   ],
 } satisfies StepDefinition;

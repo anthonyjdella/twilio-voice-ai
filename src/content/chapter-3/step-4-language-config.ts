@@ -44,7 +44,7 @@ export default {
       code: `<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-server.ngrok.app/ws"
+      url="wss://your-codespace-8080.app.github.dev/ws"
       voice="Rachel"
       ttsProvider="ElevenLabs"
       language="en-US"
@@ -70,7 +70,7 @@ export default {
       code: `<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-server.ngrok.app/ws"
+      url="wss://your-codespace-8080.app.github.dev/ws"
       voice="es-US-Neural2-A"
       ttsProvider="Google"
       language="es-ES"
@@ -112,7 +112,7 @@ export default {
       language: "javascript",
       file: "server.js",
       code: `// Inside your http.createServer handler:
-if (req.url === "/incoming" && req.method === "POST") {
+if (req.url === "/twiml" && req.method === "POST") {
   const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Connect>

@@ -104,7 +104,7 @@ function handleSilence(ws) {
 // Clean up when the WebSocket closes
 ws.on("close", () => {
   clearTimeout(silenceTimer);
-  console.log("Call ended, timers cleared.");
+  console.log("👋 Call ended, timers cleared.");
 });`,
     },
 
@@ -130,7 +130,7 @@ ws.on("close", () => {
       code: `<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-server.ngrok.app/ws"
+      url="wss://your-codespace-8080.app.github.dev/ws"
       interruptible="any"
       interruptSensitivity="medium"
     />

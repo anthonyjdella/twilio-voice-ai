@@ -58,7 +58,7 @@ export default {
       break;
 
     case "dtmf":
-      console.log("DTMF received:", msg.digit);
+      console.log("🔢 DTMF received:", msg.digit);
       handleDtmfInput(ws, msg.digit);
       break;
 
@@ -160,7 +160,7 @@ sendDigits(ws, "3");  // Press 3 for billing`,
       code: `<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-server.ngrok.app/ws"
+      url="wss://your-codespace-8080.app.github.dev/ws"
       dtmfDetection="true"
       interruptible="any"
     />

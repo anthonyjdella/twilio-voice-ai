@@ -1,11 +1,15 @@
 import type { StepDefinition } from "@/lib/content-blocks";
 
 // Chapter 1: Mission Briefing
-import Ch1Step1 from "./chapter-1/step-1-overview";
-import Ch1Step2 from "./chapter-1/step-2-architecture";
-import Ch1Step3 from "./chapter-1/step-3-setup";
-import Ch1Step4 from "./chapter-1/step-4-twilio-config";
-import Ch1Step5 from "./chapter-1/step-5-verify";
+import Ch1Step1 from "./chapter-1/step-1-what-were-building";
+import Ch1Step2 from "./chapter-1/step-2-call-flow";
+import Ch1Step3 from "./chapter-1/step-3-chapter-overview";
+import Ch1Step4 from "./chapter-1/step-4-architecture";
+import Ch1Step5 from "./chapter-1/step-5-message-flow";
+import Ch1Step6 from "./chapter-1/step-6-setup";
+import Ch1Step7 from "./chapter-1/step-7-ngrok";
+import Ch1Step8 from "./chapter-1/step-4-twilio-config";
+import Ch1Step9 from "./chapter-1/step-5-verify";
 
 // Chapter 2: First Contact
 import Ch2Step1 from "./chapter-2/step-1-websocket-server";
@@ -42,11 +46,15 @@ import Ch6Step3 from "./chapter-6/step-3-showcase";
 import Ch6Step4 from "./chapter-6/step-4-next-steps";
 
 export const stepRegistry: Record<string, StepDefinition> = {
-  "mission-briefing/overview": Ch1Step1,
-  "mission-briefing/architecture": Ch1Step2,
-  "mission-briefing/setup": Ch1Step3,
-  "mission-briefing/twilio-config": Ch1Step4,
-  "mission-briefing/verify": Ch1Step5,
+  "mission-briefing/what-were-building": Ch1Step1,
+  "mission-briefing/call-flow": Ch1Step2,
+  "mission-briefing/chapter-overview": Ch1Step3,
+  "mission-briefing/architecture": Ch1Step4,
+  "mission-briefing/message-flow": Ch1Step5,
+  "mission-briefing/setup": Ch1Step6,
+  "mission-briefing/ngrok": Ch1Step7,
+  "mission-briefing/twilio-config": Ch1Step8,
+  "mission-briefing/verify": Ch1Step9,
 
   "first-contact/websocket-server": Ch2Step1,
   "first-contact/twiml-setup": Ch2Step2,

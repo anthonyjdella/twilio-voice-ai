@@ -142,7 +142,7 @@ const openai = new OpenAI({
     });
 
   } catch (error) {
-    console.error("LLM error:", error);
+    console.error("❌ LLM error:", error);
     ws.send(JSON.stringify({
       type: "text",
       token: "I'm sorry, I encountered an error. Could you repeat that?",
@@ -168,7 +168,7 @@ const openai = new OpenAI({
       code: `      case "prompt":
         if (!message.last) break;
 
-        console.log(\`Caller said: \${message.voicePrompt}\`);
+        console.log(\`🗣️ Caller: \${message.voicePrompt}\`);
 
         conversationHistory.push({
           role: "user",
@@ -207,6 +207,7 @@ const openai = new OpenAI({
 const { WebSocketServer } = require("ws");
 const http = require("http");
 const OpenAI = require("openai");
+const twilio = require("twilio");
 
 const PORT = 8080;
 
@@ -214,24 +215,46 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const server = http.createServer((req, res) => {
-  if (req.url === "/incoming" && req.method === "POST") {
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
+const server = http.createServer(async (req, res) => {
+  if (req.url === "/twiml" && req.method === "POST") {
     const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-ngrok-url.ngrok-free.app"
-      voice="en-US-Journey-F"
-      ttsProvider="google"
-      dtmfDetection="true"
-      interruptible="any"
+      url="wss://your-codespace-8080.app.github.dev"
       welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
 
     res.writeHead(200, { "Content-Type": "text/xml" });
     res.end(twiml);
+    return;
+  }
+
+  if (req.url === "/call" && req.method === "POST") {
+    try {
+      const call = await twilioClient.calls.create({
+        to: process.env.MY_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        url: \`https://your-codespace-8080.app.github.dev/twiml\`,
+      });
+
+      console.log("📞 Call initiated:", call.sid);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ callSid: call.sid }));
+    } catch (error) {
+      console.error("❌ Call error:", error.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: error.message }));
+    }
     return;
   }
 
@@ -280,7 +303,7 @@ async function streamLLMResponse(ws, conversationHistory) {
     });
 
   } catch (error) {
-    console.error("LLM error:", error);
+    console.error("❌ LLM error:", error);
     ws.send(JSON.stringify({
       type: "text",
       token: "I'm sorry, I encountered an error. Could you repeat that?",
@@ -292,7 +315,7 @@ async function streamLLMResponse(ws, conversationHistory) {
 const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws, req) => {
-  console.log("New WebSocket connection from Twilio");
+  console.log("📞 New WebSocket connection");
 
   let callSid = null;
   const conversationHistory = [];
@@ -303,14 +326,14 @@ wss.on("connection", (ws, req) => {
     switch (message.type) {
       case "setup":
         callSid = message.callSid;
-        console.log(\`Call started: \${callSid}\`);
-        console.log(\`Caller: \${message.from}\`);
+        console.log(\`✅ Call started: \${callSid}\`);
+        console.log(\`👤 From: \${message.from}\`);
         break;
 
       case "prompt":
         if (!message.last) break;
 
-        console.log(\`Caller said: \${message.voicePrompt}\`);
+        console.log(\`🗣️ Caller: \${message.voicePrompt}\`);
 
         conversationHistory.push({
           role: "user",
@@ -321,21 +344,21 @@ wss.on("connection", (ws, req) => {
         break;
 
       default:
-        console.log("Unhandled message type:", message.type);
+        console.log("⚠️ Unhandled message type:", message.type);
     }
   });
 
   ws.on("close", () => {
-    console.log(\`Call ended: \${callSid}\`);
+    console.log(\`👋 Call ended: \${callSid}\`);
   });
 
   ws.on("error", (err) => {
-    console.error("WebSocket error:", err);
+    console.error("❌ WebSocket error:", err);
   });
 });
 
 server.listen(PORT, () => {
-  console.log(\`Server listening on port \${PORT}\`);
+  console.log(\`🚀 Server listening on port \${PORT}\`);
 });`,
     },
   ],

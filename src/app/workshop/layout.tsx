@@ -4,7 +4,6 @@ import { WorkshopProvider } from "@/lib/WorkshopContext";
 import { AudienceProvider } from "@/lib/AudienceContext";
 import { ProgressProvider } from "@/components/layout/ProgressContext";
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
-import { OnboardingModal } from "@/components/layout/OnboardingModal";
 import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -18,7 +17,6 @@ export default function WorkshopLayout({
     <WorkshopProvider>
       <AudienceProvider>
         <ProgressProvider>
-          <OnboardingModal />
           <div className="h-screen flex flex-col bg-navy overflow-hidden">
             <TopBar />
             <div className="flex flex-1 overflow-hidden">

@@ -132,7 +132,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
     const fnName = toolCall.function.name;
     const fnArgs = JSON.parse(toolCall.function.arguments);
 
-    console.log(\`Calling tool: \${fnName}\`, fnArgs);
+    console.log(\`🔧 Calling tool: \${fnName}\`, fnArgs);
 
     let result;
     try {
@@ -143,7 +143,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
         result = await handler(fnArgs);
       }
     } catch (err) {
-      console.error(\`Tool error (\${fnName}):\`, err.message);
+      console.error(\`❌ Tool error (\${fnName}):\`, err.message);
       result = { error: \`Tool execution failed: \${err.message}\` };
     }
 
@@ -287,7 +287,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
   for (const toolCall of toolCalls) {
     const fnName = toolCall.function.name;
     const fnArgs = JSON.parse(toolCall.function.arguments);
-    console.log("Tool call:", fnName, fnArgs);
+    console.log("🔧 Tool call:", fnName, fnArgs);
 
     let result;
     try {

@@ -78,13 +78,13 @@ export default {
       code: `    switch (message.type) {
       case "setup":
         callSid = message.callSid;
-        console.log(\`Call started: \${callSid}\`);
+        console.log(\`✅ Call started: \${callSid}\`);
         break;
 
       case "prompt":
         if (!message.last) break; // Ignore partial transcripts
 
-        console.log(\`Caller said: \${message.voicePrompt}\`);
+        console.log(\`🗣️ Caller: \${message.voicePrompt}\`);
 
         // Add to conversation history
         conversationHistory.push({
@@ -98,7 +98,7 @@ export default {
         break;
 
       default:
-        console.log("Unhandled message type:", message.type);
+        console.log("⚠️ Unhandled message type:", message.type);
     }`,
     },
 
@@ -124,7 +124,7 @@ export default {
       explanation:
         "The prompt handler checks the last field, logs the transcript, and appends it to the conversation history. The LLM integration comes in the next step.",
       code: `wss.on("connection", (ws, req) => {
-  console.log("New WebSocket connection from Twilio");
+  console.log("📞 New WebSocket connection");
 
   let callSid = null;
   const conversationHistory = [];
@@ -135,14 +135,14 @@ export default {
     switch (message.type) {
       case "setup":
         callSid = message.callSid;
-        console.log(\`Call started: \${callSid}\`);
-        console.log(\`Caller: \${message.from}\`);
+        console.log(\`✅ Call started: \${callSid}\`);
+        console.log(\`👤 From: \${message.from}\`);
         break;
 
       case "prompt":
         if (!message.last) break;
 
-        console.log(\`Caller said: \${message.voicePrompt}\`);
+        console.log(\`🗣️ Caller: \${message.voicePrompt}\`);
 
         conversationHistory.push({
           role: "user",
@@ -154,16 +154,16 @@ export default {
         break;
 
       default:
-        console.log("Unhandled message type:", message.type);
+        console.log("⚠️ Unhandled message type:", message.type);
     }
   });
 
   ws.on("close", () => {
-    console.log(\`Call ended: \${callSid}\`);
+    console.log(\`👋 Call ended: \${callSid}\`);
   });
 
   ws.on("error", (err) => {
-    console.error("WebSocket error:", err);
+    console.error("❌ WebSocket error:", err);
   });
 });`,
     },

@@ -21,7 +21,7 @@ export default {
     {
       type: "prose",
       content:
-        '1. **Call your Twilio number** and let the agent greet you.\n2. **Ask a tool question**: "What is the weather in Austin?" to show tool calling in action.\n3. **Test interruption**: Ask a long question, then interrupt mid-answer to show barge-in handling.\n4. **Try DTMF**: Press a key on your keypad to show menu support.\n5. **Request handoff**: Say "I need to talk to a person" to show the live agent transfer flow.',
+        '1. **Trigger a call** using the workshop app or curl command, and let the agent greet you.\n2. **Ask a tool question**: "What is the weather in Austin?" to show tool calling in action.\n3. **Test interruption**: Ask a long question, then interrupt mid-answer to show barge-in handling.\n4. **Try DTMF**: Press a key on your keypad to show menu support.\n5. **Request handoff**: Say "I need to talk to a person" to show the live agent transfer flow.',
     },
 
     { type: "section", title: "Share Your Creation" },

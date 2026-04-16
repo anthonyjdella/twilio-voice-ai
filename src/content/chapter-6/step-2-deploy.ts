@@ -7,7 +7,7 @@ export default {
     {
       type: "prose",
       content:
-        "Your agent has been running locally with ngrok. For production, you need a reliable host that supports persistent WebSocket connections and can handle concurrent calls. Here are your best options.",
+        "Your agent has been running in a GitHub Codespace during development. For production, you need a reliable host that supports persistent WebSocket connections and can handle concurrent calls. Here are your best options.",
     },
 
     { type: "section", title: "Key Requirements" },
@@ -170,7 +170,7 @@ NODE_ENV=production`,
     {
       type: "prose",
       content:
-        'Once deployed, update your Twilio phone number\'s webhook URL to point to your production domain instead of the ngrok tunnel. In the Twilio Console, go to Phone Numbers, select your number, and update the "A call comes in" webhook to your production URL (e.g., `https://your-app.railway.app/incoming-call`).',
+        'Once deployed, update your Twilio phone number\'s webhook URL to point to your production domain instead of the Codespace URL. In the Twilio Console, go to Phone Numbers, select your number, and update the "A call comes in" webhook to your production URL (e.g., `https://your-app.railway.app/twiml`).',
     },
 
     {

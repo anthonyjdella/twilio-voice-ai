@@ -7,75 +7,57 @@ export default {
     {
       type: "prose",
       content:
-        "Now that your environment is ready, you need to tell Twilio what to do when someone calls your phone number. This means pointing your phone number's webhook at your server and understanding the TwiML response it sends back.",
+        "The shared Twilio account is already set up for this workshop. In this step, you'll understand how the outbound call flow works and how your TwiML endpoint tells Twilio to use ConversationRelay.",
     },
 
-    { type: "section", title: "Set Up Your Phone Number Webhook" },
+    { type: "section", title: "The Outbound Call Flow" },
+
+    {
+      type: "concept-card",
+      title: "Why Outbound Calls?",
+      content:
+        "Instead of everyone dialing one phone number (which would require complex routing logic), each attendee's server **calls them**. You click \"Call Me\" in the workshop app, your server uses the Twilio REST API to call your phone, and ConversationRelay takes over. No routing conflicts, no need for 30 phone numbers.",
+    },
 
     {
       type: "visual-step",
       steps: [
         {
-          icon: "/images/icons/globe.svg",
-          title: "Open the Twilio Console",
-          description:
-            "Go to [Phone Numbers → Manage → Active Numbers](https://console.twilio.com/us1/develop/phone-numbers/manage/incoming).",
-        },
-        {
           icon: "/images/icons/phone-call.svg",
-          title: "Select your number",
+          title: "Your server initiates the call",
           description:
-            'Click your phone number. If you don\'t have one, click "Buy a Number" and pick one with voice capability.',
+            "When you click \"Call Me\", your server uses the Twilio REST API to create an outbound call to your phone number.",
         },
         {
-          icon: "/images/icons/connectivity.svg",
-          title: "Set the webhook URL",
+          icon: "/images/icons/document.svg",
+          title: "Twilio fetches your TwiML",
           description:
-            'Under **Voice Configuration → "A call comes in"**, select **Webhook** and enter your ngrok URL + `/incoming`.',
+            "Twilio calls your phone and requests instructions from your `/twiml` endpoint. Your server responds with TwiML containing the ConversationRelay configuration.",
         },
         {
-          icon: "/images/icons/settings.svg",
-          title: "Set HTTP method to POST",
-          description: "Make sure the dropdown next to the URL is set to **POST**.",
-        },
-        {
-          icon: "/images/icons/document-check.svg",
-          title: "Save",
-          description: 'Click **Save configuration** at the bottom of the page.',
+          icon: "/images/icons/connection.svg",
+          title: "ConversationRelay connects",
+          description:
+            "Twilio opens a WebSocket to your server using the URL in the TwiML. The conversation begins.",
         },
       ],
     },
 
-    {
-      type: "code",
-      code: `https://a1b2c3d4.ngrok-free.app/incoming`,
-      language: "text",
-      file: "Webhook URL",
-      showLineNumbers: false,
-    },
-
-    {
-      type: "callout",
-      variant: "warning",
-      content:
-        "Replace `a1b2c3d4.ngrok-free.app` with your actual ngrok forwarding URL. If you restart ngrok, you'll need to update this URL again.",
-    },
-
-    { type: "section", title: "Understanding the TwiML Response" },
+    { type: "section", title: "The TwiML Response" },
 
     {
       type: "concept-card",
       audience: "explorer",
       title: "What is TwiML?",
       content:
-        "TwiML is Twilio's XML-based instruction set for calls. When someone calls your number, Twilio asks your server what to do — your server responds with TwiML that says \"open a ConversationRelay session.\" Twilio then connects your server to the caller via WebSocket.",
+        "TwiML is Twilio's XML-based instruction set for calls. When Twilio needs to know what to do with a call, it asks your server -- your server responds with TwiML that says \"open a ConversationRelay session.\" Twilio then connects your server to the caller via WebSocket.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "When Twilio receives a call, it POSTs to your webhook. Your server responds with **TwiML** — an XML document using the `<Connect>` verb with a `<ConversationRelay>` noun:",
+        "Your server's `/twiml` endpoint responds with XML using the `<Connect>` verb and `<ConversationRelay>` noun. Since we're using the Twilio defaults (ElevenLabs for TTS, Deepgram for STT), the TwiML is minimal:",
     },
 
     {
@@ -85,11 +67,9 @@ export default {
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://a1b2c3d4.ngrok-free.app/ws"
-      voice="en-US-Journey-F"
-      ttsProvider="google"
-      transcriptionProvider="deepgram"
-      language="en-US"
+      url="wss://your-codespace-8080.app.github.dev/ws"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -101,57 +81,52 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**`url`** — your WebSocket endpoint (`wss://`). **`voice`** — the TTS voice (Google Journey-F). **`ttsProvider`** — text-to-speech engine (google, amazon, or elevenlabs). **`transcriptionProvider`** — STT engine (deepgram or google). **`language`** — caller's expected language (BCP-47 code).",
+        "**`url`** -- your WebSocket endpoint (`wss://`), using your Codespace's public forwarded URL. **`welcomeGreeting`** -- spoken immediately when the call connects, before any WebSocket messages. **`dtmfDetection`** -- enables keypad press detection. The defaults handle the rest: **ElevenLabs** for TTS, **Deepgram** for STT, **en-US** language, and **interruptible** set to `\"any\"`.",
     },
 
-    { type: "section", title: "The Code Behind It", audience: "builder" },
+    { type: "section", title: "The Outbound Call Code", audience: "builder" },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "In Chapter 2 you'll write this handler. Here's a preview:",
+        "In Chapter 2 you'll write both the REST API call and the TwiML endpoint. Here's a preview of how the outbound call is initiated:",
     },
 
     {
       type: "code",
       audience: "builder",
-      code: `// Inside your http.createServer handler:
-if (req.url === "/incoming" && req.method === "POST") {
-  const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Connect>
-    <ConversationRelay
-      url="wss://\${process.env.PUBLIC_URL?.replace("https://", "")}"
-      voice="en-US-Journey-F"
-      ttsProvider="google"
-      transcriptionProvider="deepgram"
-      language="en-US"
-    />
-  </Connect>
-</Response>\`;
+      code: `const twilio = require("twilio");
+const client = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
-  res.writeHead(200, { "Content-Type": "text/xml" });
-  res.end(twiml);
-}`,
+// Initiate an outbound call to the attendee
+const call = await client.calls.create({
+  to: attendeePhoneNumber,
+  from: process.env.TWILIO_PHONE_NUMBER,
+  url: \`https://\${process.env.PUBLIC_URL}/twiml\`,
+});
+
+console.log("📞 Call initiated:", call.sid);`,
       language: "javascript",
       file: "server.js",
-      startLine: 12,
     },
 
     {
       type: "deep-dive",
       audience: "builder",
-      title: "TwiML and the Connect Verb",
+      title: "TwiML Attributes Reference",
       content:
-        "TwiML is Twilio's XML-based instruction set for controlling calls. The `<Connect>` verb enables bidirectional media streaming. Before ConversationRelay, developers used `<Connect>` with `<Stream>` to get raw audio over WebSockets. ConversationRelay adds the STT/TTS layer so you work with text instead of audio bytes.\n\nYou can include other TwiML verbs before `<Connect>` — for example, `<Say>` to play a welcome message before the AI takes over. ConversationRelay also supports attributes like `dtmfDetection`, `interruptible`, and custom parameters passed to your WebSocket. We'll explore these in later chapters.",
+        "ConversationRelay supports these TwiML attributes:\n\n- **`url`** (required) -- your `wss://` WebSocket endpoint\n- **`ttsProvider`** -- `\"ElevenLabs\"` (default), `\"Google\"`, or `\"Amazon\"`\n- **`voice`** -- provider-specific voice ID. ElevenLabs default: `UgBBYS2sOqTuMpoF3BR0`. Google example: `en-US-Journey-O`\n- **`transcriptionProvider`** -- `\"Deepgram\"` (default) or `\"Google\"`\n- **`language`** -- BCP-47 code, default `en-US`. Set to `\"multi\"` for automatic detection\n- **`interruptible`** -- `\"any\"` (default), `\"speech\"`, `\"dtmf\"`, or `\"none\"`\n- **`dtmfDetection`** -- `true` to receive keypad presses as WebSocket messages\n- **`welcomeGreeting`** -- text spoken immediately on connection\n- **`hints`** -- comma-separated phrases to improve transcription accuracy\n\nAll providers (ElevenLabs, Google, Amazon Polly, Deepgram) are **bundled into Twilio** -- no separate API keys needed. Just change the TwiML attribute.",
     },
 
     {
       type: "callout",
       variant: "info",
       content:
-        "The key flow: incoming call → your webhook → TwiML response → Twilio opens WebSocket → conversation begins. You'll write this code in the next chapter.",
+        "The key flow: your server calls your phone → Twilio fetches TwiML → TwiML says \"use ConversationRelay\" → WebSocket opens → conversation begins. You'll write this code in the next chapter.",
     },
   ],
 } satisfies StepDefinition;

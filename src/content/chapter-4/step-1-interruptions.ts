@@ -75,7 +75,7 @@ function handleMessage(ws, data) {
 
   switch (msg.type) {
     case "interrupt":
-      console.log("Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
+      console.log("✋ Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
 
       // 1. Abort the active OpenAI stream
       if (activeStream) {
@@ -115,7 +115,7 @@ function handleMessage(ws, data) {
       code: `<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-server.ngrok.app/ws"
+      url="wss://your-codespace-8080.app.github.dev/ws"
       interruptible="speech"
       dtmfDetection="true"
     />

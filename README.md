@@ -18,9 +18,9 @@ You send text, Twilio turns it into speech. The caller speaks, Twilio sends you 
 ## What You'll Build
 
 - A **WebSocket server** that receives real-time speech transcripts from Twilio
-- **TwiML configuration** that routes incoming calls through ConversationRelay
+- **Outbound calling** via the Twilio REST API with ConversationRelay
 - A **streaming LLM integration** with OpenAI for natural, low-latency responses
-- A **custom persona** with a chosen voice, language, and personality
+- A **custom persona** with a chosen voice (ElevenLabs), language, and personality
 - **Interruption handling** so callers can cut in mid-sentence naturally
 - **DTMF support** for keypad-driven menus ("Press 1 for billing")
 - **Silence detection** that nudges idle callers or gracefully ends dead calls
@@ -40,12 +40,18 @@ You send text, Twilio turns it into speech. The caller speaks, Twilio sends you 
 
 ## Prerequisites
 
-- **Node.js 18+** -- [download](https://nodejs.org/)
-- **A Twilio account** with a Voice-capable phone number -- [sign up free](https://www.twilio.com/try-twilio)
-- **An OpenAI API key** -- [get one here](https://platform.openai.com/api-keys)
-- **ngrok** for tunneling your local server -- [download](https://ngrok.com/)
+- **A free GitHub account** -- for GitHub Codespaces (the workshop dev environment)
+- **A phone** -- to receive test calls from your voice AI agent
+
+Shared Twilio and OpenAI credentials are provided during the workshop -- no signups needed.
+
+> **Running on your own?** You'll need a [Twilio account](https://www.twilio.com/try-twilio) with a Voice-capable phone number and an [OpenAI API key](https://platform.openai.com/api-keys).
 
 ## Getting Started
+
+**During a workshop:** Click "Open in Codespace" from the repository page. Everything is pre-configured.
+
+**Running the companion app locally:**
 
 ```bash
 git clone git@github.com:anthonyjdella/twilio-voice-ai.git
@@ -72,10 +78,12 @@ You can switch between tracks anytime using the **Builder / Explorer** toggle in
 | Technology | Role |
 |-----------|------|
 | [Twilio ConversationRelay](https://www.twilio.com/docs/voice/conversationrelay) | Bridges phone calls and your server via WebSocket. Handles STT, TTS, and audio. |
-| [Twilio Voice TwiML](https://www.twilio.com/docs/voice/twiml) | XML instructions that tell Twilio how to handle incoming calls. |
+| [Twilio Voice TwiML](https://www.twilio.com/docs/voice/twiml) | XML instructions that tell Twilio how to handle calls. |
+| [ElevenLabs](https://elevenlabs.io/) (via Twilio) | Default text-to-speech provider. Bundled into ConversationRelay -- no separate API key. |
+| [Deepgram](https://deepgram.com/) (via Twilio) | Default speech-to-text provider. Bundled into ConversationRelay -- no separate API key. |
 | [OpenAI Chat Completions](https://platform.openai.com/docs/api-reference/chat) | Streams LLM responses for natural, low-latency conversation. |
 | [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) | Persistent bidirectional connection between Twilio and your server. |
-| [ngrok](https://ngrok.com/) | Exposes your local server to the internet so Twilio can reach it. |
+| [GitHub Codespaces](https://github.com/features/codespaces) | Cloud dev environment with built-in port forwarding. Zero local setup. |
 
 ## Reusing This Platform
 

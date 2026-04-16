@@ -70,9 +70,9 @@ VOICE GUIDELINES:
       code: `<Response>
   <Connect action="/call-ended">
     <ConversationRelay
-      url="wss://your-server.ngrok.app/ws"
+      url="wss://your-codespace-8080.app.github.dev/ws"
       voice="en-US-Journey-F"
-      ttsProvider="google"
+      ttsProvider="Google"
       dtmfDetection="true"
       interruptible="any"
       interruptSensitivity="medium"
@@ -121,7 +121,7 @@ VOICE GUIDELINES:
     // ... streaming logic ...
 
   } catch (err) {
-    console.error("LLM error:", err.message);
+    console.error("❌ LLM error:", err.message);
 
     if (err.name === "AbortError") {
       // Expected -- stream was cancelled due to interrupt

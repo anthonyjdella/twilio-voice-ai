@@ -7,14 +7,24 @@ export default {
     {
       type: "prose",
       content:
-        "Your agent now has real capabilities. Let us test tool calling and handoff to make sure everything is wired up correctly.",
+        "Your agent now has real capabilities. Let us test tool calling and handoff to make sure everything is wired up correctly. Make sure your server is running and port 8080 is set to **Public** in your Codespace's Ports tab.",
     },
 
     {
       type: "terminal",
       commands: `$ node server.js
-Server listening on port 8080
-$ ngrok http 8080`,
+Server listening on port 8080`,
+    },
+
+    {
+      type: "prose",
+      content:
+        "Trigger a test call by clicking **Call Me** in the workshop app, or run this from your Codespace terminal:",
+    },
+
+    {
+      type: "terminal",
+      commands: `$ curl -X POST http://localhost:8080/call -H "Content-Type: application/json" -d '{"to": "+1YOURPHONE"}'`,
     },
 
     { type: "section", title: "Test 1: Weather Tool" },
@@ -22,7 +32,7 @@ $ ngrok http 8080`,
     {
       type: "prose",
       content:
-        'Call your Twilio number and ask: "What is the weather in Austin?"',
+        'When your phone rings, answer and ask: "What is the weather in Austin?"',
     },
 
     {

@@ -59,26 +59,26 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws, req) => {
-  console.log("New WebSocket connection from Twilio");
+  console.log("📞 New WebSocket connection");
 
   ws.on("message", (data) => {
     const message = JSON.parse(data);
-    console.log("Received:", message.type);
+    console.log("📨 Received:", message.type);
 
     // We will handle different message types here
   });
 
   ws.on("close", () => {
-    console.log("WebSocket connection closed");
+    console.log("👋 WebSocket connection closed");
   });
 
   ws.on("error", (err) => {
-    console.error("WebSocket error:", err);
+    console.error("❌ WebSocket error:", err);
   });
 });
 
 server.listen(PORT, () => {
-  console.log(\`Server listening on port \${PORT}\`);
+  console.log(\`🚀 Server listening on port \${PORT}\`);
 });`,
     },
 
@@ -87,7 +87,7 @@ server.listen(PORT, () => {
     {
       type: "prose",
       content:
-        "The very first message Twilio sends over the WebSocket is a `setup` message. This arrives immediately after the connection is established and contains metadata about the call -- including the caller's phone number, the Twilio call SID, and any custom parameters you passed in your TwiML.",
+        "The very first message Twilio sends over the WebSocket is a `setup` message. This arrives immediately after the connection is established and contains call metadata -- including the call SID, phone numbers involved, and any custom parameters you passed in your TwiML.",
     },
 
     {
@@ -101,7 +101,7 @@ server.listen(PORT, () => {
   "accountSid": "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "from": "+15551234567",
   "to": "+15559876543",
-  "direction": "inbound",
+  "direction": "outbound",
   "callStatus": "RINGING",
   "customParameters": {}
 }`,
@@ -119,7 +119,7 @@ server.listen(PORT, () => {
       file: "server.js",
       startLine: 16,
       code: `wss.on("connection", (ws, req) => {
-  console.log("New WebSocket connection from Twilio");
+  console.log("📞 New WebSocket connection");
 
   // Per-call state
   let callSid = null;
@@ -131,12 +131,12 @@ server.listen(PORT, () => {
     switch (message.type) {
       case "setup":
         callSid = message.callSid;
-        console.log(\`Call started: \${callSid}\`);
-        console.log(\`Caller: \${message.from}\`);
+        console.log(\`✅ Call started: \${callSid}\`);
+        console.log(\`👤 From: \${message.from}\`);
         break;
 
       default:
-        console.log("Unhandled message type:", message.type);
+        console.log("⚠️ Unhandled message type:", message.type);
     }
   });
 });`,
@@ -180,7 +180,7 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws, req) => {
-  console.log("New WebSocket connection from Twilio");
+  console.log("📞 New WebSocket connection");
 
   // Per-call state
   let callSid = null;
@@ -192,26 +192,26 @@ wss.on("connection", (ws, req) => {
     switch (message.type) {
       case "setup":
         callSid = message.callSid;
-        console.log(\`Call started: \${callSid}\`);
-        console.log(\`Caller: \${message.from}\`);
+        console.log(\`✅ Call started: \${callSid}\`);
+        console.log(\`👤 From: \${message.from}\`);
         break;
 
       default:
-        console.log("Unhandled message type:", message.type);
+        console.log("⚠️ Unhandled message type:", message.type);
     }
   });
 
   ws.on("close", () => {
-    console.log(\`Call ended: \${callSid}\`);
+    console.log(\`👋 Call ended: \${callSid}\`);
   });
 
   ws.on("error", (err) => {
-    console.error("WebSocket error:", err);
+    console.error("❌ WebSocket error:", err);
   });
 });
 
 server.listen(PORT, () => {
-  console.log(\`Server listening on port \${PORT}\`);
+  console.log(\`🚀 Server listening on port \${PORT}\`);
 });`,
     },
   ],

@@ -58,7 +58,7 @@ export default {
       code: `<Response>
   <Connect action="/call-ended">
     <ConversationRelay
-      url="wss://your-server.ngrok.app/ws"
+      url="wss://your-codespace-8080.app.github.dev/ws"
       dtmfDetection="true"
       interruptible="any"
     />
@@ -88,8 +88,8 @@ if (req.url === "/call-ended" && req.method === "POST") {
     if (handoffData) {
       // AI requested a handoff -- transfer the call
       const data = JSON.parse(handoffData);
-      console.log("Handoff requested:", data.reason);
-      console.log("Summary:", data.summary);
+      console.log("🤝 Handoff requested:", data.reason);
+      console.log("📋 Summary:", data.summary);
 
       twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>

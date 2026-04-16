@@ -82,7 +82,7 @@ function processLLMResponse(ws, text) {
     const newLang = match[1];
 
     if (newLang !== currentLanguage) {
-      console.log(\`Switching language: \${currentLanguage} -> \${newLang}\`);
+      console.log(\`🌐 Switching language: \${currentLanguage} -> \${newLang}\`);
       currentLanguage = newLang;
 
       // Tell Twilio to switch STT and TTS

@@ -9,61 +9,45 @@ export default {
     {
       type: "prose",
       content:
-        "You have all the pieces in place: a WebSocket server that handles incoming connections, TwiML that routes calls through ConversationRelay, a speech handler that captures what the caller says, and an LLM integration that streams intelligent responses. Let's bring it all together.",
+        "You have all the pieces in place: a WebSocket server that handles connections, a TwiML endpoint that configures ConversationRelay, an outbound call trigger, a speech handler that captures what the caller says, and an LLM integration that streams intelligent responses. Let's bring it all together.",
     },
 
     { type: "section", title: "Pre-Flight Checklist" },
 
     {
       type: "prose",
-      content: "Before you dial, make sure everything is configured:",
+      content: "Before you trigger the call, make sure everything is configured:",
     },
 
     {
       type: "prose",
       content:
-        "**1. Set your OpenAI API key** as an environment variable. The server reads it from `process.env.OPENAI_API_KEY`:",
-    },
-
-    {
-      type: "terminal",
-      commands: '$ export OPENAI_API_KEY="sk-your-key-here"',
+        "**1. Codespace port is public.** In the Ports tab, make sure port `8080` is set to **Public** visibility so Twilio can reach your server.",
     },
 
     {
       type: "prose",
       content:
-        "**2. Update the WebSocket URL** in your TwiML. Replace `your-ngrok-url.ngrok-free.app` with your actual ngrok hostname.",
+        "**2. Update the Codespace URL** in your code. Replace `your-codespace-8080.app.github.dev` with your actual Codespace URL from the Ports tab (both in the TwiML `url` attribute and the `calls.create` URL).",
     },
 
     {
       type: "prose",
       content:
-        "**3. Configure your Twilio phone number.** In the Twilio Console, set the voice webhook for your phone number to `https://your-ngrok-url.ngrok-free.app/incoming` with HTTP POST.",
+        "**3. Set your environment variables** in `.env`. You need `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `MY_PHONE_NUMBER`, and `OPENAI_API_KEY`.",
     },
 
-    { type: "section", title: "Start Everything Up" },
+    { type: "section", title: "Start Your Server" },
 
     {
       type: "prose",
-      content: "Open two terminal windows. In the first, start ngrok:",
-    },
-
-    {
-      type: "terminal",
-      commands: `$ ngrok http 8080
-Forwarding  https://abc123.ngrok-free.app -> http://localhost:8080`,
-    },
-
-    {
-      type: "prose",
-      content: "In the second, start your server:",
+      content: "In your Codespace terminal, start the server:",
     },
 
     {
       type: "terminal",
       commands: `$ node server.js
-Server listening on port 8080`,
+🚀 Server listening on port 8080`,
     },
 
     { type: "section", title: "Make the Call" },
@@ -71,7 +55,19 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        'Pick up your phone and dial your Twilio number. You should hear the welcome greeting: "Hello! How can I help you today?" Then try saying something -- ask it a question, tell it a joke, ask about the weather. The AI should respond naturally within a second or two.',
+        "Trigger the outbound call by sending a POST request to your `/call` endpoint. You can do this with curl from a second terminal in your Codespace, or use the workshop's \"Call Me\" button if available:",
+    },
+
+    {
+      type: "terminal",
+      commands: `$ curl -X POST https://your-codespace-8080.app.github.dev/call
+{"callSid":"CA1234567890abcdef1234567890abcdef"}`,
+    },
+
+    {
+      type: "prose",
+      content:
+        'Your phone should ring within a few seconds. Pick up and you should hear the welcome greeting: "Hello! How can I help you today?" Then try saying something -- ask it a question, tell it a joke, ask about the weather. The AI should respond naturally within a second or two.',
     },
 
     {
@@ -82,25 +78,26 @@ Server listening on port 8080`,
     {
       type: "terminal",
       commands: `$ node server.js
-Server listening on port 8080
-New WebSocket connection from Twilio
-Call started: CA1234567890abcdef1234567890abcdef
-Caller: +15551234567
-Caller said: What is the capital of France?`,
+🚀 Server listening on port 8080
+📞 Call initiated: CA1234567890abcdef1234567890abcdef
+📞 New WebSocket connection
+✅ Call started: CA1234567890abcdef1234567890abcdef
+👤 From: +15551234567
+🗣️ Caller: What is the capital of France?`,
     },
 
     {
       type: "callout",
       variant: "info",
       content:
-        "The first response might take a moment as the OpenAI API warms up. After the initial exchange, responses should feel quick and conversational. If the AI does not respond at all, check your terminal for error messages -- the most common issues are a missing or invalid API key, an incorrect ngrok URL, or a webhook misconfiguration.",
+        "The first response might take a moment as the OpenAI API warms up. After the initial exchange, responses should feel quick and conversational. If the AI does not respond at all, check your terminal for error messages -- the most common issues are a missing or invalid API key, an incorrect Codespace URL, or the port not being set to public.",
     },
 
     {
       type: "callout",
       variant: "tip",
       content:
-        'Try interrupting the AI while it is speaking. Since we set `interruptible="any"` in the TwiML, Twilio will stop playback and send your new speech as a fresh prompt. This is one of the most impressive features of ConversationRelay -- the conversation feels genuinely natural.',
+        'Try interrupting the AI while it is speaking. Since ConversationRelay defaults to `interruptible="any"`, Twilio will stop playback and send your new speech as a fresh prompt. This is one of the most impressive features of ConversationRelay -- the conversation feels genuinely natural.',
     },
 
     {

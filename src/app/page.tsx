@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import workshopConfig from "@/workshop.config";
-import { AudienceProvider } from "@/lib/AudienceContext";
+import { AudienceProvider, useAudienceMode } from "@/lib/AudienceContext";
 import { OnboardingModal } from "@/components/layout/OnboardingModal";
 
 const stagger = {
@@ -23,11 +23,35 @@ const cardVariant = {
 };
 
 export default function Home() {
-  const { title, hero, chapters, branding, duration } = workshopConfig;
-
   return (
     <AudienceProvider>
-    <OnboardingModal />
+      <HomeContent />
+    </AudienceProvider>
+  );
+}
+
+function HomeContent() {
+  const { title, hero, chapters, branding, duration } = workshopConfig;
+  const { needsOnboarding } = useAudienceMode();
+  const [showModal, setShowModal] = useState(false);
+  const router = useRouter();
+
+  function handleStartClick() {
+    if (needsOnboarding) {
+      setShowModal(true);
+    } else {
+      router.push("/workshop");
+    }
+  }
+
+  function handleOnboardingComplete() {
+    setShowModal(false);
+    router.push("/workshop");
+  }
+
+  return (
+    <>
+    <OnboardingModal open={showModal} onComplete={handleOnboardingComplete} />
     <div className="min-h-screen flex flex-col items-center justify-center bg-navy relative overflow-hidden">
       {/* Animated gradient background */}
       <div
@@ -60,7 +84,7 @@ export default function Home() {
             className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
             style={{ backgroundColor: branding.accentColor }}
           >
-            <Image
+            <img
               src="/images/twilio-bug-white.svg"
               alt="Twilio"
               width={28}
@@ -115,9 +139,9 @@ export default function Home() {
 
         {/* CTA button */}
         <motion.div variants={fadeUp}>
-          <Link
-            href="/workshop"
-            className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-xl text-white font-display font-bold text-lg transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
+          <button
+            onClick={handleStartClick}
+            className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-xl text-white font-display font-bold text-lg transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
             style={{
               backgroundColor: branding.accentColor,
               boxShadow: `0 0 40px rgba(${branding.accentColorRgb}, 0.25), 0 4px 20px rgba(0,0,0,0.2)`,
@@ -136,7 +160,7 @@ export default function Home() {
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />
             </svg>
-          </Link>
+          </button>
         </motion.div>
 
         {/* Chapter grid */}
@@ -180,7 +204,7 @@ export default function Home() {
           className="mt-16 flex items-center justify-center gap-2 text-text-muted/50 text-xs"
         >
           <span>Powered by</span>
-          <Image
+          <img
             src="/images/twilio-logo-white.svg"
             alt="Twilio"
             width={60}
@@ -190,6 +214,6 @@ export default function Home() {
         </motion.div>
       </motion.div>
     </div>
-    </AudienceProvider>
+    </>
   );
 }

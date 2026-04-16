@@ -7,14 +7,24 @@ export default {
     {
       type: "prose",
       content:
-        "Time to put your agent's reflexes to the test. Make sure your server is running and your ngrok tunnel is active, then call your Twilio number.",
+        "Time to put your agent's reflexes to the test. Make sure your server is running and port 8080 is set to **Public** in your Codespace's Ports tab.",
     },
 
     {
       type: "terminal",
       commands: `$ node server.js
-Server listening on port 8080
-$ ngrok http 8080`,
+Server listening on port 8080`,
+    },
+
+    {
+      type: "prose",
+      content:
+        "Trigger a test call by clicking **Call Me** in the workshop app, or run this from your Codespace terminal:",
+    },
+
+    {
+      type: "terminal",
+      commands: `$ curl -X POST http://localhost:8080/call -H "Content-Type: application/json" -d '{"to": "+1YOURPHONE"}'`,
     },
 
     { type: "section", title: "Test 1: Interruption" },
@@ -22,7 +32,7 @@ $ ngrok http 8080`,
     {
       type: "prose",
       content:
-        'Call your agent and ask it a question that will produce a long response, like "Tell me everything about your return policy." While the agent is speaking, interrupt it by saying "Actually, never mind."',
+        'When your phone rings, answer and ask a question that will produce a long response, like "Tell me everything about your return policy." While the agent is speaking, interrupt it by saying "Actually, never mind."',
     },
 
     {
@@ -48,7 +58,7 @@ $ ngrok http 8080`,
     {
       type: "prose",
       content:
-        'Call again and press **1** on your keypad while the agent is speaking or after it finishes. You should see a `dtmf` message in your logs with `digit: "1"`, and the agent should respond based on your menu handler.',
+        'Trigger another call and press **1** on your keypad while the agent is speaking or after it finishes. You should see a `dtmf` message in your logs with `digit: "1"`, and the agent should respond based on your menu handler.',
     },
 
     {
@@ -62,7 +72,7 @@ $ ngrok http 8080`,
     {
       type: "prose",
       content:
-        "Call your agent and let it greet you. Then stay completely silent. After your configured timeout (default 8 seconds), the agent should nudge you with a gentle prompt. Stay silent again and verify the second prompt arrives, followed by a graceful call ending.",
+        "Trigger another call and let the agent greet you. Then stay completely silent. After your configured timeout (default 8 seconds), the agent should nudge you with a gentle prompt. Stay silent again and verify the second prompt arrives, followed by a graceful call ending.",
     },
 
     {

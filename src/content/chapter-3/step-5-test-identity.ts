@@ -15,15 +15,24 @@ export default {
     {
       type: "prose",
       content:
-        "Make sure your ngrok tunnel is still running. If it expired, start a new one and update your Twilio phone number webhook:",
+        "Make sure port 8080 is set to **Public** in your Codespace's Ports tab. This allows Twilio to reach your server.",
     },
-
-    { type: "terminal", commands: "$ ngrok http 8080" },
 
     {
       type: "prose",
       content:
-        "Now call your Twilio phone number. You should hear your agent greet you with the voice and personality you configured. Try a few things during the call:",
+        "Now trigger a test call. You can click **Call Me** in the workshop app, or run this from your Codespace terminal:",
+    },
+
+    {
+      type: "terminal",
+      commands: `$ curl -X POST http://localhost:8080/call -H "Content-Type: application/json" -d '{"to": "+1YOURPHONE"}'`,
+    },
+
+    {
+      type: "prose",
+      content:
+        "Your server will place an outbound call to your phone. When you answer, you should hear your agent greet you with the voice and personality you configured. Try a few things during the call:",
     },
 
     {
