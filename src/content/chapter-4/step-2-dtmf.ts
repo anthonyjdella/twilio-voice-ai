@@ -67,10 +67,10 @@ export default {
 
   switch (msg.type) {
     case "setup":
-      // Send a greeting with menu options. Pass last=true for one-shot
-      // messages so Twilio starts TTS immediately (Ch2's helper defaults
-      // to last=false, which is for streaming LLM tokens).
-      sendText(ws, "Welcome! Press 1 to check your order status, " +
+      // The TwiML welcomeGreeting already said hello. This menu plays
+      // right after it, giving the caller DTMF options. Pass last=true
+      // so Twilio starts TTS immediately.
+      sendText(ws, "Press 1 to check your order status, " +
         "press 2 to speak with a representative, " +
         "or just tell me what you need.", true);
       break;

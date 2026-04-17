@@ -275,7 +275,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
   );
 
   if (hasSlowTool) {
-    sendText(ws, "One moment while I look that up...");
+    sendText(ws, "One moment while I look that up...", true);
   }
 
   // ... rest of the function
@@ -371,7 +371,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
   }
 
   if (toolCalls.some(tc => SLOW_TOOLS.includes(tc.function.name))) {
-    sendText(ws, "One moment while I look that up...");
+    sendText(ws, "One moment while I look that up...", true);
   }
 
   conversationHistory.push({

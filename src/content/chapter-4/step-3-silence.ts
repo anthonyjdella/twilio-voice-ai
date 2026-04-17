@@ -96,8 +96,9 @@ function handleSilence(ws) {
 
   switch (msg.type) {
     case "setup":
-      sendText(ws, "Hello! How can I help you today?", true);
-      resetSilenceTimer(ws);  // Start watching for silence
+      // welcomeGreeting in TwiML already speaks the greeting,
+      // so just start the silence timer here -- no duplicate greeting.
+      resetSilenceTimer(ws);
       break;
 
     case "prompt":

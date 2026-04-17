@@ -168,7 +168,7 @@ function handleMessage(ws, data) {
 }`,
     },
 
-    { type: "section", title: "TwiML Configuration" },
+    { type: "section", title: "Interruption Settings" },
 
     {
       type: "prose",
