@@ -2,6 +2,43 @@
 
 import type { LucideIcon } from "lucide-react";
 import { Smartphone, PhoneCall, Server, Brain, Wrench, UserRound } from "lucide-react";
+import { useTheme } from "@/lib/ThemeContext";
+
+// Theme-aware palette. In dark mode, white-alpha reads well on #181D3C cards;
+// in light mode we swap to navy-alpha (#000D25 base) so text/strokes remain
+// visible on the #DEE0E7 card surface.
+type DiagramPalette = {
+  nodeTextActive: string;
+  nodeTextInactive: string;
+  nodeFillInactive: string;
+  nodeStrokeInactive: string;
+  sublabel: string;
+  arrowInactive: string;
+  websocketInactive: string;
+};
+
+function getPalette(isDark: boolean): DiagramPalette {
+  if (isDark) {
+    return {
+      nodeTextActive: "rgba(255,255,255,0.9)",
+      nodeTextInactive: "rgba(255,255,255,0.3)",
+      nodeFillInactive: "rgba(255,255,255,0.03)",
+      nodeStrokeInactive: "rgba(255,255,255,0.07)",
+      sublabel: "rgba(255,255,255,0.2)",
+      arrowInactive: "rgba(255,255,255,0.1)",
+      websocketInactive: "rgba(255,255,255,0.1)",
+    };
+  }
+  return {
+    nodeTextActive: "rgba(0,13,37,0.88)",
+    nodeTextInactive: "rgba(0,13,37,0.45)",
+    nodeFillInactive: "rgba(0,13,37,0.04)",
+    nodeStrokeInactive: "rgba(0,13,37,0.18)",
+    sublabel: "rgba(0,13,37,0.55)",
+    arrowInactive: "rgba(0,13,37,0.25)",
+    websocketInactive: "rgba(0,13,37,0.25)",
+  };
+}
 
 type Highlight =
   | "none"
@@ -32,6 +69,7 @@ function NodeBox({
   active,
   completed,
   width = 130,
+  palette,
 }: {
   x: number;
   y: number;
@@ -41,8 +79,9 @@ function NodeBox({
   active: boolean;
   completed?: boolean;
   width?: number;
+  palette: DiagramPalette;
 }) {
-  const fillColor = active || completed ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.3)";
+  const fillColor = active || completed ? palette.nodeTextActive : palette.nodeTextInactive;
   const halfW = width / 2;
 
   return (
@@ -53,13 +92,13 @@ function NodeBox({
         width={width}
         height={56}
         rx={12}
-        fill={active ? "rgba(239, 34, 58, 0.1)" : "rgba(255, 255, 255, 0.03)"}
+        fill={active ? "rgba(239, 34, 58, 0.1)" : palette.nodeFillInactive}
         stroke={
           completed
             ? "#10B981"
             : active
               ? "#EF223A"
-              : "rgba(255, 255, 255, 0.07)"
+              : palette.nodeStrokeInactive
         }
         strokeWidth={active ? 1.5 : 1}
         className={active ? "animate-pulse-glow" : ""}
@@ -91,7 +130,7 @@ function NodeBox({
         <text
           y={14}
           textAnchor="middle"
-          fill="rgba(255,255,255,0.2)"
+          fill={palette.sublabel}
           fontSize={9}
           fontFamily="var(--font-mono)"
         >
@@ -109,6 +148,7 @@ function Arrow({
   y2,
   active,
   bidirectional,
+  palette,
 }: {
   x1: number;
   y1: number;
@@ -116,6 +156,7 @@ function Arrow({
   y2: number;
   active: boolean;
   bidirectional?: boolean;
+  palette: DiagramPalette;
 }) {
   return (
     <g>
@@ -124,7 +165,7 @@ function Arrow({
         y1={y1}
         x2={x2}
         y2={y2}
-        stroke={active ? "#EF223A" : "rgba(255,255,255,0.1)"}
+        stroke={active ? "#EF223A" : palette.arrowInactive}
         strokeWidth={active ? 1.5 : 1}
         strokeDasharray={active ? "6 3" : "none"}
         className={active ? "animate-flow" : ""}
@@ -134,14 +175,14 @@ function Arrow({
         cx={x2 - (x2 > x1 ? 4 : x2 < x1 ? -4 : 0)}
         cy={y2 - (y2 > y1 ? 4 : y2 < y1 ? -4 : 0)}
         r={2}
-        fill={active ? "#EF223A" : "rgba(255,255,255,0.1)"}
+        fill={active ? "#EF223A" : palette.arrowInactive}
       />
       {bidirectional && (
         <circle
           cx={x1 + (x2 > x1 ? 4 : x2 < x1 ? -4 : 0)}
           cy={y1 + (y2 > y1 ? 4 : y2 < y1 ? -4 : 0)}
           r={2}
-          fill={active ? "#EF223A" : "rgba(255,255,255,0.1)"}
+          fill={active ? "#EF223A" : palette.arrowInactive}
         />
       )}
     </g>
@@ -163,10 +204,17 @@ export function ArchitectureDiagram({
   showTools = false,
   showHandoff = false,
 }: ArchitectureDiagramProps) {
+  const { isDark } = useTheme();
+  const palette = getPalette(isDark);
   const isAll = highlight === "all" || highlight === "complete";
   const isComplete = highlight === "complete";
   const hasBottomRow = showTools || showHandoff || isAll || highlight === "llm" || highlight === "tools" || highlight === "handoff" || highlight === "server";
   const viewHeight = hasBottomRow ? 195 : 115;
+  const websocketActive =
+    isAll ||
+    highlight === "websocket" ||
+    highlight === "websocket-prompt" ||
+    highlight === "websocket-response";
 
   return (
     <div className="rounded-xl bg-surface-1 border border-navy-border p-4 mb-8">
@@ -179,16 +227,13 @@ export function ArchitectureDiagram({
           x1={CALLER_X + 65} y1={ROW1_Y} x2={TWILIO_X - 65} y2={ROW1_Y}
           active={isAll || highlight === "setup"}
           bidirectional
+          palette={palette}
         />
         <Arrow
           x1={TWILIO_X + 65} y1={ROW1_Y} x2={SERVER_X - 65} y2={ROW1_Y}
-          active={
-            isAll ||
-            highlight === "websocket" ||
-            highlight === "websocket-prompt" ||
-            highlight === "websocket-response"
-          }
+          active={websocketActive}
           bidirectional
+          palette={palette}
         />
 
         {/* Server → LLM arrow (vertical) */}
@@ -196,6 +241,7 @@ export function ArchitectureDiagram({
           <Arrow
             x1={LLM_X} y1={ROW1_Y + 28} x2={LLM_X} y2={ROW2_Y - 28}
             active={isAll || highlight === "llm" || highlight === "server"}
+            palette={palette}
           />
         )}
 
@@ -204,6 +250,7 @@ export function ArchitectureDiagram({
           <Arrow
             x1={SERVER_X - 40} y1={ROW1_Y + 28} x2={TOOLS_X + 40} y2={ROW2_Y - 28}
             active={highlight === "tools" || isAll}
+            palette={palette}
           />
         )}
 
@@ -212,6 +259,7 @@ export function ArchitectureDiagram({
           <Arrow
             x1={SERVER_X - 60} y1={ROW1_Y + 28} x2={HANDOFF_X + 50} y2={ROW2_Y - 28}
             active={highlight === "handoff" || isAll}
+            palette={palette}
           />
         )}
 
@@ -220,14 +268,7 @@ export function ArchitectureDiagram({
           x={(TWILIO_X + SERVER_X) / 2}
           y={ROW1_Y - 18}
           textAnchor="middle"
-          fill={
-            highlight === "websocket" ||
-            highlight === "websocket-prompt" ||
-            highlight === "websocket-response" ||
-            isAll
-              ? "rgba(239, 34, 58, 0.6)"
-              : "rgba(255,255,255,0.1)"
-          }
+          fill={websocketActive ? "rgba(239, 34, 58, 0.6)" : palette.websocketInactive}
           fontSize={9}
           fontFamily="var(--font-mono)"
         >
@@ -240,6 +281,7 @@ export function ArchitectureDiagram({
           label="Caller" Icon={Smartphone}
           active={isAll || highlight === "setup"}
           completed={isComplete}
+          palette={palette}
         />
         <NodeBox
           x={TWILIO_X} y={ROW1_Y}
@@ -247,6 +289,7 @@ export function ArchitectureDiagram({
           active={isAll || highlight === "stt-tts" || highlight === "setup"}
           completed={isComplete}
           width={140}
+          palette={palette}
         />
         <NodeBox
           x={SERVER_X} y={ROW1_Y}
@@ -260,6 +303,7 @@ export function ArchitectureDiagram({
           }
           completed={isComplete}
           width={140}
+          palette={palette}
         />
 
         {/* Bottom row nodes */}
@@ -269,6 +313,7 @@ export function ArchitectureDiagram({
             label="LLM" sublabel="OpenAI" Icon={Brain}
             active={isAll || highlight === "llm"}
             completed={isComplete}
+            palette={palette}
           />
         )}
 
@@ -278,6 +323,7 @@ export function ArchitectureDiagram({
             label="Tools" sublabel="Functions" Icon={Wrench}
             active={highlight === "tools" || isAll}
             completed={isComplete}
+            palette={palette}
           />
         )}
 
@@ -288,6 +334,7 @@ export function ArchitectureDiagram({
             active={highlight === "handoff" || isAll}
             completed={isComplete}
             width={140}
+            palette={palette}
           />
         )}
       </svg>

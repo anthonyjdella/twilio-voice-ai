@@ -5,12 +5,12 @@ const workshopConfig: WorkshopConfig = {
   title: "Build a Voice AI Agent",
   shortTitle: "Voice AI Workshop",
   description:
-    "A 90-minute guided workshop where you build a real conversational AI voice application using Twilio ConversationRelay",
+    "A guided workshop where you build a real conversational AI voice application using Twilio ConversationRelay",
   duration: "90 minutes",
 
   hero: {
     tagline:
-      "A 90-minute guided workshop with ConversationRelay",
+      "A guided workshop with ConversationRelay",
     description:
       "By the end of this workshop, you\u2019ll have a working voice AI agent that calls your phone and talks to you \u2014 with a custom persona, realistic voice, tool calling, and more.",
     ctaText: "Start Workshop",

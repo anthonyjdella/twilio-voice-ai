@@ -218,18 +218,17 @@ function HomeContent() {
           ))}
         </motion.div>
 
-        {/* Footer */}
+        {/* Footer — official "Powered by Twilio" brand badge.
+            Min size per brand guide: 28px × 105px. Using 32 × 120 (within bounds). */}
         <motion.div
           variants={fadeUp}
-          className="mt-16 flex items-center justify-center gap-2 text-text-muted/50 text-xs"
+          className="mt-16 flex items-center justify-center"
         >
-          <span>Powered by</span>
           <img
-            src={isDark ? "/images/twilio-logo-white.svg" : "/images/twilio-logo-ink.svg"}
-            alt="Twilio"
-            width={60}
-            height={20}
-            className="opacity-40"
+            src={isDark ? "/images/powered-by-twilio-clear.png" : "/images/powered-by-twilio-on-white.png"}
+            alt="Powered by Twilio"
+            width={120}
+            height={32}
           />
         </motion.div>
       </motion.div>
