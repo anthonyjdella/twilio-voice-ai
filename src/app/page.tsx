@@ -41,17 +41,19 @@ function HomeContent() {
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
+  const firstStep = `/workshop/${workshopConfig.chapters[0].slug}/${workshopConfig.chapters[0].steps[0].slug}`;
+
   function handleStartClick() {
     if (needsOnboarding) {
       setShowModal(true);
     } else {
-      router.push("/workshop");
+      router.push(firstStep);
     }
   }
 
   function handleOnboardingComplete() {
     setShowModal(false);
-    router.push("/workshop");
+    router.push(firstStep);
   }
 
   return (
