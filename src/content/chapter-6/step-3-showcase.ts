@@ -9,7 +9,7 @@ export default {
       audience: "explorer",
       title: "Show the Story, Not the Code",
       content:
-        "When you demo a voice agent, let the call speak for itself. The best demos walk through a short, believable scenario -- a real customer with a real problem -- and the audience hears the agent handle it. Save the code walkthrough for the people who want it afterwards. The magic is in the conversation.",
+        "When you demo a voice agent, let the call speak for itself. Walk through a short, believable scenario -- a real customer with a real problem -- and let the audience hear the agent handle it. Save the code walkthrough for afterwards.",
     },
 
     {

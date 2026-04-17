@@ -11,7 +11,7 @@ export default {
       audience: "explorer",
       title: "Why Streaming Feels Natural",
       content:
-        "A large language model can take a few seconds to finish a full reply. Instead of waiting for the whole thing, we hand each word to Twilio the moment it's generated -- so the caller hears the AI start speaking almost immediately, word by word. That tiny trick is what makes the conversation feel alive instead of walkie-talkie.",
+        "A large language model can take a few seconds to finish a full reply. Instead of waiting for the whole thing, we hand each word to Twilio the moment it's generated -- so the caller hears the AI start speaking almost immediately, word by word.",
     },
 
     {
@@ -24,7 +24,7 @@ export default {
     {
       type: "prose",
       content:
-        "Now for the exciting part. When the caller speaks, you send their words to the AI, get a response, and send it back to Twilio so the caller hears a reply. Instead of waiting for the entire answer, you send each piece the moment it's ready -- so the caller starts hearing a response almost instantly.",
+        "When the caller speaks, you send their words to the AI, get a response, and send it back to Twilio so the caller hears a reply. Instead of waiting for the entire answer, you send each piece the moment it's ready -- so the caller starts hearing a response almost instantly.",
     },
 
     { type: "section", title: "Install the OpenAI SDK" },

@@ -7,7 +7,7 @@ export default {
     {
       type: "prose",
       content:
-        "You're about to build a **voice AI agent** that you can talk to over a real phone call. Not a phone tree. Not a recording. A live, intelligent agent that listens, thinks, and responds in real time -- powered by AI and delivered through Twilio's global phone network. Your server will call your phone, and you'll have a conversation with your own AI agent.",
+        "You're about to build a **voice AI agent** that you can talk to over a real phone call. It listens to what you say, sends your words to an AI, and speaks the reply back -- all in real time over Twilio's phone network.",
     },
 
     {

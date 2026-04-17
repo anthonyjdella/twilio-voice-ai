@@ -11,7 +11,7 @@ export default {
       audience: "explorer",
       title: "What Happens When You Call",
       content:
-        "In a few seconds: Twilio dials your phone, plays the welcome greeting, listens for your words, sends them to the AI, and streams the AI's reply back as speech -- all while your code watches from the sidelines. If you interrupt mid-sentence, Twilio notices and lets the AI adapt. This is the first moment it actually feels like a real voice agent.",
+        "Twilio dials your phone, plays the welcome greeting, listens for your words, sends them to the AI, and streams the AI's reply back as speech. If you interrupt mid-sentence, Twilio stops playback and lets the AI adapt.",
     },
 
     {
@@ -118,7 +118,7 @@ export default {
       type: "callout",
       variant: "tip",
       content:
-        'Try interrupting the AI while it is speaking. Since ConversationRelay defaults to `interruptible="any"`, Twilio will stop playback and send your new speech as a fresh prompt. This is one of the most impressive features of ConversationRelay -- the conversation feels genuinely natural.',
+        'Try interrupting the AI while it is speaking. Since ConversationRelay defaults to `interruptible="any"`, Twilio will stop playback and send your new speech as a fresh prompt.',
     },
 
     {
@@ -131,7 +131,7 @@ export default {
     {
       type: "prose",
       content:
-        "Congratulations -- you just made an AI-powered phone call. In roughly 40 lines of server code, you created an agent that listens to natural speech, thinks with AI, and responds in a human-sounding voice over a real phone call. That is ConversationRelay at work: Twilio handles all the audio complexity while your server focuses purely on the conversation.",
+        "Your agent is working. About 40 lines of server code, and Twilio handles all the audio complexity -- your server just deals with text.",
     },
 
     {

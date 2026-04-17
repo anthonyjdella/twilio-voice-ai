@@ -88,7 +88,7 @@ export default {
       audience: "explorer",
       variant: "tip",
       content:
-        "From the caller's perspective, this all happens in about two seconds. They ask a question, hear a brief pause (or a filler like \"Let me check that for you...\"), and then get a real answer pulled from live data. That pause-then-answer rhythm is what makes tool-enabled agents feel genuinely useful rather than just chatty.",
+        "From the caller's perspective, this takes about two seconds. They ask a question, hear a brief pause (or a filler like \"Let me check that for you...\"), and then get an answer pulled from live data.",
     },
 
     { type: "section", title: "The Tool Calling Loop", audience: "builder" },

@@ -15,7 +15,7 @@ export default {
     {
       type: "prose",
       content:
-        "Congratulations -- you have built a fully functional voice AI agent with Twilio ConversationRelay. You have gone from zero to an agent that can listen, speak, use tools, handle interruptions, and hand off to humans. That is a serious accomplishment.",
+        "You now have a voice AI agent that listens, speaks, uses tools, handles interruptions, and hands off to humans -- built with Twilio ConversationRelay.",
     },
 
     {
