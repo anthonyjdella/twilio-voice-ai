@@ -20,7 +20,7 @@ export default {
       audience: "explorer",
       title: "The Five Components",
       content:
-        "When a call connects, Twilio activates ConversationRelay, which converts speech to text and text back to speech in real time. Your server sits in the middle — it takes the caller's words (now text), sends them to an AI brain (OpenAI), and sends the AI's reply back through Twilio so the person on the phone hears a natural voice response.",
+        "When a call connects, Twilio activates ConversationRelay, which converts speech to text and text back to speech in real time. Your server sits in the middle — it takes the caller's words (now text), sends them to an AI brain (like OpenAI), and sends the AI's reply back through Twilio so the person on the phone hears a natural voice response.",
     },
 
     // Builder: trimmed component descriptions
@@ -57,6 +57,13 @@ export default {
       audience: "builder",
       content:
         "**LLM (OpenAI)** — The language model powering your agent's intelligence. Your server sends it conversation history and a system prompt; it responds with streamed tokens to minimize latency.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "**Tools (Functions)** — The LLM can request actions during a conversation — looking up an order, checking the weather, or querying a database. Your server defines the available tools, executes them when the LLM asks, and feeds the results back so the LLM can incorporate real data into its reply. The LLM never runs tools directly; your server is always in control of what gets executed.",
     },
   ],
 } satisfies StepDefinition;

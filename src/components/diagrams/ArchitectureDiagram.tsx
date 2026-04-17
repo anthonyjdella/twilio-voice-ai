@@ -210,10 +210,10 @@ function Arrow({
 const ROW1_Y = 55;
 const ROW2_Y = 155;
 const CALLER_X = 90;
-const TWILIO_X = 290;
-const SERVER_X = 490;
-const LLM_X = 490;
-const TOOLS_X = 320;
+const TWILIO_X = 280;
+const SERVER_X = 530;
+const LLM_X = 530;
+const TOOLS_X = 350;
 const HANDOFF_X = 160;
 
 export function ArchitectureDiagram({
@@ -238,16 +238,16 @@ export function ArchitectureDiagram({
       <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">
         Architecture
       </div>
-      <svg viewBox={`0 0 580 ${viewHeight}`} className="w-full">
+      <svg viewBox={`0 0 630 ${viewHeight}`} className="w-full">
         {/* Top row arrows */}
         <Arrow
-          x1={CALLER_X + 65} y1={ROW1_Y} x2={TWILIO_X - 65} y2={ROW1_Y}
+          x1={CALLER_X + 65} y1={ROW1_Y} x2={TWILIO_X - 80} y2={ROW1_Y}
           active={isAll || highlight === "setup"}
           bidirectional
           palette={palette}
         />
         <Arrow
-          x1={TWILIO_X + 65} y1={ROW1_Y} x2={SERVER_X - 65} y2={ROW1_Y}
+          x1={TWILIO_X + 80} y1={ROW1_Y} x2={SERVER_X - 65} y2={ROW1_Y}
           active={websocketActive}
           bidirectional
           palette={palette}
@@ -302,10 +302,10 @@ export function ArchitectureDiagram({
         />
         <NodeBox
           x={TWILIO_X} y={ROW1_Y}
-          label="Twilio Voice" sublabel="STT + TTS" Icon={PhoneCall}
+          label="Twilio Voice" sublabel="ConversationRelay" Icon={PhoneCall}
           active={isAll || highlight === "stt-tts" || highlight === "setup"}
           completed={isComplete}
-          width={140}
+          width={160}
           palette={palette}
         />
         <NodeBox
