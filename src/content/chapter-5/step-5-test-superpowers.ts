@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Test Superpowers" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What a Great Test Call Looks Like",
+      content:
+        "A good test call has three beats: ask something the tool should answer, ask something only a human should handle, and see if the agent makes the right choice each time. If the weather question gets a weather answer and the sensitive request gets a graceful handoff, your agent has real superpowers -- not just conversation skills.",
+    },
+
+    {
       type: "prose",
       content:
         "Your agent now has real capabilities. Let us test tool calling and handoff to make sure everything is wired up correctly. Make sure your server is running and port 8080 is set to **Public** in your Codespace's Ports tab.",

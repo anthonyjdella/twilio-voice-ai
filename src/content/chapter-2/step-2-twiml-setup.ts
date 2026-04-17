@@ -7,6 +7,14 @@ export default {
     { type: "section", title: "Making an Outbound Call with ConversationRelay" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "TwiML in One Minute",
+      content:
+        "TwiML is a little XML instruction sheet you hand to Twilio. When a call connects, Twilio reads it and does what it says -- \"play this greeting\", \"open a WebSocket to this URL\", \"listen for keypresses\". In this workshop, one short TwiML document is all it takes to wire a live phone call into your code.",
+    },
+
+    {
       type: "prose",
       content:
         "In this workshop, your server will call the attendee rather than waiting for an incoming call. This is a common pattern for voice AI: the Twilio REST API initiates an outbound call, and a TwiML endpoint on your server tells Twilio how to handle the call once the person picks up. The TwiML uses the `<Connect>` verb with a `<ConversationRelay>` noun to hand the call off to your WebSocket server.",

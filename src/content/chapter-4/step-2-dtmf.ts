@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "DTMF Detection" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Keypad = Accessibility + Accuracy",
+      content:
+        "DTMF is the old-school phone keypad -- the beeps when you press 1, 2, 3. It's still the most reliable way to capture exact info: credit card digits, account numbers, a menu selection in a noisy room. Supporting the keypad alongside natural speech makes your agent work for callers who can't speak (or just shouldn't, in a meeting) without losing the conversational feel for everyone else.",
+    },
+
+    {
       type: "prose",
       content:
         "DTMF (Dual-Tone Multi-Frequency) tones are the signals generated when a caller presses keys on their phone keypad. ConversationRelay can detect these and forward them to your WebSocket server, allowing you to build traditional IVR-style menus alongside your AI conversation.",

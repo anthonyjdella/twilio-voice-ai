@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Define Tools" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Describing Tools So the LLM Understands",
+      content:
+        "You don't teach the LLM a tool by showing it the code -- you describe it in plain English: what it does, when to use it, and what inputs it needs. The model uses that description to pick the right tool at the right moment, the same way a new hire would read a help-desk runbook. A clear description is everything; a vague one makes the agent guess wrong.",
+    },
+
+    {
       type: "prose",
       content:
         "Tools are defined as JSON schemas that describe what each function does, what parameters it accepts, and what those parameters mean. The LLM uses these descriptions to decide when and how to call each tool.",

@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Test Reflexes" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Signs Your Agent Feels Alive",
+      content:
+        "On this call you're checking for *liveliness*: does the agent stop talking the instant you interrupt, notice a keypress, react to silence, and recover when you switch languages? If all four feel natural, the agent has proper reflexes. Stiffness on any one of them is usually the giveaway that something needs tuning.",
+    },
+
+    {
       type: "prose",
       content:
         "Time to put your agent's reflexes to the test. Make sure your server is running and port 8080 is set to **Public** in your Codespace's Ports tab.",

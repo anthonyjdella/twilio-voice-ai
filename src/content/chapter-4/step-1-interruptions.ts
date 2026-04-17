@@ -7,6 +7,14 @@ export default {
     { type: "diagram", variant: "architecture", highlight: "websocket" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Why Barge-In Matters",
+      content:
+        "Real conversations aren't turn-based. People cut each other off, change their mind mid-sentence, and repeat themselves when they feel unheard. If your voice agent insists on finishing every sentence before listening, it feels robotic fast. Barge-in is the feature that lets the caller interrupt at any moment, and it's half the reason a ConversationRelay agent feels alive.",
+    },
+
+    {
       type: "prose",
       content:
         "Real conversations are messy. People interrupt, change their minds mid-sentence, and talk over each other. A great voice agent handles all of this gracefully. ConversationRelay has built-in **barge-in** support -- when a caller speaks while the AI is still talking, Twilio detects it and sends your server an `interrupt` message over the WebSocket.",
@@ -59,10 +67,16 @@ export default {
     },
 
     {
+      type: "prose",
+      content:
+        "We track the active stream as an `AbortController`. When we kick off the LLM call, we pass its `signal` to the OpenAI SDK -- that is what makes the stream cancellable. On `interrupt`, we simply call `activeStream.abort()` and the `for await` loop throws, ending the stream cleanly.",
+    },
+
+    {
       type: "code",
       language: "javascript",
       file: "server.js",
-      code: `// Track the active stream so we can abort it
+      code: `// The AbortController for the in-flight OpenAI stream, or null when idle
 let activeStream = null;
 
 // Helper: send a complete text response to the caller
@@ -70,20 +84,53 @@ function sendText(ws, text) {
   ws.send(JSON.stringify({ type: "text", token: text, last: true }));
 }
 
+async function handlePrompt(ws, msg) {
+  conversationHistory.push({ role: "user", content: msg.voicePrompt });
+
+  // Create an AbortController and wire it to the OpenAI stream
+  activeStream = new AbortController();
+
+  const stream = await openai.chat.completions.create(
+    {
+      model: "gpt-4o",
+      messages: conversationHistory,
+      stream: true,
+    },
+    { signal: activeStream.signal } // <- cancellation hook
+  );
+
+  try {
+    let assistantText = "";
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content ?? "";
+      if (token) {
+        assistantText += token;
+        sendText(ws, token);
+      }
+    }
+    conversationHistory.push({ role: "assistant", content: assistantText });
+  } catch (err) {
+    if (err.name !== "AbortError") throw err;
+    // Stream was aborted by an interrupt -- history is trimmed in the handler below
+  } finally {
+    activeStream = null;
+  }
+}
+
 function handleMessage(ws, data) {
   const msg = JSON.parse(data);
 
   switch (msg.type) {
     case "interrupt":
-      console.log("✋ Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
+      console.log("Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
 
-      // 1. Abort the active OpenAI stream
+      // 1. Abort the active OpenAI stream (if one is running)
       if (activeStream) {
-        activeStream.controller.abort();
+        activeStream.abort();
         activeStream = null;
       }
 
-      // 2. Trim the last assistant message to what was actually heard
+      // 2. Replace the last assistant turn with only what the caller heard
       const lastMsg = conversationHistory[conversationHistory.length - 1];
       if (lastMsg?.role === "assistant") {
         lastMsg.content = msg.utteranceUntilInterrupt;

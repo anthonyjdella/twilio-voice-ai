@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Polish Your Agent" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "The Line Between Demo and Product",
+      content:
+        "A demo works once, on command, with a friendly audience. A product works on a bad phone line, when the caller is frustrated, at 3am. Polish is the set of small choices -- tone, error messages, logging, graceful fallbacks -- that turn a working prototype into something you'd trust in front of real customers.",
+    },
+
+    {
       type: "prose",
       content:
         "You have a working voice AI agent with tool calling, interruption handling, and handoff support. Before launch, let us go through a polishing pass to make it feel professional and reliable.",

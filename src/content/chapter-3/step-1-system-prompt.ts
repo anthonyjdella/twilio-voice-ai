@@ -7,6 +7,14 @@ export default {
     { type: "section", title: "What Is a System Prompt?" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "The System Prompt Shapes Behavior",
+      content:
+        "The system prompt is a single paragraph you hand the AI at the start of every call -- it's the backstory, job description, and rulebook all at once. It's why the same LLM can be a cheerful pizza-ordering bot on one call and a calm medical intake nurse on the next. The words you choose here control the entire personality and scope of the agent.",
+    },
+
+    {
       type: "prose",
       content:
         "The system prompt is the first message in every conversation with your LLM. It defines **who** the AI agent is, **how** it should behave, and **what** it should (and should not) do. Think of it as the agent's backstory, personality, and operating manual rolled into one.",

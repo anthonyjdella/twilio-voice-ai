@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Handle Tool Calls" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "The Tool Loop in Plain English",
+      content:
+        "When the AI decides it needs a tool, it doesn't answer the caller yet -- it pauses and says, essentially, \"please look this up for me.\" Your code runs the tool (check weather, look up an order), hands the answer back to the model, and *then* the model speaks to the caller. This little back-and-forth loop is what lets a voice agent actually *do* things, not just talk about them.",
+    },
+
+    {
       type: "prose",
       content:
         "Now that you have defined your tools and their handlers, you need to wire them into the streaming response loop. When OpenAI returns a tool call instead of text, your code must execute the tool, feed the result back, and continue the conversation.",

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useWorkshop } from "@/lib/WorkshopContext";
 import { useProgressContext } from "./ProgressContext";
 import { ConfirmModal } from "./ConfirmModal";
@@ -30,15 +30,62 @@ function StepIcon({ state }: { state: "pending" | "active" | "completed" }) {
 
 export function Sidebar() {
   const params = useParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const chapterSlug = params.chapter as string | undefined;
   const stepSlug = params.step as string | undefined;
+  // The /workshop/complete page renders its own full-bleed layout — no sidebar.
+  const onCompletePage = pathname === "/workshop/complete";
   const { config, chapters, getChapter } = useWorkshop();
   const chapter = chapterSlug ? getChapter(chapterSlug) : chapters[0];
   const { progress, resetProgress, completionPercentage } = useProgressContext();
 
   const [showResetModal, setShowResetModal] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
-  if (!chapter) return null;
+  // Flattened step list so we can reason about absolute "step position" across
+  // chapters (chapter 1 step 3 vs. chapter 2 step 1).
+  const allSteps = chapters.flatMap((c) =>
+    c.steps.map((s) => ({ chapterId: c.id, stepId: s.id, chapterSlug: c.slug, stepSlug: s.slug }))
+  );
+
+  function positionOf(chId: number, stId: number): number {
+    return allSteps.findIndex((s) => s.chapterId === chId && s.stepId === stId);
+  }
+
+  // The furthest step the learner has completed (−1 if nothing complete yet).
+  const maxCompletedPosition = progress.completedSteps.reduce((max, key) => {
+    const m = key.match(/^chapter-(\d+):step-(\d+)$/);
+    if (!m) return max;
+    const pos = positionOf(Number(m[1]), Number(m[2]));
+    return pos > max ? pos : max;
+  }, -1);
+
+  const currentPosition =
+    chapter && stepSlug
+      ? positionOf(
+          chapter.id,
+          chapter.steps.find((s) => s.slug === stepSlug)?.id ?? -1
+        )
+      : -1;
+
+  function handleStepClick(
+    e: React.MouseEvent,
+    targetChapterId: number,
+    targetStepId: number,
+    href: string
+  ) {
+    const targetPos = positionOf(targetChapterId, targetStepId);
+    // Allowed without confirm: backward nav, same step, or "next-available" step
+    // (one past their furthest completion, or one past where they currently are).
+    const maxAllowed = Math.max(maxCompletedPosition + 1, currentPosition);
+    if (targetPos <= maxAllowed) return;
+
+    e.preventDefault();
+    setPendingHref(href);
+  }
+
+  if (!chapter || onCompletePage) return null;
 
   const sidebarConfig = config.sidebar;
 
@@ -66,10 +113,12 @@ export function Sidebar() {
           );
           const state = isCompleted ? "completed" : isActive ? "active" : "pending";
 
+          const href = `/workshop/${chapter.slug}/${step.slug}`;
           return (
             <Link
               key={step.id}
-              href={`/workshop/${chapter.slug}/${step.slug}`}
+              href={href}
+              onClick={(e) => handleStepClick(e, chapter.id, step.id, href)}
               className={`
                 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150
                 ${
@@ -181,6 +230,19 @@ export function Sidebar() {
           setShowResetModal(false);
         }}
         onCancel={() => setShowResetModal(false)}
+      />
+
+      <ConfirmModal
+        open={pendingHref !== null}
+        title="Skip ahead?"
+        message="You haven't finished the previous steps. Jumping ahead means you'll miss context that later steps rely on. Continue anyway?"
+        confirmLabel="Jump ahead"
+        cancelLabel="Stay here"
+        onConfirm={() => {
+          if (pendingHref) router.push(pendingHref);
+          setPendingHref(null);
+        }}
+        onCancel={() => setPendingHref(null)}
       />
     </aside>
   );

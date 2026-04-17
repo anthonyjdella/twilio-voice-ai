@@ -2,23 +2,27 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useWorkshop } from "@/lib/WorkshopContext";
 import { useProgressContext } from "./ProgressContext";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function BottomNav() {
   const params = useParams();
+  const pathname = usePathname();
   const router = useRouter();
   const chapterSlug = params.chapter as string;
   const stepSlug = params.step as string;
-  const { getAdjacentSteps } = useWorkshop();
-  const { completionPercentage } = useProgressContext();
+  const { getAdjacentSteps, getStep } = useWorkshop();
+  const { completionPercentage, progress } = useProgressContext();
   const pct = completionPercentage();
+  const onCompletePage = pathname === "/workshop/complete";
 
   const adjacent = chapterSlug && stepSlug
     ? getAdjacentSteps(chapterSlug, stepSlug)
     : null;
+
+  const current = chapterSlug && stepSlug ? getStep(chapterSlug, stepSlug) : null;
 
   useEffect(() => {
     if (!adjacent) return;
@@ -40,9 +44,23 @@ export function BottomNav() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [adjacent, router]);
 
-  if (!adjacent) return null;
+  if (!adjacent || onCompletePage) return null;
 
-  const { prev, next, currentIndex, totalSteps } = adjacent;
+  const { prev, next } = adjacent;
+
+  const stepIndexInChapter = current
+    ? current.chapter.steps.findIndex((s) => s.slug === current.step.slug)
+    : -1;
+
+  // When we're on the very last step and the learner has verified it, turn the
+  // dead-end "Next" slot into a primary CTA to the /workshop/complete page.
+  const isLastStep = next === null;
+  const currentStepCompleted =
+    current != null &&
+    progress.completedSteps.includes(
+      `chapter-${current.chapter.id}:step-${current.step.id}`
+    );
+  const showFinishCta = isLastStep && currentStepCompleted;
 
   return (
     <footer className="h-16 border-t border-navy-border bg-navy/80 backdrop-blur-md flex items-center px-6 shrink-0 z-30">
@@ -75,15 +93,19 @@ export function BottomNav() {
           </div>
         </div>
         <div className="flex items-center gap-2 text-[11px] font-mono text-text-muted">
-          <span>Step {currentIndex + 1}/{totalSteps}</span>
+          {current && stepIndexInChapter >= 0 ? (
+            <span>
+              Chapter {current.chapter.id} &middot; Step {stepIndexInChapter + 1}/{current.chapter.steps.length}
+            </span>
+          ) : null}
           <span className="text-text-muted">|</span>
-          <span className={pct === 100 ? "text-success font-semibold" : ""}>{pct}% complete</span>
+          <span className={pct === 100 ? "text-success font-semibold" : ""}>{pct}% overall</span>
         </div>
       </div>
 
       {/* Next */}
       <div className="w-52 flex justify-end shrink-0">
-        {next && (
+        {next ? (
           <Link
             href={`/workshop/${next.chapter.slug}/${next.step.slug}`}
             className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
@@ -91,7 +113,15 @@ export function BottomNav() {
             <span className="font-medium truncate">{next.step.title}</span>
             <ChevronRight className="w-4 h-4 shrink-0" />
           </Link>
-        )}
+        ) : showFinishCta ? (
+          <Link
+            href="/workshop/complete"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-twilio-red text-white font-display font-semibold text-sm shadow-[0_2px_10px_rgba(239,34,58,0.3)] hover:brightness-110 transition-all"
+          >
+            <span className="truncate">Finish workshop</span>
+            <ChevronRight className="w-4 h-4 shrink-0" />
+          </Link>
+        ) : null}
       </div>
     </footer>
   );

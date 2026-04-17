@@ -7,6 +7,14 @@ export default {
     { type: "diagram", variant: "architecture", highlight: "handoff" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "When the AI Steps Aside",
+      content:
+        "The best AI agents know when to give up. A sensitive complaint, a scared caller, or a request the model just can't handle -- that's when it's time to pass the call to a human. A clean handoff includes a short summary of what happened so the human doesn't have to start from zero. Designing this path well is what turns a demo into a production product.",
+    },
+
+    {
       type: "prose",
       content:
         "No AI agent can handle every situation. Sometimes the caller needs a human -- for complex complaints, sensitive account changes, or when the AI simply cannot solve the problem. A smooth handoff from AI to a live agent is essential for production voice systems.",

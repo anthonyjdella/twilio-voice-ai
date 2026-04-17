@@ -7,6 +7,14 @@ export default {
     { type: "section", title: "Your WebSocket Server" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What a WebSocket Server Does Here",
+      content:
+        "A WebSocket is a two-way pipe that stays open for the whole phone call. Twilio uses it to stream the caller's words to your code as text, and to stream your AI's replies back as text -- no audio files, no reconnecting between turns. Your \"server\" is just the program listening at the other end of that pipe.",
+    },
+
+    {
       type: "prose",
       content:
         "ConversationRelay communicates with your application over a persistent WebSocket connection. When a call connects, Twilio opens a WebSocket to your server and streams JSON messages back and forth for the entire duration of the call. Your job is to stand up a server that can accept that connection.",

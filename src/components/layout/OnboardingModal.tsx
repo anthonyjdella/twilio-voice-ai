@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAudienceMode, type AudienceMode } from "@/lib/AudienceContext";
-import { Code, Eye } from "lucide-react";
+import { Code, Eye, X } from "lucide-react";
 
 interface OnboardingModalProps {
   open: boolean;
@@ -13,16 +13,48 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
   const { setMode } = useAudienceMode();
   const [selected, setSelected] = useState<AudienceMode>("builder");
 
-  if (!open) return null;
-
   function handleContinue() {
     setMode(selected);
     onComplete();
   }
 
+  // Dismiss = apply the currently previewed choice (default "builder") and close.
+  // This makes Escape / X / backdrop-click behave like "confirm my current pick"
+  // rather than a hard cancel — there's no meaningful "no choice" state.
+  function handleDismiss() {
+    setMode(selected);
+    onComplete();
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") handleDismiss();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, selected]);
+
+  if (!open) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/90 backdrop-blur-sm">
-      <div className="relative max-w-xl w-full mx-4 rounded-2xl bg-panel border border-navy-border shadow-2xl overflow-hidden">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-navy/90 backdrop-blur-sm"
+      onClick={handleDismiss}
+    >
+      <div
+        className="relative max-w-xl w-full mx-4 rounded-2xl bg-panel border border-navy-border shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={handleDismiss}
+          className="absolute top-3 right-3 z-10 p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-twilio-red"
+        >
+          <X className="w-4 h-4" />
+        </button>
         {/* Accent stripe */}
         <div className="h-1 bg-twilio-red" />
 

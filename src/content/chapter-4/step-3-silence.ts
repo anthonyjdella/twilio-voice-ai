@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Silence & Timeouts" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Silence as a Signal",
+      content:
+        "On a phone call, a long pause means *something* -- the caller is thinking, confused, distracted, or gone. A well-designed agent notices silence and responds: a gentle \"Are you still there?\" after a few seconds, then a polite goodbye if nothing comes back. Getting this right is the difference between an agent that feels considerate and one that feels abandoned.",
+    },
+
+    {
       type: "prose",
       content:
         "Silence is information. When a caller goes quiet, it could mean they are thinking, they are confused, they walked away, or the call dropped. Your agent needs to handle silence gracefully rather than sitting in awkward dead air.",

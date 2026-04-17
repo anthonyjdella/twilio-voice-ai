@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "What's Next" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What to Try Next",
+      content:
+        "You've built the core. Now the fun part: make it yours. Try a different persona, plug in a real API your team already uses, or let the agent speak another language. Each small experiment teaches you something about how voice AI fits into your product -- and none of them require starting from scratch.",
+    },
+
+    {
       type: "prose",
       content:
         "Congratulations -- you have built a fully functional voice AI agent with Twilio ConversationRelay. You have gone from zero to an agent that can listen, speak, use tools, handle interruptions, and hand off to humans. That is a serious accomplishment.",

@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Designing a Persona" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Persona = Tone + Rules + Knowledge",
+      content:
+        "Think of the persona as the difference between a sticky-note that says \"answer the phone\" and a full job description. It combines a name and tone (warm vs. efficient), concrete rules (what the agent can and cannot do), and specific knowledge (menu, hours, policies). Good personas feel like one consistent character across every call.",
+    },
+
+    {
       type: "prose",
       content:
         "A great voice agent is more than a system prompt. It's a **persona** \u2014 a consistent character with a name, tone, and set of behaviors that callers can relate to. Before writing any code, think through these four dimensions:",

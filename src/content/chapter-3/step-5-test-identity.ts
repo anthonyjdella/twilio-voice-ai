@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Time to Test" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What to Listen For",
+      content:
+        "On this test call, focus on the agent's *identity* -- not whether it answers correctly. Does the voice match the tone you wanted? Does it stay in character when you ask off-topic questions? Does it politely refuse things outside its scope? If the answer to any of those is no, the persona or prompt needs another pass.",
+    },
+
+    {
       type: "prose",
       content:
         "You have crafted a system prompt, designed a persona, selected a voice, and configured the language settings. Now it is time to hear your agent in action. Restart your server to pick up the changes:",

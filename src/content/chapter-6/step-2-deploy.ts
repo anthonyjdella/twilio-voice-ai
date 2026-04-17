@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Deployment Options" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Where Voice AI Lives in Production",
+      content:
+        "A voice agent lives inside a server that stays connected to Twilio over a long-running WebSocket. That's different from a typical web app: you can't use serverless-style platforms that go to sleep between requests. You need a host that keeps the connection open, scales when more callers arrive, and recovers if something crashes mid-call.",
+    },
+
+    {
       type: "prose",
       content:
         "Your agent has been running in a GitHub Codespace during development. For production, you need a reliable host that supports persistent WebSocket connections and can handle concurrent calls. Here are your best options.",
@@ -136,7 +144,7 @@ $ docker run -p 8080:8080 --env-file .env voice-agent`,
     {
       type: "prose",
       content:
-        "**AWS** -- Use ECS (Fargate) or EC2. Fargate is easier to manage and scales automatically. Place an Application Load Balancer in front with WebSocket stickiness enabled.\n**Azure** -- Use Azure Container Apps or Azure App Service. Both support WebSockets. Container Apps is the simpler option.\n**Google Cloud** -- Use Cloud Run (which now supports WebSockets) or GKE. Cloud Run has a max request timeout to be aware of.",
+        "**AWS** -- Use ECS (Fargate) or EC2. Fargate is easier to manage and scales automatically. Place an Application Load Balancer in front with WebSocket stickiness enabled.\n**Azure** -- Use Azure Container Apps or Azure App Service. Both support WebSockets. Container Apps is the simpler option.\n**Google Cloud** -- Use Cloud Run or GKE. Cloud Run supports WebSockets but caps request timeout at 60 minutes (configurable) and idle connections may be closed sooner -- check your service tier and set `--timeout` explicitly.",
     },
 
     { type: "section", title: "Environment Variables" },

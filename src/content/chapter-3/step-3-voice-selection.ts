@@ -7,6 +7,14 @@ export default {
     { type: "section", title: "Choosing a Voice" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Voice = The Agent's First Impression",
+      content:
+        "The voice is the very first thing the caller hears -- before the greeting even finishes, they've already decided whether this feels trustworthy or robotic. ConversationRelay gives you a choice of providers (ElevenLabs, Google, Amazon) and dozens of voices within each, from warm and conversational to crisp and professional. Picking the right one shapes how the whole agent is perceived.",
+    },
+
+    {
       type: "prose",
       content:
         "ConversationRelay handles text-to-speech (TTS) for you. When your server sends a text response over the WebSocket, Twilio converts it to audio and plays it to the caller. You control which voice is used by setting the `voice` attribute on the `<ConversationRelay>` element in your TwiML.",

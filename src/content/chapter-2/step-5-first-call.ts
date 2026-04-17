@@ -7,6 +7,14 @@ export default {
     { type: "section", title: "Time to Make Your First Call" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What Happens When You Call",
+      content:
+        "In a few seconds: Twilio dials your phone, plays the welcome greeting, listens for your words, sends them to the AI, and streams the AI's reply back as speech -- all while your code watches from the sidelines. If you interrupt mid-sentence, Twilio notices and lets the AI adapt. This is the first moment it actually feels like a real voice agent.",
+    },
+
+    {
       type: "prose",
       content:
         "You have all the pieces in place: a WebSocket server that handles connections, a TwiML endpoint that configures ConversationRelay, an outbound call trigger, a speech handler that captures what the caller says, and an LLM integration that streams intelligent responses. Let's bring it all together.",

@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Showcase" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Show the Story, Not the Code",
+      content:
+        "When you demo a voice agent, let the call speak for itself. The best demos walk through a short, believable scenario -- a real customer with a real problem -- and the audience hears the agent handle it. Save the code walkthrough for the people who want it afterwards. The magic is in the conversation.",
+    },
+
+    {
       type: "prose",
       content:
         "You have built a complete voice AI agent from scratch. It is time to show it off.",

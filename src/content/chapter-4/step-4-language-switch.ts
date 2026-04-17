@@ -5,6 +5,14 @@ export default {
     { type: "section", title: "Dynamic Language Switch" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Switching Languages Mid-Call",
+      content:
+        "Some callers start in one language and slide into another -- maybe they're more comfortable in Spanish, or they switch between English and Mandarin at home. ConversationRelay can flip both the listening (speech-to-text) and speaking (voice synthesis) language on the fly, without dropping the call. It's a small feature with a huge accessibility payoff.",
+    },
+
+    {
       type: "prose",
       content:
         "One of ConversationRelay's most powerful features is the ability to switch the speech-to-text and text-to-speech language **mid-call**. This means your agent can detect when a caller switches languages and seamlessly adapt without ending the call or transferring to a different system.",

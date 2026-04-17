@@ -7,6 +7,14 @@ export default {
     { type: "section", title: "Connecting to the LLM" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Why Streaming Feels Natural",
+      content:
+        "An LLM like GPT-4 can take a few seconds to finish a full reply. Instead of waiting for the whole thing, we hand each word to Twilio the moment it's generated -- so the caller hears the AI start speaking almost immediately, word by word. That tiny trick is what makes the conversation feel alive instead of walkie-talkie.",
+    },
+
+    {
       type: "prose",
       content:
         "Now for the exciting part. When the caller speaks, you need to send their words to an LLM, get a response, and stream it back through the WebSocket so Twilio can speak it to the caller. We will use OpenAI's `chat.completions.create` API with streaming enabled so the caller hears the response as quickly as possible instead of waiting for the full reply.",

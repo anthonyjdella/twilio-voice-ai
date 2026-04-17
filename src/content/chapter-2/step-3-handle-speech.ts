@@ -7,6 +7,14 @@ export default {
     { type: "section", title: "Receiving the Caller's Speech" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "From Voice to Text",
+      content:
+        "When the caller says something, Twilio transcribes it into plain text behind the scenes and hands that text to your code as a single \"prompt\" message. You never deal with raw audio -- by the time your code sees it, it's already a tidy string like \"I need help with my order\".",
+    },
+
+    {
       type: "prose",
       content:
         "When the caller finishes speaking, Twilio's speech-to-text engine transcribes their words and sends the result to your server as a `prompt` message over the WebSocket. This is the core inbound message you need to handle -- it contains the text of what the caller said.",

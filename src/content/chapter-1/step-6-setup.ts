@@ -70,10 +70,13 @@ export default {
       type: "code",
       audience: "builder",
       code: `# Pre-configured in your Codespace -- no changes needed
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=your_shared_token
-OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_PHONE_NUMBER=+1xxxxxxxxxx`,
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx   # your Twilio account SID
+TWILIO_AUTH_TOKEN=your_shared_token                     # used to authenticate outbound calls
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      # powers the LLM
+TWILIO_PHONE_NUMBER=+1xxxxxxxxxx                        # the shared Twilio number attendees dial in to
+
+# Set this to your personal phone so the agent can call you for the outbound test
+MY_PHONE_NUMBER=+1xxxxxxxxxx`,
       language: "bash",
       file: ".env",
     },
