@@ -96,7 +96,7 @@ export function Sidebar() {
         <div className="text-xs font-mono text-twilio-red uppercase tracking-wider mb-1">
           Chapter {chapter.id}
         </div>
-        <h2 className="font-display font-bold text-lg text-text-primary">
+        <h2 className="font-display font-extrabold text-lg text-text-primary">
           {chapter.title}
         </h2>
         <p className="text-xs text-text-muted mt-1">{chapter.subtitle}</p>
@@ -129,7 +129,7 @@ export function Sidebar() {
               `}
             >
               <StepIcon state={state} />
-              <span className="font-medium">{step.title}</span>
+              <span className="font-bold">{step.title}</span>
             </Link>
           );
         })}
@@ -151,7 +151,7 @@ export function Sidebar() {
                   <circle cx="12" cy="7" r="4" />
                 </svg>
               </div>
-              <div className="text-xs font-display font-bold text-text-primary uppercase tracking-wider">
+              <div className="text-xs font-display font-extrabold text-text-primary uppercase tracking-wider">
                 {sidebarConfig.title || "Workshop State"}
               </div>
             </div>
@@ -177,7 +177,7 @@ export function Sidebar() {
             {/* Badges */}
             {progress.badges.length > 0 && (
               <div className="mt-3 pt-3 border-t border-navy-border">
-                <div className="text-[10px] font-mono text-text-muted uppercase tracking-wider mb-2">Badges</div>
+                <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2">Badges</div>
                 <div className="flex flex-wrap gap-2">
                   {progress.badges.map((badge) => {
                     const ch = chapters.find((c) => `chapter-${c.id}` === badge);

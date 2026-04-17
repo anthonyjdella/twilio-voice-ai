@@ -72,7 +72,7 @@ export function BottomNav() {
             className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
           >
             <ChevronLeft className="w-4 h-4 shrink-0" />
-            <span className="font-medium truncate">{prev.step.title}</span>
+            <span className="font-bold truncate">{prev.step.title}</span>
           </Link>
         )}
       </div>
@@ -92,14 +92,14 @@ export function BottomNav() {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2 text-[11px] font-mono text-text-muted">
+        <div className="flex items-center gap-2 text-xs font-mono text-text-muted">
           {current && stepIndexInChapter >= 0 ? (
             <span>
               Chapter {current.chapter.id} &middot; Step {stepIndexInChapter + 1}/{current.chapter.steps.length}
             </span>
           ) : null}
           <span className="text-text-muted">|</span>
-          <span className={pct === 100 ? "text-success font-semibold" : ""}>{pct}% overall</span>
+          <span className={pct === 100 ? "text-success font-bold" : ""}>{pct}% overall</span>
         </div>
       </div>
 
@@ -110,13 +110,13 @@ export function BottomNav() {
             href={`/workshop/${next.chapter.slug}/${next.step.slug}`}
             className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
           >
-            <span className="font-medium truncate">{next.step.title}</span>
+            <span className="font-bold truncate">{next.step.title}</span>
             <ChevronRight className="w-4 h-4 shrink-0" />
           </Link>
         ) : showFinishCta ? (
           <Link
             href="/workshop/complete"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-twilio-red text-white font-display font-semibold text-sm shadow-[0_2px_10px_rgba(239,34,58,0.3)] hover:brightness-110 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-twilio-red text-white font-display font-extrabold text-sm shadow-[0_2px_10px_rgba(239,34,58,0.3)] hover:brightness-110 transition-all"
           >
             <span className="truncate">Finish workshop</span>
             <ChevronRight className="w-4 h-4 shrink-0" />

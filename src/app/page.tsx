@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Sun, Moon } from "lucide-react";
 import workshopConfig from "@/workshop.config";
 import { AudienceProvider, useAudienceMode } from "@/lib/AudienceContext";
-import { ThemeProvider } from "@/lib/ThemeContext";
+import { ThemeProvider, useTheme } from "@/lib/ThemeContext";
 import { OnboardingModal } from "@/components/layout/OnboardingModal";
 
 const stagger = {
@@ -34,8 +35,9 @@ export default function Home() {
 }
 
 function HomeContent() {
-  const { title, hero, chapters, branding, duration } = workshopConfig;
+  const { title, hero, chapters, branding, duration, features } = workshopConfig;
   const { needsOnboarding } = useAudienceMode();
+  const { toggleTheme, isDark } = useTheme();
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
@@ -56,6 +58,21 @@ function HomeContent() {
     <>
     <OnboardingModal open={showModal} onComplete={handleOnboardingComplete} />
     <div className="min-h-screen flex flex-col items-center justify-center bg-navy relative overflow-hidden">
+      {/* Theme toggle */}
+      {features.themeToggle && (
+        <button
+          onClick={toggleTheme}
+          className="absolute top-5 right-5 z-20 flex items-center justify-center w-9 h-9 rounded-lg bg-surface-2 border border-navy-border hover:bg-surface-3 transition-colors"
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {isDark ? (
+            <Sun className="w-4 h-4 text-text-secondary" />
+          ) : (
+            <Moon className="w-4 h-4 text-text-secondary" />
+          )}
+        </button>
+      )}
+
       {/* Animated gradient background */}
       <div
         className="absolute inset-0 animate-pulse"
@@ -101,22 +118,29 @@ function HomeContent() {
         {/* Tagline */}
         <motion.p
           variants={fadeUp}
-          className="text-xl md:text-2xl text-text-secondary mb-3 font-text"
+          className="text-xl md:text-2xl text-text-primary mb-3 font-display font-extrabold"
         >
-          {hero.tagline}
+          {hero.tagline.split("ConversationRelay").map((part, i, arr) => (
+            <span key={i}>
+              {part}
+              {i < arr.length - 1 && (
+                <span style={{ color: branding.accentColor }}>ConversationRelay</span>
+              )}
+            </span>
+          ))}
         </motion.p>
 
         {/* Description */}
         <motion.p
           variants={fadeUp}
-          className="text-text-muted mb-4 max-w-xl mx-auto leading-relaxed"
+          className="text-text-secondary mb-4 max-w-xl mx-auto leading-relaxed"
         >
           {hero.description}
         </motion.p>
 
         {/* Duration badge */}
         <motion.div variants={fadeUp} className="mb-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-3 border border-navy-border text-xs font-mono text-text-muted">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-3 border border-navy-border text-xs font-mono text-text-secondary">
             <svg
               width="12"
               height="12"
@@ -138,10 +162,9 @@ function HomeContent() {
         <motion.div variants={fadeUp}>
           <button
             onClick={handleStartClick}
-            className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-xl text-white font-display font-bold text-lg transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
+            className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-full bg-twilio-blue text-white font-display font-extrabold text-lg transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
             style={{
-              backgroundColor: branding.accentColor,
-              boxShadow: `0 0 40px rgba(${branding.accentColorRgb}, 0.25), 0 4px 20px rgba(0,0,0,0.2)`,
+              boxShadow: `0 0 40px rgba(24, 102, 238, 0.3), 0 4px 20px rgba(0,0,0,0.2)`,
             }}
           >
             {hero.ctaText}
@@ -180,12 +203,12 @@ function HomeContent() {
                 )}
               </div>
               <div
-                className="text-[10px] font-mono mb-1.5 tracking-wide uppercase"
+                className="text-xs font-mono mb-1.5 tracking-wide uppercase"
                 style={{ color: branding.accentColor }}
               >
                 Chapter {ch.id} &middot; {ch.duration}
               </div>
-              <div className="font-display font-semibold text-sm text-text-primary leading-snug">
+              <div className="font-display font-extrabold text-sm text-text-primary leading-snug">
                 {ch.title}
               </div>
               <div className="text-xs text-text-muted mt-1.5 leading-relaxed">
@@ -202,11 +225,11 @@ function HomeContent() {
         >
           <span>Powered by</span>
           <img
-            src="/images/twilio-logo-white.svg"
+            src={isDark ? "/images/twilio-logo-white.svg" : "/images/twilio-logo-ink.svg"}
             alt="Twilio"
             width={60}
             height={20}
-            className="opacity-40 theme-logo"
+            className="opacity-40"
           />
         </motion.div>
       </motion.div>

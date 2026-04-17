@@ -19,7 +19,7 @@ export function DeepDive({ title = "Deep Dive", children }: DeepDiveProps) {
         className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-surface-1 transition-colors"
       >
         <GraduationCap className="w-5 h-5 text-twilio-gold shrink-0" />
-        <span className="text-sm font-medium text-text-secondary flex-1">
+        <span className="text-sm font-bold text-text-secondary flex-1">
           {title}
         </span>
         <ChevronDown
@@ -29,7 +29,7 @@ export function DeepDive({ title = "Deep Dive", children }: DeepDiveProps) {
         />
       </button>
       {open && (
-        <div className="px-4 pb-4 pt-0 text-sm text-text-secondary leading-relaxed border-t border-navy-border mt-0 pt-4 [&_code]:bg-surface-3 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-[12px]">
+        <div className="px-4 pb-4 pt-0 text-sm text-text-secondary leading-relaxed border-t border-navy-border mt-0 pt-4 [&_code]:bg-surface-3 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-sm">
           {children}
         </div>
       )}

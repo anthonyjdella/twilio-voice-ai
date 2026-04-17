@@ -39,11 +39,11 @@ export function VisualStep({ steps }: VisualStepProps) {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-mono text-twilio-red/70 uppercase tracking-wider">
+              <span className="text-xs font-mono text-twilio-red/70 uppercase tracking-wider">
                 Step {i + 1}
               </span>
             </div>
-            <h4 className="font-display font-semibold text-sm text-text-primary mb-1">
+            <h4 className="font-display font-extrabold text-sm text-text-primary mb-1">
               {step.title}
             </h4>
             <p className="text-sm text-text-secondary leading-relaxed">

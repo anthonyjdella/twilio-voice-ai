@@ -22,14 +22,14 @@ export function Verify({ question, onSuccess }: VerifyProps) {
               setState("success");
               onSuccess?.();
             }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-success/10 text-success text-sm font-medium border border-success/20 hover:bg-success/20 transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-success/10 text-success text-sm font-bold border border-success/20 hover:bg-success/20 transition-colors"
           >
             <CheckCircle className="w-4 h-4" />
             Yes, it worked!
           </button>
           <button
             onClick={() => setState("help")}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface-2 text-text-secondary text-sm font-medium border border-navy-border hover:bg-surface-3 transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface-2 text-text-secondary text-sm font-bold border border-navy-border hover:bg-surface-3 transition-colors"
           >
             <Wrench className="w-4 h-4" />
             I need help
@@ -40,13 +40,13 @@ export function Verify({ question, onSuccess }: VerifyProps) {
       {state === "success" && (
         <div className="flex items-center justify-center gap-2 text-success animate-scale-in">
           <CheckCircle className="w-5 h-5" />
-          <span className="font-medium">Excellent! Moving on.</span>
+          <span className="font-bold">Excellent! Moving on.</span>
         </div>
       )}
 
       {state === "help" && (
         <div className="text-left mt-4 p-4 rounded-lg bg-surface-1 border border-navy-border text-sm text-text-secondary leading-relaxed">
-          <p className="font-medium text-text-primary mb-2">Troubleshooting:</p>
+          <p className="font-bold text-text-primary mb-2">Troubleshooting:</p>
           <ul className="list-disc list-inside space-y-1">
             <li>Make sure your server is running (<code className="bg-surface-3 px-1 py-0.5 rounded font-mono text-xs">node server.js</code>)</li>
             <li>Check that your Codespace port is set to <strong>Public</strong> visibility</li>

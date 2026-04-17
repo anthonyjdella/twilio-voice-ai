@@ -92,39 +92,50 @@
 @theme {
   /* Core colors (dark theme defaults — overridden by [data-theme="light"]) */
   --color-navy: #000D25;
-  --color-navy-light: #0A1628;
+  --color-navy-light: #181D3C;
   --color-navy-surface: rgba(255, 255, 255, 0.03);
-  --color-navy-border: rgba(255, 255, 255, 0.07);
+  /* Border matches the box fill (#181D3C) so every card renders as a single
+     flat block. Structural chrome (TopBar/Sidebar/BottomNav borders) sits on
+     the darker #000D25 page background where this still reads as a hairline. */
+  --color-navy-border: #181D3C;
 
-  /* Brand (same in both themes) */
-  --color-twilio-red: #EF223A;
-  --color-twilio-blue: #0263E0;
+  /* Brand (same in both themes — palette-legal values only) */
+  --color-twilio-red: #EF223A;    /* red-450 */
+  --color-twilio-blue: #1866EE;   /* blue-500 */
   --color-twilio-gold: #F4B400;
 
-  /* Semantic status (same in both themes) */
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
+  /* Semantic status — mapped onto the brand palette */
+  --color-success: #10B981;       /* kept: no green exists in brand palette */
+  --color-warning: #F4B400;       /* Twilio gold */
+  --color-error: #DB132A;         /* red-500 */
 
   /* Text hierarchy */
-  --color-text-primary: rgba(255, 255, 255, 0.9);
-  --color-text-secondary: rgba(255, 255, 255, 0.5);
-  --color-text-muted: rgba(255, 255, 255, 0.3);
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: rgba(255, 255, 255, 0.85);
+  --color-text-muted: rgba(255, 255, 255, 0.7);
 
-  /* Surface overlays — use instead of bg-white/[0.XX] */
-  --color-surface-1: rgba(255, 255, 255, 0.02);
-  --color-surface-2: rgba(255, 255, 255, 0.04);
-  --color-surface-3: rgba(255, 255, 255, 0.06);
-  --color-surface-4: rgba(255, 255, 255, 0.08);
-  --color-surface-5: rgba(255, 255, 255, 0.12);
+  /* Box-container fill — solid #181D3C for surface-1/2 (primary box color).
+     surface-3/4/5 step up for hover and elevation states. */
+  --color-surface-1: #181D3C;
+  --color-surface-2: #181D3C;
+  --color-surface-3: #222848;
+  --color-surface-4: #2B3056;
+  --color-surface-5: #363C66;
 
   /* Elevated panel background (modals, popovers, dropdowns) */
-  --color-panel: #0d1b3e;
+  --color-panel: #181D3C;
 
   /* Fonts */
   --font-display: "Twilio Sans Display", system-ui, sans-serif;
   --font-text: "Twilio Sans Text", system-ui, sans-serif;
   --font-mono: "Twilio Sans Mono", ui-monospace, monospace;
+
+  /* Font size floor — collapse text-xs up to text-sm (14px) so nothing in the
+     app renders below that. Every `text-xs` usage in the codebase now renders
+     at the same size as `text-sm`; the "xs" token is kept for ergonomics but
+     should be treated as the minimum allowed size. */
+  --text-xs: 0.875rem;         /* 14px — same as text-sm */
+  --text-xs--line-height: 1.25rem;
 
   /* Animations */
   --animate-fade-in: fade-in 0.3s ease-out;
@@ -212,19 +223,14 @@ body {
   background: var(--color-surface-5);
 }
 
-/* Code selection */
+/* Code selection — Twilio Red at low alpha */
 ::selection {
-  background: rgba(2, 99, 224, 0.3);
+  background: rgba(239, 34, 58, 0.25);
 }
 
 /* Light mode: invert white SVG icons so they're visible on light backgrounds */
 html[data-theme="light"] .theme-icon {
   filter: brightness(0) saturate(100%) invert(5%) sepia(30%) saturate(3000%) hue-rotate(200deg);
-}
-
-/* Light mode: Twilio logo in footer */
-html[data-theme="light"] .theme-logo {
-  filter: brightness(0) saturate(100%) invert(3%) sepia(20%) saturate(2000%) hue-rotate(200deg);
 }
 
 /* Home page grid pattern — dark lines on light bg, white lines on dark bg */

@@ -52,7 +52,7 @@ export function TopBar() {
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2.5 mr-8 shrink-0">
         <img src="/images/twilio-bug-red.svg" alt="Twilio" className="w-7 h-7" />
-        <span className="font-display font-bold text-sm text-text-primary whitespace-nowrap">
+        <span className="font-display font-extrabold text-sm text-text-primary whitespace-nowrap">
           {config.shortTitle}
         </span>
       </Link>
@@ -74,7 +74,7 @@ export function TopBar() {
             >
               <div
                 className={`
-                  w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-200
+                  w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200
                   ${
                     isCurrent
                       ? "bg-twilio-red text-white shadow-[0_0_12px_rgba(239,34,58,0.4)]"
@@ -94,7 +94,7 @@ export function TopBar() {
                 )}
               </div>
               <span
-                className={`text-xs font-medium hidden lg:block transition-colors ${
+                className={`text-xs font-bold hidden lg:block transition-colors ${
                   isCurrent ? "text-text-primary" : "text-text-muted group-hover:text-text-secondary"
                 }`}
               >
@@ -131,7 +131,7 @@ export function TopBar() {
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-2 border border-navy-border hover:bg-surface-3 transition-colors"
           >
             <ActiveIcon className="w-3.5 h-3.5 text-twilio-red" />
-            <span className="text-xs font-medium text-text-primary">
+            <span className="text-xs font-bold text-text-primary">
               {MODE_INFO[mode].label}
             </span>
             <ChevronDown className={`w-3 h-3 text-text-muted transition-transform duration-200 ${popoverOpen ? "rotate-180" : ""}`} />
@@ -149,7 +149,7 @@ export function TopBar() {
                 {/* Header */}
                 <div className="px-4 pt-4 pb-2">
                   <div className="text-xs font-mono text-text-muted uppercase tracking-wider">Experience Level</div>
-                  <p className="text-[11px] text-text-muted/70 mt-1">
+                  <p className="text-xs text-text-muted/70 mt-1">
                     Choose how technical the content should be. You can switch anytime.
                   </p>
                 </div>
@@ -181,7 +181,7 @@ export function TopBar() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className={`text-sm font-display font-bold ${isActive ? "text-text-primary" : "text-text-secondary"}`}>
+                            <span className={`text-sm font-display font-extrabold ${isActive ? "text-text-primary" : "text-text-secondary"}`}>
                               {info.label}
                             </span>
                             {isActive && <Check className="w-3.5 h-3.5 text-twilio-red" />}

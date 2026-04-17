@@ -52,7 +52,7 @@ export function ConfirmModal({
                   <AlertTriangle className="w-5 h-5 text-twilio-red" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-text-primary text-base">
+                  <h3 className="font-display font-extrabold text-text-primary text-base">
                     {title}
                   </h3>
                   <p className="text-sm text-text-secondary mt-1.5 leading-relaxed">
@@ -64,13 +64,13 @@ export function ConfirmModal({
               <div className="flex items-center justify-end gap-3 mt-6">
                 <button
                   onClick={onCancel}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors"
+                  className="px-4 py-2 rounded-lg text-sm font-bold text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors"
                 >
                   {cancelLabel}
                 </button>
                 <button
                   onClick={onConfirm}
-                  className="px-4 py-2 rounded-lg text-sm font-medium bg-twilio-red text-white hover:bg-twilio-red/90 transition-colors shadow-[0_2px_10px_rgba(239,34,58,0.3)]"
+                  className="px-4 py-2 rounded-lg text-sm font-bold bg-twilio-red text-white hover:bg-twilio-red/90 transition-colors shadow-[0_2px_10px_rgba(239,34,58,0.3)]"
                 >
                   {confirmLabel}
                 </button>

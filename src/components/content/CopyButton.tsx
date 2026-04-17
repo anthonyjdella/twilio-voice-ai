@@ -21,7 +21,7 @@ export function CopyButton({ text, className = "" }: { text: string; className?:
   return (
     <button
       onClick={handleCopy}
-      className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
+      className={`flex items-center gap-1.5 text-xs font-bold transition-colors ${
         copied
           ? "text-success"
           : "text-text-muted hover:text-text-secondary"

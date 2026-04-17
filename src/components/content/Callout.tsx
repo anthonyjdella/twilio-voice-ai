@@ -51,7 +51,7 @@ export function Callout({ type, children }: CalloutProps) {
           <div className={`text-xs font-mono ${v.iconColor} uppercase tracking-wider mb-1`}>
             {v.label}
           </div>
-          <div className="text-sm text-text-secondary leading-relaxed [&_code]:bg-surface-3 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-[12px]">
+          <div className="text-sm text-text-secondary leading-relaxed [&_code]:bg-surface-3 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-sm">
             {children}
           </div>
         </div>

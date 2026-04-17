@@ -28,10 +28,10 @@ export function ConceptCard({ title, content, illustration }: ConceptCardProps) 
 
         {/* Content */}
         <div className="flex-1 p-5">
-          <h3 className="font-display font-bold text-lg text-text-primary mb-3">
+          <h3 className="font-display font-extrabold text-lg text-text-primary mb-3">
             {title}
           </h3>
-          <div className="text-sm text-text-secondary leading-relaxed [&_code]:bg-surface-3 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-[12px] [&_strong]:text-text-primary [&_strong]:font-semibold [&_a]:text-twilio-blue [&_a:hover]:underline">
+          <div className="text-sm text-text-secondary leading-relaxed [&_code]:bg-surface-3 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-sm [&_strong]:text-text-primary [&_strong]:font-bold [&_a]:text-twilio-blue [&_a:hover]:underline">
             {renderMarkdown(content)}
           </div>
         </div>
