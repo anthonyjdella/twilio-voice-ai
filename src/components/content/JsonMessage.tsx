@@ -26,7 +26,7 @@ export function JsonMessage({ direction, type, code }: JsonMessageProps) {
     >
       <div className="flex items-center gap-2 text-xs font-mono">
         <span className={isInbound ? "text-twilio-blue" : "text-success"}>
-          {isInbound ? "\u2190 FROM TWILIO" : "\u2192 TO TWILIO"}
+          {isInbound ? "\u2190 FROM TWILIO (to your server)" : "\u2192 TO TWILIO (from your server)"}
         </span>
         <span className="text-text-muted">{type}</span>
       </div>

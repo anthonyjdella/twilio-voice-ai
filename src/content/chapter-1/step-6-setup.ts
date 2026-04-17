@@ -7,7 +7,7 @@ export default {
     {
       type: "prose",
       content:
-        "We use **GitHub Codespaces** for this workshop -- a cloud-based dev environment that starts in seconds with everything pre-installed. No local setup, no dependency conflicts, no cross-platform issues.",
+        "We use **GitHub Codespaces** for this workshop -- a cloud-based dev environment that starts in seconds with everything pre-installed.",
     },
 
     {
