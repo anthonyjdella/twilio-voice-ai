@@ -7,15 +7,15 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "Describing Tools So the LLM Understands",
+      title: "Describing Tools So the AI Understands",
       content:
-        "You don't teach the LLM a tool by showing it the code -- you describe it in plain English: what it does, when to use it, and what inputs it needs. The model uses that description to pick the right tool at the right moment, the same way a new hire would read a help-desk runbook. A clear description is everything; a vague one makes the agent guess wrong.",
+        "You don't teach the AI a tool by showing it code -- you describe it in plain English: what it does, when to use it, and what information it needs. The AI uses that description to pick the right tool at the right moment, the same way a new hire would follow a help-desk handbook. A clear description is everything; a vague one makes the agent guess wrong.",
     },
 
     {
       type: "prose",
       content:
-        "Tools are defined as JSON schemas that describe what each function does, what parameters it accepts, and what those parameters mean. The LLM uses these descriptions to decide when and how to call each tool.",
+        "Each tool has a short description that tells the AI what it does, what information it needs, and when to use it. Think of it like writing a name tag and instruction card for each tool so the AI knows which one to grab.",
     },
 
     { type: "section", title: "Tool Schema Format" },
@@ -23,13 +23,21 @@ export default {
     {
       type: "prose",
       content:
-        "Each tool in the OpenAI `tools` array follows this structure:",
+        "Each tool definition follows this structure:",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "Create a new file `tool-handlers.js` in the same folder as `server.js`. We'll build it up in two passes: first the `tools` schema array (below), then the `toolHandlers` dispatch map. Everything exported from this one file so `server.js` can `require(\"./tool-handlers.js\")` in Step 3.",
     },
 
     {
       type: "code",
       language: "javascript",
-      file: "tools.js",
+      file: "tool-handlers.js",
       code: `const tools = [
   {
     type: "function",
@@ -60,14 +68,14 @@ export default {
     {
       type: "prose",
       content:
-        "The `description` fields are critical. The LLM reads them to understand when to use each tool and what values to pass. Vague descriptions lead to incorrect tool usage, so be specific and include examples.",
+        "The description fields are critical. The AI reads them to decide when to use each tool and what information to provide. Vague descriptions lead to the AI picking the wrong tool, so be specific and include examples.",
     },
 
     {
       type: "callout",
       variant: "tip",
       content:
-        "Write tool descriptions as if you are explaining the function to a new teammate. Include when to use it, what it returns, and any constraints. The better the description, the more accurately the LLM will use the tool.",
+        "Write tool descriptions as if you are explaining the tool to a new teammate. Include when to use it, what it returns, and any constraints. The better the description, the more accurately the AI will use the tool.",
     },
 
     { type: "section", title: "Adding More Tools" },
@@ -81,7 +89,7 @@ export default {
     {
       type: "code",
       language: "javascript",
-      file: "tools.js",
+      file: "tool-handlers.js",
       code: `const tools = [
   {
     type: "function",
@@ -127,7 +135,7 @@ export default {
     {
       type: "prose",
       content:
-        "Now create the actual functions that get called when the LLM requests each tool. For this workshop, we will use mock data, but in production these would call your real APIs:",
+        "Now create the actual functions that run when the AI asks for a tool. For this workshop, we will use sample data, but in a real product these would connect to your actual services:",
     },
 
     {
@@ -135,8 +143,10 @@ export default {
       language: "javascript",
       file: "tool-handlers.js",
       code: `// Map of tool name -> handler function
+// Every handler accepts (args, ws). Most only use args; transfer_to_agent
+// in step 4 also uses ws to send an "end" message mid-call.
 const toolHandlers = {
-  check_weather: async ({ city }) => {
+  check_weather: async ({ city }, _ws) => {
     // In production: call a real weather API
     const mockWeather = {
       "austin": { temp: 78, condition: "sunny", humidity: 45 },
@@ -156,7 +166,7 @@ const toolHandlers = {
     };
   },
 
-  lookup_order: async ({ order_id }) => {
+  lookup_order: async ({ order_id }, _ws) => {
     // In production: query your orders database
     const mockOrders = {
       "ORD-12345": {
@@ -177,14 +187,24 @@ const toolHandlers = {
     }
     return { order_id, ...order };
   }
-};`,
+};
+
+module.exports = { tools, toolHandlers };`,
     },
 
     {
       type: "callout",
       variant: "warning",
       content:
-        "Always return a result from your tool functions, even on error. If the function throws an exception, the LLM will not get any result and may hallucinate one. Return a structured error message like `{ error: \"Not found\" }` so the LLM can communicate the issue to the caller.",
+        "Always return a result from your tool functions, even on error. If the function crashes without returning anything, the AI will not know what happened and may make up an answer. Return an error message like `{ error: \"Not found\" }` so the AI can tell the caller what went wrong.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Handler signature:** each handler receives two arguments -- `(args, ws)`. The second argument is the active WebSocket. Most tools only need `args`, but tools like `transfer_to_agent` (step 4) need `ws` to send an `end` message mid-call. Accept it now so every handler has a uniform shape.",
     },
 
     { type: "section", title: "Passing Tools to OpenAI" },
@@ -192,7 +212,7 @@ const toolHandlers = {
     {
       type: "prose",
       content:
-        "Include the `tools` array in every call to the OpenAI Chat Completions API:",
+        "Include the tools list in every request to the AI:",
     },
 
     {
@@ -200,7 +220,7 @@ const toolHandlers = {
       language: "javascript",
       file: "server.js",
       code: `const response = await openai.chat.completions.create({
-  model: "gpt-4o",
+  model: "gpt-5.4-nano",
   messages: conversationHistory,
   tools: tools,
   stream: true,
@@ -210,10 +230,10 @@ const toolHandlers = {
     {
       type: "solution",
       audience: "builder",
-      file: "tools.js",
+      file: "tool-handlers.js",
       language: "javascript",
       explanation:
-        "This complete file defines both tools and their handler functions. Import this into your server.js to use them.",
+        "The complete `tool-handlers.js` — both the `tools` schema array and the `toolHandlers` dispatch map, with both exported so `server.js` can pull them in via `const { tools, toolHandlers } = require(\"./tool-handlers.js\");`.",
       code: `const tools = [
   {
     type: "function",
@@ -260,7 +280,7 @@ const toolHandlers = {
 ];
 
 const toolHandlers = {
-  check_weather: async ({ city, unit = "fahrenheit" }) => {
+  check_weather: async ({ city, unit = "fahrenheit" }, _ws) => {
     const mockWeather = {
       "austin": { temp: 78, condition: "sunny", humidity: 45 },
       "new york": { temp: 55, condition: "cloudy", humidity: 72 },
@@ -280,7 +300,7 @@ const toolHandlers = {
     };
   },
 
-  lookup_order: async ({ order_id }) => {
+  lookup_order: async ({ order_id }, _ws) => {
     const mockOrders = {
       "ORD-12345": { status: "shipped", tracking: "1Z999AA10123456784", eta: "March 15, 2026" },
       "ORD-67890": { status: "processing", tracking: null, eta: "March 20, 2026" },

@@ -98,16 +98,14 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
     case "verify":
       return <Verify question={block.question} onSuccess={onVerifySuccess} />;
 
-    case "diagram": {
-      const h = block.highlight;
+    case "diagram":
       return (
         <ArchitectureDiagram
-          highlight={h as "none" | "all" | "setup" | "websocket" | "server" | "llm" | "tools" | "handoff" | "complete" | undefined}
-          showTools={h === "tools" || h === "all" || h === "complete"}
-          showHandoff={h === "handoff" || h === "complete"}
+          highlight={block.highlight}
+          showTools={block.highlight === "tools" || block.highlight === "all" || block.highlight === "complete"}
+          showHandoff={block.highlight === "handoff" || block.highlight === "complete"}
         />
       );
-    }
 
     case "image":
       return (

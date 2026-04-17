@@ -29,7 +29,14 @@ export default {
     {
       type: "prose",
       content:
-        "ConversationRelay supports SSML (Speech Synthesis Markup Language) in your text responses. This gives you precise control over pronunciation, pauses, emphasis, and speed:",
+        "You can give the AI fine-grained control over how it speaks -- adding pauses, changing speed, or spelling out codes letter by letter -- using a special markup format called SSML.",
+    },
+
+    {
+      type: "callout",
+      variant: "warning",
+      content:
+        "**SSML support depends on your voice provider.** The example below uses tags like `<say-as>`, `<break>`, and `<prosody>`, which work with **Google** and **Amazon** voices. The default provider (**ElevenLabs**) only supports the `<phoneme>` tag, and only in English. If you want full SSML support, switch to Google (`ttsProvider=\"Google\"` in your ConversationRelay settings) or stick to plain text.",
     },
 
     {
@@ -48,7 +55,7 @@ ws.send(JSON.stringify({
     {
       type: "prose",
       content:
-        "SSML is especially useful for reading back numbers, spelling out codes, and adding natural pauses that make the agent sound more human.",
+        "This is especially useful for reading back numbers, spelling out codes, and adding natural pauses that make the agent sound more human.",
     },
 
     { type: "section", title: "Multi-Language Support" },
@@ -70,19 +77,19 @@ ws.send(JSON.stringify({
     {
       type: "prose",
       content:
-        "Twilio offers a **Conversational Intelligence** service that can analyze your voice AI calls after the fact. It provides:",
+        "Twilio offers a **Conversational Intelligence** service that can automatically analyze your voice AI calls after they happen. It provides:",
     },
 
     {
       type: "prose",
       content:
-        "**Transcripts** -- Full transcripts of every call.\n**Sentiment analysis** -- Track caller sentiment over the course of a call.\n**PII detection** -- Automatically flag and redact sensitive information.\n**Custom categories** -- Tag calls by topic, outcome, or any custom criteria.",
+        "**Transcripts** -- Full written records of every call.\n**Sentiment analysis** -- Track how the caller is feeling over the course of a call.\n**Sensitive info detection** -- Automatically flag and hide personal information like credit card numbers.\n**Custom categories** -- Tag calls by topic, outcome, or any criteria you define.",
     },
 
     {
       type: "prose",
       content:
-        "This is invaluable for understanding how your agent performs at scale without listening to every call manually.",
+        "This is invaluable for understanding how your agent is doing across hundreds or thousands of calls without listening to each one.",
     },
 
     { type: "section", title: "Audio Playback" },
@@ -90,7 +97,7 @@ ws.send(JSON.stringify({
     {
       type: "prose",
       content:
-        "ConversationRelay supports playing pre-recorded audio files mid-conversation. This is useful for hold music, legal disclaimers, or branded audio intros:",
+        "Your agent can also play pre-recorded audio files during a call. This is useful for hold music, legal disclaimers, or branded audio intros:",
     },
 
     {
@@ -102,6 +109,14 @@ ws.send(JSON.stringify({
   source: "https://your-server.com/audio/hold-music.mp3",
   loop: 1
 }));`,
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "The `play` message also supports `interruptible` (whether the caller's voice can stop playback) and `preemptible` (whether a subsequent message can stop it). Audio must be a publicly accessible URL (MP3 or WAV). Check the [ConversationRelay docs](https://www.twilio.com/docs/voice/conversationrelay) for the latest supported fields and formats.",
     },
 
     { type: "section", title: "Advanced Tool Patterns" },
@@ -150,7 +165,7 @@ ws.send(JSON.stringify({
     {
       type: "prose",
       content:
-        "You started this workshop with a blank server and a Twilio phone number. You now have a production-capable voice AI agent. Whether you are building a customer service bot, an appointment scheduler, or something entirely new, you have the foundation to make it happen. Go build something great.",
+        "You started this workshop with a blank server and a Twilio phone number. You now have a voice AI agent that can hold real conversations, look things up, and hand off to humans. Whether you are building a customer service agent, an appointment scheduler, or something entirely new, you have the foundation to make it happen. Go build something great.",
     },
   ],
 } satisfies StepDefinition;

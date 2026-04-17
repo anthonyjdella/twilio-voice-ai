@@ -96,11 +96,11 @@ function HomeContent() {
         animate="visible"
         variants={stagger}
       >
-        {/* Twilio logo */}
+        {/* Brand logo */}
         <motion.div variants={fadeUp} className="mb-10">
           <img
-            src="/images/twilio-bug-red.svg"
-            alt="Twilio"
+            src={branding.logo?.src ?? "/images/twilio-bug-red.svg"}
+            alt={branding.logo?.alt ?? "Logo"}
             width={56}
             height={56}
             className="mx-auto"
@@ -115,19 +115,30 @@ function HomeContent() {
           {title}
         </motion.h1>
 
-        {/* Tagline */}
+        {/* Tagline — optionally highlights one accent word. `taglineAccent: null`
+            disables highlighting entirely. */}
         <motion.p
           variants={fadeUp}
           className="text-xl md:text-2xl text-text-primary mb-3 font-display font-extrabold"
         >
-          {hero.tagline.split("ConversationRelay").map((part, i, arr) => (
-            <span key={i}>
-              {part}
-              {i < arr.length - 1 && (
-                <span style={{ color: branding.accentColor }}>ConversationRelay</span>
-              )}
-            </span>
-          ))}
+          {(() => {
+            const accent =
+              hero.taglineAccent === undefined
+                ? "ConversationRelay"
+                : hero.taglineAccent;
+            if (!accent || !hero.tagline.includes(accent)) {
+              return hero.tagline;
+            }
+            const parts = hero.tagline.split(accent);
+            return parts.map((part, i, arr) => (
+              <span key={i}>
+                {part}
+                {i < arr.length - 1 && (
+                  <span style={{ color: branding.accentColor }}>{accent}</span>
+                )}
+              </span>
+            ));
+          })()}
         </motion.p>
 
         {/* Description */}
@@ -218,19 +229,39 @@ function HomeContent() {
           ))}
         </motion.div>
 
-        {/* Footer — official "Powered by Twilio" brand badge.
-            Min size per brand guide: 28px × 105px. Using 32 × 120 (within bounds). */}
-        <motion.div
-          variants={fadeUp}
-          className="mt-16 flex items-center justify-center"
-        >
-          <img
-            src={isDark ? "/images/powered-by-twilio-clear.png" : "/images/powered-by-twilio-on-white.png"}
-            alt="Powered by Twilio"
-            width={120}
-            height={32}
-          />
-        </motion.div>
+        {/* Footer — configurable "Powered by" brand badge. Omitted entirely
+            when `branding.poweredByLogo` is not set, so a fork for another
+            brand doesn't accidentally ship with Twilio attribution. */}
+        {workshopConfig.branding.poweredByLogo && (
+          <motion.div
+            variants={fadeUp}
+            className="mt-16 flex items-center justify-center"
+          >
+            {(() => {
+              const logo = workshopConfig.branding.poweredByLogo!;
+              const img = (
+                <img
+                  src={isDark ? logo.dark : logo.light}
+                  alt={logo.alt}
+                  width={120}
+                  height={32}
+                />
+              );
+              return logo.href ? (
+                <a
+                  href={logo.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={logo.alt}
+                >
+                  {img}
+                </a>
+              ) : (
+                img
+              );
+            })()}
+          </motion.div>
+        )}
       </motion.div>
     </div>
     </>

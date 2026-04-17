@@ -4,20 +4,27 @@ export default {
   blocks: [
     { type: "diagram", variant: "architecture", highlight: "llm" },
 
-    { type: "section", title: "Connecting to the LLM" },
+    { type: "section", title: "Connecting to the AI" },
 
     {
       type: "concept-card",
       audience: "explorer",
       title: "Why Streaming Feels Natural",
       content:
-        "An LLM like GPT-4 can take a few seconds to finish a full reply. Instead of waiting for the whole thing, we hand each word to Twilio the moment it's generated -- so the caller hears the AI start speaking almost immediately, word by word. That tiny trick is what makes the conversation feel alive instead of walkie-talkie.",
+        "A large language model can take a few seconds to finish a full reply. Instead of waiting for the whole thing, we hand each word to Twilio the moment it's generated -- so the caller hears the AI start speaking almost immediately, word by word. That tiny trick is what makes the conversation feel alive instead of walkie-talkie.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "Imagine texting someone who types their entire paragraph before hitting send — versus someone who sends one sentence at a time. Streaming works the same way: the AI generates words one by one, and we send each word to Twilio the instant it appears. The caller starts hearing the response within milliseconds instead of waiting several seconds for the full answer. That is what makes this feel like a conversation, not a voicemail.",
     },
 
     {
       type: "prose",
       content:
-        "Now for the exciting part. When the caller speaks, you need to send their words to an LLM, get a response, and stream it back through the WebSocket so Twilio can speak it to the caller. We will use OpenAI's `chat.completions.create` API with streaming enabled so the caller hears the response as quickly as possible instead of waiting for the full reply.",
+        "Now for the exciting part. When the caller speaks, you send their words to the AI, get a response, and send it back to Twilio so the caller hears a reply. Instead of waiting for the entire answer, you send each piece the moment it's ready -- so the caller starts hearing a response almost instantly.",
     },
 
     { type: "section", title: "Install the OpenAI SDK" },
@@ -61,7 +68,7 @@ const openai = new OpenAI({
     {
       type: "prose",
       content:
-        "To send speech back to the caller, you send `text` messages through the WebSocket. Each message contains a `token` field with a chunk of text. Set `last: false` for intermediate tokens and `last: true` for the final one. Twilio begins text-to-speech as soon as the first token arrives, so the caller hears the response with minimal delay.",
+        "To send speech back to the caller, your server sends text messages to Twilio. Each message carries a piece of the reply. You mark the last piece with a \"done\" flag so Twilio knows the response is complete. Twilio starts converting text to speech the moment the first piece arrives, so the caller hears a response almost instantly.",
     },
 
     {
@@ -88,6 +95,7 @@ const openai = new OpenAI({
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
         "You **must** send exactly one message with `last: true` to signal the end of your response. If you forget this, Twilio will keep waiting for more tokens and the caller will hear silence. If you send `last: true` more than once, Twilio will treat each as a separate utterance.",
@@ -98,7 +106,7 @@ const openai = new OpenAI({
     {
       type: "prose",
       content:
-        "Create an async function that takes the conversation history, calls OpenAI with streaming, and sends each chunk back through the WebSocket as a `text` message:",
+        "Create a function that sends the conversation to the AI, receives the reply piece by piece, and forwards each piece to Twilio so the caller hears it immediately:",
     },
 
     {
@@ -106,10 +114,16 @@ const openai = new OpenAI({
       language: "javascript",
       file: "server.js",
       startLine: 40,
-      code: `async function streamLLMResponse(ws, conversationHistory) {
+      code: `// Small helper so we don't repeat JSON.stringify everywhere. You'll
+// reach for this in every later chapter -- tool calls, handoff, etc.
+function sendText(ws, token, last = false) {
+  ws.send(JSON.stringify({ type: "text", token, last }));
+}
+
+async function streamLLMResponse(ws, conversationHistory) {
   try {
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5.4-nano",
       messages: [
         {
           role: "system",
@@ -129,19 +143,11 @@ const openai = new OpenAI({
       fullResponse += content;
 
       // Send each token to Twilio
-      ws.send(JSON.stringify({
-        type: "text",
-        token: content,
-        last: false,
-      }));
+      sendText(ws, content);
     }
 
     // Signal the end of the response
-    ws.send(JSON.stringify({
-      type: "text",
-      token: "",
-      last: true,
-    }));
+    sendText(ws, "", true);
 
     // Save the full response to conversation history
     conversationHistory.push({
@@ -151,11 +157,7 @@ const openai = new OpenAI({
 
   } catch (error) {
     console.error("❌ LLM error:", error);
-    ws.send(JSON.stringify({
-      type: "text",
-      token: "I'm sorry, I encountered an error. Could you repeat that?",
-      last: true,
-    }));
+    sendText(ws, "I'm sorry, I encountered an error. Could you repeat that?", true);
   }
 }`,
     },
@@ -165,7 +167,7 @@ const openai = new OpenAI({
     {
       type: "prose",
       content:
-        "Replace the `TODO` comment in your prompt handler with a call to `streamLLMResponse`:",
+        "Replace the `TODO` comment in your prompt handler with a call to the streaming function:",
     },
 
     {
@@ -193,7 +195,7 @@ const openai = new OpenAI({
       type: "callout",
       variant: "tip",
       content:
-        "Notice we are not using `await` on `streamLLMResponse`. The function runs asynchronously and sends tokens as they arrive. The WebSocket handler can continue processing other messages (like interruptions) while the response streams.",
+        "Notice we are not using `await` here. The function runs in the background, sending each piece of the reply as it arrives. Your server can continue handling other events (like the caller interrupting) while the response streams.",
     },
 
     {
@@ -201,7 +203,7 @@ const openai = new OpenAI({
       audience: "builder",
       title: "Why stream instead of waiting for the full response?",
       content:
-        "A full GPT-4o response can take 2-5 seconds to generate. If you wait for the complete response before sending it, the caller sits in silence for that entire duration -- which feels unnatural and broken on a phone call. By streaming tokens as they arrive, Twilio can begin text-to-speech within 200-500ms. The caller hears the AI start speaking almost immediately, just like a real conversation.",
+        "A full LLM response can take 2-5 seconds to generate. If you wait for the complete response before sending it, the caller sits in silence for that entire duration -- which feels unnatural and broken on a phone call. By streaming tokens as they arrive, Twilio can begin text-to-speech within 200-500ms. The caller hears the AI start speaking almost immediately, just like a real conversation.",
     },
 
     {
@@ -234,7 +236,7 @@ const server = http.createServer(async (req, res) => {
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev"
+      url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
       dtmfDetection="true"
     />
@@ -251,7 +253,7 @@ const server = http.createServer(async (req, res) => {
       const call = await twilioClient.calls.create({
         to: process.env.MY_PHONE_NUMBER,
         from: process.env.TWILIO_PHONE_NUMBER,
-        url: \`https://your-codespace-8080.app.github.dev/twiml\`,
+        url: \`https://\${req.headers.host}/twiml\`,
       });
 
       console.log("📞 Call initiated:", call.sid);
@@ -270,10 +272,15 @@ const server = http.createServer(async (req, res) => {
   res.end("WebSocket server is running");
 });
 
+// Reusable helper: every later chapter sends outbound text through this.
+function sendText(ws, token, last = false) {
+  ws.send(JSON.stringify({ type: "text", token, last }));
+}
+
 async function streamLLMResponse(ws, conversationHistory) {
   try {
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5.4-nano",
       messages: [
         {
           role: "system",
@@ -292,18 +299,10 @@ async function streamLLMResponse(ws, conversationHistory) {
 
       fullResponse += content;
 
-      ws.send(JSON.stringify({
-        type: "text",
-        token: content,
-        last: false,
-      }));
+      sendText(ws, content);
     }
 
-    ws.send(JSON.stringify({
-      type: "text",
-      token: "",
-      last: true,
-    }));
+    sendText(ws, "", true);
 
     conversationHistory.push({
       role: "assistant",
@@ -312,15 +311,11 @@ async function streamLLMResponse(ws, conversationHistory) {
 
   } catch (error) {
     console.error("❌ LLM error:", error);
-    ws.send(JSON.stringify({
-      type: "text",
-      token: "I'm sorry, I encountered an error. Could you repeat that?",
-      last: true,
-    }));
+    sendText(ws, "I'm sorry, I encountered an error. Could you repeat that?", true);
   }
 }
 
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ server, path: "/ws" });
 
 wss.on("connection", (ws, req) => {
   console.log("📞 New WebSocket connection");

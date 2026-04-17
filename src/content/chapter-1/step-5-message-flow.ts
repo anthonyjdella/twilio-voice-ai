@@ -18,31 +18,31 @@ export default {
           icon: "/images/icons/phone-call.svg",
           title: "Caller speaks",
           description:
-            "The caller speaks into their phone and audio is transmitted to Twilio over the phone network.",
+            "The caller says something into their phone, just like a normal call.",
         },
         {
           icon: "/images/icons/pencil.svg",
-          title: "Speech to text",
+          title: "Speech becomes text",
           description:
-            "Deepgram (ConversationRelay's default STT engine) transcribes the audio. Once the caller stops speaking, it sends a `prompt` message to your server.",
+            "Twilio listens to the caller's voice and converts it into written text -- like automatic subtitles. Once the caller finishes their sentence, the text is sent to your server.",
         },
         {
           icon: "/images/icons/lightbulb-doc.svg",
-          title: "LLM generates a response",
+          title: "The AI thinks",
           description:
-            "Your server adds the transcript to conversation history and sends the full context to the LLM, which streams back tokens.",
+            "Your server sends the caller's words to an AI model, along with everything said so far in the conversation. The AI starts composing a reply immediately.",
         },
         {
           icon: "/images/icons/chat-bubble.svg",
-          title: "Tokens streamed to Twilio",
+          title: "Reply streams back word by word",
           description:
-            "As tokens arrive, your server forwards them as `text` messages. ConversationRelay's TTS engine buffers and begins speaking immediately.",
+            "Instead of waiting for the full answer, your server sends each piece of the reply to Twilio the moment it's ready -- so the caller starts hearing a response almost instantly.",
         },
         {
           icon: "/images/icons/sound-wave.svg",
           title: "Caller hears the reply",
           description:
-            "ElevenLabs (ConversationRelay's default TTS engine) converts text into speech and plays it through the call. The caller hears a natural, human-sounding voice.",
+            "Twilio converts the text into a natural, human-sounding voice and plays it through the call. The whole round trip takes under two seconds.",
         },
       ],
     },
@@ -52,14 +52,14 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "A single conversation turn takes under two seconds — from the caller finishing a sentence to hearing the agent's response.",
+        "That's it -- five steps, under two seconds, and the caller never knows an AI is involved. It feels like talking to a real person.",
     },
 
     // Builder: json-message examples
     {
       type: "json-message",
       audience: "builder",
-      direction: "outbound",
+      direction: "inbound",
       messageType: "prompt",
       code: `{
   "type": "prompt",
@@ -115,7 +115,7 @@ export default {
       audience: "explorer",
       variant: "info",
       content:
-        "ConversationRelay uses WebSockets for real-time, low-latency communication — your server stays connected for the entire call.",
+        "Twilio keeps a live two-way connection open to your server for the entire call — that's what makes the conversation feel instant instead of walkie-talkie.",
     },
 
     {
@@ -123,7 +123,7 @@ export default {
       audience: "builder",
       title: "ConversationRelay Protocol Details",
       content:
-        "The ConversationRelay WebSocket protocol uses JSON messages in both directions. Here are the key message types you will work with:\n\n**Inbound (Twilio to your server):**\n\n- `setup` -- Sent once when the WebSocket connects. Contains the session ID, call SID, caller's phone number, call direction, and any custom parameters you passed in your TwiML.\n- `prompt` -- Sent when the caller finishes speaking. Contains the transcribed text in the `voicePrompt` field, the detected language in `lang`, and a `last` boolean indicating whether this is the final transcription for this utterance.\n- `interrupt` -- Sent when the caller starts speaking while the agent is talking. Includes `utteranceUntilInterrupt` (what the caller actually heard) so you can trim conversation history.\n- `dtmf` -- Sent when the caller presses a key on their phone's keypad. Contains the `digit` pressed (singular — each keypress is a separate message).\n- `error` -- Sent when something goes wrong with STT or other ConversationRelay internals.\n\n**Outbound (your server to Twilio):**\n\n- `text` -- Send text to be spoken to the caller. Use the `token` field for the text content and `last: true` on the final chunk.\n- `language` -- Switch the TTS and transcription languages mid-call (e.g., `ttsLanguage: \"es-ES\"`).\n- `end` -- Terminate the ConversationRelay session, optionally including `handoffData` to trigger a transfer via your action URL.\n\nAll messages are JSON-encoded strings sent over the WebSocket. The protocol is intentionally simple -- no binary frames, no custom headers, no negotiation. This makes it straightforward to implement in any language or framework that supports WebSockets.",
+        "The ConversationRelay WebSocket protocol uses JSON messages in both directions. Here are the key message types you will work with:\n\n**Inbound (Twilio to your server):**\n\n- `setup` -- Sent once when the WebSocket connects. Contains the session ID, call SID, caller's phone number, call direction, and any custom parameters you passed in your TwiML.\n- `prompt` -- Sent when the caller finishes speaking. Contains the transcribed text in the `voicePrompt` field, the detected language in `lang`, and a `last` boolean indicating whether this is the final transcription for this utterance.\n- `interrupt` -- Sent when the caller starts speaking while the agent is talking. Includes `utteranceUntilInterrupt` (what the caller actually heard) so you can trim conversation history.\n- `dtmf` -- Sent when the caller presses a key on their phone's keypad. Contains the `digit` pressed (singular — each keypress is a separate message).\n- `error` -- Sent when something goes wrong during the session (STT failure, malformed outbound message, etc.). Contains a `description` field with details.\n\n**Outbound (your server to Twilio):**\n\n- `text` -- Send text to be spoken to the caller. Use the `token` field for the text content and `last: true` on the final chunk.\n- `language` -- Switch the TTS and transcription languages mid-call (e.g., `ttsLanguage: \"es-ES\"`).\n- `play` -- Play a pre-recorded audio file to the caller (e.g., hold music, legal disclaimers). Takes a `source` URL and optional `loop` count.\n- `sendDigits` -- Send DTMF tones into the call (e.g., navigating an external phone menu). Takes a `digits` string.\n- `end` -- Terminate the ConversationRelay session, optionally including `handoffData` to trigger a transfer via your action URL.\n\nAll messages are JSON-encoded strings sent over the WebSocket. The protocol is intentionally simple -- no binary frames, no negotiation. This makes it straightforward to implement in any language or framework that supports WebSockets.",
     },
   ],
 } satisfies StepDefinition;

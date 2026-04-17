@@ -9,13 +9,13 @@ export default {
       audience: "explorer",
       title: "Where Voice AI Lives in Production",
       content:
-        "A voice agent lives inside a server that stays connected to Twilio over a long-running WebSocket. That's different from a typical web app: you can't use serverless-style platforms that go to sleep between requests. You need a host that keeps the connection open, scales when more callers arrive, and recovers if something crashes mid-call.",
+        "A voice agent lives inside a server that stays connected to Twilio for the entire call. That's different from a typical web app: you can't use platforms that go to sleep between requests. You need a host that keeps the connection open, scales when more callers arrive, and recovers if something crashes mid-call.",
     },
 
     {
       type: "prose",
       content:
-        "Your agent has been running in a GitHub Codespace during development. For production, you need a reliable host that supports persistent WebSocket connections and can handle concurrent calls. Here are your best options.",
+        "Your agent has been running in a GitHub Codespace during development. For production, you need a reliable host that keeps a live connection open for the duration of each call and can handle multiple calls at once. Here are your best options.",
     },
 
     { type: "section", title: "Key Requirements" },
@@ -23,17 +23,18 @@ export default {
     {
       type: "prose",
       content:
-        "Wherever you deploy, make sure the platform supports:",
+        "Wherever you deploy, the platform needs to support a few things:",
     },
 
     {
       type: "prose",
       content:
-        "**WebSocket connections** -- Your server needs to maintain long-lived WebSocket connections for the duration of each call. Serverless platforms (Lambda, Cloud Functions) will not work.\n**HTTPS / WSS** -- Twilio requires secure connections. Your host must provide TLS termination.\n**Environment variables** -- You need a secure way to store your OpenAI API key and other secrets.\n**Persistent processes** -- The server process must stay running between requests, not spin up per-request.",
+        "**Long-lived connections** -- Your server needs to keep a live connection open for the entire duration of each call. Platforms that shut down between requests (like AWS Lambda or Vercel Functions) will not work.\n**Secure connections** -- Twilio requires encrypted connections. Your host must support HTTPS and WSS.\n**Secret storage** -- You need a safe place to keep your API keys and credentials.\n**Always-on server** -- The server process must stay running continuously, not start fresh for each request.",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
         "Do **not** deploy to serverless platforms like AWS Lambda, Vercel Functions, or Cloudflare Workers. These have execution time limits and do not support persistent WebSocket connections. Your calls will drop after a few seconds.",
@@ -152,7 +153,7 @@ $ docker run -p 8080:8080 --env-file .env voice-agent`,
     {
       type: "prose",
       content:
-        "Make sure these are set in your deployment environment:",
+        "Make sure these secret values are configured in your deployment platform:",
     },
 
     {
@@ -178,13 +179,13 @@ NODE_ENV=production`,
     {
       type: "prose",
       content:
-        'Once deployed, update your Twilio phone number\'s webhook URL to point to your production domain instead of the Codespace URL. In the Twilio Console, go to Phone Numbers, select your number, and update the "A call comes in" webhook to your production URL (e.g., `https://your-app.railway.app/twiml`).',
+        "Once deployed, update your Twilio phone number to point to your new production address instead of the Codespace URL. In the Twilio Console, go to Phone Numbers, select your number, and update the webhook URL to your production domain.",
     },
 
     {
       type: "prose",
       content:
-        "Also update the WebSocket URL in your TwiML to use `wss://` with your production domain.",
+        "Also update the connection URL in your server instructions to use your production domain.",
     },
 
     {

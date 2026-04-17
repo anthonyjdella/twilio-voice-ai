@@ -20,7 +20,7 @@ export default {
       audience: "explorer",
       title: "The Five Components",
       content:
-        "When a call connects, Twilio Voice activates ConversationRelay, which converts speech to text and text back to speech in real time. Your WebSocket server sits in the middle — it takes the transcribed text, sends it to an LLM (OpenAI), and streams the response back through Twilio so the person on the phone hears a natural voice reply.",
+        "When a call connects, Twilio activates ConversationRelay, which converts speech to text and text back to speech in real time. Your server sits in the middle — it takes the caller's words (now text), sends them to an AI brain (OpenAI), and sends the AI's reply back through Twilio so the person on the phone hears a natural voice response.",
     },
 
     // Builder: trimmed component descriptions
@@ -42,7 +42,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**ConversationRelay (STT + TTS)** — The bridge between voice and text. It transcribes the caller's speech, synthesizes your text responses into natural-sounding audio, and detects interruptions mid-utterance.",
+        "**ConversationRelay (STT + TTS)** — The bridge between voice and text. It uses **Deepgram** for speech-to-text (transcribing what the caller says) and **ElevenLabs** for text-to-speech (turning your text into natural-sounding audio) by default. It also detects interruptions mid-utterance. You can swap these providers later — Google and Amazon are also supported.",
     },
 
     {

@@ -55,7 +55,7 @@ export default {
     {
       type: "prose",
       content:
-        "If everything checks out, you are ready to start building. In the next chapter, you will write the WebSocket server, create the TwiML endpoint, pipe caller speech through an LLM, and make your very first AI phone call. It is going to be incredible.",
+        "If everything checks out, you are ready to start building. In the next chapter, you will set up your server, connect it to Twilio, wire in the AI, and make your very first AI phone call. It is going to be incredible.",
     },
 
     {

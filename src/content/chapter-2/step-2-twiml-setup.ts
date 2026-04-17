@@ -11,13 +11,13 @@ export default {
       audience: "explorer",
       title: "TwiML in One Minute",
       content:
-        "TwiML is a little XML instruction sheet you hand to Twilio. When a call connects, Twilio reads it and does what it says -- \"play this greeting\", \"open a WebSocket to this URL\", \"listen for keypresses\". In this workshop, one short TwiML document is all it takes to wire a live phone call into your code.",
+        "TwiML is a short instruction sheet you hand to Twilio. When a call connects, Twilio reads it and does what it says -- \"play this greeting\", \"connect to my server\", \"listen for keypresses\". In this workshop, one short set of instructions is all it takes to wire a live phone call into your code.",
     },
 
     {
       type: "prose",
       content:
-        "In this workshop, your server will call the attendee rather than waiting for an incoming call. This is a common pattern for voice AI: the Twilio REST API initiates an outbound call, and a TwiML endpoint on your server tells Twilio how to handle the call once the person picks up. The TwiML uses the `<Connect>` verb with a `<ConversationRelay>` noun to hand the call off to your WebSocket server.",
+        "In this workshop, your server calls you rather than waiting for an incoming call. When someone picks up, Twilio asks your server \"what should I do with this call?\" and your server replies with a short set of instructions that says \"connect this call to my AI agent.\" That handoff is what wires the live phone call into your code.",
     },
 
     { type: "section", title: "Install the Twilio SDK" },
@@ -25,13 +25,13 @@ export default {
     {
       type: "prose",
       content:
-        "You will need the Twilio helper library to initiate outbound calls via the REST API. Install it alongside `ws`:",
+        "You will need the Twilio library to make outbound calls. Install it now:",
     },
 
     {
       type: "code",
       language: "bash",
-      code: "npm install twilio ws",
+      code: "npm install twilio",
     },
 
     { type: "section", title: "The TwiML Endpoint" },
@@ -39,7 +39,7 @@ export default {
     {
       type: "prose",
       content:
-        "Add an HTTP route to your server that responds with TwiML. When Twilio connects the outbound call, it fetches `/twiml` to learn how to handle the call. Your server returns XML that tells Twilio to open a WebSocket connection back to your server and use ConversationRelay to manage speech-to-text and text-to-speech.",
+        "Add a route to your server that responds with instructions. When Twilio connects the outbound call, it asks your server what to do. Your server replies with a short set of instructions that tells Twilio to connect the call to your AI agent.",
     },
 
     {
@@ -49,11 +49,14 @@ export default {
       startLine: 7,
       code: `const server = http.createServer((req, res) => {
   if (req.url === "/twiml" && req.method === "POST") {
+    // req.headers.host is the public host Twilio just used to reach us
+    // (e.g. your-codespace-8080.app.github.dev). Using it means the same
+    // code works in Codespaces, ngrok, and production with no edits.
     const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev"
+      url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
       dtmfDetection="true"
     />
@@ -75,7 +78,7 @@ export default {
     {
       type: "prose",
       content:
-        "Add a `/call` endpoint that uses the Twilio REST API to initiate an outbound call. When triggered, it calls the attendee's phone number and points Twilio at your `/twiml` endpoint for instructions:",
+        "Add a `/call` endpoint that tells Twilio to call your phone. When triggered, it dials your number and points Twilio at your instructions endpoint:",
     },
 
     {
@@ -101,7 +104,7 @@ const server = http.createServer(async (req, res) => {
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev"
+      url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
       dtmfDetection="true"
     />
@@ -118,7 +121,7 @@ const server = http.createServer(async (req, res) => {
       const call = await twilioClient.calls.create({
         to: process.env.MY_PHONE_NUMBER,
         from: process.env.TWILIO_PHONE_NUMBER,
-        url: \`https://your-codespace-8080.app.github.dev/twiml\`,
+        url: \`https://\${req.headers.host}/twiml\`,
       });
 
       console.log("📞 Call initiated:", call.sid);
@@ -143,44 +146,51 @@ const server = http.createServer(async (req, res) => {
     {
       type: "prose",
       content:
-        "The `<ConversationRelay>` element accepts several important attributes:",
+        "The ConversationRelay instruction accepts several important settings:",
     },
 
     {
       type: "prose",
       content:
-        "**url** -- The WebSocket URL where Twilio should connect. This must be a publicly reachable `wss://` address. In Codespaces, your forwarded port URL is already public and uses TLS.",
+        "**url** -- The address where Twilio connects to your server. This must be a secure `wss://` address that Twilio can reach over the internet. In Codespaces, your forwarded port URL handles this automatically.",
     },
 
     {
       type: "prose",
       content:
-        "**welcomeGreeting** -- An optional greeting that Twilio speaks immediately when the call connects, before any WebSocket messages are exchanged. This avoids the initial silence while your server is still initializing.",
+        "**welcomeGreeting** -- An optional greeting that Twilio speaks immediately when the call connects, before anything else happens. This avoids the initial silence while your server is getting ready.",
     },
 
     {
       type: "prose",
       content:
-        "**dtmfDetection** -- When `true`, Twilio detects keypad presses (DTMF tones) and sends them to your server as messages. This lets the caller press buttons to navigate menus or enter account numbers.",
+        "**dtmfDetection** -- When `true`, Twilio detects keypad presses and tells your server which key was pressed. This lets the caller press buttons to navigate menus or enter account numbers.",
     },
 
     {
       type: "prose",
       content:
-        "**ttsProvider / transcriptionProvider** -- ConversationRelay defaults to **ElevenLabs** for text-to-speech and **Deepgram** for speech-to-text. Since these are the defaults, we omit them from the TwiML to keep it minimal. You can explicitly set them if you want to use Google or Amazon Polly for TTS, or other STT providers.",
+        "**ttsProvider / transcriptionProvider** -- ConversationRelay defaults to **ElevenLabs** for turning text into speech and **Deepgram** for turning speech into text. Since these are the defaults, we leave them out to keep things simple. You can change them later if you prefer Google or Amazon voices.",
     },
 
     {
       type: "prose",
       content:
-        '**interruptible** -- Controls what can interrupt AI speech. Set to `"any"` (default) to allow both voice and DTMF interruption, `"speech"` for voice only, `"dtmf"` for keypress only, or `"none"` to disable interruption entirely.',
+        '**interruptible** -- Controls what can interrupt AI speech. Set to `"any"` (default) to allow both voice and keypad interruption, `"speech"` for voice only, `"dtmf"` for keypress only, or `"none"` to disable interruption entirely.',
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "**reportInputDuringAgentSpeech** -- Controls whether Twilio forwards the caller's speech or DTMF *while the agent is still talking* without triggering a barge-in. Accepts four values: `\"none\"` (default — input during speech is dropped), `\"dtmf\"` (only keypresses forwarded), `\"speech\"` (only voice forwarded), or `\"any\"` (both forwarded). `\"dtmf\"` is handy for \"press 0 for an operator\" flows. Note: this is independent of `interruptible` — barge-in still works regardless of this setting. You'll see this attribute again in the polished TwiML in Chapter 6.",
     },
 
     {
       type: "callout",
       variant: "warning",
       content:
-        "The `url` attribute must use `wss://` (secure WebSocket), not `ws://`. Twilio requires a secure connection in production, and Codespace port forwarding provides TLS automatically. If you use `ws://`, the connection will fail silently and the call will hang.",
+        "The `url` attribute must use `wss://` (secure connection), not `ws://`. Twilio requires a secure connection, and Codespace port forwarding provides this automatically. If you use `ws://`, the connection will fail silently and the call will hang.",
     },
 
     { type: "section", title: "Codespace Port Forwarding" },
@@ -188,13 +198,13 @@ const server = http.createServer(async (req, res) => {
     {
       type: "prose",
       content:
-        "Your server is running on port `8080` inside the Codespace. GitHub Codespaces automatically provides a public URL for forwarded ports. Your URL will look like `your-codespace-8080.app.github.dev`. Make sure the port visibility is set to **Public** in the Ports tab.",
+        "Your server is running on port `8080` inside the Codespace. GitHub gives you a public URL automatically. Your URL will look like `your-codespace-8080.app.github.dev`. Make sure the port visibility is set to **Public** in the Ports tab.",
     },
 
     {
       type: "prose",
       content:
-        "You will need this URL in two places: the `url` attribute in your TwiML (with the `wss://` scheme for the WebSocket connection), and the `url` parameter in your `calls.create()` call (with the `https://` scheme for the TwiML endpoint).",
+        "You will need this URL in two places: once with `wss://` for the live connection, and once with `https://` for the call setup. The code handles this automatically using `req.headers.host`.",
     },
 
     {

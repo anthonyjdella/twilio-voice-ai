@@ -41,6 +41,9 @@ export function StepCelebration({ show, onDismiss }: StepCelebrationProps) {
           exit={{ opacity: 0, y: 30, scale: 0.9 }}
           transition={{ type: "spring", stiffness: 350, damping: 22 }}
           className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
         >
           <div className="relative flex items-center gap-3 px-7 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-400 shadow-[0_10px_40px_rgba(16,185,129,0.45)] border border-white/25">
             {/* Sparkle particles */}

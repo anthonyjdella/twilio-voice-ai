@@ -31,7 +31,7 @@ export function DiffView({ file, lines }: DiffViewProps) {
       </div>
 
       {/* Diff */}
-      <pre className="p-4 text-[13px] leading-relaxed font-mono overflow-x-auto">
+      <pre className="p-4 text-[13px] leading-relaxed font-mono overflow-x-auto" data-scroll-x="true">
         {lines.map((line, i) => {
           const prefix =
             line.type === "add" ? "+" : line.type === "remove" ? "-" : " ";

@@ -15,7 +15,15 @@ export function CelebrationManager() {
     return chapters.find((c) => `chapter-${c.id}` === progress.pendingBadge);
   }, [progress.pendingBadge, chapters]);
 
-  const isFinal = pendingChapter?.id === chapters[chapters.length - 1]?.id;
+  // Only treat as final if there IS a pending chapter AND it's the last one.
+  // Without the explicit `!!pendingChapter` check, both sides resolve to
+  // `undefined` when nothing's pending and `undefined === undefined` falsely
+  // reports `isFinal = true`, which would send bogus isFinal signaling to
+  // MilestoneBadge (the confetti gate downstream catches it, but the prop
+  // still leaks elsewhere via `sharing`).
+  const lastChapter = chapters[chapters.length - 1];
+  const isFinal =
+    !!pendingChapter && !!lastChapter && pendingChapter.id === lastChapter.id;
 
   return (
     <>
@@ -36,6 +44,7 @@ export function CelebrationManager() {
         particleColor={pendingChapter?.particleColor}
         sharing={isFinal ? config.sharing : undefined}
         workshopTitle={config.title}
+        totalChapters={chapters.length}
       />
     </>
   );

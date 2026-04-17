@@ -45,7 +45,7 @@ export function JsonMessage({ direction, type, code }: JsonMessageProps) {
       <div className="rounded-xl overflow-hidden mb-6 border border-navy-border cursor-pointer" onClick={() => setExplorerOpen(!explorerOpen)}>
         {header}
         {explorerOpen && (
-          <pre className="p-4 bg-navy-light text-[13px] leading-relaxed font-mono overflow-x-auto">
+          <pre className="p-4 bg-navy-light text-[13px] leading-relaxed font-mono overflow-x-auto" data-scroll-x="true">
             <code className="text-text-primary/80">{code}</code>
           </pre>
         )}

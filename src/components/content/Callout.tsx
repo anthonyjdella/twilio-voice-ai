@@ -1,24 +1,28 @@
 import type { ReactNode } from "react";
 import { Lightbulb, AlertTriangle, XCircle, Info } from "lucide-react";
 
+// iconColor is the semantic accent (gold/red/blue) used for the icon and
+// left-border only — NOT for text. Gold text on light-mode tinted bg fails
+// WCAG AA contrast (~1.9:1 at 14px). Label text uses text-text-primary so
+// both themes hit AA; the icon carries the semantic role.
 const variants = {
   tip: {
     icon: Lightbulb,
-    border: "border-twilio-blue/30",
+    border: "border-twilio-blue/40",
     bg: "bg-twilio-blue/5",
     iconColor: "text-twilio-blue",
     label: "Tip",
   },
   warning: {
     icon: AlertTriangle,
-    border: "border-warning/30",
+    border: "border-warning/50",
     bg: "bg-warning/5",
     iconColor: "text-warning",
     label: "Common Mistake",
   },
   error: {
     icon: XCircle,
-    border: "border-error/30",
+    border: "border-error/50",
     bg: "bg-error/5",
     iconColor: "text-error",
     label: "Watch Out",
@@ -46,9 +50,9 @@ export function Callout({ type, children }: CalloutProps) {
       className={`rounded-xl border-l-4 ${v.border} ${v.bg} p-4 mb-6`}
     >
       <div className="flex items-start gap-3">
-        <Icon className={`w-5 h-5 ${v.iconColor} shrink-0 mt-0.5`} />
+        <Icon className={`w-5 h-5 ${v.iconColor} shrink-0 mt-0.5`} aria-hidden="true" />
         <div>
-          <div className={`text-xs font-mono ${v.iconColor} uppercase tracking-wider mb-1`}>
+          <div className="text-xs font-mono text-text-primary uppercase tracking-wider mb-1">
             {v.label}
           </div>
           <div className="text-sm text-text-secondary leading-relaxed [&_code]:bg-surface-3 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-sm">

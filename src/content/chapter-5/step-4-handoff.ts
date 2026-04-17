@@ -25,14 +25,22 @@ export default {
     {
       type: "prose",
       content:
-        "ConversationRelay supports handoff through the `end` message type. When your server sends an `end` message with `handoffData`, Twilio terminates the WebSocket connection and makes an HTTP request to the **action URL** you configured in your TwiML. That action URL returns new TwiML instructions to transfer the call.",
+        "When the AI decides the caller needs a human, your server sends a special \"end\" message to Twilio with a summary of the conversation. Twilio then closes the AI session and asks your server what to do next -- your server responds with instructions to transfer the call to a real person.",
+    },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "info",
+      content:
+        "For the caller, a good handoff feels seamless: the AI says \"Let me connect you with someone who can help,\" there is a brief hold, and the human agent already knows what the conversation was about. No repeating yourself, no awkward silence. That's the experience this step builds.",
     },
 
     { type: "section", title: "The End Message with Handoff" },
 
     {
       type: "prose",
-      content: "To trigger a handoff, send this message through the WebSocket:",
+      content: "To trigger a handoff, send this message to Twilio:",
     },
 
     {
@@ -48,7 +56,7 @@ export default {
     {
       type: "prose",
       content:
-        "The `handoffData` field is a string (typically JSON-encoded) that carries context about the conversation to the action URL. Include everything the human agent needs to pick up where the AI left off: the reason for transfer, a conversation summary, caller information, and any relevant IDs.",
+        "The `handoffData` field carries context about the conversation so the human agent knows what happened. Include the reason for the transfer, a summary of the conversation, caller information, and any relevant order or account numbers.",
     },
 
     { type: "section", title: "Setting Up the Action URL" },
@@ -56,17 +64,31 @@ export default {
     {
       type: "prose",
       content:
-        "Add an `action` attribute to your TwiML. This is the URL that Twilio will call when the ConversationRelay session ends:",
+        "You need to tell Twilio where to go after the AI session ends. Add an `action` attribute that points to a new route on your server:",
+    },
+
+    {
+      type: "callout",
+      variant: "warning",
+      content:
+        "**Update your existing `/twiml` response — don't create a new one.** You already have a `<ConversationRelay>` element from Chapter 2. Add `action=\"/call-ended\"` to the surrounding `<Connect>` on *that* response, then add the `/call-ended` route below to the same `server.js`. If you forget the `action` attribute, Twilio has no URL to POST `handoffData` to when the session ends, and the `end` message below will close the WebSocket without triggering any transfer TwiML — the call will just hang up.",
     },
 
     {
       type: "code",
       language: "xml",
       file: "twiml-response",
-      code: `<Response>
+      code: `<!-- The only change vs. your existing TwiML is the new action="/call-ended"
+     on <Connect>. Keep every other attribute you already have — voice,
+     ttsProvider, welcomeGreeting, language, interruptible, etc. — untouched;
+     the snippet below just shows where the new attribute goes. -->
+<Response>
   <Connect action="/call-ended">
     <ConversationRelay
       url="wss://your-codespace-8080.app.github.dev/ws"
+      voice="en-US-Chirp3-HD-Achernar"
+      ttsProvider="Google"
+      welcomeGreeting="Hi, I'm your assistant. How can I help?"
       dtmfDetection="true"
       interruptible="any"
     />
@@ -77,7 +99,7 @@ export default {
     {
       type: "prose",
       content:
-        "Twilio sends a POST request to the action URL with the `handoffData` as a parameter. Your action endpoint returns new TwiML to handle the transfer:",
+        "When the AI session ends, Twilio asks your server what to do next. Your server checks whether the AI requested a handoff and responds with the right instructions:",
     },
 
     {
@@ -122,19 +144,34 @@ if (req.url === "/call-ended" && req.method === "POST") {
 }`,
     },
 
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "tip",
+      content:
+        "The `<Queue>support</Queue>` example above assumes you have a Twilio TaskRouter queue configured. For simple workshop testing, you can replace it with `<Number>+15551234567</Number>` to dial a specific phone number directly. In production, TaskRouter gives you skills-based routing — see [Twilio TaskRouter docs](https://www.twilio.com/docs/taskrouter) for setup.",
+    },
+
     { type: "section", title: "Triggering Handoff from a Tool Call" },
 
     {
       type: "prose",
       content:
-        "The cleanest pattern is to define a `transfer_to_agent` tool. When the LLM determines that the caller needs a human, it calls this tool, and your handler sends the end message:",
+        "The cleanest approach is to give the AI a `transfer_to_agent` tool. When the AI decides the caller needs a human, it uses this tool, and your code sends the handoff message:",
+    },
+
+    {
+      type: "callout",
+      variant: "info",
+      content:
+        "**Where this goes:** `transfer_to_agent` is a new entry in the `tools` array and a new key on the `toolHandlers` object -- both defined in `tool-handlers.js` back in Chapter 5, Step 2. Paste the function-schema object as another element in `tools`, and the handler as another method on `toolHandlers`. Remember `module.exports = { tools, toolHandlers }` picks them up automatically.",
     },
 
     {
       type: "code",
       language: "javascript",
-      file: "server.js",
-      code: `// Add to your tools array
+      file: "tool-handlers.js",
+      code: `// Add to your tools array (alongside check_weather, lookup_order)
 {
   type: "function",
   function: {
@@ -164,13 +201,18 @@ if (req.url === "/call-ended" && req.method === "POST") {
   }
 }
 
-// Add to your toolHandlers
+// Add to your toolHandlers object (alongside the other handlers)
 transfer_to_agent: async ({ reason, department, summary }, ws) => {
-  // Let the caller know what's happening
-  sendText(ws, "I understand you need more help with this. " +
-    "Let me connect you with a team member who can assist.");
+  // Let the caller know what's happening.
+  // sendText lives in server.js, not here — use ws.send directly.
+  ws.send(JSON.stringify({
+    type: "text",
+    token: "I understand you need more help with this. " +
+      "Let me connect you with a team member who can assist.",
+    last: true
+  }));
 
-  // Small delay so the caller hears the message
+  // Small delay so the caller hears the message before the session ends
   setTimeout(() => {
     ws.send(JSON.stringify({
       type: "end",
@@ -191,14 +233,21 @@ transfer_to_agent: async ({ reason, department, summary }, ws) => {
       type: "callout",
       variant: "warning",
       content:
-        "After sending the `end` message, the WebSocket will close. Do not try to send any more messages after this point. Make sure the caller hears the transfer announcement before you send the end message -- hence the `setTimeout` in the example above.",
+        "After sending the `end` message, the connection closes. Do not try to send any more messages after this point. Make sure the caller hears the transfer announcement before you send the end message -- that is why the example above waits 2 seconds.",
     },
 
     {
       type: "callout",
       variant: "tip",
       content:
-        "Include a conversation summary in `handoffData`. Human agents strongly prefer knowing what the caller already discussed with the AI rather than making the caller repeat themselves. You can ask the LLM to generate the summary as part of the tool call parameters.",
+        "Include a conversation summary in `handoffData`. Human agents strongly prefer knowing what the caller already discussed with the AI rather than making the caller repeat themselves. The AI generates this summary automatically as part of the handoff.",
+    },
+
+    {
+      type: "callout",
+      variant: "error",
+      content:
+        "**Do not pass sensitive information (credit card numbers, social security numbers, health records) through `handoffData` or through the AI.** This data gets logged by Twilio and stored on your server. If the caller needs to share payment or personal details, let the human agent collect it after the transfer -- not the AI. For a real product, you will also need to consider privacy regulations and consent -- out of scope for this workshop, but important before you ship.",
     },
 
     {

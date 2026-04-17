@@ -17,7 +17,7 @@ export default {
     {
       type: "prose",
       content:
-        "Real conversations are messy. People interrupt, change their minds mid-sentence, and talk over each other. A great voice agent handles all of this gracefully. ConversationRelay has built-in **barge-in** support -- when a caller speaks while the AI is still talking, Twilio detects it and sends your server an `interrupt` message over the WebSocket.",
+        "Real conversations are messy. People interrupt, change their minds mid-sentence, and talk over each other. A great voice agent handles all of this gracefully. ConversationRelay has built-in **barge-in** support -- when a caller speaks while the AI is still talking, Twilio detects it, stops the AI mid-sentence, and lets your server know what happened.",
     },
 
     { type: "section", title: "How Barge-In Works" },
@@ -30,7 +30,7 @@ export default {
     {
       type: "prose",
       content:
-        "1. Your server sends text tokens to Twilio via `text` messages.\n2. Twilio converts them to speech and plays audio to the caller.\n3. The caller starts speaking while audio is still playing.\n4. Twilio stops playback and sends an `interrupt` message to your server.\n5. Your server receives the interrupt, cancels the current LLM stream, and clears any pending tokens.\n6. Twilio then sends the caller's new speech as a `prompt` message.",
+        "1. Your AI agent is speaking to the caller.\n2. The caller starts talking before the agent finishes.\n3. Twilio immediately stops the agent's voice and lets your server know what happened.\n4. Your server cancels the AI's current reply so it does not keep generating text nobody will hear.\n5. Twilio sends the caller's new words to your server, and the conversation continues from there.",
     },
 
     { type: "section", title: "The Interrupt Message" },
@@ -38,7 +38,7 @@ export default {
     {
       type: "prose",
       content:
-        "When barge-in occurs, ConversationRelay sends this message to your WebSocket:",
+        "When barge-in occurs, ConversationRelay sends this message to your server:",
     },
 
     {
@@ -55,7 +55,7 @@ export default {
     {
       type: "prose",
       content:
-        "The `utteranceUntilInterrupt` field tells you exactly how much of the AI's response the caller actually heard before they interrupted. The `durationUntilInterruptMs` field gives you the playback duration in milliseconds. This information is valuable for maintaining accurate conversation history with your LLM.",
+        "The `utteranceUntilInterrupt` field tells you exactly how much of the AI's response the caller actually heard before they interrupted. This is important because the AI needs to know what the caller actually heard -- otherwise it might reference something it said but the caller never got to listen to.",
     },
 
     { type: "section", title: "Handling the Interrupt" },
@@ -63,36 +63,46 @@ export default {
     {
       type: "prose",
       content:
-        "First, add a `sendText()` helper that wraps the WebSocket message format into a one-liner. You will use this throughout the rest of the workshop. Then handle interrupts by aborting the active OpenAI stream and trimming conversation history to reflect only what the caller actually heard.",
+        "When the caller interrupts, your server needs to do two things: stop the AI from continuing its reply, and update the conversation record so the AI knows what the caller actually heard.",
     },
 
     {
       type: "prose",
       content:
-        "We track the active stream as an `AbortController`. When we kick off the LLM call, we pass its `signal` to the OpenAI SDK -- that is what makes the stream cancellable. On `interrupt`, we simply call `activeStream.abort()` and the `for await` loop throws, ending the stream cleanly.",
+        "The code below makes the AI's response cancellable. When an interrupt arrives, it immediately stops the AI from generating more text.",
     },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "**Scope change — this is a move, not an add.** Up through Chapter 3, `conversationHistory` was declared *inside* `wss.on(\"connection\", (ws, req) => { ... })` as per-call state. Starting in this chapter you must move it to module scope so `handlePrompt`, the interrupt handler, and the tool loop in Chapter 5 can all share it.\n\nIf you paste the new code additively and leave the old functions in place, the per-connection `conversationHistory` shadows the module-scope one and your interrupt / tool-call handlers will write to the wrong array, producing silently corrupted state.\n\n**Refactoring checklist — do this before pasting the code below:**\n\n1. Find `const conversationHistory = [...]` inside `wss.on(\"connection\", ...)` — **delete that line.**\n2. Find `async function streamLLMResponse(ws, conversationHistory)` from Chapter 2 — **delete the entire function.**\n3. Paste the module-scope code block below at the **top of `server.js`**, outside any handler.\n4. Verify your `model` field is set to `\"gpt-5.4-nano\"` (same model used throughout the workshop).\n\nThe new `streamResponse` function replaces `streamLLMResponse` — same streaming idea, but it reads `conversationHistory` from module scope and adds `AbortController` support for interrupt handling. This workshop is built for a single concurrent call on one Codespace; if you need true multi-call concurrency in production, swap the module-scope state for a `Map<callSid, state>` keyed on `message.callSid`.",
+    },
+
 
     {
       type: "code",
       language: "javascript",
       file: "server.js",
-      code: `// The AbortController for the in-flight OpenAI stream, or null when idle
+      code: `// Module-scope state for the current call. For a single-caller workshop
+// server this is fine; in production, key these off callSid.
+const conversationHistory = [
+  { role: "system", content: SYSTEM_PROMPT }, // from Chapter 3
+];
+
+// The AbortController for the in-flight OpenAI stream, or null when idle
 let activeStream = null;
 
-// Helper: send a complete text response to the caller
-function sendText(ws, text) {
-  ws.send(JSON.stringify({ type: "text", token: text, last: true }));
-}
-
-async function handlePrompt(ws, msg) {
-  conversationHistory.push({ role: "user", content: msg.voicePrompt });
-
-  // Create an AbortController and wire it to the OpenAI stream
+// Streams an assistant turn using whatever is currently in conversationHistory.
+// Split out so DTMF (Step 2) and tool calls (Chapter 5) can invoke it after
+// they push their own synthetic user turns.
+async function streamResponse(ws) {
   activeStream = new AbortController();
 
   const stream = await openai.chat.completions.create(
     {
-      model: "gpt-4o",
+      model: "gpt-5.4-nano",
       messages: conversationHistory,
       stream: true,
     },
@@ -105,15 +115,38 @@ async function handlePrompt(ws, msg) {
       const token = chunk.choices[0]?.delta?.content ?? "";
       if (token) {
         assistantText += token;
+        // Stream each token with last=false; signal end after the loop
         sendText(ws, token);
       }
     }
+    sendText(ws, "", true);
     conversationHistory.push({ role: "assistant", content: assistantText });
   } catch (err) {
     if (err.name !== "AbortError") throw err;
-    // Stream was aborted by an interrupt -- history is trimmed in the handler below
+    // Stream was aborted by an interrupt -- history is trimmed in handleInterrupt
   } finally {
     activeStream = null;
+  }
+}
+
+function handlePrompt(ws, msg) {
+  conversationHistory.push({ role: "user", content: msg.voicePrompt });
+  streamResponse(ws);
+}
+
+function handleInterrupt(msg) {
+  console.log("Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
+
+  // 1. Abort the active OpenAI stream (if one is running)
+  if (activeStream) {
+    activeStream.abort();
+    activeStream = null;
+  }
+
+  // 2. Replace the last assistant turn with only what the caller heard
+  const lastMsg = conversationHistory[conversationHistory.length - 1];
+  if (lastMsg?.role === "assistant") {
+    lastMsg.content = msg.utteranceUntilInterrupt;
   }
 }
 
@@ -122,19 +155,7 @@ function handleMessage(ws, data) {
 
   switch (msg.type) {
     case "interrupt":
-      console.log("Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
-
-      // 1. Abort the active OpenAI stream (if one is running)
-      if (activeStream) {
-        activeStream.abort();
-        activeStream = null;
-      }
-
-      // 2. Replace the last assistant turn with only what the caller heard
-      const lastMsg = conversationHistory[conversationHistory.length - 1];
-      if (lastMsg?.role === "assistant") {
-        lastMsg.content = msg.utteranceUntilInterrupt;
-      }
+      handleInterrupt(msg);
       break;
 
     case "prompt":
@@ -152,7 +173,7 @@ function handleMessage(ws, data) {
     {
       type: "prose",
       content:
-        "You control interruption behavior through TwiML attributes on the `<ConversationRelay>` element. These are set when the call first connects, not at runtime.",
+        "You control interruption behavior through settings on the ConversationRelay configuration. These are set when the call first connects, not at runtime.",
     },
 
     {

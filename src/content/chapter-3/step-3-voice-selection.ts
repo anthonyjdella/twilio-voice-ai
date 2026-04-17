@@ -17,15 +17,15 @@ export default {
     {
       type: "prose",
       content:
-        "ConversationRelay handles text-to-speech (TTS) for you. When your server sends a text response over the WebSocket, Twilio converts it to audio and plays it to the caller. You control which voice is used by setting the `voice` attribute on the `<ConversationRelay>` element in your TwiML.",
+        "Twilio turns your AI's text replies into spoken audio automatically. You get to choose which voice the caller hears -- from warm and conversational to crisp and professional -- and you can switch providers to find the one that best fits your agent's personality.",
     },
 
-    { type: "section", title: "TTS Providers" },
+    { type: "section", title: "Voice Providers" },
 
     {
       type: "prose",
       content:
-        "Twilio ConversationRelay supports three TTS providers, each with different strengths:",
+        "Twilio ConversationRelay supports three voice providers, each with different strengths:",
     },
 
     {
@@ -50,7 +50,7 @@ export default {
       type: "callout",
       variant: "info",
       content:
-        "ElevenLabs is the default TTS provider for ConversationRelay. If you want the most natural-sounding voices out of the box, you can stick with the defaults.",
+        "ElevenLabs is the default voice provider for ConversationRelay. If you want the most natural-sounding voices out of the box, you can stick with the defaults.",
     },
 
     { type: "section", title: "Popular Voices" },
@@ -70,7 +70,7 @@ export default {
     {
       type: "prose",
       content:
-        "**Google Cloud TTS:** `en-US-Neural2-C` (female), `en-US-Neural2-D` (male), `en-US-Studio-O` (female, studio quality), `en-US-Studio-Q` (male, studio quality).",
+        "**Google Cloud TTS:** `en-US-Neural2-C` (female), `en-US-Neural2-D` (male), `en-US-Studio-O` (female, studio quality), `en-US-Studio-Q` (male, studio quality). Google also offers newer **Chirp3 HD** voices with names like `en-US-Chirp3-HD-Achernar` — you will see these later in the workshop. The naming pattern is `language-Model-Quality-VoiceName`.",
     },
 
     {
@@ -84,7 +84,7 @@ export default {
     {
       type: "prose",
       content:
-        "To set a specific voice, update the `<ConversationRelay>` element in your TwiML endpoint. Add the `voice` attribute with the provider-prefixed voice name, and the `ttsProvider` attribute to select the provider:",
+        "To set a specific voice, update the ConversationRelay settings in your server. Add the `voice` attribute with the voice name, and the `ttsProvider` attribute to select the provider:",
     },
 
     {
@@ -122,7 +122,7 @@ export default {
     {
       type: "prose",
       content:
-        "In your server code, your TwiML route should look something like this:",
+        "In your server code, the voice settings go inside the instructions that Twilio reads when a call connects:",
     },
 
     {
@@ -135,7 +135,7 @@ if (req.url === "/twiml" && req.method === "POST") {
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://\${req.headers.host}"
+      url="wss://\${req.headers.host}/ws"
       voice="Rachel"
       ttsProvider="ElevenLabs"
     />
@@ -165,7 +165,7 @@ if (req.url === "/twiml" && req.method === "POST") {
     {
       type: "prose",
       content:
-        "Pick a voice that fits your persona and update your TwiML endpoint. In the next step, we will configure the speech-to-text side of the equation.",
+        "Pick a voice that fits your persona and update your server. In the next step, we will configure how your agent listens to the caller.",
     },
   ],
 } satisfies StepDefinition;

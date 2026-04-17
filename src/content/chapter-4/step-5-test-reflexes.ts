@@ -32,7 +32,7 @@ Server listening on port 8080`,
 
     {
       type: "terminal",
-      commands: `$ curl -X POST http://localhost:8080/call -H "Content-Type: application/json" -d '{"to": "+1YOURPHONE"}'`,
+      commands: `$ curl -X POST https://<your-codespace-url>/call`,
     },
 
     { type: "section", title: "Test 1: Interruption" },
@@ -45,11 +45,13 @@ Server listening on port 8080`,
 
     {
       type: "prose",
+      audience: "builder",
       content: "Watch your terminal output. You should see:",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "1. The `interrupt` message logged with the partial utterance.\n2. The OpenAI stream being aborted.\n3. A new `prompt` message with your interruption.\n4. The agent responding to your new input, not continuing the old response.",
     },
@@ -58,7 +60,7 @@ Server listening on port 8080`,
       type: "callout",
       variant: "info",
       content:
-        'If the agent keeps talking after you interrupt, check that `interruptible` is set to `"any"` (or `"speech"`) in your TwiML and that your interrupt handler is aborting the active stream.',
+        'If the agent keeps talking after you interrupt, check that interruptions are enabled in your ConversationRelay settings (`interruptible` should be `"any"` or `"speech"`) and that your interrupt handler is stopping the current response.',
     },
 
     { type: "section", title: "Test 2: DTMF" },
@@ -90,6 +92,28 @@ Server listening on port 8080`,
         "If silence detection is not triggering, make sure you are starting the silence timer after the `setup` message and resetting it on each `prompt` message. Also check that you are not accidentally clearing the timer without restarting it.",
     },
 
+    { type: "section", title: "Test 4: Language Switch" },
+
+    {
+      type: "prose",
+      content:
+        "If you added the language detection code from Step 4, trigger another call. Start speaking in English, then say something in Spanish like \"¿Puedes hablar en español?\" The agent should respond in Spanish with a natural-sounding Spanish voice.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "Watch your terminal for:\n\n1. The `[LANG:es-ES]` marker being detected in the LLM output.\n2. A `language` message sent to Twilio with `ttsLanguage: \"es-ES\"`.\n3. The agent responding in Spanish.\n4. The voice sounding natural in Spanish (not an English voice attempting Spanish pronunciation).",
+    },
+
+    {
+      type: "callout",
+      variant: "tip",
+      content:
+        "Language switching is the most optional feature in this chapter. If you skipped Step 4 or the AI does not reliably produce the language marker, that is OK — the other three tests are the critical ones.",
+    },
+
     { type: "section", title: "Checkpoint" },
 
     {
@@ -100,7 +124,7 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        "If all three tests pass, your agent now has solid reflexes. It can handle real-world conversational dynamics: interruptions, keypad input, and silence. These are the foundations of a production-quality voice agent.",
+        "If all four tests pass, your agent now has solid reflexes. It can handle real-world conversational dynamics: interruptions, keypad input, silence, and language switches. These are the foundations of a production-quality voice agent.",
     },
   ],
 } satisfies StepDefinition;

@@ -6,6 +6,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { useWorkshop } from "@/lib/WorkshopContext";
 import { useProgressContext } from "./ProgressContext";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import workshopConfig from "@/workshop.config";
 
 export function BottomNav() {
   const params = useParams();
@@ -14,7 +15,8 @@ export function BottomNav() {
   const chapterSlug = params.chapter as string;
   const stepSlug = params.step as string;
   const { getAdjacentSteps, getStep } = useWorkshop();
-  const { completionPercentage, progress } = useProgressContext();
+  const { completionPercentage, completedStepsSet } = useProgressContext();
+  const accent = workshopConfig.branding.accentColor;
   const pct = completionPercentage();
   const onCompletePage = pathname === "/workshop/complete";
 
@@ -28,8 +30,16 @@ export function BottomNav() {
     if (!adjacent) return;
 
     function handleKeyDown(e: KeyboardEvent) {
-      const tag = (e.target as HTMLElement).tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement).isContentEditable) return;
+      // Don't hijack browser-level shortcuts (Cmd/Ctrl/Alt + Arrow = history nav).
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      const target = e.target as HTMLElement;
+      const tag = target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) return;
+
+      // Skip if focus is inside a horizontally-scrollable element (code blocks,
+      // terminals) so arrow keys can scroll their content instead.
+      if (target.closest('[data-scroll-x="true"]')) return;
 
       if (e.key === "ArrowLeft" && adjacent!.prev) {
         e.preventDefault();
@@ -57,7 +67,7 @@ export function BottomNav() {
   const isLastStep = next === null;
   const currentStepCompleted =
     current != null &&
-    progress.completedSteps.includes(
+    completedStepsSet.has(
       `chapter-${current.chapter.id}:step-${current.step.id}`
     );
   const showFinishCta = isLastStep && currentStepCompleted;
@@ -81,8 +91,13 @@ export function BottomNav() {
       <div className="flex-1 flex flex-col items-center gap-1.5 px-6">
         <div className="w-full max-w-md h-2.5 rounded-full bg-surface-3 overflow-hidden border border-navy-border">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-twilio-red via-red-400 to-success transition-all duration-700 ease-out relative"
-            style={{ width: `${pct}%` }}
+            className="h-full rounded-full transition-all duration-700 ease-out relative"
+            style={{
+              width: `${pct}%`,
+              // Gradient derived from the configured accent so a forked
+              // workshop's brand color flows through without a CSS refactor.
+              backgroundImage: `linear-gradient(to right, ${accent}, var(--color-success))`,
+            }}
           >
             {/* Shine effect on the bar */}
             {pct > 0 && (

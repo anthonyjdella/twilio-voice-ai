@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import workshopConfig from "@/workshop.config";
 import { useProgressContext } from "@/components/layout/ProgressContext";
 import { ConfirmModal } from "@/components/layout/ConfirmModal";
+import { countValidCompleted, totalStepCount } from "@/lib/progress-math";
+import { RESET_COPY } from "@/lib/workshop-copy";
 import { Home, RotateCcw } from "lucide-react";
 
 function buildXShareUrl() {
@@ -33,21 +36,73 @@ function buildLinkedInShareUrl() {
 }
 
 export default function WorkshopComplete() {
-  const { resetProgress } = useProgressContext();
+  const { progress, loaded, resetProgress } = useProgressContext();
   const [showReset, setShowReset] = useState(false);
+  const router = useRouter();
+
+  const totalSteps = useMemo(
+    () => totalStepCount(workshopConfig.chapters),
+    [],
+  );
+
+  // Filter stored completion keys through the live config. Stale keys from a
+  // prior step list would otherwise let a learner land on the completion
+  // screen with gaps in the current workshop.
+  const validCompleted = useMemo(
+    () => countValidCompleted(progress.completedSteps, workshopConfig.chapters),
+    [progress.completedSteps],
+  );
+
+  // Guard against deep-links: if someone hits /workshop/complete directly
+  // without actually completing every step, bounce them back to the first
+  // step they haven't finished. Without this the celebration + sharing UI
+  // misrepresents their progress.
+  useEffect(() => {
+    if (!loaded) return;
+    if (validCompleted >= totalSteps) return;
+    // Find first incomplete step in config order.
+    const completed = new Set(progress.completedSteps);
+    for (const chapter of workshopConfig.chapters) {
+      for (const step of chapter.steps) {
+        const key = `chapter-${chapter.id}:step-${step.id}`;
+        if (!completed.has(key)) {
+          router.replace(`/workshop/${chapter.slug}/${step.slug}`);
+          return;
+        }
+      }
+    }
+  }, [loaded, progress.completedSteps, validCompleted, totalSteps, router]);
+
+  const isActuallyComplete = loaded && validCompleted >= totalSteps;
 
   // Small, single celebration burst on first paint — different from the
   // confetti-overlay in MilestoneBadge (that one only fires mid-workshop when
   // the final badge is earned). This page is persistent, so the burst is
-  // quieter and one-shot.
+  // quieter and one-shot. Gate on `isActuallyComplete` so confetti doesn't
+  // fire for a half-done learner who just got redirected away.
   useEffect(() => {
-    const colors = ["#EF223A", "#F4B400", "#10B981", "#0263E0"];
+    if (!isActuallyComplete) return;
+    const colors =
+      workshopConfig.completionCopy?.confettiColors ??
+      ["#EF223A", "#F4B400", "#10B981", "#0263E0"];
     confetti({ particleCount: 100, spread: 80, origin: { x: 0.2, y: 0.4 }, colors, startVelocity: 55, ticks: 250, angle: 70 });
     confetti({ particleCount: 100, spread: 80, origin: { x: 0.8, y: 0.4 }, colors, startVelocity: 55, ticks: 250, angle: 110 });
-  }, []);
+  }, [isActuallyComplete]);
+
+  // While loaded is false (hydrating) or the redirect is in flight, render
+  // nothing so the learner doesn't see a flash of the celebration screen.
+  if (!isActuallyComplete) return null;
 
   const xUrl = workshopConfig.sharing?.enabled ? buildXShareUrl() : null;
   const liUrl = workshopConfig.sharing?.enabled ? buildLinkedInShareUrl() : null;
+
+  const eyebrow =
+    workshopConfig.completionCopy?.eyebrow ?? "Workshop Complete";
+  const headline =
+    workshopConfig.completionCopy?.headline ?? "You built a Voice AI Agent.";
+  const description =
+    workshopConfig.completionCopy?.description ??
+    "You went from zero to a working conversational agent with a custom persona, streaming responses, interrupt handling, and tool calling. That's a real, production-shaped voice application.";
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center relative overflow-hidden py-16 px-6">
@@ -68,25 +123,23 @@ export default function WorkshopComplete() {
       >
         <div className="inline-flex items-center justify-center mb-8">
           <img
-            src="/images/icons/award-badge.svg"
+            src={workshopConfig.completionCopy?.icon ?? "/images/icons/award-badge.svg"}
             alt=""
             className="w-24 h-24 theme-icon"
-            style={{ filter: "drop-shadow(0 0 40px rgba(239,34,58,0.5))" }}
+            style={{ filter: `drop-shadow(0 0 40px rgba(${workshopConfig.branding.accentColorRgb},0.5))` }}
           />
         </div>
 
         <div className="inline-block px-3 py-1 mb-4 rounded-full border border-yellow-400/30 bg-yellow-400/10 text-yellow-400 text-xs font-mono uppercase tracking-[0.35em]">
-          Workshop Complete
+          {eyebrow}
         </div>
 
         <h1 className="font-display font-extrabold text-5xl md:text-6xl text-text-primary leading-[1.05] tracking-tight mb-4">
-          You built a Voice AI Agent.
+          {headline}
         </h1>
 
         <p className="text-lg text-text-secondary leading-relaxed mb-10 max-w-xl mx-auto">
-          You went from zero to a working conversational agent with a custom
-          persona, streaming responses, interrupt handling, and tool calling.
-          That&apos;s a real, production-shaped voice application.
+          {description}
         </p>
 
         {(xUrl || liUrl) && (
@@ -149,10 +202,10 @@ export default function WorkshopComplete() {
 
       <ConfirmModal
         open={showReset}
-        title="Reset Progress"
-        message="This will clear all completed steps, badges, and celebrations. Your next visit will start over from chapter 1."
-        confirmLabel="Reset Everything"
-        cancelLabel="Keep Progress"
+        title={RESET_COPY.title}
+        message={RESET_COPY.message}
+        confirmLabel={RESET_COPY.confirmLabel}
+        cancelLabel={RESET_COPY.cancelLabel}
         onConfirm={() => {
           resetProgress();
           setShowReset(false);

@@ -15,7 +15,18 @@ type DiagramPalette = {
   sublabel: string;
   arrowInactive: string;
   websocketInactive: string;
+  /** Brand accents — constant across themes, colocated here so every diagram
+   *  node/arrow reads them from a single source. */
+  brandRed: string;
+  brandRedFill: string;
+  success: string;
 };
+
+// Brand accents match the --color-twilio-red and --color-success tokens in
+// globals.css. Both themes use the same hex (brand palette is theme-neutral).
+const BRAND_RED = "#EF223A";
+const BRAND_RED_FILL = "rgba(239, 34, 58, 0.1)";
+const SUCCESS_GREEN = "#10B981";
 
 function getPalette(isDark: boolean): DiagramPalette {
   if (isDark) {
@@ -27,6 +38,9 @@ function getPalette(isDark: boolean): DiagramPalette {
       sublabel: "rgba(255,255,255,0.2)",
       arrowInactive: "rgba(255,255,255,0.1)",
       websocketInactive: "rgba(255,255,255,0.1)",
+      brandRed: BRAND_RED,
+      brandRedFill: BRAND_RED_FILL,
+      success: SUCCESS_GREEN,
     };
   }
   return {
@@ -37,6 +51,9 @@ function getPalette(isDark: boolean): DiagramPalette {
     sublabel: "rgba(0,13,37,0.55)",
     arrowInactive: "rgba(0,13,37,0.25)",
     websocketInactive: "rgba(0,13,37,0.25)",
+    brandRed: BRAND_RED,
+    brandRedFill: BRAND_RED_FILL,
+    success: SUCCESS_GREEN,
   };
 }
 
@@ -92,12 +109,12 @@ function NodeBox({
         width={width}
         height={56}
         rx={12}
-        fill={active ? "rgba(239, 34, 58, 0.1)" : palette.nodeFillInactive}
+        fill={active ? palette.brandRedFill : palette.nodeFillInactive}
         stroke={
           completed
-            ? "#10B981"
+            ? palette.success
             : active
-              ? "#EF223A"
+              ? palette.brandRed
               : palette.nodeStrokeInactive
         }
         strokeWidth={active ? 1.5 : 1}
@@ -165,7 +182,7 @@ function Arrow({
         y1={y1}
         x2={x2}
         y2={y2}
-        stroke={active ? "#EF223A" : palette.arrowInactive}
+        stroke={active ? palette.brandRed : palette.arrowInactive}
         strokeWidth={active ? 1.5 : 1}
         strokeDasharray={active ? "6 3" : "none"}
         className={active ? "animate-flow" : ""}
@@ -175,14 +192,14 @@ function Arrow({
         cx={x2 - (x2 > x1 ? 4 : x2 < x1 ? -4 : 0)}
         cy={y2 - (y2 > y1 ? 4 : y2 < y1 ? -4 : 0)}
         r={2}
-        fill={active ? "#EF223A" : palette.arrowInactive}
+        fill={active ? palette.brandRed : palette.arrowInactive}
       />
       {bidirectional && (
         <circle
           cx={x1 + (x2 > x1 ? 4 : x2 < x1 ? -4 : 0)}
           cy={y1 + (y2 > y1 ? 4 : y2 < y1 ? -4 : 0)}
           r={2}
-          fill={active ? "#EF223A" : palette.arrowInactive}
+          fill={active ? palette.brandRed : palette.arrowInactive}
         />
       )}
     </g>

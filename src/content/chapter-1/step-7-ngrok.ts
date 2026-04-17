@@ -7,7 +7,7 @@ export default {
     {
       type: "prose",
       content:
-        "ConversationRelay needs a public `wss://` URL to connect to your WebSocket server. In Codespaces, this is built in -- you just need to make your port public.",
+        "Twilio needs to reach your server over the internet to send and receive messages during a call. In Codespaces, this is built in -- you just need to make your port public.",
     },
 
     {

@@ -103,7 +103,19 @@ export interface VerifyBlock extends BaseBlock {
 export interface DiagramBlock extends BaseBlock {
   type: "diagram";
   variant: string;
-  highlight?: string;
+  highlight?:
+    | "none"
+    | "all"
+    | "setup"
+    | "websocket"
+    | "websocket-prompt"
+    | "websocket-response"
+    | "stt-tts"
+    | "server"
+    | "llm"
+    | "tools"
+    | "handoff"
+    | "complete";
 }
 
 /** Image with alt text and optional caption */

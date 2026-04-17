@@ -15,7 +15,7 @@ export default {
       audience: "explorer",
       title: "Why Codespaces?",
       content:
-        "GitHub Codespaces gives every attendee an identical, pre-configured development environment in the cloud. It includes Node.js, all dependencies, and built-in port forwarding -- so Twilio can reach your server without any tunneling tools like ngrok.",
+        "GitHub Codespaces gives every attendee an identical workspace in the cloud -- like opening a fully set-up laptop that already has everything installed. No downloads, no configuration headaches. You just click a button and start building.",
     },
 
     { type: "section", title: "Launch Your Codespace" },
@@ -33,7 +33,7 @@ export default {
           icon: "/images/icons/code.svg",
           title: "Click \"Code\" → \"Codespaces\" → \"Create codespace on main\"",
           description:
-            "GitHub will spin up a cloud-based VS Code environment with Node.js, pnpm, and all dependencies pre-installed. With prebuilds enabled, this takes about 10 seconds.",
+            "GitHub will spin up a cloud-based coding environment with everything pre-installed. With prebuilds enabled, this takes about 10 seconds.",
         },
         {
           icon: "/images/icons/settings.svg",
@@ -83,7 +83,7 @@ MY_PHONE_NUMBER=+1xxxxxxxxxx`,
 
     {
       type: "callout",
-      variant: "warning",
+      variant: "error",
       content:
         "The shared API keys are active only during this workshop session. They will be revoked immediately after the workshop ends. Do not share them outside this session.",
     },

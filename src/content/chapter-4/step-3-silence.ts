@@ -23,7 +23,15 @@ export default {
     {
       type: "prose",
       content:
-        'ConversationRelay does not send a dedicated "silence" message. Instead, you implement silence detection on your server by tracking the time since the last `prompt` message. If no speech arrives within a configurable window, you can prompt the caller or take other action.',
+        "ConversationRelay does not send a dedicated \"silence\" message. Instead, your server watches the clock -- if the caller has not spoken for a certain amount of time, you can nudge them or gracefully end the call.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "Like `conversationHistory` and `activeStream` in step 1, we use module-scope state here -- one caller at a time on the workshop server. For a production multi-call server, move `silenceTimer` and `silencePromptCount` into a per-call state map keyed on `callSid`, or bind them to the `ws` via a `WeakMap`. Otherwise concurrent calls will clobber each other's timers.",
     },
 
     {
@@ -51,7 +59,7 @@ function handleSilence(ws) {
   if (silencePromptCount >= MAX_SILENCE_PROMPTS) {
     // Too many silences -- end the call gracefully
     sendText(ws, "It seems like you may have stepped away. " +
-      "I'll end the call for now. Feel free to call back anytime!");
+      "I'll end the call for now. Feel free to call back anytime!", true);
     ws.send(JSON.stringify({ type: "end" }));
     return;
   }
@@ -62,7 +70,7 @@ function handleSilence(ws) {
     "I'm still here if you need anything. Is there something I can help with?",
   ];
 
-  sendText(ws, prompts[silencePromptCount - 1]);
+  sendText(ws, prompts[silencePromptCount - 1], true);
 
   // Reset the timer for the next silence check
   silenceTimer = setTimeout(() => {
@@ -76,7 +84,7 @@ function handleSilence(ws) {
     {
       type: "prose",
       content:
-        "Reset the silence timer every time you receive speech from the caller. Start it after the initial greeting, and clear it when the call ends:",
+        "Reset the silence timer every time the caller speaks or presses a key. Start it after the initial greeting, and clear it when the call ends:",
     },
 
     {
@@ -88,7 +96,7 @@ function handleSilence(ws) {
 
   switch (msg.type) {
     case "setup":
-      sendText(ws, "Hello! How can I help you today?");
+      sendText(ws, "Hello! How can I help you today?", true);
       resetSilenceTimer(ws);  // Start watching for silence
       break;
 
@@ -109,10 +117,16 @@ function handleSilence(ws) {
   }
 }
 
-// Clean up when the WebSocket closes
-ws.on("close", () => {
-  clearTimeout(silenceTimer);
-  console.log("👋 Call ended, timers cleared.");
+// Inside wss.on("connection", (ws, req) => { ... }) — the same block where
+// ws.on("message", ...) lives. The \`ws\` variable only exists in that scope,
+// so the close handler has to go there too.
+wss.on("connection", (ws, req) => {
+  // ...existing ws.on("message", ...) handler stays here...
+
+  ws.on("close", () => {
+    clearTimeout(silenceTimer);
+    console.log("👋 Call ended, timers cleared.");
+  });
 });`,
     },
 

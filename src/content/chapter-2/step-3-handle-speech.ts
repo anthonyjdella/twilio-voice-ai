@@ -17,7 +17,7 @@ export default {
     {
       type: "prose",
       content:
-        "When the caller finishes speaking, Twilio's speech-to-text engine transcribes their words and sends the result to your server as a `prompt` message over the WebSocket. This is the core inbound message you need to handle -- it contains the text of what the caller said.",
+        "When the caller finishes speaking, Twilio converts their words into text and sends it to your server. This is the core message your code needs to handle -- it contains exactly what the caller said, ready for the AI to read and respond to.",
     },
 
     { type: "section", title: "The Prompt Message" },
@@ -48,7 +48,7 @@ export default {
     {
       type: "prose",
       content:
-        "**voicePrompt** -- The transcribed text of what the caller said. This is the input you will send to your LLM.",
+        "**voicePrompt** -- The transcribed text of what the caller said. This is what your code sends to the AI for a response.",
     },
 
     {
@@ -65,9 +65,10 @@ export default {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
-        "The `last` field is important for avoiding duplicate processing. If you handle every `prompt` message regardless of the `last` field, you will send partial transcripts to your LLM and get multiple overlapping responses. Always check `last === true` before processing.",
+        "The `last` field is important for avoiding duplicate processing. If you handle every `prompt` message regardless of the `last` field, you will send partial transcripts to the AI and get multiple overlapping responses. Always check `last === true` before processing.",
     },
 
     { type: "section", title: "Handle the Prompt" },
@@ -75,7 +76,7 @@ export default {
     {
       type: "prose",
       content:
-        "Add a `prompt` case to your message handler. When a final prompt arrives, add the caller's words to the conversation history and prepare to send them to the LLM:",
+        "Add a handler for when the caller finishes speaking. When their words arrive, save them to the conversation history and get ready to send them to the AI:",
     },
 
     {

@@ -17,7 +17,7 @@ export default {
     {
       type: "prose",
       content:
-        "You have all the pieces in place: a WebSocket server that handles connections, a TwiML endpoint that configures ConversationRelay, an outbound call trigger, a speech handler that captures what the caller says, and an LLM integration that streams intelligent responses. Let's bring it all together.",
+        "You have all the pieces in place: a server that stays connected to Twilio during calls, instructions that tell Twilio to use your AI agent, a way to trigger a call to your phone, a handler that captures what the caller says, and an AI that streams back intelligent responses. Let's bring it all together.",
     },
 
     { type: "section", title: "Pre-Flight Checklist" },
@@ -36,7 +36,7 @@ export default {
     {
       type: "prose",
       content:
-        "**2. Update the Codespace URL** in your code. Replace `your-codespace-8080.app.github.dev` with your actual Codespace URL from the Ports tab (both in the TwiML `url` attribute and the `calls.create` URL).",
+        "**2. No URL edits needed.** The code automatically uses your Codespace's public URL, so it works without any manual configuration.",
     },
 
     {
@@ -67,8 +67,14 @@ export default {
     },
 
     {
+      type: "prose",
+      content:
+        "Copy your public Codespace URL from the Ports tab, then:",
+    },
+
+    {
       type: "terminal",
-      commands: `$ curl -X POST https://your-codespace-8080.app.github.dev/call
+      commands: `$ curl -X POST https://<your-codespace-url>/call
 {"callSid":"CA1234567890abcdef1234567890abcdef"}`,
     },
 
@@ -98,7 +104,14 @@ export default {
       type: "callout",
       variant: "info",
       content:
-        "The first response might take a moment as the OpenAI API warms up. After the initial exchange, responses should feel quick and conversational. If the AI does not respond at all, check your terminal for error messages -- the most common issues are a missing or invalid API key, an incorrect Codespace URL, or the port not being set to public.",
+        "The first response might take a moment as the OpenAI API warms up. After the initial exchange, responses should feel quick and conversational.",
+    },
+
+    {
+      type: "callout",
+      variant: "warning",
+      content:
+        "**Call not working?** Run through this checklist:\n\n1. **Port is public** — In the Codespaces Ports tab, make sure port 8080 visibility is set to **Public** (not Private).\n2. **Server is running** — Your terminal should show `Server listening on port 8080`. If not, run `node server.js` again.\n3. **API keys are set** — Run `echo $OPENAI_API_KEY` in a terminal. If it is empty, check your `.env` file.\n4. **Phone number is set** — Make sure `MY_PHONE_NUMBER` in your `.env` is your real phone number in E.164 format (e.g., `+15551234567`).\n5. **URL matches** — The connection URL must match your Codespace domain. Look for a mismatch between what the server logs and what Twilio is trying to connect to.\n6. **Check terminal logs** — Error messages in the terminal (red text) are the fastest way to diagnose issues.",
     },
 
     {
@@ -118,7 +131,7 @@ export default {
     {
       type: "prose",
       content:
-        "Congratulations -- you just made an AI-powered phone call. In roughly 40 lines of server code, you created an agent that listens to natural speech, thinks with an LLM, and responds in a human-sounding voice over a real phone call. That is ConversationRelay at work: Twilio handles all the audio complexity while your server focuses purely on the conversation logic.",
+        "Congratulations -- you just made an AI-powered phone call. In roughly 40 lines of server code, you created an agent that listens to natural speech, thinks with AI, and responds in a human-sounding voice over a real phone call. That is ConversationRelay at work: Twilio handles all the audio complexity while your server focuses purely on the conversation.",
     },
 
     {

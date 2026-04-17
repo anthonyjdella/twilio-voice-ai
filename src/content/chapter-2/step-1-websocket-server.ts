@@ -17,19 +17,19 @@ export default {
     {
       type: "prose",
       content:
-        "ConversationRelay communicates with your application over a persistent WebSocket connection. When a call connects, Twilio opens a WebSocket to your server and streams JSON messages back and forth for the entire duration of the call. Your job is to stand up a server that can accept that connection.",
+        "When a call connects, Twilio opens a live two-way channel to your server that stays open for the entire call. The caller's words flow in as text, and your AI's replies flow out as text. Your job is to set up a server that can keep that channel open.",
     },
 
     {
       type: "prose",
       content:
-        "We will use the `ws` npm package to create a lightweight WebSocket server in Node.js. First, install it:",
+        "We will use the `ws` npm package to create a lightweight WebSocket server in Node.js, plus `dotenv` to load the credentials from your `.env` file. Install them now:",
     },
 
     {
       type: "code",
       language: "bash",
-      code: "npm install ws",
+      code: "npm install ws dotenv",
     },
 
     {
@@ -63,8 +63,9 @@ const server = http.createServer((req, res) => {
   res.end("WebSocket server is running");
 });
 
-// Attach WebSocket server
-const wss = new WebSocketServer({ server });
+// Attach WebSocket server. The "/ws" path keeps WebSocket upgrades isolated
+// from HTTP routes like /twiml and /call on the same server.
+const wss = new WebSocketServer({ server, path: "/ws" });
 
 wss.on("connection", (ws, req) => {
   console.log("📞 New WebSocket connection");
@@ -95,7 +96,7 @@ server.listen(PORT, () => {
     {
       type: "prose",
       content:
-        "The very first message Twilio sends over the WebSocket is a `setup` message. This arrives immediately after the connection is established and contains call metadata -- including the call SID, phone numbers involved, and any custom parameters you passed in your TwiML.",
+        "The very first message Twilio sends through the connection is a `setup` message. This arrives immediately when the call connects and contains information about the call -- including the phone numbers involved and a unique identifier for the call.",
     },
 
     {
@@ -118,7 +119,7 @@ server.listen(PORT, () => {
     {
       type: "prose",
       content:
-        "You should handle the `setup` message to initialize any per-call state, such as a conversation history array for your LLM context. This is also a good place to log the call SID for debugging.",
+        "You should handle the `setup` message to prepare for the call -- for example, creating a blank conversation history and saving the call ID for your logs.",
     },
 
     {
@@ -154,7 +155,7 @@ server.listen(PORT, () => {
       type: "callout",
       variant: "tip",
       content:
-        "Each WebSocket connection corresponds to exactly one phone call. When the caller hangs up, Twilio closes the WebSocket. This means your per-connection variables (like `conversationHistory`) are naturally scoped to a single call -- no session management needed.",
+        "Each connection corresponds to exactly one phone call. When the caller hangs up, the connection closes automatically. This means each call gets its own conversation history -- no extra bookkeeping needed.",
     },
 
     {
@@ -184,8 +185,9 @@ const server = http.createServer((req, res) => {
   res.end("WebSocket server is running");
 });
 
-// Attach WebSocket server
-const wss = new WebSocketServer({ server });
+// Attach WebSocket server. The "/ws" path keeps WebSocket upgrades isolated
+// from HTTP routes like /twiml and /call on the same server.
+const wss = new WebSocketServer({ server, path: "/ws" });
 
 wss.on("connection", (ws, req) => {
   console.log("📞 New WebSocket connection");

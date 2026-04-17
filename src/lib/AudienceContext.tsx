@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import workshopConfig from "@/workshop.config";
 
 export type AudienceMode = "builder" | "explorer";
@@ -18,37 +18,48 @@ const STORAGE_KEY = `workshop-${workshopConfig.id}-audience-mode`;
 const AudienceContext = createContext<AudienceContextValue | null>(null);
 
 export function AudienceProvider({ children }: { children: ReactNode }) {
+  // SSR and first client render must match, so we initialize to the default
+  // ("builder"). The inline AudienceScript has already set `data-audience` on
+  // <html> from localStorage before paint; CSS selectors on that attribute
+  // prevent FOUC for block visibility. React state syncs in the effect below.
   const [mode, setModeState] = useState<AudienceMode>("builder");
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === "builder" || saved === "explorer") {
-      setModeState(saved);
+    // Trust the attribute the inline script set — it read the same localStorage
+    // key, but synchronously before hydration. Reading the attribute avoids a
+    // second localStorage hit and keeps the two sources of truth aligned.
+    const attr = document.documentElement.getAttribute("data-audience");
+    if (attr === "builder" || attr === "explorer") {
+      setModeState(attr);
     } else {
       setNeedsOnboarding(true);
     }
   }, []);
 
-  const setMode = (newMode: AudienceMode) => {
+  const setMode = useCallback((newMode: AudienceMode) => {
     setModeState(newMode);
     setNeedsOnboarding(false);
-    localStorage.setItem(STORAGE_KEY, newMode);
-  };
+    try {
+      localStorage.setItem(STORAGE_KEY, newMode);
+    } catch (err) {
+      console.warn("[workshop] Could not persist audience mode", err);
+    }
+    document.documentElement.setAttribute("data-audience", newMode);
+  }, []);
 
-  return (
-    <AudienceContext.Provider
-      value={{
-        mode,
-        setMode,
-        isBuilder: mode === "builder",
-        isExplorer: mode === "explorer",
-        needsOnboarding,
-      }}
-    >
-      {children}
-    </AudienceContext.Provider>
+  const value = useMemo<AudienceContextValue>(
+    () => ({
+      mode,
+      setMode,
+      isBuilder: mode === "builder",
+      isExplorer: mode === "explorer",
+      needsOnboarding,
+    }),
+    [mode, setMode, needsOnboarding],
   );
+
+  return <AudienceContext.Provider value={value}>{children}</AudienceContext.Provider>;
 }
 
 export function useAudienceMode(): AudienceContextValue {

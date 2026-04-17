@@ -8,8 +8,8 @@ import Ch1Step4 from "./chapter-1/step-4-architecture";
 import Ch1Step5 from "./chapter-1/step-5-message-flow";
 import Ch1Step6 from "./chapter-1/step-6-setup";
 import Ch1Step7 from "./chapter-1/step-7-ngrok";
-import Ch1Step8 from "./chapter-1/step-4-twilio-config";
-import Ch1Step9 from "./chapter-1/step-5-verify";
+import Ch1Step8 from "./chapter-1/step-8-twilio-config";
+import Ch1Step9 from "./chapter-1/step-9-verify";
 
 // Chapter 2: First Contact
 import Ch2Step1 from "./chapter-2/step-1-websocket-server";

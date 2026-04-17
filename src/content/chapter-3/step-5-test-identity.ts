@@ -34,7 +34,7 @@ export default {
 
     {
       type: "terminal",
-      commands: `$ curl -X POST http://localhost:8080/call -H "Content-Type: application/json" -d '{"to": "+1YOURPHONE"}'`,
+      commands: `$ curl -X POST https://<your-codespace-url>/call`,
     },
 
     {
@@ -111,7 +111,7 @@ export default {
     {
       type: "prose",
       content:
-        "In the next chapter, we will give your agent **reflexes** \u2014 the ability to handle interruptions, detect DTMF tones, manage silence, and switch languages on the fly.",
+        "In the next chapter, we will give your agent **reflexes** \u2014 the ability to handle interruptions, detect keypad presses, manage silence, and switch languages on the fly.",
     },
   ],
 } satisfies StepDefinition;

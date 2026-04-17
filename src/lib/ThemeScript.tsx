@@ -23,3 +23,22 @@ export function ThemeScript({
     />
   );
 }
+
+/**
+ * Mirrors ThemeScript for audience mode so builder/explorer content conditionals
+ * paint with the correct visibility on first render. Without this, explorer
+ * users would see a flash of builder-only blocks (code, terminals, deep dives)
+ * before React hydrates AudienceProvider and hides them.
+ */
+export function AudienceScript({ storageKey }: { storageKey: string }) {
+  // Sets data-audience on <html>. CSS can then gate builder/explorer blocks
+  // via [data-audience="explorer"] rules that run before hydration.
+  const script = `(function(){try{var m=localStorage.getItem("${storageKey}");if(m==="builder"||m==="explorer"){document.documentElement.setAttribute("data-audience",m)}}catch(e){}})()`;
+
+  return (
+    <script
+      // eslint-disable-next-line react/no-danger -- safe: hardcoded string, no user input
+      dangerouslySetInnerHTML={{ __html: script }}
+    />
+  );
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useWorkshop } from "@/lib/WorkshopContext";
@@ -28,8 +28,8 @@ export function TopBar() {
   const currentChapterSlug = params.chapter as string | undefined;
   const { config, chapters } = useWorkshop();
   const { mode, setMode } = useAudienceMode();
-  const { theme, toggleTheme, isDark } = useTheme();
-  const { progress } = useProgressContext();
+  const { toggleTheme, isDark } = useTheme();
+  const { progress, completedStepsSet } = useProgressContext();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -47,29 +47,60 @@ export function TopBar() {
 
   const ActiveIcon = MODE_INFO[mode].icon;
 
+  // Pre-compute chapter completion once per progress change. Without this, the
+  // chapter-dots render path is O(chapters × steps × badges) on every render,
+  // which gets triggered by every context state tick.
+  const chapterCompletion = useMemo(() => {
+    const badgeSet = new Set(progress.badges);
+    const map = new Map<number, boolean>();
+    for (const chapter of chapters) {
+      const done =
+        badgeSet.has(`chapter-${chapter.id}`) ||
+        chapter.steps.every((s) =>
+          completedStepsSet.has(`chapter-${chapter.id}:step-${s.id}`),
+        );
+      map.set(chapter.id, done);
+    }
+    return map;
+  }, [chapters, progress.badges, completedStepsSet]);
+
   return (
-    <header className="h-14 border-b border-navy-border bg-navy/80 backdrop-blur-md flex items-center px-6 shrink-0 z-30">
+    <header className="h-14 border-b border-navy-border bg-navy/80 backdrop-blur-md flex items-center px-3 sm:px-6 shrink-0 z-30 gap-2 sm:gap-0">
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-2.5 mr-8 shrink-0">
-        <img src="/images/twilio-bug-red.svg" alt="Twilio" className="w-7 h-7" />
-        <span className="font-display font-extrabold text-sm text-text-primary whitespace-nowrap">
+      <Link href="/" aria-label="Home" className="flex items-center gap-2.5 sm:mr-8 shrink-0">
+        <img
+          src={config.branding.logo?.src ?? "/images/twilio-bug-red.svg"}
+          alt={config.branding.logo?.alt ?? ""}
+          className="w-7 h-7"
+        />
+        <span className="hidden sm:inline font-display font-extrabold text-sm text-text-primary whitespace-nowrap">
           {config.shortTitle}
         </span>
       </Link>
 
-      {/* Chapter dots */}
-      <nav className="flex items-center gap-1.5 flex-1 justify-center">
-        {chapters.map((chapter) => {
+      {/* Chapter dots — horizontally scrollable on mobile, wraps to center on lg */}
+      <nav
+        aria-label="Workshop chapters"
+        data-scroll-x="true"
+        className="flex items-center gap-1.5 flex-1 justify-start sm:justify-center overflow-x-auto scrollbar-none -mx-1 px-1"
+      >
+        {chapters.map((chapter, idx) => {
           const isCurrent = chapter.slug === currentChapterSlug;
-          const isCompleted = progress.badges.includes(`chapter-${chapter.id}`);
-          const allStepsCompleted = chapter.steps.every((s) =>
-            progress.completedSteps.includes(`chapter-${chapter.id}:step-${s.id}`)
-          );
+          const isCompleted = chapterCompletion.get(chapter.id) ?? false;
+          // Display number is array position, not chapter.id — IDs don't have
+          // to be 1..N and the divider "is this the last one?" check is a
+          // positional question, not an ID one.
+          const displayNumber = idx + 1;
+          const isLast = idx === chapters.length - 1;
 
           return (
             <Link
               key={chapter.id}
               href={`/workshop/${chapter.slug}/${chapter.steps[0].slug}`}
+              aria-label={`Chapter ${displayNumber}: ${chapter.title}${
+                isCompleted ? " (completed)" : isCurrent ? " (current)" : ""
+              }`}
+              aria-current={isCurrent ? "page" : undefined}
               className="group flex items-center gap-1.5"
             >
               <div
@@ -78,19 +109,19 @@ export function TopBar() {
                   ${
                     isCurrent
                       ? "bg-twilio-red text-white shadow-[0_0_12px_rgba(239,34,58,0.4)]"
-                      : isCompleted || allStepsCompleted
+                      : isCompleted
                         ? "bg-success/20 text-success"
                         : "bg-surface-2 text-text-muted hover:bg-surface-4 hover:text-text-secondary"
                   }
                 `}
                 title={chapter.title}
               >
-                {isCompleted || allStepsCompleted ? (
+                {isCompleted ? (
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 ) : (
-                  chapter.id
+                  displayNumber
                 )}
               </div>
               <span
@@ -100,7 +131,7 @@ export function TopBar() {
               >
                 {chapter.title}
               </span>
-              {chapter.id < chapters.length && (
+              {!isLast && (
                 <div className="w-4 h-px bg-surface-4 hidden lg:block" />
               )}
             </Link>
@@ -112,7 +143,8 @@ export function TopBar() {
       {config.features.themeToggle && (
         <button
           onClick={toggleTheme}
-          className="shrink-0 ml-6 flex items-center justify-center w-8 h-8 rounded-lg bg-surface-2 border border-navy-border hover:bg-surface-3 transition-colors"
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          className="shrink-0 sm:ml-6 flex items-center justify-center w-8 h-8 rounded-lg bg-surface-2 border border-navy-border hover:bg-surface-3 transition-colors"
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
           {isDark ? (
@@ -125,9 +157,12 @@ export function TopBar() {
 
       {/* Audience mode toggle with popover */}
       {config.features.audienceToggle && (
-        <div className="relative shrink-0 ml-6" ref={popoverRef}>
+        <div className="relative shrink-0 ml-2 sm:ml-6" ref={popoverRef}>
           <button
             onClick={() => setPopoverOpen((v) => !v)}
+            aria-label={`Experience level: ${MODE_INFO[mode].label}. Click to change.`}
+            aria-expanded={popoverOpen}
+            aria-haspopup="menu"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-2 border border-navy-border hover:bg-surface-3 transition-colors"
           >
             <ActiveIcon className="w-3.5 h-3.5 text-twilio-red" />

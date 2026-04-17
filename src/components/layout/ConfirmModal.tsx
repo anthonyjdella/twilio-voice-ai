@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 interface ConfirmModalProps {
   open: boolean;
@@ -22,6 +24,24 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  const confirmBtnRef = useRef<HTMLButtonElement>(null);
+  const trapRef = useFocusTrap<HTMLDivElement>(open);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onCancel();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        onConfirm();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onCancel, onConfirm]);
+
   return (
     <AnimatePresence>
       {open && (
@@ -32,10 +52,15 @@ export function ConfirmModal({
           transition={{ duration: 0.15 }}
           className="fixed inset-0 z-50 flex items-center justify-center"
           onClick={onCancel}
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="confirm-modal-title"
+          aria-describedby="confirm-modal-message"
         >
           <div className="absolute inset-0 bg-navy/70 backdrop-blur-sm" />
 
           <motion.div
+            ref={trapRef}
             initial={{ scale: 0.9, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 5 }}
@@ -52,10 +77,16 @@ export function ConfirmModal({
                   <AlertTriangle className="w-5 h-5 text-twilio-red" />
                 </div>
                 <div>
-                  <h3 className="font-display font-extrabold text-text-primary text-base">
+                  <h3
+                    id="confirm-modal-title"
+                    className="font-display font-extrabold text-text-primary text-base"
+                  >
                     {title}
                   </h3>
-                  <p className="text-sm text-text-secondary mt-1.5 leading-relaxed">
+                  <p
+                    id="confirm-modal-message"
+                    className="text-sm text-text-secondary mt-1.5 leading-relaxed"
+                  >
                     {message}
                   </p>
                 </div>
@@ -69,6 +100,7 @@ export function ConfirmModal({
                   {cancelLabel}
                 </button>
                 <button
+                  ref={confirmBtnRef}
                   onClick={onConfirm}
                   className="px-4 py-2 rounded-lg text-sm font-bold bg-twilio-red text-white hover:bg-twilio-red/90 transition-colors shadow-[0_2px_10px_rgba(239,34,58,0.3)]"
                 >

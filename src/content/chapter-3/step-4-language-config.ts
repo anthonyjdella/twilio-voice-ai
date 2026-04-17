@@ -7,7 +7,7 @@ export default {
     {
       type: "prose",
       content:
-        "While TTS turns your agent's words into audio, speech-to-text (STT) does the opposite: it transcribes the caller's spoken words into text that your server can process. ConversationRelay handles STT automatically, but you can fine-tune the provider and language settings to get better accuracy.",
+        "Your agent already turns the caller's voice into text automatically. In this step, you can fine-tune how that works -- choosing which language the system listens for and which speech recognition engine it uses for better accuracy.",
     },
 
     {
@@ -15,10 +15,10 @@ export default {
       audience: "explorer",
       title: "Speech Recognition",
       content:
-        "Your AI agent automatically converts the caller's spoken words into text using speech-to-text (STT) technology. This happens behind the scenes so the agent can understand and respond to anything the caller says.",
+        "Your AI agent automatically converts the caller's spoken words into text using speech-to-text technology. This happens behind the scenes so the agent can understand and respond to anything the caller says. You choose the language (English, Spanish, and many more) and the system handles the rest. For most conversations the defaults work perfectly.",
     },
 
-    { type: "section", title: "STT Providers", audience: "builder" },
+    { type: "section", title: "Speech Recognition Providers", audience: "builder" },
 
     {
       type: "prose",
@@ -33,7 +33,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "You configure STT settings on the `<ConversationRelay>` element in your TwiML. The key attributes are: **`language`** — the BCP-47 language code for the expected caller language (e.g., `en-US`, `es-ES`). **`transcriptionProvider`** — the STT provider: `Deepgram` (default) or `Google`. **`speechModel`** — the specific model within the chosen provider, balancing speed vs. accuracy.",
+        "You configure speech recognition settings in your ConversationRelay instructions. The key settings are: **`language`** — the language code the caller will speak (e.g., `en-US` for English, `es-ES` for Spanish). **`transcriptionProvider`** — which service listens to the caller: `Deepgram` (default) or `Google`. **`speechModel`** — the specific recognition model, balancing speed vs. accuracy.",
     },
 
     {
@@ -49,7 +49,7 @@ export default {
       ttsProvider="ElevenLabs"
       language="en-US"
       transcriptionProvider="Deepgram"
-      speechModel="nova-2-general"
+      speechModel="nova-3-general"
     />
   </Connect>
 </Response>`,
@@ -59,7 +59,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Here is the same configuration using Google as the STT provider, with Spanish as the language:",
+        "Here is the same configuration using Google as the speech recognition provider, with Spanish as the language:",
     },
 
     {
@@ -94,7 +94,7 @@ export default {
       type: "callout",
       variant: "tip",
       content:
-        "If your agent handles a single language, set the `language` attribute explicitly. This helps the STT engine optimize for that language and improves accuracy. You should also instruct your LLM to respond in the same language via the system prompt.",
+        "If your agent handles a single language, set the `language` attribute explicitly. This helps the speech recognizer optimize for that language and improves accuracy. You should also tell your AI to respond in the same language via the system prompt.",
     },
 
     { type: "section", title: "Putting It All Together", audience: "builder" },
@@ -117,12 +117,12 @@ if (req.url === "/twiml" && req.method === "POST") {
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://\${req.headers.host}"
+      url="wss://\${req.headers.host}/ws"
       voice="Rachel"
       ttsProvider="ElevenLabs"
       language="en-US"
       transcriptionProvider="Deepgram"
-      speechModel="nova-2-general"
+      speechModel="nova-3-general"
     />
   </Connect>
 </Response>\`;
@@ -144,7 +144,7 @@ if (req.url === "/twiml" && req.method === "POST") {
       type: "callout",
       variant: "warning",
       content:
-        "Make sure your system prompt language matches the `language` attribute. If you set `language=\"es-ES\"` but your system prompt is in English, the LLM will respond in English and the caller experience will be inconsistent.",
+        "Make sure your system prompt language matches the `language` attribute. If you set `language=\"es-ES\"` but your system prompt is in English, the AI will respond in English and the caller experience will be inconsistent.",
     },
   ],
 } satisfies StepDefinition;

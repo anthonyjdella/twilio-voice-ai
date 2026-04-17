@@ -15,7 +15,7 @@ export default {
     {
       type: "prose",
       content:
-        "One of ConversationRelay's most powerful features is the ability to switch the speech-to-text and text-to-speech language **mid-call**. This means your agent can detect when a caller switches languages and seamlessly adapt without ending the call or transferring to a different system.",
+        "One of ConversationRelay's most powerful features is the ability to switch languages **mid-call** -- both the listening side (understanding the caller) and the speaking side (the voice the caller hears). If a caller switches from English to Spanish, your agent can adapt instantly without dropping the call.",
     },
 
     { type: "section", title: "The Language Message" },
@@ -23,7 +23,7 @@ export default {
     {
       type: "prose",
       content:
-        "To switch languages, send a `language` message through the WebSocket. Twilio will immediately update both the STT (speech recognition) and TTS (voice synthesis) engines:",
+        "To switch languages, send a `language` message to Twilio. It will immediately update both how it listens to the caller and which voice it uses to speak:",
     },
 
     {
@@ -40,7 +40,7 @@ export default {
     {
       type: "prose",
       content:
-        "You can also update just one side. For example, keep STT in English while switching TTS to Spanish, or vice versa. The `ttsLanguage` and `transcriptionLanguage` fields are both optional -- only include the ones you want to change.",
+        "You can also update just one side. For example, keep the listening language in English while switching the speaking voice to Spanish, or vice versa. Each field is individually optional, but **at least one must be present**. Only include the fields you want to change.",
     },
 
     { type: "section", title: "Detecting Language Switches" },
@@ -48,7 +48,7 @@ export default {
     {
       type: "prose",
       content:
-        "The LLM is your best tool for detecting language changes. When a caller switches to Spanish, the transcript will contain Spanish words. You can instruct the LLM to detect this and respond accordingly. Add language detection instructions to your system prompt:",
+        "The AI is your best tool for detecting language changes. When a caller switches to Spanish, the text will contain Spanish words. You can tell the AI to detect this and respond accordingly. Add language detection instructions to your system prompt:",
     },
 
     {
@@ -72,7 +72,7 @@ LANGUAGE DETECTION:
     {
       type: "prose",
       content:
-        "Parse the LLM response for language markers and send the appropriate WebSocket message to Twilio before forwarding the text:",
+        "Check the AI's response for language markers and tell Twilio to switch languages before sending the text to be spoken:",
     },
 
     {
@@ -105,11 +105,19 @@ function processLLMResponse(ws, text) {
     text = text.replace(LANG_MARKER_REGEX, "").trim();
   }
 
-  // Send the cleaned text to be spoken
+  // Send the cleaned text to be spoken (last=true signals end of utterance)
   if (text) {
-    sendText(ws, text);
+    sendText(ws, text, true);
   }
 }`,
+    },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "info",
+      content:
+        "Imagine a caller starts in English and mid-sentence switches to Spanish. Within seconds, the agent is listening in Spanish *and* responding in Spanish — no transfer, no menu, no \"press 2 for español.\" That's a huge accessibility win and a much more human experience.",
     },
 
     {
@@ -117,6 +125,13 @@ function processLLMResponse(ws, text) {
       variant: "warning",
       content:
         "The language switch takes effect immediately. Make sure you send the `language` message **before** sending the text that should be spoken in the new language. Otherwise Twilio will try to speak Spanish text with an English voice, which sounds garbled.",
+    },
+
+    {
+      type: "callout",
+      variant: "tip",
+      content:
+        "**Wiring this in:** Right now, `streamResponse` sends tokens one at a time, so the `[LANG:xx-XX]` marker would be spoken aloud before you could strip it. In Chapter 5, you will refactor `streamResponse` to buffer text in sentence-sized chunks. Once that refactor is done, call `processLLMResponse(ws, sentence)` on each sentence *before* passing it to `sendText` — the marker lands in the first sentence, gets stripped, and the `language` message reaches Twilio before any text is spoken.\n\nThis integration is **optional** — if you skip language switching, no changes to `streamResponse` are needed.",
     },
 
     { type: "section", title: "Supported Languages" },
@@ -151,7 +166,7 @@ function processLLMResponse(ws, text) {
       type: "callout",
       variant: "tip",
       content:
-        "When switching languages, also consider switching the TTS voice. A Spanish voice engine will pronounce Spanish text much more naturally than an English voice engine attempting Spanish phonemes.",
+        "When switching languages, also consider switching the voice. A Spanish voice will pronounce Spanish text much more naturally than an English voice trying to speak Spanish.",
     },
 
     {

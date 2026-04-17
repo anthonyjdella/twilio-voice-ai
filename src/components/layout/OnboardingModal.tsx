@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAudienceMode, type AudienceMode } from "@/lib/AudienceContext";
-import { Code, Eye, X } from "lucide-react";
+import { Code, Eye } from "lucide-react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
+import workshopConfig from "@/workshop.config";
 
 interface OnboardingModalProps {
   open: boolean;
@@ -12,58 +14,63 @@ interface OnboardingModalProps {
 export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
   const { setMode } = useAudienceMode();
   const [selected, setSelected] = useState<AudienceMode>("builder");
+  const trapRef = useFocusTrap<HTMLDivElement>(open);
 
-  function handleContinue() {
+  const handleContinue = useCallback(() => {
     setMode(selected);
     onComplete();
-  }
+  }, [setMode, selected, onComplete]);
 
-  // Dismiss = apply the currently previewed choice (default "builder") and close.
-  // This makes Escape / X / backdrop-click behave like "confirm my current pick"
-  // rather than a hard cancel — there's no meaningful "no choice" state.
-  function handleDismiss() {
-    setMode(selected);
-    onComplete();
-  }
-
+  // Onboarding is a one-time, required choice: the whole point is to get an
+  // explicit signal for Builder vs. Explorer. Previously Escape / backdrop /
+  // X silently "confirmed" whatever was previewed (defaulting to Builder),
+  // which meant an accidental Escape tap locked the learner into Builder
+  // mode without a real choice. Now Escape and backdrop-click are no-ops;
+  // the only exits are the two explicit option buttons or the Continue CTA.
+  // The X button is removed for the same reason — there's nothing to dismiss
+  // *to*; the modal blocks content until a track is picked.
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") handleDismiss();
+      if (e.key === "Escape") {
+        // Swallow Escape so focus stays trapped inside the modal.
+        e.preventDefault();
+        e.stopPropagation();
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, selected]);
+  }, [open]);
 
   if (!open) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-navy/90 backdrop-blur-sm"
-      onClick={handleDismiss}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="onboarding-title"
+      aria-describedby="onboarding-description"
     >
       <div
+        ref={trapRef}
         className="relative max-w-xl w-full mx-4 rounded-2xl bg-panel border border-navy-border shadow-2xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
       >
-        <button
-          type="button"
-          aria-label="Close"
-          onClick={handleDismiss}
-          className="absolute top-3 right-3 z-10 p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-twilio-red"
-        >
-          <X className="w-4 h-4" />
-        </button>
         {/* Accent stripe */}
         <div className="h-1 bg-twilio-red" />
 
         <div className="px-8 pt-10 pb-2 text-center">
-          <h2 className="font-display font-extrabold text-3xl text-text-primary mb-2">
-            Welcome to Voice AI Workshop
+          <h2
+            id="onboarding-title"
+            className="font-display font-extrabold text-3xl text-text-primary mb-2"
+          >
+            Welcome to {workshopConfig.shortTitle}
           </h2>
-          <p className="text-text-secondary text-base leading-relaxed mb-1">
-            You're about to build an AI-powered phone agent with Twilio.
+          <p
+            id="onboarding-description"
+            className="text-text-secondary text-base leading-relaxed mb-1"
+          >
+            {workshopConfig.description}
           </p>
           <p className="text-text-muted text-sm leading-relaxed">
             Select a track to get started.

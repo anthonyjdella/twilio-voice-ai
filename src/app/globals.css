@@ -111,8 +111,8 @@
 
   /* Text hierarchy */
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: rgba(255, 255, 255, 0.85);
-  --color-text-muted: rgba(255, 255, 255, 0.7);
+  --color-text-secondary: rgba(255, 255, 255, 0.88);
+  --color-text-muted: rgba(255, 255, 255, 0.78);
 
   /* Box-container fill — solid #181D3C for surface-1/2 (primary box color).
      surface-3/4/5 step up for hover and elevation states. */
@@ -154,9 +154,11 @@ html[data-theme="light"] {
   /* Border matches box fill (#DEE0E7), same strategy as dark mode. */
   --color-navy-border: #DEE0E7;
 
-  --color-text-primary: rgba(0, 13, 37, 0.88);
-  --color-text-secondary: rgba(0, 13, 37, 0.58);
-  --color-text-muted: rgba(0, 13, 37, 0.38);
+  /* Light-mode contrast tightened to hit WCAG AA at 14px on surface-1 (#DEE0E7):
+     primary ≥ 0.92, secondary ≥ 0.72, muted ≥ 0.58. */
+  --color-text-primary: rgba(0, 13, 37, 0.92);
+  --color-text-secondary: rgba(0, 13, 37, 0.72);
+  --color-text-muted: rgba(0, 13, 37, 0.58);
 
   /* Box-container fill — solid #DEE0E7 for surface-1/2 (primary card color).
      surface-3/4/5 step slightly darker for hover/elevation states. */
@@ -246,4 +248,49 @@ html[data-theme="light"] .theme-grid {
   background-image:
     linear-gradient(rgba(0,13,37,0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0,13,37,0.08) 1px, transparent 1px);
+}
+
+/* Hide scrollbar but keep scrolling (used on TopBar chapter row for mobile). */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- Skip to main content (keyboard-only; WCAG 2.4.1) --- */
+.skip-to-main {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  transform: translateY(-200%);
+  padding: 0.75rem 1rem;
+  background: var(--color-twilio-red);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-weight: 700;
+  border-radius: 0 0 0.5rem 0;
+  transition: transform 0.15s ease-out;
+}
+.skip-to-main:focus {
+  transform: translateY(0);
+  outline: 2px solid #FFFFFF;
+  outline-offset: 2px;
+}
+
+/* --- Reduced motion (WCAG 2.3.3) ---
+   Honor the OS-level "reduce motion" setting by collapsing all CSS animations
+   and transitions. Framer Motion respects `prefers-reduced-motion` on its own
+   when MotionConfig is configured; confetti is gated programmatically. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

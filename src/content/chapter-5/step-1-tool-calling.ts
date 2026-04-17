@@ -9,7 +9,7 @@ export default {
     {
       type: "prose",
       content:
-        "So far, your agent can listen, think, and speak. But it cannot **do** anything in the real world. Tool calling changes that — it lets your LLM reach out to external systems and use the results to inform its response.",
+        "So far, your agent can listen, think, and speak. But it cannot **do** anything in the real world. Tool calling changes that — it lets the AI look things up, check databases, and take actions during a call, then use what it finds to give the caller a real answer.",
     },
 
     {
@@ -39,33 +39,33 @@ export default {
         },
         {
           icon: "/images/icons/robot.svg",
-          title: "Forward to LLM",
+          title: "AI receives the question",
           description:
-            "Your server sends the text to OpenAI along with your tool definitions.",
+            "Your server sends the caller's words to the AI, along with a list of tools it knows how to use.",
         },
         {
           icon: "/images/icons/wrench.svg",
-          title: "LLM requests a tool call",
+          title: "AI picks a tool",
           description:
-            'Instead of returning text, OpenAI returns a tool call request: call check_weather with { city: "Austin" }.',
+            'Instead of answering right away, the AI says "I need to look up the weather in Austin" and asks your server to do it.',
         },
         {
           icon: "/images/icons/code.svg",
-          title: "Server executes",
+          title: "Your server runs the tool",
           description:
-            "Your server runs the function — e.g., calls a weather API.",
+            "Your server calls the weather service (or database, or any other system) and gets the answer.",
         },
         {
           icon: "/images/icons/arrow-cycle.svg",
-          title: "Return result to LLM",
+          title: "Answer goes back to the AI",
           description:
-            "You send the tool result back to OpenAI as a tool message.",
+            "Your server hands the tool's answer back to the AI so it can use the real data in its reply.",
         },
         {
           icon: "/images/icons/chat-bubble.svg",
-          title: "LLM generates response",
+          title: "AI responds with real info",
           description:
-            'OpenAI generates a natural language response: "It is currently 78 degrees and sunny in Austin."',
+            'The AI weaves the data into a natural reply: "It is currently 78 degrees and sunny in Austin."',
         },
         {
           icon: "/images/icons/sound-wave.svg",
@@ -80,7 +80,15 @@ export default {
       type: "callout",
       variant: "info",
       content:
-        "The key insight is that the LLM never calls the tool directly. It requests that your code call the tool, and you feed the result back. You are always in control of what gets executed.",
+        "The key insight is that the AI never runs the tool itself. It asks your server to run it, and your server sends the answer back. You are always in control of what gets executed.",
+    },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "tip",
+      content:
+        "From the caller's perspective, this all happens in about two seconds. They ask a question, hear a brief pause (or a filler like \"Let me check that for you...\"), and then get a real answer pulled from live data. That pause-then-answer rhythm is what makes tool-enabled agents feel genuinely useful rather than just chatty.",
     },
 
     { type: "section", title: "The Tool Calling Loop", audience: "builder" },
@@ -94,6 +102,7 @@ export default {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
         "Always set a maximum iteration limit on the tool calling loop (3-5 iterations is sensible). A bug in your tool definitions could cause infinite loops where the LLM keeps requesting tools that never resolve.",

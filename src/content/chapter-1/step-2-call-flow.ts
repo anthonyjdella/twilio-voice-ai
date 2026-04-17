@@ -16,43 +16,43 @@ export default {
           icon: "/images/icons/phone-call.svg",
           title: "You click \"Call Me\"",
           description:
-            "You enter your phone number in the workshop app and your server initiates an outbound call using the Twilio REST API.",
+            "You enter your phone number in the workshop app and your server tells Twilio to call you.",
         },
         {
           icon: "/images/icons/document.svg",
-          title: "Twilio fetches your TwiML",
+          title: "Twilio asks for instructions",
           description:
-            "Twilio calls your phone and requests TwiML instructions from your server. Your TwiML tells Twilio to open a ConversationRelay session.",
+            "Twilio calls your phone and asks your server what to do with the call. Your server says \"connect this call to my AI agent.\"",
         },
         {
           icon: "/images/icons/connection.svg",
-          title: "WebSocket connects",
+          title: "A live connection opens",
           description:
-            "Twilio opens a WebSocket to your server and sends a setup message with call metadata.",
+            "Twilio opens a two-way connection to your server that stays open for the entire call.",
         },
         {
           icon: "/images/icons/voice-wave.svg",
           title: "You speak",
           description:
-            "Twilio's STT engine (Deepgram) transcribes your speech and sends your server a prompt message.",
+            "Twilio listens to your voice, converts it to text, and sends the text to your server.",
         },
         {
           icon: "/images/icons/lightbulb-doc.svg",
-          title: "LLM processes",
+          title: "The AI thinks",
           description:
-            "Your server sends the transcription to OpenAI along with conversation history and a system prompt.",
+            "Your server sends the caller's words to the AI, which starts composing a reply immediately.",
         },
         {
           icon: "/images/icons/chat-bubble.svg",
           title: "Agent responds",
           description:
-            "As the LLM streams tokens back, you forward them to Twilio, which converts them to speech via ElevenLabs TTS in real time.",
+            "The AI's reply streams back word by word. Twilio converts the text to a natural-sounding voice in real time.",
         },
         {
           icon: "/images/icons/arrow-cycle.svg",
           title: "Conversation continues",
           description:
-            "The call flows naturally with interruption handling, tool calling, and all the dynamics of a real phone call.",
+            "The call flows naturally -- you can interrupt, press keys on your keypad, and the AI adapts just like a real person would.",
         },
       ],
     },

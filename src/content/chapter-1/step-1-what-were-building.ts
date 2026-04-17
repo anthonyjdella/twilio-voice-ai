@@ -7,7 +7,7 @@ export default {
     {
       type: "prose",
       content:
-        "You're about to build a **voice AI agent** that you can talk to over a real phone call. Not a phone tree. Not a recording. A live, intelligent agent that listens, thinks, and responds in real time -- powered by an LLM and delivered through Twilio's global telephony network. Your server will call your phone, and you'll have a conversation with your own AI agent.",
+        "You're about to build a **voice AI agent** that you can talk to over a real phone call. Not a phone tree. Not a recording. A live, intelligent agent that listens, thinks, and responds in real time -- powered by AI and delivered through Twilio's global phone network. Your server will call your phone, and you'll have a conversation with your own AI agent.",
     },
 
     {
@@ -24,7 +24,7 @@ export default {
       type: "concept-card",
       title: "ConversationRelay",
       content:
-        "Twilio handles the hard telephony problems -- speech-to-text, text-to-speech, audio encoding, interruption detection -- and gives your app a clean WebSocket interface. You send text, Twilio speaks it. The caller speaks, you receive text. It's a text-in, text-out interface to a live phone call.",
+        "Twilio handles all the hard parts -- turning speech into text, turning text back into speech, and detecting when someone interrupts. Your code just deals with plain text: the caller speaks, you receive their words as text; you send text back, and the caller hears it as a natural voice. Think of it as a translator sitting between your code and a live phone call.",
     },
 
     {

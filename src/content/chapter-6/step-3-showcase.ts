@@ -29,7 +29,7 @@ export default {
     {
       type: "prose",
       content:
-        '1. **Trigger a call** using the workshop app or curl command, and let the agent greet you.\n2. **Ask a tool question**: "What is the weather in Austin?" to show tool calling in action.\n3. **Test interruption**: Ask a long question, then interrupt mid-answer to show barge-in handling.\n4. **Try DTMF**: Press a key on your keypad to show menu support.\n5. **Request handoff**: Say "I need to talk to a person" to show the live agent transfer flow.',
+        '1. **Trigger a call** using the workshop app or curl command, and let the agent greet you.\n2. **Ask a tool question**: "What is the weather in Austin?" to show tool calling in action.\n3. **Test interruption**: Ask a long question, then interrupt mid-answer to show barge-in handling.\n4. **Try the keypad**: Press a key on your phone to show menu support.\n5. **Request handoff**: Say "I need to talk to a person" to show the live agent transfer flow.',
     },
 
     { type: "section", title: "Share Your Creation" },
@@ -48,14 +48,14 @@ export default {
     {
       type: "prose",
       content:
-        "**Share your Twilio number** -- Others can call your agent directly.\n**Screen share your terminal** -- Show the WebSocket messages flowing in real time while someone calls your agent.\n**Record a call** -- Use Twilio's call recording feature to capture a demo call you can replay.",
+        "**Share your phone number** -- Others can call your agent directly.\n**Screen share your terminal** -- Show the behind-the-scenes messages flowing in real time while someone calls your agent.\n**Record a call** -- Use Twilio's call recording feature to capture a demo call you can replay.",
     },
 
     {
       type: "callout",
       variant: "tip",
       content:
-        'When demoing, keep your terminal visible so the audience can see the tool calls, interrupts, and WebSocket messages in real time. The "behind the scenes" view is often more impressive than the audio alone.',
+        'When demoing, keep your terminal visible so the audience can see the behind-the-scenes activity -- tool lookups, interruptions, and messages -- in real time. That view is often more impressive than the audio alone.',
     },
 
     { type: "section", title: "What Makes a Great Demo" },

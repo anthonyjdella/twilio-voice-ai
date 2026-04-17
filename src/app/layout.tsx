@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import workshopConfig from "@/workshop.config";
-import { ThemeScript } from "@/lib/ThemeScript";
+import { ThemeScript, AudienceScript } from "@/lib/ThemeScript";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 
 const defaultTheme = workshopConfig.defaultTheme ?? "dark";
 const themeStorageKey = `workshop-${workshopConfig.id}-theme`;
+const audienceStorageKey = `workshop-${workshopConfig.id}-audience-mode`;
 
 export default function RootLayout({
   children,
@@ -17,9 +18,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased" data-theme={defaultTheme}>
+    <html lang="en" className="h-full antialiased" data-theme={defaultTheme} suppressHydrationWarning>
       <head>
         <ThemeScript defaultTheme={defaultTheme} storageKey={themeStorageKey} />
+        <AudienceScript storageKey={audienceStorageKey} />
         <noscript>
           <style>{`[style*="opacity: 0"], [style*="opacity:0"] { opacity: 1 !important; transform: none !important; }`}</style>
         </noscript>

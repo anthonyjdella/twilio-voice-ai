@@ -1,18 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useWorkshop } from "@/lib/WorkshopContext";
 import { useProgressContext } from "./ProgressContext";
 import { ConfirmModal } from "./ConfirmModal";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Menu, X } from "lucide-react";
+import workshopConfig from "@/workshop.config";
+import { SKIP_AHEAD_COPY, RESET_COPY } from "@/lib/workshop-copy";
+
+const SKIP_UNLOCK_KEY = `workshop-${workshopConfig.id}-skip-unlock-position`;
 
 function StepIcon({ state }: { state: "pending" | "active" | "completed" }) {
   if (state === "completed") {
     return (
-      <div className="w-5 h-5 rounded-full bg-success/20 flex items-center justify-center shrink-0">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <div className="w-5 h-5 rounded-full bg-success/20 flex items-center justify-center shrink-0 text-success">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="20 6 9 17 4 12" />
         </svg>
       </div>
@@ -38,28 +42,68 @@ export function Sidebar() {
   const onCompletePage = pathname === "/workshop/complete";
   const { config, chapters, getChapter } = useWorkshop();
   const chapter = chapterSlug ? getChapter(chapterSlug) : chapters[0];
-  const { progress, resetProgress, completionPercentage } = useProgressContext();
+  const { progress, completedStepsSet, resetProgress, completionPercentage } =
+    useProgressContext();
 
   const [showResetModal, setShowResetModal] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Auto-close the mobile drawer whenever the route changes — otherwise clicking
+  // a step leaves the drawer open over the new page. Guarded so it only fires
+  // on real opens → closes rather than on every route change.
+  useEffect(() => {
+    if (mobileOpen) setMobileOpen(false);
+    // Intentionally only watch pathname — we want this to fire on nav, not on
+    // the state flip itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  // Lock body scroll while the drawer is open so the page behind doesn't
+  // scroll through the backdrop.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, [mobileOpen]);
 
   // Flattened step list so we can reason about absolute "step position" across
-  // chapters (chapter 1 step 3 vs. chapter 2 step 1).
-  const allSteps = chapters.flatMap((c) =>
-    c.steps.map((s) => ({ chapterId: c.id, stepId: s.id, chapterSlug: c.slug, stepSlug: s.slug }))
+  // chapters (chapter 1 step 3 vs. chapter 2 step 1). Built once per chapters
+  // change and keyed by "chId:stId" for O(1) lookup instead of findIndex.
+  const positionMap = useMemo(() => {
+    const map = new Map<string, number>();
+    let pos = 0;
+    for (const c of chapters) {
+      for (const s of c.steps) {
+        map.set(`${c.id}:${s.id}`, pos++);
+      }
+    }
+    return map;
+  }, [chapters]);
+
+  const positionOf = useCallback(
+    (chId: number, stId: number): number =>
+      positionMap.get(`${chId}:${stId}`) ?? -1,
+    [positionMap]
   );
 
-  function positionOf(chId: number, stId: number): number {
-    return allSteps.findIndex((s) => s.chapterId === chId && s.stepId === stId);
-  }
-
   // The furthest step the learner has completed (−1 if nothing complete yet).
-  const maxCompletedPosition = progress.completedSteps.reduce((max, key) => {
-    const m = key.match(/^chapter-(\d+):step-(\d+)$/);
-    if (!m) return max;
-    const pos = positionOf(Number(m[1]), Number(m[2]));
-    return pos > max ? pos : max;
-  }, -1);
+  const maxCompletedPosition = useMemo(
+    () =>
+      progress.completedSteps.reduce((max, key) => {
+        const m = key.match(/^chapter-(\d+):step-(\d+)$/);
+        if (!m || !m[1] || !m[2]) return max;
+        const chId = Number(m[1]);
+        const stId = Number(m[2]);
+        if (!Number.isFinite(chId) || !Number.isFinite(stId)) return max;
+        const pos = positionOf(chId, stId);
+        return pos > max ? pos : max;
+      }, -1),
+    [progress.completedSteps, positionOf]
+  );
 
   const currentPosition =
     chapter && stepSlug
@@ -81,25 +125,77 @@ export function Sidebar() {
     const maxAllowed = Math.max(maxCompletedPosition + 1, currentPosition);
     if (targetPos <= maxAllowed) return;
 
+    // Shared session-scoped unlock with StepContent: if the learner already
+    // confirmed a skip to a position ≥ this target in this session, don't
+    // re-prompt. Prevents modal fatigue when navigating around ahead-of-progress
+    // steps they've already unlocked.
+    if (typeof window !== "undefined") {
+      try {
+        const stored = sessionStorage.getItem(SKIP_UNLOCK_KEY);
+        const unlocked = stored ? parseInt(stored, 10) : -1;
+        if (Number.isFinite(unlocked) && targetPos <= unlocked) return;
+      } catch {
+        // ignore and show the modal
+      }
+    }
+
     e.preventDefault();
     setPendingHref(href);
+  }
+
+  // Not memoized — React Compiler auto-memoizes where useful, and the function
+  // captures live state (pendingHref) that changes per click anyway.
+  function confirmSkipAhead() {
+    if (!pendingHref) return;
+    // Persist the unlock so the learner isn't re-prompted in this session.
+    // Derive the target position from the href we queued.
+    const match = pendingHref.match(/^\/workshop\/([^/]+)\/([^/]+)$/);
+    if (match && match[1] && match[2]) {
+      const chap = chapters.find((c) => c.slug === match[1]);
+      const step = chap?.steps.find((s) => s.slug === match[2]);
+      if (chap && step && typeof window !== "undefined") {
+        try {
+          const pos = positionOf(chap.id, step.id);
+          const stored = sessionStorage.getItem(SKIP_UNLOCK_KEY);
+          const prev = stored ? parseInt(stored, 10) : -1;
+          if (pos >= 0 && (!Number.isFinite(prev) || pos > prev)) {
+            sessionStorage.setItem(SKIP_UNLOCK_KEY, String(pos));
+          }
+        } catch {
+          // storage disabled — still navigate
+        }
+      }
+    }
+    router.push(pendingHref);
+    setPendingHref(null);
   }
 
   if (!chapter || onCompletePage) return null;
 
   const sidebarConfig = config.sidebar;
 
-  return (
-    <aside className="w-72 border-r border-navy-border bg-navy/50 flex flex-col shrink-0 overflow-hidden">
+  const body = (
+    <>
       {/* Chapter title */}
-      <div className="p-5 pb-4">
-        <div className="text-xs font-mono text-twilio-red uppercase tracking-wider mb-1">
-          Chapter {chapter.id}
+      <div className="p-5 pb-4 flex items-start justify-between gap-3">
+        <div>
+          <div className="text-xs font-mono text-twilio-red uppercase tracking-wider mb-1">
+            Chapter {chapter.id}
+          </div>
+          <h2 className="font-display font-extrabold text-lg text-text-primary">
+            {chapter.title}
+          </h2>
+          <p className="text-xs text-text-muted mt-1">{chapter.subtitle}</p>
         </div>
-        <h2 className="font-display font-extrabold text-lg text-text-primary">
-          {chapter.title}
-        </h2>
-        <p className="text-xs text-text-muted mt-1">{chapter.subtitle}</p>
+        {/* Close button only shows inside the mobile drawer */}
+        <button
+          type="button"
+          onClick={() => setMobileOpen(false)}
+          aria-label="Close menu"
+          className="md:hidden shrink-0 w-9 h-9 rounded-lg bg-surface-2 border border-navy-border flex items-center justify-center text-text-secondary hover:text-text-primary"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
       <div className="h-px bg-navy-border mx-4" />
@@ -108,7 +204,7 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto p-4 space-y-0.5">
         {chapter.steps.map((step) => {
           const isActive = step.slug === stepSlug;
-          const isCompleted = progress.completedSteps.includes(
+          const isCompleted = completedStepsSet.has(
             `chapter-${chapter.id}:step-${step.id}`
           );
           const state = isCompleted ? "completed" : isActive ? "active" : "pending";
@@ -145,8 +241,8 @@ export function Sidebar() {
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-twilio-red/40 to-transparent" />
 
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 rounded-lg bg-twilio-red/15 flex items-center justify-center">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#EF223A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <div className="w-6 h-6 rounded-lg bg-twilio-red/15 flex items-center justify-center text-twilio-red">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
@@ -218,13 +314,53 @@ export function Sidebar() {
           </div>
         </>
       )}
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile trigger — fixed so it sits above scrolling content. Hidden on
+          md+ where the persistent sidebar takes over. */}
+      <button
+        type="button"
+        onClick={() => setMobileOpen(true)}
+        aria-label="Open chapter steps"
+        aria-expanded={mobileOpen}
+        className="md:hidden fixed bottom-20 left-4 z-40 w-12 h-12 rounded-full bg-twilio-red text-white shadow-[0_8px_24px_rgba(239,34,58,0.4)] flex items-center justify-center hover:brightness-110 active:scale-95 transition-all"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex w-72 border-r border-navy-border bg-navy/50 flex-col shrink-0 overflow-hidden">
+        {body}
+      </aside>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+            aria-hidden="true"
+          />
+          <aside
+            role="dialog"
+            aria-label="Chapter steps"
+            aria-modal="true"
+            className="absolute inset-y-0 left-0 w-[85%] max-w-xs border-r border-navy-border bg-navy flex flex-col shadow-[0_0_48px_rgba(0,0,0,0.6)]"
+          >
+            {body}
+          </aside>
+        </div>
+      )}
 
       <ConfirmModal
         open={showResetModal}
-        title="Reset Progress"
-        message="This will clear all completed steps, badges, and celebrations. You'll start the workshop from scratch."
-        confirmLabel="Reset Everything"
-        cancelLabel="Keep Progress"
+        title={RESET_COPY.title}
+        message={RESET_COPY.message}
+        confirmLabel={RESET_COPY.confirmLabel}
+        cancelLabel={RESET_COPY.cancelLabel}
         onConfirm={() => {
           resetProgress();
           setShowResetModal(false);
@@ -234,16 +370,13 @@ export function Sidebar() {
 
       <ConfirmModal
         open={pendingHref !== null}
-        title="Skip ahead?"
-        message="You haven't finished the previous steps. Jumping ahead means you'll miss context that later steps rely on. Continue anyway?"
-        confirmLabel="Jump ahead"
-        cancelLabel="Stay here"
-        onConfirm={() => {
-          if (pendingHref) router.push(pendingHref);
-          setPendingHref(null);
-        }}
+        title={SKIP_AHEAD_COPY.title}
+        message={SKIP_AHEAD_COPY.message}
+        confirmLabel={SKIP_AHEAD_COPY.confirmLabel}
+        cancelLabel={SKIP_AHEAD_COPY.cancelLabel}
+        onConfirm={confirmSkipAhead}
         onCancel={() => setPendingHref(null)}
       />
-    </aside>
+    </>
   );
 }

@@ -15,7 +15,7 @@ export default {
     {
       type: "prose",
       content:
-        "DTMF (Dual-Tone Multi-Frequency) tones are the signals generated when a caller presses keys on their phone keypad. ConversationRelay can detect these and forward them to your WebSocket server, allowing you to build traditional IVR-style menus alongside your AI conversation.",
+        "When a caller presses keys on their phone keypad (like \"press 1 for support\"), those are called DTMF tones. Twilio can detect these keypresses and tell your server which key was pressed, so you can build menu options alongside your AI conversation.",
     },
 
     { type: "section", title: "Receiving DTMF Input" },
@@ -47,7 +47,15 @@ export default {
     {
       type: "prose",
       content:
-        "Add a `dtmf` case to your WebSocket message handler. Here is an example that builds a simple menu system:",
+        "Add a `dtmf` case to your message handler. Here is an example that builds a simple menu system:",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Using `streamResponse` from Step 1.** The `case \"1\":` branch below pushes a synthetic user turn into `conversationHistory` and then calls `streamResponse(ws)` — the helper we extracted in Step 1 so DTMF and tool calls (Chapter 5) could both reuse it. `streamResponse` reads from module-scope `conversationHistory`, so you don't pass it explicitly.",
     },
 
     {
@@ -59,10 +67,12 @@ export default {
 
   switch (msg.type) {
     case "setup":
-      // Send a greeting with menu options
+      // Send a greeting with menu options. Pass last=true for one-shot
+      // messages so Twilio starts TTS immediately (Ch2's helper defaults
+      // to last=false, which is for streaming LLM tokens).
       sendText(ws, "Welcome! Press 1 to check your order status, " +
         "press 2 to speak with a representative, " +
-        "or just tell me what you need.");
+        "or just tell me what you need.", true);
       break;
 
     case "dtmf":
@@ -93,19 +103,19 @@ function handleDtmfInput(ws, digit) {
 
     case "2":
       sendText(ws, "Let me transfer you to a representative. " +
-        "Please hold for a moment.");
+        "Please hold for a moment.", true);
       // Trigger handoff (covered in Chapter 5)
       break;
 
     case "0":
       sendText(ws, "Returning to the main menu. " +
         "Press 1 for order status, 2 for a representative, " +
-        "or just tell me what you need.");
+        "or just tell me what you need.", true);
       break;
 
     default:
       sendText(ws, "I didn't recognize that option. " +
-        "Press 1 for order status, or 2 for a representative.");
+        "Press 1 for order status, or 2 for a representative.", true);
       break;
   }
 }`,
@@ -115,7 +125,7 @@ function handleDtmfInput(ws, digit) {
       type: "callout",
       variant: "tip",
       content:
-        "A good pattern is to translate DTMF inputs into natural language messages and inject them into the conversation history. This way, the LLM handles the actual response while DTMF just provides a shortcut for common actions.",
+        "A good pattern is to translate keypad inputs into natural language messages and add them to the conversation history. This way, the AI handles the actual response while the keypad just provides a shortcut for common actions.",
     },
 
     { type: "section", title: "Sending DTMF Tones Outbound" },
@@ -123,7 +133,7 @@ function handleDtmfInput(ws, digit) {
     {
       type: "prose",
       content:
-        "You can also send DTMF tones outbound -- for example, if your AI agent needs to navigate another phone system during a call transfer. Send a `sendDigits` message through the WebSocket:",
+        "You can also send keypad tones outbound -- for example, if your AI agent needs to navigate another phone system during a call transfer (like pressing 1 for English). Send a `sendDigits` message:",
     },
 
     {
@@ -158,7 +168,7 @@ sendDigits(ws, "3");  // Press 3 for billing`,
     {
       type: "prose",
       content:
-        "DTMF detection is controlled by the `dtmfDetection` attribute in your TwiML. Make sure it is set to `true`:",
+        "DTMF detection is controlled by the `dtmfDetection` setting in your ConversationRelay configuration. Make sure it is set to `true`:",
     },
 
     {

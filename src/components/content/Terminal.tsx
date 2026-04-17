@@ -32,7 +32,7 @@ export function Terminal({ commands }: TerminalProps) {
         </div>
         <CopyButton text={commandsOnly} />
       </div>
-      <pre className="p-4 text-[13px] leading-relaxed font-mono overflow-x-auto">
+      <pre className="p-4 text-[13px] leading-relaxed font-mono overflow-x-auto" data-scroll-x="true">
         {lines.map((line, i) => {
           const isCommand = line.trimStart().startsWith("$");
           return (

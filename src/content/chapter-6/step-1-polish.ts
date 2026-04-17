@@ -23,13 +23,13 @@ export default {
     {
       type: "prose",
       content:
-        "Your system prompt is the single biggest lever for agent quality. Review it against this checklist:",
+        "Your system prompt -- the instructions you give the AI -- is the single biggest lever for agent quality. Review it against this checklist:",
     },
 
     {
       type: "prose",
       content:
-        "**Identity** -- Does the prompt clearly define who the agent is, what company it works for, and its role?\n**Boundaries** -- Does it specify what the agent should NOT do (e.g., make promises, share internal information)?\n**Tone** -- Is the tone appropriate for your use case? Customer support should be warm and helpful; a scheduling bot can be more concise.\n**Edge cases** -- Does it handle off-topic questions, profanity, or requests for competitors?\n**Conciseness** -- Voice responses should be shorter than text chat. Instruct the LLM to keep answers brief and conversational.",
+        "**Identity** -- Does the prompt clearly define who the agent is, what company it works for, and its role?\n**Boundaries** -- Does it specify what the agent should NOT do (e.g., make promises, share internal information)?\n**Tone** -- Is the tone appropriate for your use case? Customer support should be warm and helpful; a scheduling bot can be more concise.\n**Edge cases** -- Does it handle off-topic questions, profanity, or requests for competitors?\n**Conciseness** -- Voice responses should be shorter than text chat. Tell the AI to keep answers brief and conversational.",
     },
 
     {
@@ -68,7 +68,15 @@ VOICE GUIDELINES:
     {
       type: "prose",
       content:
-        "Fine-tune your TwiML attributes for the best audio experience:",
+        "Fine-tune your voice settings for the best caller experience:",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** — don't paste it as a second route. You already have a TwiML response from Chapter 2; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `reportInputDuringAgentSpeech`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`. Every attribute you set in earlier chapters is still here; new ones are layered on top.",
     },
 
     {
@@ -79,15 +87,31 @@ VOICE GUIDELINES:
   <Connect action="/call-ended">
     <ConversationRelay
       url="wss://your-codespace-8080.app.github.dev/ws"
-      voice="en-US-Journey-F"
+      voice="en-US-Chirp3-HD-Achernar"
       ttsProvider="Google"
       dtmfDetection="true"
       interruptible="any"
       interruptSensitivity="medium"
       welcomeGreeting="Hello! How can I help you today?"
+      welcomeGreetingInterruptible="speech"
+      reportInputDuringAgentSpeech="dtmf"
+      hints="Acme, order status, transfer, refund"
     />
   </Connect>
 </Response>`,
+    },
+
+    {
+      type: "prose",
+      content:
+        "A few of these settings are worth calling out:",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "**`welcomeGreetingInterruptible`** -- same values as `interruptible` (`none`, `dtmf`, `speech`, `any`), but applies only to the welcome greeting. `\"speech\"` is a good default: callers can interject (\"hi, I just need to cancel an order\") without accidentally triggering on a DTMF tone from their keypad.\n\n**`reportInputDuringAgentSpeech`** -- controls whether Twilio forwards speech or DTMF that arrives *while* your agent is talking, without interrupting. Default is `\"none\"` (drops those inputs). Setting it to `\"dtmf\"` is handy for IVR-style \"press 0 for an operator\" flows where you want the keypress reported but not treated as a barge-in.\n\n**`hints`** -- comma-separated phrases the transcriber should bias toward. If your agent deals with proper nouns, product SKUs, or acronyms (\"Acme\", \"ENT-400\", \"SAML\"), listing them here measurably improves recognition accuracy.\n\n**`debug`** -- a space-separated list of `debugging`, `speaker-events`, `tokens-played`. Turn this on during development to see extra lifecycle events in the WebSocket; turn it off before you ship.",
     },
 
     { type: "section", title: "Pre-Launch Checklist" },
@@ -95,13 +119,13 @@ VOICE GUIDELINES:
     {
       type: "prose",
       content:
-        "Work through each item before considering your agent production-ready:",
+        "Work through each item before considering your agent ready for real callers:",
     },
 
     {
       type: "prose",
       content:
-        "**Error handling** -- Does your agent recover gracefully from LLM errors, tool failures, and network issues?\n**Conversation history limits** -- Are you capping the conversation history to avoid exceeding token limits? (Summarize or trim after ~20 turns.)\n**Graceful shutdown** -- Does the agent handle call endings cleanly, clearing timers and closing connections?\n**Logging** -- Are you logging enough to debug issues but not so much that you expose sensitive data?\n**Timeouts** -- Do you have timeouts on all external calls (LLM, tools, APIs) to prevent hung connections?\n**Rate limiting** -- Is there protection against a single caller making excessive tool calls or API requests?",
+        "**Error handling** -- Does your agent recover gracefully when the AI service is slow, a tool fails, or the network hiccups?\n**Conversation length limits** -- Are you keeping the conversation history from growing too long? (Trim or summarize after ~20 back-and-forth exchanges.)\n**Clean call endings** -- Does the agent wrap up cleanly when a call ends, clearing timers and closing connections?\n**Logging** -- Are you recording enough to troubleshoot problems but not so much that you expose sensitive caller data?\n**Timeouts** -- Do you have time limits on all outside calls (AI, tools, services) to prevent the caller from waiting forever?\n**Rate limiting** -- Is there protection against a single caller making an excessive number of requests?",
     },
 
     {
@@ -111,16 +135,66 @@ VOICE GUIDELINES:
         "Record a few test calls and listen to them critically. You will catch pacing issues, awkward phrasing, and edge cases that you miss during interactive testing. Pay special attention to the first 5 seconds -- that is when the caller decides if they are talking to a competent system.",
     },
 
-    { type: "section", title: "Handle LLM Errors Gracefully" },
+    { type: "section", title: "Handle Inbound `error` Messages" },
+
+    {
+      type: "prose",
+      content:
+        "Sometimes something goes wrong on Twilio's side -- the voice generation fails, the transcription times out, or a message was formatted incorrectly. When this happens, Twilio sends your server an error message so you can react gracefully instead of leaving the caller in silence.",
+    },
+
+    {
+      type: "json-message",
+      direction: "inbound",
+      messageType: "error",
+      code: `{
+  "type": "error",
+  "description": "Failed to synthesize speech"
+}`,
+    },
 
     {
       type: "code",
       language: "javascript",
       file: "server.js",
-      code: `async function streamResponse(ws) {
+      code: `function handleMessage(ws, data) {
+  const msg = JSON.parse(data);
+
+  switch (msg.type) {
+    // ... existing cases (setup, prompt, interrupt, dtmf) ...
+
+    case "error":
+      // Log the fault and fall back to a graceful spoken recovery.
+      // Don't try to retry automatically -- a second failure in a row
+      // would just burn time while the caller waits in silence.
+      console.error("⚠️ ConversationRelay error:", msg.description);
+      sendText(ws,
+        "I'm having a brief technical issue. " +
+        "Could you say that again?",
+        true,
+      );
+      break;
+  }
+}`,
+    },
+
+    {
+      type: "callout",
+      variant: "tip",
+      content:
+        "In production you'd also emit a structured log entry here (with the current `callSid` and conversation context) so the error shows up in your observability dashboard. Lost audio is invisible to the caller until they notice the agent isn't responding — catch it on the server side instead.",
+    },
+
+    { type: "section", title: "Handle AI Errors Gracefully" },
+
+    {
+      type: "code",
+      language: "javascript",
+      file: "server.js",
+      code: `async function streamResponse(ws, iteration = 0) {
   try {
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-5.4-nano",
       messages: conversationHistory,
       tools: tools,
       stream: true,

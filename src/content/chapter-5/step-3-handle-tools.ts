@@ -15,33 +15,69 @@ export default {
     {
       type: "prose",
       content:
-        "Now that you have defined your tools and their handlers, you need to wire them into the streaming response loop. When OpenAI returns a tool call instead of text, your code must execute the tool, feed the result back, and continue the conversation.",
+        "Now that your tools are defined, you need to connect them to the conversation flow. When the AI decides to use a tool instead of responding with words, your code runs the tool, sends the answer back to the AI, and lets the conversation continue.",
     },
 
     { type: "section", title: "Detecting Tool Calls in the Stream" },
 
     {
+      type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "**Replace, don't append.** The `streamResponse(ws)` function below **replaces two things** from earlier chapters:\n\n1. **Delete `handlePrompt`** (from Chapter 4). The prompt case now pushes the user turn inline and calls `streamResponse(ws)` directly — see the diff below.\n2. **Delete `streamLLMResponse`** (from Chapter 2, if it still exists). `streamResponse` is its successor — same streaming idea, but with `AbortController` support, module-scope `conversationHistory`, and tool-call handling.\n\nIf you leave either old function in place alongside `streamResponse`, you'll have two `for await` loops fighting over the same `conversationHistory` and `activeStream` — the tool-call branch will never fire because the old function gets the prompt first. `conversationHistory` and `activeStream` stay at module scope (set up in Chapter 4); only the stream loop itself is swapped.",
+    },
+
+    {
+      type: "diff",
+      audience: "builder",
+      file: "server.js (inside handleMessage switch)",
+      code: `    case "prompt":
+-      resetSilenceTimer(ws);
+-      handlePrompt(ws, msg);
++      resetSilenceTimer(ws);
++      conversationHistory.push({ role: "user", content: msg.voicePrompt });
++      streamResponse(ws);
+       break;`,
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "Before you paste the code below, **import the tools and handlers** from Step 2 at the top of `server.js`:\n\n```js\nconst { tools, toolHandlers } = require(\"./tool-handlers.js\");\n```\n\nThe `streamResponse` function references both `tools` (passed to OpenAI) and `toolHandlers` (dispatched when a tool call fires). Without this import you'll hit `ReferenceError: tools is not defined` the moment the model tries to call a function.",
+    },
+
+    {
       type: "prose",
       content:
-        "When streaming with `stream: true`, tool calls arrive as deltas in the stream chunks. You need to accumulate the tool call data across multiple chunks, then execute the tools once the stream finishes:",
+        "Here is the high-level logic for how your server handles tool calls during a conversation:",
+    },
+
+    {
+      type: "prose",
+      content:
+        "1. Send the conversation to the AI and start listening for the reply.\n2. As the reply comes in: if it is **words**, send them to the caller sentence by sentence. If the AI is **asking for a tool**, collect those requests.\n3. If the AI asked for tools → run each tool, send the results back to the AI, and let it try again with the real data.\n4. If the AI is done talking → send the last bit of text and save the reply.",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
-      code: `async function streamResponse(ws) {
-  const abortController = new AbortController();
-  activeStream = { controller: abortController };
+      code: `async function streamResponse(ws, iteration = 0) {
+  activeStream = new AbortController();
 
   const stream = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-5.4-nano",
     messages: conversationHistory,
     tools: tools,
     stream: true,
-  }, { signal: abortController.signal });
+  }, { signal: activeStream.signal });
 
-  let textBuffer = "";
+  let textBuffer = "";     // holds only *unsent* text (gets sliced as sentences ship)
+  let fullAssistantText = ""; // holds the full reply so we can save it to history
   let toolCalls = [];
 
   for await (const chunk of stream) {
@@ -51,6 +87,7 @@ export default {
     // Accumulate text content
     if (delta?.content) {
       textBuffer += delta.content;
+      fullAssistantText += delta.content;
 
       // Send text in sentence-sized chunks for natural pacing
       const sentenceEnd = textBuffer.search(/[.!?]\\s/);
@@ -84,14 +121,31 @@ export default {
 
     // Stream finished
     if (finishReason === "tool_calls") {
-      await handleToolCalls(ws, toolCalls);
+      // Clear activeStream before recursing — handleToolCalls will call
+      // streamResponse again which reassigns activeStream, but if an interrupt
+      // fires between tool execution and the next stream we want the
+      // AbortController reference to match the *current* in-flight call.
+      activeStream = null;
+      // Pass iteration so the tool loop can bound recursion via MAX_TOOL_ITERATIONS
+      await handleToolCalls(ws, toolCalls, iteration);
       return;
     }
 
     if (finishReason === "stop") {
-      // Send any remaining text
+      // Flush any remaining tail text, then save the whole reply to history
       if (textBuffer.trim()) {
         sendText(ws, textBuffer.trim());
+        textBuffer = "";
+      }
+      // Signal end-of-turn so Twilio stops waiting for more tokens.
+      // Without this the caller hears the last sentence, then dead air
+      // until the next prompt arrives.
+      sendText(ws, "", true);
+      if (fullAssistantText.trim()) {
+        conversationHistory.push({
+          role: "assistant",
+          content: fullAssistantText.trim(),
+        });
       }
     }
   }
@@ -105,11 +159,12 @@ export default {
     {
       type: "prose",
       content:
-        'When the stream finishes with `finish_reason: "tool_calls"`, execute each requested tool, add the results to the conversation history, and call the LLM again:',
+        "When the AI asks for tools instead of responding with text, your server runs each tool, adds the results to the conversation, and sends everything back to the AI so it can craft a final answer:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `const MAX_TOOL_ITERATIONS = 5;
@@ -117,7 +172,7 @@ export default {
 async function handleToolCalls(ws, toolCalls, iteration = 0) {
   if (iteration >= MAX_TOOL_ITERATIONS) {
     sendText(ws, "I'm having trouble processing that request. " +
-      "Let me try a different approach.");
+      "Let me try a different approach.", true);
     return;
   }
 
@@ -138,17 +193,19 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
   // Execute each tool and collect results
   for (const toolCall of toolCalls) {
     const fnName = toolCall.function.name;
-    const fnArgs = JSON.parse(toolCall.function.arguments);
-
-    console.log(\`🔧 Calling tool: \${fnName}\`, fnArgs);
 
     let result;
     try {
+      const fnArgs = JSON.parse(toolCall.function.arguments);
+      console.log(\`🔧 Calling tool: \${fnName}\`, fnArgs);
+
       const handler = toolHandlers[fnName];
       if (!handler) {
         result = { error: \`Unknown tool: \${fnName}\` };
       } else {
-        result = await handler(fnArgs);
+        // Pass ws so handlers that need to send messages mid-call
+        // (e.g. transfer_to_agent in step 4) can reach the socket.
+        result = await handler(fnArgs, ws);
       }
     } catch (err) {
       console.error(\`❌ Tool error (\${fnName}):\`, err.message);
@@ -163,13 +220,24 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
     });
   }
 
-  // Call the LLM again with the tool results
-  await streamResponse(ws);
+  // Call the LLM again with the tool results.
+  // Thread iteration+1 so MAX_TOOL_ITERATIONS bounds the recursion when the
+  // model calls tools in a second (or third) turn.
+  await streamResponse(ws, iteration + 1);
 }`,
     },
 
     {
       type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Why `content: null` on the assistant message?** The OpenAI Chat Completions API requires *either* `content` *or* `tool_calls` on an assistant turn — and when the model chose to call a tool, there is no user-facing text yet. Setting `content: null` and populating `tool_calls` mirrors exactly what the model returned, so the next request reconstructs the conversation faithfully. Omitting `tool_calls`, or setting `content` to a string like `\"\"`, will make the API reject the follow-up request with a `tool_call_id not found` error on the matching `role: \"tool\"` message.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
         "Always wrap tool execution in a try/catch. If a tool throws an error, you still need to send a `tool` message back to OpenAI. Without it, the API will reject your next request because it expects a tool result for every tool call.",
@@ -177,13 +245,22 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
 
     {
       type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "**Tool results must be strings.** The `content` field on a `role: \"tool\"` message must be a JSON string, not a raw object. Always use `JSON.stringify(result)` when adding tool results to `conversationHistory`. If you pass an object directly, the OpenAI API will reject the next request with a parsing error.",
+    },
+
+    {
+      type: "callout",
       variant: "tip",
       content:
-        "While a tool is executing, the caller hears silence. For tools that take more than a second, consider sending a filler message like \"Let me check that for you...\" before executing the tool. This keeps the conversation feeling responsive.",
+        "While a tool is running, the caller hears silence. For tools that take more than a second, consider having the agent say something like \"Let me check that for you...\" first. This keeps the conversation feeling natural.",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `// Send a filler message for slow tools
@@ -209,21 +286,24 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
       language: "javascript",
       explanation:
         "The complete streamResponse and handleToolCalls functions, including filler messages for slow tools and iteration limits for safety.",
-      code: `const MAX_TOOL_ITERATIONS = 5;
+      code: `// Pulled in from step 2 — drives both the tools array and the dispatch table
+const { tools, toolHandlers } = require("./tool-handlers.js");
+
+const MAX_TOOL_ITERATIONS = 5;
 const SLOW_TOOLS = ["lookup_order"];
 
-async function streamResponse(ws) {
-  const abortController = new AbortController();
-  activeStream = { controller: abortController };
+async function streamResponse(ws, iteration = 0) {
+  activeStream = new AbortController();
 
   const stream = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-5.4-nano",
     messages: conversationHistory,
     tools: tools,
     stream: true,
-  }, { signal: abortController.signal });
+  }, { signal: activeStream.signal });
 
   let textBuffer = "";
+  let fullAssistantText = "";
   let toolCalls = [];
 
   for await (const chunk of stream) {
@@ -232,6 +312,7 @@ async function streamResponse(ws) {
 
     if (delta?.content) {
       textBuffer += delta.content;
+      fullAssistantText += delta.content;
       const sentenceEnd = textBuffer.search(/[.!?]\\s/);
       if (sentenceEnd !== -1) {
         const sentence = textBuffer.slice(0, sentenceEnd + 1);
@@ -257,24 +338,32 @@ async function streamResponse(ws) {
     }
 
     if (finishReason === "tool_calls") {
-      await handleToolCalls(ws, toolCalls);
+      // Clear activeStream before recursing; the chained streamResponse will set its own
+      activeStream = null;
+      // Pass iteration through so the chained tool loop can count correctly
+      await handleToolCalls(ws, toolCalls, iteration);
       return;
     }
 
-    if (finishReason === "stop" && textBuffer.trim()) {
-      sendText(ws, textBuffer.trim());
+    if (finishReason === "stop") {
+      if (textBuffer.trim()) {
+        sendText(ws, textBuffer.trim());
+        textBuffer = "";
+      }
+      sendText(ws, "", true); // end-of-turn signal
     }
   }
 
-  if (textBuffer.trim()) {
-    conversationHistory.push({ role: "assistant", content: textBuffer.trim() });
+  // Save the *full* assistant reply to history, not just the unsent tail
+  if (fullAssistantText.trim()) {
+    conversationHistory.push({ role: "assistant", content: fullAssistantText.trim() });
   }
   activeStream = null;
 }
 
 async function handleToolCalls(ws, toolCalls, iteration = 0) {
   if (iteration >= MAX_TOOL_ITERATIONS) {
-    sendText(ws, "I'm having trouble processing that. Can you try rephrasing?");
+    sendText(ws, "I'm having trouble processing that. Can you try rephrasing?", true);
     return;
   }
 
@@ -294,14 +383,17 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
 
   for (const toolCall of toolCalls) {
     const fnName = toolCall.function.name;
-    const fnArgs = JSON.parse(toolCall.function.arguments);
-    console.log("🔧 Tool call:", fnName, fnArgs);
 
     let result;
     try {
+      const fnArgs = JSON.parse(toolCall.function.arguments);
+      console.log("🔧 Tool call:", fnName, fnArgs);
+
       const handler = toolHandlers[fnName];
+      // Pass ws as the second arg so handlers that need to send messages
+      // mid-call (e.g. the transfer_to_agent handoff tool in step 4) can do so.
       result = handler
-        ? await handler(fnArgs)
+        ? await handler(fnArgs, ws)
         : { error: "Unknown tool: " + fnName };
     } catch (err) {
       result = { error: "Tool failed: " + err.message };
@@ -314,7 +406,8 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
     });
   }
 
-  await streamResponse(ws);
+  // Increment the counter before recursing so MAX_TOOL_ITERATIONS actually bounds the loop
+  await streamResponse(ws, iteration + 1);
 }`,
     },
 

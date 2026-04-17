@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import workshopConfig from "@/workshop.config";
 
 export type Theme = "dark" | "light";
@@ -37,27 +37,39 @@ export function ThemeProvider({
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem(STORAGE_KEY, newTheme);
+    try {
+      localStorage.setItem(STORAGE_KEY, newTheme);
+    } catch (err) {
+      console.warn("[workshop] Could not persist theme preference", err);
+    }
     document.documentElement.setAttribute("data-theme", newTheme);
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  }, [theme, setTheme]);
+    setThemeState((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // ignore
+      }
+      document.documentElement.setAttribute("data-theme", next);
+      return next;
+    });
+  }, []);
 
-  return (
-    <ThemeContext.Provider
-      value={{
-        theme,
-        setTheme,
-        toggleTheme,
-        isDark: theme === "dark",
-        isLight: theme === "light",
-      }}
-    >
-      {children}
-    </ThemeContext.Provider>
+  const value = useMemo<ThemeContextValue>(
+    () => ({
+      theme,
+      setTheme,
+      toggleTheme,
+      isDark: theme === "dark",
+      isLight: theme === "light",
+    }),
+    [theme, setTheme, toggleTheme],
   );
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme(): ThemeContextValue {

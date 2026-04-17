@@ -33,7 +33,7 @@ export default {
     {
       type: "prose",
       content:
-        '**Boundaries.** Define what the agent can and cannot do. This prevents the LLM from hallucinating capabilities. Be explicit: "You cannot process payments" or "You can only answer questions about our menu."',
+        '**Boundaries.** Define what the agent can and cannot do. This prevents the AI from making up capabilities it does not have. Be explicit: "You cannot process payments" or "You can only answer questions about our menu."',
     },
 
     {
@@ -47,7 +47,7 @@ export default {
     {
       type: "prose",
       content:
-        "Here are three different persona styles to show how the same structure produces very different experiences. Notice how each one stays voice-friendly with short, natural sentences.",
+        "Here are three different persona styles to show how the same structure produces very different experiences. Notice how each one stays voice-friendly with short, natural sentences. **Pick one of these or write your own, then replace the `SYSTEM_PROMPT` constant from Step 1** with your chosen persona text.",
     },
 
     {
@@ -101,7 +101,7 @@ to the menu.\`;`,
       type: "callout",
       variant: "tip",
       content:
-        'Avoid instructing the LLM to "list the options." Instead, say "mention a couple of the most popular options and ask which sounds good." This produces responses that flow naturally in conversation.',
+        'Avoid telling the AI to "list the options." Instead, say "mention a couple of the most popular options and ask which sounds good." This produces responses that flow naturally in conversation.',
     },
 
     {

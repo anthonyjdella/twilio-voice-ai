@@ -15,50 +15,76 @@ interface MilestoneBadgeProps {
   particleColor?: string;
   sharing?: WorkshopConfig["sharing"];
   workshopTitle?: string;
+  totalChapters?: number;
 }
 
 // ─── Confetti orchestration ────────────────────────────────────────
 
+function prefersReducedMotion() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+}
+
 function fireChapterConfetti(particleColor?: string) {
+  if (prefersReducedMotion()) return () => {};
   const colors = ["#EF223A", "#F4B400", "#10B981", particleColor ?? "#0263E0"];
-  const cleanups: (() => void)[] = [];
+  const timers = new Set<ReturnType<typeof setTimeout>>();
+  const intervals = new Set<ReturnType<typeof setInterval>>();
+  const track = (id: ReturnType<typeof setTimeout>) => {
+    timers.add(id);
+    return id;
+  };
 
   // Wave 1: Dual cannons from bottom corners
   confetti({ particleCount: 80, spread: 80, origin: { x: 0.15, y: 0.9 }, colors, startVelocity: 60, ticks: 300, angle: 70 });
   confetti({ particleCount: 80, spread: 80, origin: { x: 0.85, y: 0.9 }, colors, startVelocity: 60, ticks: 300, angle: 110 });
 
   // Wave 2: Center fountain (delayed)
-  setTimeout(() => {
+  track(setTimeout(() => {
     confetti({ particleCount: 60, spread: 100, origin: { x: 0.5, y: 0.7 }, colors, startVelocity: 50, ticks: 250, gravity: 0.9 });
-  }, 400);
+  }, 400));
 
   // Wave 3: Side streams
   const stream = setInterval(() => {
     confetti({ particleCount: 3, angle: 60, spread: 40, origin: { x: 0, y: 0.5 }, colors, ticks: 180 });
     confetti({ particleCount: 3, angle: 120, spread: 40, origin: { x: 1, y: 0.5 }, colors, ticks: 180 });
   }, 200);
-  const streamEnd = setTimeout(() => clearInterval(stream), 3000);
-  cleanups.push(() => { clearInterval(stream); clearTimeout(streamEnd); });
+  intervals.add(stream);
+  track(setTimeout(() => {
+    clearInterval(stream);
+    intervals.delete(stream);
+  }, 3000));
 
-  return () => cleanups.forEach((fn) => fn());
+  return () => {
+    timers.forEach(clearTimeout);
+    intervals.forEach(clearInterval);
+    timers.clear();
+    intervals.clear();
+  };
 }
 
 function fireFinalConfetti() {
+  if (prefersReducedMotion()) return () => {};
   const colors = ["#EF223A", "#F4B400", "#10B981", "#0263E0", "#A855F7", "#F59E0B", "#EC4899", "#FFFFFF"];
-  const cleanups: (() => void)[] = [];
+  const timers = new Set<ReturnType<typeof setTimeout>>();
+  const intervals = new Set<ReturnType<typeof setInterval>>();
+  const track = (id: ReturnType<typeof setTimeout>) => {
+    timers.add(id);
+    return id;
+  };
 
   // WAVE 1: Massive dual cannon salvo
   for (let i = 0; i < 3; i++) {
-    setTimeout(() => {
+    track(setTimeout(() => {
       confetti({ particleCount: 120, spread: 90, origin: { x: 0.1, y: 0.9 }, colors, startVelocity: 70, ticks: 400, angle: 75 });
       confetti({ particleCount: 120, spread: 90, origin: { x: 0.9, y: 0.9 }, colors, startVelocity: 70, ticks: 400, angle: 105 });
-    }, i * 300);
+    }, i * 300));
   }
 
   // WAVE 2: Center eruption
-  setTimeout(() => {
+  track(setTimeout(() => {
     confetti({ particleCount: 200, spread: 180, origin: { x: 0.5, y: 0.5 }, colors, startVelocity: 55, gravity: 0.6, ticks: 500, scalar: 1.2 });
-  }, 600);
+  }, 600));
 
   // WAVE 3: Firework pops at random positions
   const fireworkPositions = [
@@ -67,9 +93,9 @@ function fireFinalConfetti() {
     { x: 0.85, y: 0.4 }, { x: 0.4, y: 0.25 }, { x: 0.6, y: 0.3 },
   ];
   fireworkPositions.forEach((pos, i) => {
-    setTimeout(() => {
+    track(setTimeout(() => {
       confetti({ particleCount: 40, spread: 360, origin: pos, colors, startVelocity: 30, ticks: 200, gravity: 0.5, scalar: 0.8 });
-    }, 1000 + i * 250);
+    }, 1000 + i * 250));
   });
 
   // WAVE 4: Continuous rainbow rain
@@ -78,13 +104,16 @@ function fireFinalConfetti() {
     confetti({ particleCount: 6, angle: 120, spread: 50, origin: { x: 1, y: 0.3 }, colors, ticks: 250, startVelocity: 40 });
     confetti({ particleCount: 4, angle: 90, spread: 60, origin: { x: Math.random(), y: 0 }, colors, ticks: 300, gravity: 1.2 });
   }, 120);
-  const rainEnd = setTimeout(() => clearInterval(rain), 7000);
-  cleanups.push(() => { clearInterval(rain); clearTimeout(rainEnd); });
+  intervals.add(rain);
+  track(setTimeout(() => {
+    clearInterval(rain);
+    intervals.delete(rain);
+  }, 7000));
 
   // WAVE 5: Grand finale burst at 3 seconds
-  setTimeout(() => {
+  track(setTimeout(() => {
     for (let i = 0; i < 5; i++) {
-      setTimeout(() => {
+      track(setTimeout(() => {
         confetti({
           particleCount: 100,
           spread: 360,
@@ -96,12 +125,12 @@ function fireFinalConfetti() {
           shapes: ["circle", "square"],
           scalar: 1.1,
         });
-      }, i * 150);
+      }, i * 150));
     }
-  }, 3000);
+  }, 3000));
 
   // WAVE 6: Slow golden star fall
-  setTimeout(() => {
+  track(setTimeout(() => {
     const starFall = setInterval(() => {
       confetti({
         particleCount: 2,
@@ -116,11 +145,19 @@ function fireFinalConfetti() {
         drift: (Math.random() - 0.5) * 2,
       });
     }, 100);
-    const starEnd = setTimeout(() => clearInterval(starFall), 4000);
-    cleanups.push(() => { clearInterval(starFall); clearTimeout(starEnd); });
-  }, 4000);
+    intervals.add(starFall);
+    track(setTimeout(() => {
+      clearInterval(starFall);
+      intervals.delete(starFall);
+    }, 4000));
+  }, 4000));
 
-  return () => cleanups.forEach((fn) => fn());
+  return () => {
+    timers.forEach(clearTimeout);
+    intervals.forEach(clearInterval);
+    timers.clear();
+    intervals.clear();
+  };
 }
 
 // ─── Share URL builders ───────────────────────────────────────────
@@ -172,6 +209,7 @@ export function MilestoneBadge({
   particleColor,
   sharing,
   workshopTitle = "",
+  totalChapters,
 }: MilestoneBadgeProps) {
   const [count, setCount] = useState(0);
   const targetCount = isFinal ? 100 : 0;
@@ -216,6 +254,11 @@ export function MilestoneBadge({
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-50 flex items-center justify-center"
           onClick={onDismiss}
+          role="alertdialog"
+          aria-live="assertive"
+          aria-atomic="true"
+          aria-labelledby="milestone-badge-title"
+          aria-describedby="milestone-badge-subtitle"
         >
           {/* Backdrop */}
           <motion.div
@@ -359,6 +402,7 @@ export function MilestoneBadge({
 
             {/* Title */}
             <motion.h2
+              id="milestone-badge-title"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.65 }}
@@ -371,6 +415,7 @@ export function MilestoneBadge({
 
             {/* Subtitle */}
             <motion.p
+              id="milestone-badge-subtitle"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.75 }}
@@ -393,7 +438,9 @@ export function MilestoneBadge({
                 </div>
                 <div className="w-px h-10 bg-navy-border" />
                 <div className="text-center">
-                  <div className="text-3xl font-display font-extrabold text-yellow-400">6/6</div>
+                  <div className="text-3xl font-display font-extrabold text-yellow-400">
+                    {totalChapters ? `${totalChapters}/${totalChapters}` : ""}
+                  </div>
                   <div className="text-xs text-text-muted mt-1">Chapters</div>
                 </div>
                 <div className="w-px h-10 bg-navy-border" />

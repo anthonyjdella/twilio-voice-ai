@@ -11,6 +11,7 @@ const workshopConfig: WorkshopConfig = {
   hero: {
     tagline:
       "A guided workshop with ConversationRelay",
+    taglineAccent: "ConversationRelay",
     description:
       "By the end of this workshop, you\u2019ll have a working voice AI agent that calls your phone and talks to you \u2014 with a custom persona, realistic voice, tool calling, and more.",
     ctaText: "Start Workshop",
@@ -20,6 +21,16 @@ const workshopConfig: WorkshopConfig = {
   branding: {
     accentColor: "#EF223A",
     accentColorRgb: "239, 34, 58",
+    logo: {
+      src: "/images/twilio-bug-red.svg",
+      alt: "Twilio",
+    },
+    poweredByLogo: {
+      dark: "/images/powered-by-twilio-clear.png",
+      light: "/images/powered-by-twilio-on-white.png",
+      alt: "Powered by Twilio",
+      href: "https://www.twilio.com",
+    },
   },
 
   chapters: [

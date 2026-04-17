@@ -11,19 +11,19 @@ export default {
       audience: "explorer",
       title: "The System Prompt Shapes Behavior",
       content:
-        "The system prompt is a single paragraph you hand the AI at the start of every call -- it's the backstory, job description, and rulebook all at once. It's why the same LLM can be a cheerful pizza-ordering bot on one call and a calm medical intake nurse on the next. The words you choose here control the entire personality and scope of the agent.",
+        "The system prompt is a single paragraph you hand the AI at the start of every call -- it's the backstory, job description, and rulebook all at once. It's why the same AI can be a cheerful pizza-ordering bot on one call and a calm medical intake nurse on the next. The words you choose here control the entire personality and scope of the agent.",
     },
 
     {
       type: "prose",
       content:
-        "The system prompt is the first message in every conversation with your LLM. It defines **who** the AI agent is, **how** it should behave, and **what** it should (and should not) do. Think of it as the agent's backstory, personality, and operating manual rolled into one.",
+        "The system prompt is a set of instructions you give the AI before every conversation. It defines **who** the agent is, **how** it should behave, and **what** it should (and should not) do. Think of it as the agent's backstory, personality, and operating manual rolled into one.",
     },
 
     {
       type: "prose",
       content:
-        "For voice AI, the system prompt is even more critical than in chat applications. Your caller can't skim a long paragraph or scroll back. Every word the agent says is heard in real time, so the prompt must enforce a concise, conversational style.",
+        "For voice AI, the system prompt matters even more than in a chat app. Your caller can't skim a long paragraph or scroll back -- they hear every word in real time. So the instructions must push the AI to speak concisely, like a real person on the phone.",
     },
 
     { type: "section", title: "Voice AI Prompt Principles" },
@@ -37,19 +37,19 @@ export default {
     {
       type: "prose",
       content:
-        "**1. Keep responses short.** A good voice response is one to two sentences. Long monologues lose the caller. Instruct the LLM to be brief and to ask follow-up questions instead of dumping information.",
+        "**1. Keep responses short.** A good voice response is one to two sentences. Long monologues lose the caller. Tell the AI to be brief and to ask follow-up questions instead of dumping information.",
     },
 
     {
       type: "prose",
       content:
-        "**2. Use conversational language.** Avoid bullet points, numbered lists, and markdown formatting. The TTS engine will read those literally. Write the way people actually talk.",
+        "**2. Use conversational language.** Avoid bullet points, numbered lists, and markdown formatting. The voice engine will read those literally. Write the way people actually talk.",
     },
 
     {
       type: "prose",
       content:
-        "**3. No markdown or special characters.** Asterisks, headers, and links make no sense when spoken aloud. Tell the LLM explicitly not to use any formatting.",
+        "**3. No markdown or special characters.** Asterisks, headers, and links make no sense when spoken aloud. Tell the AI explicitly not to use any formatting.",
     },
 
     {
@@ -61,43 +61,77 @@ export default {
     { type: "section", title: "Adding the System Message" },
 
     {
+      type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "**Code change ahead.** In Chapter 2, the system prompt was hardcoded inside `streamLLMResponse`. Starting now, the prompt lives in `conversationHistory` instead. After pasting the code below, **find the hardcoded system message inside `streamLLMResponse`** (the `{ role: \"system\", content: \"...\" }` object in the `messages` array) **and delete it**. If you leave both in place, the AI receives duplicate system prompts and may behave unpredictably.",
+    },
+
+    {
       type: "prose",
       content:
-        "In your WebSocket handler, you maintain a `messages` array that you send to the OpenAI API. The system prompt is the first entry in that array. Open your server file and add a system message at the beginning of the conversation:",
+        "Chapter 3 shifts the system prompt into the conversation history itself -- it becomes the first thing the AI reads for every call. Two changes:",
+    },
+
+    {
+      type: "prose",
+      content:
+        "**1.** Pull the prompt out into a constant (so you can edit it in one place):",
     },
 
     {
       type: "code",
       language: "javascript",
       file: "server.js",
-      startLine: 1,
-      code: `// At the top of your WebSocket connection handler,
-// initialize the messages array with a system prompt:
-
-const messages = [
-  {
-    role: "system",
-    content: \`You are a helpful voice assistant for Acme Corp.
+      code: `const SYSTEM_PROMPT = \`You are a helpful voice assistant for Acme Corp.
 Keep your responses brief \u2014 one to two sentences at most.
 Speak naturally and conversationally.
 Never use markdown, bullet points, or numbered lists.
-If you don't know something, say so honestly.\`
-  }
-];`,
+If you don't know something, say so honestly.\`;`,
+    },
+
+    {
+      type: "prose",
+      content:
+        "**2.** Add the system message to the conversation history when the call connects, then remove the hardcoded system message from the streaming function:",
+    },
+
+    {
+      type: "code",
+      language: "javascript",
+      file: "server.js",
+      code: `wss.on("connection", (ws, req) => {
+  let callSid = null;
+  // Seed each call with the system prompt. Every LLM turn will include
+  // it, because openai.chat.completions.create receives the whole history.
+  const conversationHistory = [
+    { role: "system", content: SYSTEM_PROMPT },
+  ];
+
+  // ...rest of the setup/prompt handlers from Chapter 2
+});
+
+// Inside streamLLMResponse, the messages array is now just the history:
+const stream = await openai.chat.completions.create({
+  model: "gpt-5.4-nano",
+  messages: conversationHistory,  // no more system message prepended here
+  stream: true,
+});`,
     },
 
     {
       type: "callout",
       variant: "warning",
       content:
-        'Do not include formatting instructions like "respond in markdown" or "use bullet points." The caller hears raw text through the TTS engine, so formatting characters will be spoken aloud and sound confusing.',
+        'Do not include formatting instructions like "respond in markdown" or "use bullet points." The caller hears raw text spoken aloud, so formatting characters will be read out and sound confusing.',
     },
 
     {
       type: "callout",
       variant: "tip",
       content:
-        "Test your system prompt by reading the LLM's responses out loud. If they sound natural when spoken, you're on the right track.",
+        "Test your system prompt by reading the AI's responses out loud. If they sound natural when spoken, you're on the right track.",
     },
 
     { type: "section", title: "Your Turn" },
@@ -114,11 +148,8 @@ If you don't know something, say so honestly.\`
       language: "javascript",
       file: "server.js",
       explanation:
-        "This prompt establishes a clear identity (Ava, a virtual concierge), sets boundaries (Acme Corp only), enforces voice-friendly behavior (short responses, no formatting), and handles edge cases (off-topic questions, unknown answers). Adapt it to your own use case.",
-      code: `const messages = [
-  {
-    role: "system",
-    content: \`You are Ava, a friendly and professional virtual concierge
+        "The full wiring: a module-scope SYSTEM_PROMPT constant, seeded as the first message on every new WebSocket connection, and picked up automatically by streamLLMResponse since it passes the whole conversationHistory to OpenAI. Ava is a sample persona -- adapt the prompt to your own use case.",
+      code: `const SYSTEM_PROMPT = \`You are Ava, a friendly and professional virtual concierge
 for Acme Corp. You help callers with appointment scheduling, general
 company information, and directing them to the right department.
 
@@ -133,9 +164,45 @@ Guidelines:
   with a human agent.
 - Always confirm actions before taking them: "Just to confirm, you'd
   like to book an appointment for Tuesday at 3pm, is that right?"
-- Be warm and personable. Use the caller's name if they share it.\`
-  }
-];`,
+- Be warm and personable. Use the caller's name if they share it.\`;
+
+wss.on("connection", (ws, req) => {
+  let callSid = null;
+  const conversationHistory = [
+    { role: "system", content: SYSTEM_PROMPT },
+  ];
+
+  ws.on("message", (data) => {
+    const message = JSON.parse(data);
+
+    switch (message.type) {
+      case "setup":
+        callSid = message.callSid;
+        console.log(\`\u2705 Call started: \${callSid}\`);
+        break;
+
+      case "prompt":
+        if (!message.last) break;
+        conversationHistory.push({
+          role: "user",
+          content: message.voicePrompt,
+        });
+        streamLLMResponse(ws, conversationHistory);
+        break;
+    }
+  });
+});
+
+// streamLLMResponse no longer hardcodes a system message --
+// it comes from the first entry in conversationHistory.
+async function streamLLMResponse(ws, conversationHistory) {
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.4-nano",
+    messages: conversationHistory,
+    stream: true,
+  });
+  // ...token forwarding as in Chapter 2
+}`,
     },
   ],
 } satisfies StepDefinition;

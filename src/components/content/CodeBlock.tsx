@@ -99,7 +99,7 @@ export function CodeBlock({
             <div className="flex justify-end px-4 py-2 bg-surface-1">
               <CopyButton text={code} />
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" data-scroll-x="true">
               {highlightedHtml ? (
                 <div
                   className="shiki-container p-4 text-[13px] leading-relaxed font-mono [&_pre]:!bg-transparent [&_pre]:!p-0 [&_pre]:!m-0 [&_code]:!bg-transparent"
