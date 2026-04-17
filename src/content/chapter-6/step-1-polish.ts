@@ -213,7 +213,7 @@ VOICE GUIDELINES:
     // Fallback response so the caller is not left hanging
     sendText(ws, "I'm sorry, I'm having a technical issue. " +
       "Could you repeat that, or would you like me to " +
-      "transfer you to a team member?");
+      "transfer you to a team member?", true);
   }
 }`,
     },

@@ -46,7 +46,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "Before you paste the code below, **import the tools and handlers** from Step 2 at the top of `server.js`:\n\n```js\nconst { tools, toolHandlers } = require(\"./tool-handlers.js\");\n```\n\nThe `streamResponse` function references both `tools` (passed to OpenAI) and `toolHandlers` (dispatched when a tool call fires). Without this import you'll hit `ReferenceError: tools is not defined` the moment the model tries to call a function.",
+        "The `require(\"./tool-handlers.js\")` import at the top of the code below must go **near the top of `server.js`**, alongside your other `require` statements. The `streamResponse` function references `tools` (passed to OpenAI) and `toolHandlers` (dispatched when a tool call fires). Without the import you'll hit `ReferenceError: tools is not defined` the moment the model tries to call a function.",
     },
 
     {
@@ -66,7 +66,10 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      code: `async function streamResponse(ws, iteration = 0) {
+      code: `// At the top of server.js — import from Step 2
+const { tools, toolHandlers } = require("./tool-handlers.js");
+
+async function streamResponse(ws, iteration = 0) {
   activeStream = new AbortController();
 
   const stream = await openai.chat.completions.create({
