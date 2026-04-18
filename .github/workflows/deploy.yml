@@ -162,7 +162,6 @@ jobs:
               "twilio-auth-token=${{ secrets.TWILIO_AUTH_TOKEN }}" \
               "twilio-phone-number=${{ secrets.TWILIO_PHONE_NUMBER }}" \
               "openai-api-key=${{ secrets.OPENAI_API_KEY }}" \
-              "admin-key=${{ secrets.ADMIN_KEY }}" \
             --output none 2>/dev/null || true
 
       - name: Deploy Container App
@@ -199,8 +198,7 @@ jobs:
                 "twilio-auth-token=${{ secrets.TWILIO_AUTH_TOKEN }}" \
                 "twilio-phone-number=${{ secrets.TWILIO_PHONE_NUMBER }}" \
                 "openai-api-key=${{ secrets.OPENAI_API_KEY }}" \
-                "admin-key=${{ secrets.ADMIN_KEY }}" \
-              --output none
+                --output none
           fi
 
       - name: Print app URL

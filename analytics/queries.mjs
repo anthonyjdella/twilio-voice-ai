@@ -21,7 +21,11 @@ export function getOverview() {
     SELECT COUNT(DISTINCT session_id) AS c FROM events
     WHERE event_type = 'badge_earned' AND json_extract(payload, '$.badgeId') = 'chapter-6'
   `).get().c;
-  return { totalSessions, sessionsToday, builders, explorers, totalCalls, totalCompleted };
+  const totalStepCompleted = stmt(`SELECT COUNT(*) AS c FROM events WHERE event_type = 'step_completed'`).get().c;
+  const totalBadges = stmt(`SELECT COUNT(*) AS c FROM events WHERE event_type = 'badge_earned'`).get().c;
+  const firstEvent = stmt(`SELECT MIN(created_at) AS t FROM events`).get().t;
+  const lastEvent = stmt(`SELECT MAX(created_at) AS t FROM events`).get().t;
+  return { totalSessions, sessionsToday, builders, explorers, totalCalls, totalCompleted, totalStepCompleted, totalBadges, firstEvent, lastEvent };
 }
 
 export function getCompletionFunnel() {
@@ -70,7 +74,17 @@ export function getAudienceBreakdown() {
     GROUP BY e1.audience
   `).all();
 
-  return { audiences, completionByAudience };
+  const stepsPerAudience = stmt(`
+    SELECT e1.audience, COUNT(DISTINCT e2.session_id || ':' || json_extract(e2.payload, '$.chapterId') || ':' || json_extract(e2.payload, '$.stepId')) AS steps
+    FROM (
+      SELECT session_id, json_extract(payload, '$.audience') AS audience
+      FROM events WHERE event_type = 'session_started'
+    ) e1
+    JOIN events e2 ON e1.session_id = e2.session_id AND e2.event_type = 'step_completed'
+    GROUP BY e1.audience
+  `).all();
+
+  return { audiences, completionByAudience, stepsPerAudience };
 }
 
 export function getCallStats() {
@@ -82,7 +96,24 @@ export function getCallStats() {
     GROUP BY tool ORDER BY c DESC
   `).all();
   const handoffs = stmt(`SELECT COUNT(*) AS c FROM events WHERE event_type = 'handoff_triggered'`).get().c;
-  return { totalCalls, sessionsWithCalls, toolUsage, handoffs };
+  const langSwitches = stmt(`SELECT COUNT(*) AS c FROM events WHERE event_type = 'language_switched'`).get().c;
+
+  const callDurations = stmt(`
+    SELECT json_extract(payload, '$.durationMs') AS ms
+    FROM events WHERE event_type = 'call_ended' AND json_extract(payload, '$.durationMs') > 0
+    ORDER BY ms
+  `).all().map(r => r.ms);
+
+  const avgCallDuration = callDurations.length > 0
+    ? Math.round(callDurations.reduce((s, v) => s + v, 0) / callDurations.length / 1000)
+    : 0;
+  const n = callDurations.length;
+  const medianCallDuration = n === 0 ? 0
+    : n % 2 === 1 ? Math.round(callDurations[Math.floor(n / 2)] / 1000)
+    : Math.round((callDurations[n / 2 - 1] + callDurations[n / 2]) / 2000);
+  const longestCall = n > 0 ? Math.round(callDurations[n - 1] / 1000) : 0;
+
+  return { totalCalls, sessionsWithCalls, toolUsage, handoffs, langSwitches, avgCallDuration, medianCallDuration, longestCall };
 }
 
 export function getAgentConfig() {
@@ -104,7 +135,13 @@ export function getAgentConfig() {
     WHERE event_type = 'agent_configured' AND json_extract(payload, '$.field') = 'agentName'
     GROUP BY name ORDER BY c DESC LIMIT 20
   `).all();
-  return { voices, languages, names };
+  const ttsProviders = stmt(`
+    SELECT json_extract(payload, '$.value') AS provider, COUNT(*) AS c
+    FROM events
+    WHERE event_type = 'agent_configured' AND json_extract(payload, '$.field') = 'ttsProvider'
+    GROUP BY provider ORDER BY c DESC LIMIT 10
+  `).all();
+  return { voices, languages, names, ttsProviders };
 }
 
 export function getPacing() {
@@ -123,11 +160,69 @@ export function getPacing() {
   const medianMinutes = n === 0 ? 0
     : n % 2 === 1 ? sessionDurations[Math.floor(n / 2)].minutes
     : Math.round((sessionDurations[n / 2 - 1].minutes + sessionDurations[n / 2].minutes) / 2);
-  const avgMinutes = sessionDurations.length > 0
-    ? Math.round(sessionDurations.reduce((s, r) => s + r.minutes, 0) / sessionDurations.length)
+  const avgMinutes = n > 0
+    ? Math.round(sessionDurations.reduce((s, r) => s + r.minutes, 0) / n)
     : 0;
+  const fastest = n > 0 ? sessionDurations[0].minutes : 0;
+  const slowest = n > 0 ? sessionDurations[n - 1].minutes : 0;
 
-  return { medianMinutes, avgMinutes, totalSessions: sessionDurations.length };
+  return { medianMinutes, avgMinutes, fastest, slowest, totalSessions: n };
+}
+
+export function getTimePerChapter() {
+  const rows = stmt(`
+    SELECT
+      json_extract(e.payload, '$.chapterId') AS chapterId,
+      json_extract(e.payload, '$.chapterSlug') AS chapterSlug,
+      e.session_id,
+      MIN(e.created_at) AS first_step,
+      MAX(e.created_at) AS last_step,
+      CAST((julianday(MAX(e.created_at)) - julianday(MIN(e.created_at))) * 1440 AS INTEGER) AS minutes
+    FROM events e
+    WHERE e.event_type IN ('step_completed', 'step_viewed')
+    GROUP BY e.session_id, chapterId
+    HAVING COUNT(DISTINCT json_extract(e.payload, '$.stepId')) > 1
+    ORDER BY CAST(chapterId AS INTEGER)
+  `).all();
+
+  const byChapter = {};
+  for (const r of rows) {
+    const key = r.chapterId;
+    if (!byChapter[key]) byChapter[key] = { chapterId: r.chapterId, chapterSlug: r.chapterSlug, durations: [] };
+    byChapter[key].durations.push(r.minutes);
+  }
+
+  return Object.values(byChapter).map(ch => {
+    const d = ch.durations.sort((a, b) => a - b);
+    const n = d.length;
+    const median = n === 0 ? 0
+      : n % 2 === 1 ? d[Math.floor(n / 2)]
+      : Math.round((d[n / 2 - 1] + d[n / 2]) / 2);
+    return { chapterId: ch.chapterId, chapterSlug: ch.chapterSlug, medianMinutes: median, sessions: n };
+  });
+}
+
+export function getHourlyActivity() {
+  return stmt(`
+    SELECT CAST(strftime('%H', created_at) AS INTEGER) AS hour, COUNT(*) AS events
+    FROM events
+    GROUP BY hour
+    ORDER BY hour
+  `).all();
+}
+
+export function getDropOffPoints() {
+  return stmt(`
+    SELECT json_extract(payload, '$.chapterSlug') AS chapter,
+           json_extract(payload, '$.stepSlug') AS step,
+           json_extract(payload, '$.chapterId') AS chapterId,
+           json_extract(payload, '$.stepId') AS stepId,
+           COUNT(DISTINCT session_id) AS viewed
+    FROM events
+    WHERE event_type = 'step_viewed'
+    GROUP BY chapterId, stepId
+    ORDER BY CAST(chapterId AS INTEGER), CAST(stepId AS INTEGER)
+  `).all();
 }
 
 export function getSkipAheadStats() {
@@ -148,6 +243,28 @@ export function getRecentActivity() {
   `).all();
 }
 
+export function getEngagementStats() {
+  const eventsPerSession = stmt(`
+    SELECT session_id, COUNT(*) AS events
+    FROM events
+    GROUP BY session_id
+    ORDER BY events DESC
+  `).all();
+
+  const n = eventsPerSession.length;
+  const avgEvents = n > 0
+    ? Math.round(eventsPerSession.reduce((s, r) => s + r.events, 0) / n)
+    : 0;
+  const maxEvents = n > 0 ? eventsPerSession[0].events : 0;
+  const minEvents = n > 0 ? eventsPerSession[n - 1].events : 0;
+
+  const sessionsWithConfig = stmt(`SELECT COUNT(DISTINCT session_id) AS c FROM events WHERE event_type = 'agent_configured'`).get().c;
+  const sessionsWithBadges = stmt(`SELECT COUNT(DISTINCT session_id) AS c FROM events WHERE event_type = 'badge_earned'`).get().c;
+  const totalResets = stmt(`SELECT COUNT(*) AS c FROM events WHERE event_type = 'progress_reset'`).get().c;
+
+  return { avgEvents, maxEvents, minEvents, sessionsWithConfig, sessionsWithBadges, totalResets };
+}
+
 export function getAllMetrics() {
   return {
     overview: getOverview(),
@@ -157,7 +274,11 @@ export function getAllMetrics() {
     calls: getCallStats(),
     agentConfig: getAgentConfig(),
     pacing: getPacing(),
+    timePerChapter: getTimePerChapter(),
+    hourlyActivity: getHourlyActivity(),
+    dropOff: getDropOffPoints(),
     skipAhead: getSkipAheadStats(),
+    engagement: getEngagementStats(),
     recent: getRecentActivity(),
   };
 }

@@ -27,8 +27,6 @@ properties:
             secretRef: twilio-phone-number
           - name: OPENAI_API_KEY
             secretRef: openai-api-key
-          - name: ADMIN_KEY
-            secretRef: admin-key
         volumeMounts:
           - volumeName: appdata
             mountPath: /app/appdata

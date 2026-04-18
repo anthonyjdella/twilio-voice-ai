@@ -4,6 +4,7 @@ import { WebSocketServer } from "ws";
 import { handleConversationRelayConnection } from "./voice-agent/handler.mjs";
 import { getAllMetrics } from "./analytics/queries.mjs";
 import { renderAdminPage } from "./analytics/admin-html.mjs";
+import { generateReport } from "./analytics/report-pdf.mjs";
 
 const port = parseInt(process.env.PORT || "8080", 10);
 const dev = process.env.NODE_ENV !== "production";
@@ -15,24 +16,32 @@ app.prepare().then(() => {
   const server = createServer((req, res) => {
     const { pathname } = new URL(req.url || "/", `http://${req.headers.host}`);
 
-    if (pathname === "/admin" || pathname === "/admin/data") {
-      const adminKey = process.env.ADMIN_KEY;
-      if (adminKey) {
-        const url = new URL(req.url, `http://${req.headers.host}`);
-        if (url.searchParams.get("key") !== adminKey) {
-          res.writeHead(401, { "Content-Type": "text/plain" });
-          res.end("Unauthorized");
-          return;
-        }
+    if (pathname === "/admin/report") {
+      try {
+        const data = getAllMetrics();
+        const doc = generateReport(data);
+        const filename = `workshop-analytics-${new Date().toISOString().slice(0, 10)}.pdf`;
+        res.writeHead(200, {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="${filename}"`,
+        });
+        doc.pipe(res);
+      } catch (err) {
+        console.error("[admin] PDF report error:", err);
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Failed to generate report");
       }
+      return;
+    }
 
+    if (pathname === "/admin" || pathname === "/admin/data") {
       try {
         const data = getAllMetrics();
         if (pathname === "/admin/data") {
           res.writeHead(200, { "Content-Type": "application/json" });
           res.end(JSON.stringify(data));
         } else {
-          const html = renderAdminPage(data, adminKey);
+          const html = renderAdminPage(data);
           res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
           res.end(html);
         }
