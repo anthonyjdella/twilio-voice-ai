@@ -100,7 +100,7 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
       );
 
     case "verify":
-      return <Verify question={block.question} onSuccess={onVerifySuccess} />;
+      return <Verify question={block.question} troubleshooting={block.troubleshooting} onSuccess={onVerifySuccess} />;
 
     case "diagram":
       return (

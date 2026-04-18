@@ -101,6 +101,7 @@ export interface JsonMessageBlock extends BaseBlock {
 export interface VerifyBlock extends BaseBlock {
   type: "verify";
   question: string;
+  troubleshooting?: string[];
 }
 
 /** Architecture or flow diagram with optional highlight state */

@@ -54,7 +54,7 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "Everything you need is right here in this app. As you go through each chapter, you will configure your agent's persona, voice, and language using interactive controls. When you are ready to test, the **Call Me** button will call your phone so you can talk to your custom agent live.",
+        "This step is for Builders setting up their coding environment. You don't need to do anything here -- scroll down and click **Yes, it worked!** to continue.",
     },
 
     {
@@ -62,7 +62,7 @@ export default {
       variant: "info",
       audience: "explorer",
       content:
-        "No setup, no downloads, no code. Just follow along, configure your agent, and test it by calling yourself.",
+        "In the next chapters, you will configure your agent's persona, voice, and language using interactive controls. When you are ready to test, the **Call Me** button will call your phone so you can talk to your custom agent live.",
     },
 
     { type: "section", title: "Set Your Phone Number", audience: "builder" },
@@ -121,6 +121,11 @@ MY_PHONE_NUMBER=+12065551234`,
       audience: "builder",
       question:
         "Is your Codespace open and the terminal ready?",
+      troubleshooting: [
+        "Make sure you are signed into GitHub before clicking the Codespace link",
+        "If the Codespace is stuck loading, try refreshing the browser tab",
+        "Check that the terminal shows the workshop/ directory as your working directory",
+      ],
     },
 
     {
@@ -128,6 +133,10 @@ MY_PHONE_NUMBER=+12065551234`,
       audience: "explorer",
       question:
         "Ready to start configuring your voice agent?",
+      troubleshooting: [
+        "No setup is needed — just click Yes to continue",
+        "If the page looks broken, try refreshing your browser",
+      ],
     },
   ],
 } satisfies StepDefinition;

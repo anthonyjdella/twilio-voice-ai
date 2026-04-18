@@ -5,10 +5,18 @@ import { CheckCircle, Wrench } from "lucide-react";
 
 interface VerifyProps {
   question: string;
+  troubleshooting?: string[];
   onSuccess?: () => void;
 }
 
-export function Verify({ question, onSuccess }: VerifyProps) {
+const DEFAULT_TROUBLESHOOTING = [
+  "Make sure your server is running (node server.js)",
+  "Check that your Codespace port is set to Public visibility",
+  "Verify your .env file has the correct credentials loaded",
+  "Check the terminal for error messages",
+];
+
+export function Verify({ question, troubleshooting, onSuccess }: VerifyProps) {
   const [state, setState] = useState<"idle" | "success" | "help">("idle");
 
   return (
@@ -48,10 +56,9 @@ export function Verify({ question, onSuccess }: VerifyProps) {
         <div className="text-left mt-4 p-4 rounded-lg bg-surface-1 border border-navy-border text-sm text-text-secondary leading-relaxed">
           <p className="font-bold text-text-primary mb-2">Troubleshooting:</p>
           <ul className="list-disc list-inside space-y-1">
-            <li>Make sure your server is running (<code className="bg-surface-3 px-1 py-0.5 rounded font-mono text-xs">node server.js</code>)</li>
-            <li>Check that your Codespace port is set to <strong>Public</strong> visibility</li>
-            <li>Verify your <code className="bg-surface-3 px-1 py-0.5 rounded font-mono text-xs">.env</code> file has the correct credentials loaded</li>
-            <li>Check the terminal for error messages</li>
+            {(troubleshooting || DEFAULT_TROUBLESHOOTING).map((tip, i) => (
+              <li key={i}>{tip}</li>
+            ))}
           </ul>
           <button
             onClick={() => setState("idle")}
