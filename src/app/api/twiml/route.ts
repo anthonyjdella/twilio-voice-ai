@@ -4,7 +4,7 @@ export async function POST(request: NextRequest) {
   const url = new URL(request.url);
   const rawWsUrl = url.searchParams.get("wsUrl");
   const wsUrl = rawWsUrl && isValidWsUrl(rawWsUrl) ? rawWsUrl : getDefaultWsUrl(request);
-  const voice = url.searchParams.get("voice") || "021ab406-5679-4e42-8a9c-ee245e67b2b5";
+  const voice = url.searchParams.get("voice") || "UgBBYS2sOqTuMpoF3BR0";
   const ttsProvider = url.searchParams.get("ttsProvider") || "ElevenLabs";
   const language = url.searchParams.get("language") || "en-US";
   const transcriptionProvider =

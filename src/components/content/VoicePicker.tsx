@@ -6,18 +6,18 @@ const VOICE_OPTIONS = [
   {
     provider: "ElevenLabs",
     voices: [
-      { id: "021ab406-5679-4e42-8a9c-ee245e67b2b5", name: "Rachel", desc: "Warm, female" },
-      { id: "29vD33N1tVWHNs5r4Cb8kLJR", name: "Drew", desc: "Confident, male" },
-      { id: "EXAVITQu4vr4xnSDxMaL", name: "Bella", desc: "Soft, female" },
-      { id: "ErXwobaYiN019PkySvjV", name: "Antoni", desc: "Friendly, male" },
-      { id: "MF3mGyEYCl7XYWbV9V6O", name: "Elli", desc: "Youthful, female" },
+      { id: "UgBBYS2sOqTuMpoF3BR0", name: "English (US)", desc: "Default, female" },
+      { id: "9Ft9sm9dzvprPILZmLJl", name: "English (AU)", desc: "Australian, female" },
+      { id: "6xftrpatV0jGmFHxDjUv", name: "Spanish (ES)", desc: "Castilian, female" },
+      { id: "a5n9pJUnAhX4fn7lx3uo", name: "French (FR)", desc: "French, female" },
+      { id: "FTNCalFNG5bRnkkaP5Ug", name: "German (DE)", desc: "German, female" },
     ],
   },
   {
     provider: "Google",
     voices: [
-      { id: "en-US-Neural2-C", name: "Neural2-C", desc: "Female" },
-      { id: "en-US-Neural2-D", name: "Neural2-D", desc: "Male" },
+      { id: "en-US-Journey-O", name: "Journey-O", desc: "Female, conversational" },
+      { id: "en-US-Wavenet-D", name: "Wavenet-D", desc: "Male" },
       { id: "en-US-Studio-O", name: "Studio-O", desc: "Female, studio quality" },
       { id: "en-US-Studio-Q", name: "Studio-Q", desc: "Male, studio quality" },
     ],
@@ -25,9 +25,9 @@ const VOICE_OPTIONS = [
   {
     provider: "Amazon Polly",
     voices: [
-      { id: "Joanna", name: "Joanna", desc: "Female, neural" },
-      { id: "Matthew", name: "Matthew", desc: "Male, neural" },
-      { id: "Amy", name: "Amy", desc: "Female, British" },
+      { id: "Joanna-Neural", name: "Joanna", desc: "Female, neural" },
+      { id: "Matthew-Neural", name: "Matthew", desc: "Male, neural" },
+      { id: "Amy-Neural", name: "Amy", desc: "Female, British" },
     ],
   },
 ];
