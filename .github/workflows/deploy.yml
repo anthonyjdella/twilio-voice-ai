@@ -1,0 +1,128 @@
+name: Deploy to Azure Container Apps
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  RESOURCE_GROUP: rg-voice-ai-workshop
+  APP_NAME: voice-ai-workshop
+  LOCATION: centralus
+  ACR_NAME: voiceaiworkshop
+  ENV_NAME: cae-voice-ai-workshop
+  IMAGE_TAG: voice-ai-workshop:${{ github.sha }}
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  build-and-deploy:
+    needs: ci
+    if: needs.ci.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Login to Azure
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Ensure Resource Group
+        run: |
+          az group create \
+            --name ${{ env.RESOURCE_GROUP }} \
+            --location ${{ env.LOCATION }}
+
+      - name: Ensure Container Registry
+        run: |
+          if ! az acr show --name ${{ env.ACR_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} &>/dev/null; then
+            az acr create \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.ACR_NAME }} \
+              --sku Basic \
+              --admin-enabled true
+          fi
+
+      - name: Ensure Container Apps Environment
+        run: |
+          if ! az containerapp env show --name ${{ env.ENV_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} &>/dev/null; then
+            az containerapp env create \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.ENV_NAME }} \
+              --location ${{ env.LOCATION }}
+          fi
+
+      - name: Build and push image to ACR
+        run: |
+          az acr build \
+            --registry ${{ env.ACR_NAME }} \
+            --image ${{ env.IMAGE_TAG }} \
+            --image voice-ai-workshop:latest \
+            .
+
+      - name: Get ACR credentials
+        id: acr
+        run: |
+          echo "server=${{ env.ACR_NAME }}.azurecr.io" >> $GITHUB_OUTPUT
+          echo "username=$(az acr credential show --name ${{ env.ACR_NAME }} --query username -o tsv)" >> $GITHUB_OUTPUT
+          echo "password=$(az acr credential show --name ${{ env.ACR_NAME }} --query passwords[0].value -o tsv)" >> $GITHUB_OUTPUT
+
+      - name: Deploy Container App
+        run: |
+          APP_EXISTS=$(az containerapp show \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name ${{ env.APP_NAME }} \
+            --query "name" -o tsv 2>/dev/null || echo "")
+
+          if [ -z "$APP_EXISTS" ]; then
+            az containerapp create \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.APP_NAME }} \
+              --environment ${{ env.ENV_NAME }} \
+              --image ${{ steps.acr.outputs.server }}/${{ env.IMAGE_TAG }} \
+              --registry-server ${{ steps.acr.outputs.server }} \
+              --registry-username ${{ steps.acr.outputs.username }} \
+              --registry-password ${{ steps.acr.outputs.password }} \
+              --target-port 8080 \
+              --ingress external \
+              --min-replicas 1 \
+              --max-replicas 1 \
+              --secrets \
+                twilio-account-sid="${{ secrets.TWILIO_ACCOUNT_SID }}" \
+                twilio-auth-token="${{ secrets.TWILIO_AUTH_TOKEN }}" \
+                twilio-phone-number="${{ secrets.TWILIO_PHONE_NUMBER }}" \
+                openai-api-key="${{ secrets.OPENAI_API_KEY }}" \
+              --env-vars \
+                PORT=8080 \
+                NODE_ENV=production \
+                OPENAI_MODEL=gpt-5.4-nano \
+                TWILIO_ACCOUNT_SID=secretref:twilio-account-sid \
+                TWILIO_AUTH_TOKEN=secretref:twilio-auth-token \
+                TWILIO_PHONE_NUMBER=secretref:twilio-phone-number \
+                OPENAI_API_KEY=secretref:openai-api-key
+          else
+            az containerapp secret set \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.APP_NAME }} \
+              --secrets \
+                twilio-account-sid="${{ secrets.TWILIO_ACCOUNT_SID }}" \
+                twilio-auth-token="${{ secrets.TWILIO_AUTH_TOKEN }}" \
+                twilio-phone-number="${{ secrets.TWILIO_PHONE_NUMBER }}" \
+                openai-api-key="${{ secrets.OPENAI_API_KEY }}"
+
+            az containerapp update \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.APP_NAME }} \
+              --image ${{ steps.acr.outputs.server }}/${{ env.IMAGE_TAG }} \
+              --set-env-vars \
+                PORT=8080 \
+                NODE_ENV=production \
+                OPENAI_MODEL=gpt-5.4-nano \
+                TWILIO_ACCOUNT_SID=secretref:twilio-account-sid \
+                TWILIO_AUTH_TOKEN=secretref:twilio-auth-token \
+                TWILIO_PHONE_NUMBER=secretref:twilio-phone-number \
+                OPENAI_API_KEY=secretref:openai-api-key
+          fi

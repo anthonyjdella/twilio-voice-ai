@@ -2,26 +2,28 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "section", title: "Expose Your Server" },
+    { type: "section", title: "Expose Your Server", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Twilio needs to reach your server over the internet to send and receive messages during a call. In Codespaces, this is built in -- you just need to make your port public.",
     },
 
     {
       type: "concept-card",
-      audience: "explorer",
+      audience: "builder",
       title: "Why a public URL?",
       content:
         "Your server runs inside a Codespace in the cloud, but Twilio's servers need to reach it over the internet. Codespaces has built-in port forwarding that creates a public URL pointing to your server -- no extra tools needed.",
     },
 
-    { type: "section", title: "Make Your Port Public" },
+    { type: "section", title: "Make Your Port Public", audience: "builder" },
 
     {
       type: "visual-step",
+      audience: "builder",
       steps: [
         {
           icon: "/images/icons/code.svg",
@@ -52,6 +54,7 @@ export default {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
         "**The port must be set to Public, not Private.** Private ports require GitHub authentication, which Twilio cannot provide. If you skip this step, Twilio will get a 401 error and the call will fail silently.",
@@ -66,6 +69,7 @@ export default {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         "Unlike ngrok, your Codespace URL stays the same for the entire session. No need to update configurations if you restart your server.",
@@ -81,6 +85,7 @@ export default {
 
     {
       type: "verify",
+      audience: "builder",
       question:
         "Is your port set to Public and do you have the forwarded URL copied?",
     },

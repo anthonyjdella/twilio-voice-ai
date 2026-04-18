@@ -14,12 +14,14 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Time to put your agent's reflexes to the test. Make sure your server is running and port 8080 is set to **Public** in your Codespace's Ports tab.",
     },
 
     {
       type: "terminal",
+      audience: "builder",
       commands: `$ node server.js
 Server listening on port 8080`,
     },
@@ -27,11 +29,20 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        "Trigger a test call by clicking **Call Me** in the workshop app, or run this from your Codespace terminal:",
+        "Trigger a test call using the Call Me button below:",
+    },
+
+    { type: "call-me" },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content: "Or run this from your Codespace terminal:",
     },
 
     {
       type: "terminal",
+      audience: "builder",
       commands: `$ curl -X POST https://<your-codespace-url>/call`,
     },
 
@@ -58,6 +69,7 @@ Server listening on port 8080`,
 
     {
       type: "callout",
+      audience: "builder",
       variant: "info",
       content:
         'If the agent keeps talking after you interrupt, check that interruptions are enabled in your ConversationRelay settings (`interruptible` should be `"any"` or `"speech"`) and that your interrupt handler is stopping the current response.',
@@ -68,13 +80,13 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        'Trigger another call and press **1** on your keypad while the agent is speaking or after it finishes. You should see a `dtmf` message in your logs with `digit: "1"`, and the agent should respond based on your menu handler.',
+        "Trigger another call and press **1** on your keypad while the agent is speaking or after it finishes. The agent should respond based on how you configured keypad input.",
     },
 
     {
       type: "prose",
       content:
-        "Try pressing different keys and verify each one triggers the expected behavior. If you built a menu, test all the menu options.",
+        "Try pressing different keys and see how the agent responds to each one.",
     },
 
     { type: "section", title: "Test 3: Silence" },
@@ -82,11 +94,12 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        "Trigger another call and let the agent greet you. Then stay completely silent. After your configured timeout (default 8 seconds), the agent should nudge you with a gentle prompt. Stay silent again and verify the second prompt arrives, followed by a graceful call ending.",
+        "Trigger another call and let the agent greet you. Then stay completely silent. After a few seconds, the agent should nudge you with a gentle prompt. Stay silent again and verify the second prompt arrives, followed by a graceful call ending.",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
         "If silence detection is not triggering, make sure you are starting the silence timer after the `setup` message and resetting it on each `prompt` message. Also check that you are not accidentally clearing the timer without restarting it.",
@@ -97,7 +110,7 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        "If you added the language detection code from Step 4, trigger another call. Start speaking in English, then say something in Spanish like \"¿Puedes hablar en español?\" The agent should respond in Spanish with a natural-sounding Spanish voice.",
+        "Trigger another call. Start speaking in English, then say something in Spanish like \"¿Puedes hablar en español?\" The agent should respond in Spanish with a natural-sounding Spanish voice.",
     },
 
     {

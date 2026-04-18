@@ -17,7 +17,8 @@ export type ContentBlock =
   | VisualStepBlock
   | ConceptCardBlock
   | DiffBlock
-  | SpacerBlock;
+  | SpacerBlock
+  | CallMeBlock;
 
 // ─── Base Block ─────────────────────────────────────────────────────
 
@@ -151,6 +152,11 @@ export interface DiffBlock extends BaseBlock {
 /** Vertical spacer for layout control */
 export interface SpacerBlock extends BaseBlock {
   type: "spacer";
+}
+
+/** "Call Me" button — triggers an outbound call via the API */
+export interface CallMeBlock extends BaseBlock {
+  type: "call-me";
 }
 
 // ─── Step Definition ────────────────────────────────────────────────

@@ -4,9 +4,10 @@
   "private": true,
   "packageManager": "pnpm@10.20.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "node server.mjs",
+    "dev:next": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node server.mjs",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
   },
@@ -17,10 +18,13 @@
     "framer-motion": "12.38.0",
     "lucide-react": "1.7.0",
     "next": "16.2.1",
+    "openai": "6.34.0",
     "pptxgenjs": "4.0.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "shiki": "4.0.2"
+    "shiki": "4.0.2",
+    "twilio": "5.13.1",
+    "ws": "8.20.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -28,6 +32,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "8.18.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",

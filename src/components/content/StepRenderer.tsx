@@ -15,6 +15,7 @@ import { Verify } from "./Verify";
 import { ArchitectureDiagram } from "@/components/diagrams/ArchitectureDiagram";
 import { VisualStep } from "./VisualStep";
 import { ConceptCard } from "./ConceptCard";
+import { CallMe } from "@/components/CallMe";
 
 interface StepRendererProps {
   step: StepDefinition;
@@ -143,6 +144,9 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
 
     case "spacer":
       return <div className="h-6" />;
+
+    case "call-me":
+      return <CallMe />;
 
     default:
       return null;

@@ -14,14 +14,16 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "You have crafted a system prompt, designed a persona, selected a voice, and configured the language settings. Now it is time to hear your agent in action. Restart your server to pick up the changes:",
     },
 
-    { type: "terminal", commands: "$ node server.js" },
+    { type: "terminal", audience: "builder", commands: "$ node server.js" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Make sure port 8080 is set to **Public** in your Codespace's Ports tab. This allows Twilio to reach your server.",
     },
@@ -29,11 +31,20 @@ export default {
     {
       type: "prose",
       content:
-        "Now trigger a test call. You can click **Call Me** in the workshop app, or run this from your Codespace terminal:",
+        "Trigger a test call using the Call Me button below:",
+    },
+
+    { type: "call-me" },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content: "Or run this from your Codespace terminal:",
     },
 
     {
       type: "terminal",
+      audience: "builder",
       commands: `$ curl -X POST https://<your-codespace-url>/call`,
     },
 

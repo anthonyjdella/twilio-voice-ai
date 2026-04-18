@@ -1,0 +1,15 @@
+{
+  "name": "voice-ai-workshop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Your ConversationRelay voice AI agent — built step by step during the workshop.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0",
+    "openai": "^6.34.0",
+    "ws": "^8.20.0"
+  }
+}

@@ -14,12 +14,14 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Your agent now has real capabilities. Let us test tool calling and handoff to make sure everything is wired up correctly. Make sure your server is running and port 8080 is set to **Public** in your Codespace's Ports tab.",
     },
 
     {
       type: "terminal",
+      audience: "builder",
       commands: `$ node server.js
 Server listening on port 8080`,
     },
@@ -27,11 +29,20 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        "Trigger a test call by clicking **Call Me** in the workshop app, or run this from your Codespace terminal:",
+        "Trigger a test call using the Call Me button below:",
+    },
+
+    { type: "call-me" },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content: "Or run this from your Codespace terminal:",
     },
 
     {
       type: "terminal",
+      audience: "builder",
       commands: `$ curl -X POST https://<your-codespace-url>/call`,
     },
 
@@ -64,6 +75,7 @@ Server listening on port 8080`,
 
     {
       type: "callout",
+      audience: "builder",
       variant: "info",
       content:
         "If the agent makes up weather data instead of using the actual tool, double-check that you are passing the tools list when calling the AI. Without it, the AI does not know any tools exist and will guess instead.",

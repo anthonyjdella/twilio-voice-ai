@@ -27,7 +27,7 @@ export default {
           icon: "/images/icons/globe.svg",
           title: "Open the repository",
           description:
-            "Go to the workshop GitHub repository. You'll find the link in the companion app or in the pre-workshop email.",
+            "Go to the workshop GitHub repository at github.com/anthonyjdella/twilio-voice-ai, or use the direct Codespace link below.",
         },
         {
           icon: "/images/icons/code.svg",
@@ -42,6 +42,14 @@ export default {
             "The terminal will show dependencies being installed automatically. When you see the prompt, you're ready to go.",
         },
       ],
+    },
+
+    {
+      type: "callout",
+      variant: "tip",
+      audience: "builder",
+      content:
+        "**Quick launch:** [Open a Codespace directly](https://codespaces.new/anthonyjdella/twilio-voice-ai) -- this link creates one in a single click.",
     },
 
     {
@@ -94,6 +102,14 @@ MY_PHONE_NUMBER=+1xxxxxxxxxx`,
       audience: "builder",
       content:
         "**Want to use your own accounts after the workshop?** Sign up for a [Twilio account](https://www.twilio.com/try-twilio) and get an [OpenAI API key](https://platform.openai.com/api-keys). Replace the values in `.env` and everything works the same way.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "Your Codespace opens at the repository root. All your server code goes in the `workshop/` directory, which already has a `package.json` and `.env` configured for you. Run terminal commands from inside `workshop/`.",
     },
 
     {

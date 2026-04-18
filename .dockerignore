@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+decks
+*.md
+!README.md
+.devcontainer
+workshop
+.github
+.claude

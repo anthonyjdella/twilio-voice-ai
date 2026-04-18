@@ -1,0 +1,70 @@
+import { NextRequest } from "next/server";
+
+export async function POST(request: NextRequest) {
+  const url = new URL(request.url);
+  const rawWsUrl = url.searchParams.get("wsUrl");
+  const wsUrl = rawWsUrl && isValidWsUrl(rawWsUrl) ? rawWsUrl : getDefaultWsUrl(request);
+  const voice = url.searchParams.get("voice") || "021ab406-5679-4e42-8a9c-ee245e67b2b5";
+  const ttsProvider = url.searchParams.get("ttsProvider") || "ElevenLabs";
+  const language = url.searchParams.get("language") || "en-US";
+  const transcriptionProvider =
+    url.searchParams.get("transcriptionProvider") || "Deepgram";
+  const welcomeGreeting =
+    url.searchParams.get("welcomeGreeting") ||
+    "Hello! I'm your AI assistant. How can I help you today?";
+  const agentName = url.searchParams.get("agentName") || "";
+  const personality = url.searchParams.get("personality") || "";
+
+  const paramElements = [
+    agentName && `<Parameter name="agentName" value="${escapeXml(agentName)}"/>`,
+    personality && `<Parameter name="personality" value="${escapeXml(personality)}"/>`,
+  ]
+    .filter(Boolean)
+    .join("\n      ");
+
+  const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <ConversationRelay
+      url="${escapeXml(wsUrl)}"
+      voice="${escapeXml(voice)}"
+      ttsProvider="${escapeXml(ttsProvider)}"
+      language="${escapeXml(language)}"
+      transcriptionProvider="${escapeXml(transcriptionProvider)}"
+      welcomeGreeting="${escapeXml(welcomeGreeting)}"
+      interruptible="any"
+      dtmfDetection="true"
+    >
+      ${paramElements}
+    </ConversationRelay>
+  </Connect>
+</Response>`;
+
+  return new Response(twiml.trim(), {
+    headers: { "Content-Type": "application/xml" },
+  });
+}
+
+function isValidWsUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "ws:" || parsed.protocol === "wss:";
+  } catch {
+    return false;
+  }
+}
+
+function getDefaultWsUrl(request: NextRequest): string {
+  const host = request.headers.get("host") || "localhost:8080";
+  const protocol = host.includes("localhost") ? "ws" : "wss";
+  return `${protocol}://${host}/ws`;
+}
+
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}

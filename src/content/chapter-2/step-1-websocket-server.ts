@@ -23,19 +23,19 @@ export default {
     {
       type: "prose",
       content:
-        "We will use the `ws` npm package to create a lightweight WebSocket server in Node.js, plus `dotenv` to load the credentials from your `.env` file. Install them now:",
+        "We will use the `ws` npm package to create a lightweight WebSocket server in Node.js, plus `dotenv` to load the credentials from your `.env` file. Install them now from the `workshop/` directory:",
     },
 
     {
       type: "code",
       language: "bash",
-      code: "npm install ws dotenv",
+      code: "cd workshop\nnpm install ws dotenv",
     },
 
     {
       type: "prose",
       content:
-        "Now create a file called `server.js` in the root of your project.",
+        "Now create a file called `server.js` inside the `workshop/` directory.",
     },
 
     { type: "section", title: "The Skeleton" },
