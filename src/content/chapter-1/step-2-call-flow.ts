@@ -49,6 +49,14 @@ export default {
     },
 
     {
+      type: "callout",
+      audience: "explorer",
+      variant: "info",
+      content:
+        "From the caller's perspective, it feels like talking to a person. Behind the scenes, every turn goes through speech-to-text, an AI model, and text-to-speech -- all in under two seconds. The next step breaks down those components.",
+    },
+
+    {
       type: "prose",
       audience: "builder",
       content:
@@ -102,6 +110,14 @@ export default {
             "This cycle repeats for every turn. Twilio also sends `interrupt` (caller spoke over the agent), `dtmf` (keypad press), and `error` messages through the same WebSocket.",
         },
       ],
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "You'll implement each of these steps yourself. Chapter 2 covers the WebSocket server and TwiML endpoint. The next step maps out the architecture so you can see how these pieces connect.",
     },
   ],
 } satisfies StepDefinition;

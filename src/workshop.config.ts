@@ -50,8 +50,7 @@ const workshopConfig: WorkshopConfig = {
         { id: 4, slug: "message-flow", title: "Conversation Flow" },
         { id: 5, slug: "setup", title: "Open Codespace" },
         { id: 6, slug: "expose-server", title: "Expose Your Server" },
-        { id: 7, slug: "twilio-config", title: "Configure Twilio" },
-        { id: 8, slug: "verify", title: "Verify Setup" },
+        { id: 7, slug: "verify", title: "Verify Setup" },
       ],
     },
     {

@@ -7,8 +7,7 @@ import Ch1Step3 from "./chapter-1/step-3-architecture";
 import Ch1Step4 from "./chapter-1/step-4-message-flow";
 import Ch1Step5 from "./chapter-1/step-5-setup";
 import Ch1Step6 from "./chapter-1/step-6-expose-server";
-import Ch1Step7 from "./chapter-1/step-7-twilio-config";
-import Ch1Step8 from "./chapter-1/step-8-verify";
+import Ch1Step7 from "./chapter-1/step-7-verify";
 
 // Chapter 2: First Contact
 import Ch2Step1 from "./chapter-2/step-1-websocket-server";
@@ -51,8 +50,7 @@ export const stepRegistry: Record<string, StepDefinition> = {
   "mission-briefing/message-flow": Ch1Step4,
   "mission-briefing/setup": Ch1Step5,
   "mission-briefing/expose-server": Ch1Step6,
-  "mission-briefing/twilio-config": Ch1Step7,
-  "mission-briefing/verify": Ch1Step8,
+  "mission-briefing/verify": Ch1Step7,
 
   "first-contact/websocket-server": Ch2Step1,
   "first-contact/twiml-setup": Ch2Step2,

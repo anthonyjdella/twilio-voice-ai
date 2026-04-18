@@ -131,7 +131,7 @@ export default {
       variant: "info",
       audience: "explorer",
       content:
-        "You now have the full picture of how voice AI works under the hood. The remaining steps cover Twilio configuration -- then you are ready for Chapter 2.",
+        "You now have the full picture of how voice AI works under the hood -- the architecture, the call flow, and the data moving through each turn. The remaining steps in this chapter cover environment setup for builders. You can skip ahead to Chapter 2 to see the agent come to life.",
     },
 
   ],

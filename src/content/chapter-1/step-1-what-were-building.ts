@@ -7,47 +7,47 @@ export default {
     {
       type: "prose",
       content:
-        "You're about to build a **voice AI agent** that you can talk to over a real phone call. It listens to what you say, sends your words to an AI, and speaks the reply back -- all in real time over Twilio's phone network.",
+        "In this workshop, you'll create a **voice AI agent** that you can talk to over a real phone call. It listens to what you say, sends your words to an AI, and speaks the reply back -- all in real time over Twilio's phone network.",
     },
 
     {
       type: "concept-card",
       audience: "explorer",
-      title: "What You'll Build",
+      title: "What You'll See",
       content:
         "A voice AI agent that calls your phone and has a natural conversation with you -- handling interruptions, using tools, and even handing off to a human. You'll experience each piece coming together step by step.",
     },
 
-    { type: "section", title: "Why Text Is the Bridge" },
+    {
+      type: "concept-card",
+      audience: "builder",
+      title: "What You'll Build",
+      content:
+        "A Node.js WebSocket server that connects to Twilio's phone network through ConversationRelay. Your server receives the caller's words as text, sends them to an LLM, and streams the reply back -- Twilio handles all the audio. By the end, your agent will have a custom personality, real-time tool calling, and live handoff to a human.",
+    },
+
+    { type: "section", title: "How It Works" },
 
     {
       type: "prose",
       content:
-        "AI models like GPT read and write **text** -- they cannot listen to audio or speak out loud. But phone calls are **audio**. Something has to translate between the two. That is the core problem ConversationRelay solves: it converts the caller's speech into text so the AI can read it, and converts the AI's text reply back into speech so the caller can hear it.",
+        "AI models read and write **text**, but phone calls are **audio**. Something has to translate between the two. That's what **ConversationRelay** does -- it sits between the server and a live phone call, converting speech to text on the way in and text to speech on the way out.",
     },
 
     {
       type: "concept-card",
       audience: "explorer",
-      title: "Why Not Just Send Audio to the AI?",
+      title: "ConversationRelay",
       content:
-        "AI language models are trained on text, not sound. They need written words as input and produce written words as output. ConversationRelay handles the translation layer -- speech to text on the way in, text to speech on the way out -- so your AI can power a real phone call without ever touching audio.",
+        "Twilio handles all the hard parts -- turning speech into text, turning text back into speech, and detecting when someone interrupts. The server just deals with plain text: the caller speaks, their words arrive as text; the AI sends text back, and the caller hears it as a natural voice.",
     },
-
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "This is why ConversationRelay exists as a separate layer from Twilio's raw Media Streams. Media Streams give you audio bytes -- useful if you want to run your own STT/TTS pipeline, but that means managing audio codecs, buffering, voice activity detection, and barge-in yourself. ConversationRelay abstracts all of that: you receive a `prompt` JSON message with transcribed text, and you respond with `text` tokens that get synthesized into speech. Your server only deals with text over a WebSocket.",
-    },
-
-    { type: "section", title: "How It Works: ConversationRelay" },
 
     {
       type: "concept-card",
+      audience: "builder",
       title: "ConversationRelay",
       content:
-        "Twilio handles all the hard parts -- turning speech into text, turning text back into speech, and detecting when someone interrupts. Your code just deals with plain text: the caller speaks, you receive their words as text; you send text back, and the caller hears it as a natural voice. Think of it as a translator sitting between your code and a live phone call.",
+        "ConversationRelay opens a WebSocket to your server. When the caller speaks, you get a `prompt` message with the transcribed text. You send back `text` messages with the AI's reply, and Twilio synthesizes them into speech. Your server never touches audio -- just JSON over a WebSocket.",
     },
 
     { type: "section", title: "What You Will Learn" },
@@ -59,12 +59,56 @@ export default {
 
     {
       type: "visual-step",
+      audience: "explorer",
       steps: [
         {
           icon: "/images/icons/target.svg",
           title: "Chapter 1 -- Mission Briefing",
           description:
-            "Understand the architecture, set up your environment, and configure Twilio.",
+            "Understand the architecture and how all the pieces fit together.",
+        },
+        {
+          icon: "/images/icons/rocketship.svg",
+          title: "Chapter 2 -- First Contact",
+          description:
+            "See the server come online and hear the agent speak for the first time.",
+        },
+        {
+          icon: "/images/icons/person-chat.svg",
+          title: "Chapter 3 -- Identity",
+          description:
+            "Watch the agent get a personality, a custom voice, and language settings.",
+        },
+        {
+          icon: "/images/icons/speedometer.svg",
+          title: "Chapter 4 -- Reflexes",
+          description:
+            "See how the agent handles interruptions, keypad presses, silence, and language switching.",
+        },
+        {
+          icon: "/images/icons/integration.svg",
+          title: "Chapter 5 -- Superpowers",
+          description:
+            "Watch the agent look up live data, answer real questions, and hand off to a human.",
+        },
+        {
+          icon: "/images/icons/award-badge.svg",
+          title: "Chapter 6 -- Launch",
+          description:
+            "See the finished agent in action and explore what comes next.",
+        },
+      ],
+    },
+
+    {
+      type: "visual-step",
+      audience: "builder",
+      steps: [
+        {
+          icon: "/images/icons/target.svg",
+          title: "Chapter 1 -- Mission Briefing",
+          description:
+            "Understand the architecture, set up your environment, and get ready to code.",
         },
         {
           icon: "/images/icons/rocketship.svg",
@@ -112,6 +156,14 @@ export default {
       title: "What You'll Walk Away With",
       content:
         "By the end of this workshop, you'll understand how voice AI agents work end to end -- from the phone call coming in, through the speech-to-text translation, to the AI generating a response. You'll see a working agent handle real conversations with interruptions, live data lookups, and handoffs to humans, and you'll know exactly how each piece fits together.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "builder",
+      title: "What You'll Walk Away With",
+      content:
+        "By the end of this workshop, you'll have a working voice AI agent running on your machine -- a WebSocket server that handles real phone calls, streams LLM responses in real time, executes tool calls, and hands off to a human. You'll own every line of code and understand how each piece connects.",
     },
   ],
 } satisfies StepDefinition;
