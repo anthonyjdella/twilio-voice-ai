@@ -105,7 +105,7 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
               <p className={`text-sm leading-relaxed ${
                 selected === "builder" ? "text-text-secondary" : "text-text-muted"
               }`}>
-                Code along step by step. You'll write a real voice AI agent from
+                Code along step by step. You&apos;ll write a real voice AI agent from
                 scratch with full code blocks, terminal commands, and solutions.
               </p>
             </button>

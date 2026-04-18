@@ -82,9 +82,9 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
     const stored = sessionStorage.getItem(SKIP_UNLOCK_KEY);
     const unlocked = stored ? parseInt(stored, 10) : -1;
     if (Number.isFinite(unlocked) && targetPosition >= 0 && targetPosition <= unlocked) {
-      setSkipConfirm("allowed");
+      queueMicrotask(() => setSkipConfirm("allowed"));
     } else {
-      setSkipConfirm("pending");
+      queueMicrotask(() => setSkipConfirm("pending"));
     }
   }, [chapterSlug, stepSlug, targetPosition]);
 

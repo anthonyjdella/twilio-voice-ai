@@ -31,9 +31,9 @@ export function AudienceProvider({ children }: { children: ReactNode }) {
     // second localStorage hit and keeps the two sources of truth aligned.
     const attr = document.documentElement.getAttribute("data-audience");
     if (attr === "builder" || attr === "explorer") {
-      setModeState(attr);
+      queueMicrotask(() => setModeState(attr));
     } else {
-      setNeedsOnboarding(true);
+      queueMicrotask(() => setNeedsOnboarding(true));
     }
   }, []);
 

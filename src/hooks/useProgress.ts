@@ -119,8 +119,10 @@ export function useProgress() {
 
   useEffect(() => {
     const stored = loadProgress();
-    setProgress(stored);
-    setLoaded(true);
+    queueMicrotask(() => {
+      setProgress(stored);
+      setLoaded(true);
+    });
   }, []);
 
   // Subscribe to module-level save failures so the UI can show a banner.

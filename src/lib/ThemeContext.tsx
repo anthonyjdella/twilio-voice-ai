@@ -31,7 +31,7 @@ export function ThemeProvider({
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved === "dark" || saved === "light") {
-      setThemeState(saved);
+      queueMicrotask(() => setThemeState(saved));
     }
   }, []);
 

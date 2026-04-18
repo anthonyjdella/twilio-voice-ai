@@ -227,7 +227,7 @@ export function MilestoneBadge({
   // Animated counter for final celebration
   useEffect(() => {
     if (!show || !isFinal) return;
-    setCount(0);
+    queueMicrotask(() => setCount(0));
     const duration = 1500;
     const steps = 60;
     const increment = targetCount / steps;

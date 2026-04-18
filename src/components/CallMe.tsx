@@ -26,7 +26,7 @@ export function CallMe() {
   useEffect(() => {
     if (isBuilder) {
       const stored = localStorage.getItem(WS_URL_KEY) || "";
-      setWsUrl(stored);
+      queueMicrotask(() => setWsUrl(stored));
     }
   }, [isBuilder]);
 
