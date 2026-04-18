@@ -21,6 +21,14 @@ export default {
     },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What Gets Configured?",
+      content:
+        "The TwiML instructions control which voice the agent speaks with, which language it listens in, and whether the caller can interrupt mid-sentence. The defaults use ElevenLabs for a natural-sounding voice and Deepgram for speech recognition -- both built into Twilio, no extra accounts needed. You will customize these settings later in the workshop.",
+    },
+
+    {
       type: "prose",
       audience: "builder",
       content:

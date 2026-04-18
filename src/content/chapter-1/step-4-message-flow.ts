@@ -118,5 +118,21 @@ export default {
         "Twilio keeps a live two-way connection open to your server for the entire call — that's what makes the conversation feel instant instead of walkie-talkie.",
     },
 
+    {
+      type: "callout",
+      variant: "info",
+      audience: "builder",
+      content:
+        "You now have the full mental model: architecture, call flow, and message format. The next steps get your environment ready so you can start writing code in Chapter 2.",
+    },
+
+    {
+      type: "callout",
+      variant: "info",
+      audience: "explorer",
+      content:
+        "You now have the full picture of how voice AI works under the hood. The remaining steps cover Twilio configuration -- then you are ready for Chapter 2.",
+    },
+
   ],
 } satisfies StepDefinition;
