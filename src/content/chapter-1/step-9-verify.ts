@@ -19,36 +19,28 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**1. GitHub Codespace is running** -- You have a Codespace open with the terminal ready. All dependencies are pre-installed.",
+        "**1. Codespace is running** -- You have a Codespace open with the terminal ready.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "**2. Shared credentials are loaded** -- Your `.env` file contains the shared `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `OPENAI_API_KEY`, and `TWILIO_PHONE_NUMBER`. These are pre-configured in the Codespace.",
+        "**2. Credentials are loaded** -- Your `workshop/.env` file has the shared API keys (auto-configured from Codespace Secrets).",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "**3. You have a phone to receive calls** -- The workshop uses outbound calls. Your server will call your personal phone number, so have it nearby and ready to answer.",
+        "**3. `MY_PHONE_NUMBER` is set** -- You updated this in `workshop/.env` with your real phone number (set in the Open Codespace step).",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "**4. Port 8080 is ready** -- When you start your server in the next chapter, you'll need to make port 8080 **Public** in the Codespace Ports tab so Twilio can reach it.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "warning",
-      content:
-        "The most common issue is forgetting to set the port to **Public** in the Codespace Ports tab. Private ports require GitHub authentication, which Twilio cannot provide. If your first call fails silently, check this first.",
+        "**4. Port 8080** -- When you start your server in Chapter 2, you will need to make port 8080 **Public** in the Codespace Ports tab (covered in the Expose Your Server step).",
     },
 
     {
@@ -73,6 +65,12 @@ export default {
       audience: "builder",
       question:
         "Is your Codespace running with credentials loaded and a phone nearby to receive calls?",
+      troubleshooting: [
+        "Codespace not loading? Try refreshing the browser tab or reopening from github.com/codespaces",
+        "Credentials missing? Check that workshop/.env has real values, not placeholders like ACxxxxxxxx",
+        "MY_PHONE_NUMBER not set? Open workshop/.env and update it to your real number (e.g., +12065551234)",
+        "Port 8080 not Public? Go to the Ports tab and right-click → Port Visibility → Public",
+      ],
     },
   ],
 } satisfies StepDefinition;

@@ -28,30 +28,41 @@ export default {
       audience: "builder",
       steps: [
         {
-          icon: "/images/icons/code.svg",
-          title: "Start your server",
-          description:
-            "In the Codespace terminal, run `node server.js`. You'll see it listening on port 8080.",
-        },
-        {
           icon: "/images/icons/connectivity.svg",
           title: "Open the Ports tab",
           description:
-            "In VS Code, click the **Ports** tab at the bottom panel (next to Terminal). You should see port 8080 listed.",
+            "In your Codespace, click the **Ports** tab at the bottom panel (next to Terminal). You should see port 8080 listed.",
         },
+      ],
+    },
+
+    {
+      type: "image",
+      audience: "builder",
+      src: "/images/codespace-ports-tab.png",
+      alt: "Codespace Ports tab showing port 8080",
+      caption: "The Ports tab in your Codespace — click it at the bottom panel.",
+    },
+
+    {
+      type: "visual-step",
+      audience: "builder",
+      steps: [
         {
           icon: "/images/icons/globe.svg",
           title: "Set visibility to Public",
           description:
             "Right-click port 8080 → **Port Visibility** → **Public**. This is critical -- Twilio cannot authenticate with GitHub, so the port must be publicly accessible.",
         },
-        {
-          icon: "/images/icons/document-check.svg",
-          title: "Copy the forwarded URL",
-          description:
-            "Hover over port 8080 and click the copy icon. You'll get a URL like `https://username-repo-abc123-8080.app.github.dev`. This is your public server URL.",
-        },
       ],
+    },
+
+    {
+      type: "image",
+      audience: "builder",
+      src: "/images/codespace-port-public.png",
+      alt: "Setting port 8080 visibility to Public in Codespace",
+      caption: "Right-click the port and set visibility to Public.",
     },
 
     {
@@ -89,7 +100,12 @@ export default {
       type: "verify",
       audience: "builder",
       question:
-        "Is your port set to Public and do you have the forwarded URL copied?",
+        "Is your port 8080 set to Public?",
+      troubleshooting: [
+        "In the Ports tab, right-click port 8080 and select Port Visibility → Public",
+        "If port 8080 is not listed, it will appear once you start a server later",
+        "Try refreshing the Ports tab if it looks empty",
+      ],
     },
   ],
 } satisfies StepDefinition;

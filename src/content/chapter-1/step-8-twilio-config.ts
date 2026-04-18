@@ -7,40 +7,7 @@ export default {
     {
       type: "prose",
       content:
-        "The shared Twilio account is already set up for this workshop. In this step, you'll understand how calls work: your server tells Twilio to call your phone, and a small set of instructions tells Twilio to connect that call to your AI agent.",
-    },
-
-    { type: "section", title: "The Outbound Call Flow" },
-
-    {
-      type: "concept-card",
-      title: "Why Outbound Calls?",
-      content:
-        "Instead of everyone dialing one phone number (which would get messy fast), each attendee's server **calls them**. You click \"Call Me\" in the workshop app, your server tells Twilio to call your phone, and the AI agent takes over. No conflicts, no confusion, no need for 30 phone numbers.",
-    },
-
-    {
-      type: "visual-step",
-      steps: [
-        {
-          icon: "/images/icons/phone-call.svg",
-          title: "Your server initiates the call",
-          description:
-            "When you click \"Call Me\", your server tells Twilio to call your phone number.",
-        },
-        {
-          icon: "/images/icons/document.svg",
-          title: "Twilio asks what to do",
-          description:
-            "Twilio calls your phone and asks your server how to handle the call. Your server says \"connect this call to the AI agent.\"",
-        },
-        {
-          icon: "/images/icons/connection.svg",
-          title: "The conversation begins",
-          description:
-            "A live two-way connection opens between Twilio and your server. The AI agent can now hear the caller and speak back.",
-        },
-      ],
+        "The shared Twilio account is already set up for this workshop. This step covers the instructions your server gives Twilio to connect a call to your AI agent. Remember the call flow from earlier -- your server initiates a call, Twilio asks what to do, and your server responds with TwiML that opens a live connection to the AI.",
     },
 
     { type: "section", title: "The TwiML Response" },
@@ -81,7 +48,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**`url`** -- your WebSocket endpoint (`wss://`), using your Codespace's public forwarded URL. **`welcomeGreeting`** -- spoken immediately when the call connects, before any WebSocket messages. **`dtmfDetection`** -- enables keypad press detection. The defaults handle the rest: **ElevenLabs** for TTS, **Deepgram** for STT, **en-US** language, and **interruptible** set to `\"any\"`.",
+        "**`url`** -- your WebSocket endpoint (`wss://`), using your Codespace's public forwarded URL. **`welcomeGreeting`** -- spoken immediately when the call connects, before any WebSocket messages. This is a placeholder -- you will customize your agent's greeting in Chapter 3. **`dtmfDetection`** -- enables keypad press detection. The defaults handle the rest: **ElevenLabs** for TTS, **Deepgram** for STT, **en-US** language, and **interruptible** set to `\"any\"`.",
     },
 
     { type: "section", title: "The Outbound Call Code", audience: "builder" },
@@ -127,8 +94,16 @@ console.log("📞 Call initiated:", call.sid);`,
     {
       type: "callout",
       variant: "info",
+      audience: "builder",
       content:
         "The key flow: your server calls your phone → Twilio asks your server what to do → your server says \"connect to the AI agent\" → a live connection opens → the conversation begins. You'll write this code in the next chapter.",
+    },
+    {
+      type: "callout",
+      variant: "info",
+      audience: "explorer",
+      content:
+        "The key flow: the server calls your phone → Twilio asks the server what to do → the server says \"connect to the AI agent\" → a live connection opens → the conversation begins.",
     },
   ],
 } satisfies StepDefinition;

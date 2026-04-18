@@ -3,7 +3,6 @@ import type { StepDefinition } from "@/lib/content-blocks";
 // Chapter 1: Mission Briefing
 import Ch1Step1 from "./chapter-1/step-1-what-were-building";
 import Ch1Step2 from "./chapter-1/step-2-call-flow";
-import Ch1Step3 from "./chapter-1/step-3-chapter-overview";
 import Ch1Step4 from "./chapter-1/step-4-architecture";
 import Ch1Step5 from "./chapter-1/step-5-message-flow";
 import Ch1Step6 from "./chapter-1/step-6-setup";
@@ -48,11 +47,10 @@ import Ch6Step4 from "./chapter-6/step-4-next-steps";
 export const stepRegistry: Record<string, StepDefinition> = {
   "mission-briefing/what-were-building": Ch1Step1,
   "mission-briefing/call-flow": Ch1Step2,
-  "mission-briefing/chapter-overview": Ch1Step3,
   "mission-briefing/architecture": Ch1Step4,
   "mission-briefing/message-flow": Ch1Step5,
   "mission-briefing/setup": Ch1Step6,
-  "mission-briefing/ngrok": Ch1Step7,
+  "mission-briefing/expose-server": Ch1Step7,
   "mission-briefing/twilio-config": Ch1Step8,
   "mission-briefing/verify": Ch1Step9,
 

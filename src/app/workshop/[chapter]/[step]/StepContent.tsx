@@ -88,16 +88,18 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
     }
   }, [chapterSlug, stepSlug, targetPosition]);
 
+  // Does this step have any verify blocks?
+  const hasVerify = useMemo(
+    () => stepDef?.blocks.some((b) => b.type === "verify") ?? false,
+    [stepDef]
+  );
+
   const isAhead =
     loaded && targetPosition >= 0 && targetPosition > maxAllowedPosition;
   const showSkipModal = isAhead && skipConfirm === "pending";
   const blockContent = isAhead && skipConfirm !== "allowed";
 
   const allowSkip = useCallback(() => {
-    // Write sessionStorage BEFORE the state update. setSkipConfirm triggers a
-    // render that unmounts the modal; if the component also unmounts (e.g. the
-    // learner immediately navigates) the state callback can be cut short, but
-    // the synchronous sessionStorage write has already landed.
     if (typeof window !== "undefined") {
       try {
         const stored = sessionStorage.getItem(SKIP_UNLOCK_KEY);
@@ -110,15 +112,17 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
       }
     }
     setSkipConfirm("allowed");
-  }, [targetPosition]);
+    for (let i = maxAllowedPosition; i <= targetPosition; i++) {
+      const s = flatSteps[i];
+      if (!s) continue;
+      const key = `chapter-${s.chapterId}:step-${s.stepId}`;
+      if (!completedStepsSet.has(key)) {
+        completeStep(s.chapterId, s.stepId, { silent: true });
+      }
+    }
+  }, [targetPosition, maxAllowedPosition, flatSteps, completedStepsSet, completeStep]);
 
   const fallbackStep = flatSteps[Math.max(0, maxAllowedPosition)] ?? flatSteps[0];
-
-  // Does this step have any verify blocks?
-  const hasVerify = useMemo(
-    () => stepDef?.blocks.some((b) => b.type === "verify") ?? false,
-    [stepDef]
-  );
 
   // Auto-complete non-verify steps when visited
   // Steps with verify blocks are only completed via the Verify button
