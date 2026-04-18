@@ -55,14 +55,37 @@ jobs:
           # Verify ACR is accessible
           az acr show --name ${{ env.ACR_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --query "loginServer" -o tsv
 
+      - name: Ensure Log Analytics Workspace
+        run: |
+          if ! az monitor log-analytics workspace show --workspace-name law-${{ env.ENV_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} &>/dev/null; then
+            echo "Creating Log Analytics workspace..."
+            az monitor log-analytics workspace create \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --workspace-name law-${{ env.ENV_NAME }} \
+              --location ${{ env.LOCATION }} \
+              --tags created_by=anthonyjdella
+          else
+            echo "Log Analytics workspace already exists"
+          fi
+
       - name: Ensure Container Apps Environment
         run: |
           if ! az containerapp env show --name ${{ env.ENV_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} &>/dev/null; then
+            LOG_ID=$(az monitor log-analytics workspace show \
+              --workspace-name law-${{ env.ENV_NAME }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --query customerId -o tsv)
+            LOG_KEY=$(az monitor log-analytics workspace get-shared-keys \
+              --workspace-name law-${{ env.ENV_NAME }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --query primarySharedKey -o tsv)
             echo "Creating Container Apps Environment..."
             az containerapp env create \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.ENV_NAME }} \
               --location ${{ env.LOCATION }} \
+              --logs-workspace-id "$LOG_ID" \
+              --logs-workspace-key "$LOG_KEY" \
               --tags created_by=anthonyjdella
           else
             echo "Container Apps Environment already exists"
