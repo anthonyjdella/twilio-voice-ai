@@ -19,11 +19,12 @@ export function getDb() {
   const dir = dirname(dbPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
-  db = new Database(dbPath);
-  db.pragma("journal_mode = WAL");
-  db.pragma("synchronous = NORMAL");
+  const instance = new Database(dbPath);
+  instance.pragma("journal_mode = WAL");
+  instance.pragma("synchronous = NORMAL");
+  instance.pragma("busy_timeout = 5000");
 
-  db.exec(`
+  instance.exec(`
     CREATE TABLE IF NOT EXISTS events (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       session_id TEXT NOT NULL,
@@ -36,6 +37,7 @@ export function getDb() {
     CREATE INDEX IF NOT EXISTS idx_events_created ON events(created_at);
   `);
 
+  db = instance;
   return db;
 }
 

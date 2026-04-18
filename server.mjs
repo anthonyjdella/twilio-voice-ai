@@ -34,10 +34,11 @@ app.prepare().then(() => {
       return;
     }
 
-    if (pathname === "/admin" || pathname === "/admin/data") {
+    const cleanPath = pathname.replace(/\/+$/, "");
+    if (cleanPath === "/admin" || cleanPath === "/admin/data") {
       try {
         const data = getAllMetrics();
-        if (pathname === "/admin/data") {
+        if (cleanPath === "/admin/data") {
           res.writeHead(200, { "Content-Type": "application/json" });
           res.end(JSON.stringify(data));
         } else {
