@@ -1,5 +1,5 @@
 import Database from "better-sqlite3";
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, unlinkSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 let db = null;
@@ -19,10 +19,14 @@ export function getDb() {
   const dir = dirname(dbPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
+  for (const suffix of ["-wal", "-shm"]) {
+    try { unlinkSync(dbPath + suffix); } catch {}
+  }
+
   const instance = new Database(dbPath);
-  instance.pragma("journal_mode = WAL");
-  instance.pragma("synchronous = NORMAL");
   instance.pragma("busy_timeout = 5000");
+  instance.pragma("journal_mode = DELETE");
+  instance.pragma("synchronous = NORMAL");
 
   instance.exec(`
     CREATE TABLE IF NOT EXISTS events (
