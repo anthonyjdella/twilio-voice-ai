@@ -21,7 +21,8 @@ export type ContentBlock =
   | CallMeBlock
   | AgentConfigBlock
   | VoicePickerBlock
-  | LanguagePickerBlock;
+  | LanguagePickerBlock
+  | BuilderOnlyBlock;
 
 // ─── Base Block ─────────────────────────────────────────────────────
 
@@ -176,6 +177,12 @@ export interface VoicePickerBlock extends BaseBlock {
 /** Interactive language selector */
 export interface LanguagePickerBlock extends BaseBlock {
   type: "language-picker";
+}
+
+/** Placeholder shown to Explorers on Builder-only steps */
+export interface BuilderOnlyBlock extends BaseBlock {
+  type: "builder-only";
+  context?: string;
 }
 
 // ─── Step Definition ────────────────────────────────────────────────

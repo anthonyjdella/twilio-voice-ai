@@ -19,6 +19,7 @@ import { CallMe } from "@/components/CallMe";
 import { AgentConfig } from "./AgentConfig";
 import { VoicePicker } from "./VoicePicker";
 import { LanguagePicker } from "./LanguagePicker";
+import { BuilderOnly } from "./BuilderOnly";
 
 interface StepRendererProps {
   step: StepDefinition;
@@ -159,6 +160,9 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
 
     case "language-picker":
       return <LanguagePicker />;
+
+    case "builder-only":
+      return <BuilderOnly context={block.context} />;
 
     default:
       return null;

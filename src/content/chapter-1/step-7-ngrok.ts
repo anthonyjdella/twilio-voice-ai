@@ -2,6 +2,8 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
+    { type: "builder-only", audience: "explorer", context: "Builders are making their server accessible to Twilio. Your app is already deployed and ready to go." },
+
     { type: "section", title: "Expose Your Server", audience: "builder" },
 
     {

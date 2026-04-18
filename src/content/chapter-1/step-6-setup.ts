@@ -48,22 +48,7 @@ export default {
         "**All you need is a free GitHub account.** If you don't have a GitHub account, create one at [github.com](https://github.com)",
     },
 
-    { type: "section", title: "You're All Set", audience: "explorer" },
-
-    {
-      type: "prose",
-      audience: "explorer",
-      content:
-        "This step is for Builders setting up their coding environment. You don't need to do anything here -- scroll down and click **Yes, it worked!** to continue.",
-    },
-
-    {
-      type: "callout",
-      variant: "info",
-      audience: "explorer",
-      content:
-        "In the next chapters, you will configure your agent's persona, voice, and language using interactive controls. When you are ready to test, the **Call Me** button will call your phone so you can talk to your custom agent live.",
-    },
+    { type: "builder-only", audience: "explorer", context: "Builders are setting up their cloud coding environment. You'll skip ahead automatically." },
 
     { type: "section", title: "Set Your Phone Number", audience: "builder" },
 
@@ -128,15 +113,5 @@ MY_PHONE_NUMBER=+12065551234`,
       ],
     },
 
-    {
-      type: "verify",
-      audience: "explorer",
-      question:
-        "Ready to start configuring your voice agent?",
-      troubleshooting: [
-        "No setup is needed — just click Yes to continue",
-        "If the page looks broken, try refreshing your browser",
-      ],
-    },
   ],
 } satisfies StepDefinition;
