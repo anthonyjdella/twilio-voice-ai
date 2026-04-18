@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import next from "next";
 import { WebSocketServer } from "ws";
 import { handleConversationRelayConnection } from "./voice-agent/handler.mjs";
+import { recordEvent } from "./analytics/db.mjs";
 import { getAllMetrics } from "./analytics/queries.mjs";
 import { renderAdminPage } from "./analytics/admin-html.mjs";
 import { generateReport } from "./analytics/report-pdf.mjs";
@@ -15,6 +16,23 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   const server = createServer((req, res) => {
     const { pathname } = new URL(req.url || "/", `http://${req.headers.host}`);
+
+    if (pathname === "/api/events" && req.method === "POST") {
+      let body = "";
+      req.on("data", (chunk) => (body += chunk));
+      req.on("end", () => {
+        try {
+          const { sessionId, events } = JSON.parse(body);
+          if (sessionId && Array.isArray(events)) {
+            for (const e of events) {
+              if (e.type) recordEvent(sessionId, e.type, e.payload ?? null);
+            }
+          }
+        } catch {}
+        res.writeHead(204).end();
+      });
+      return;
+    }
 
     if (pathname === "/admin/report") {
       try {
