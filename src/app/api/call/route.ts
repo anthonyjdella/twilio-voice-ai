@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
   let body: {
     phoneNumber?: string;
     wsUrl?: string;
+    sessionId?: string;
     agentConfig?: {
       agentName?: string;
       voice?: string;
@@ -75,6 +76,19 @@ export async function POST(request: NextRequest) {
       url: twimlUrl,
       method: "POST",
     });
+
+    if (body.sessionId) {
+      try {
+        const { recordEvent } = await import("../../../../analytics/db.mjs");
+        recordEvent(body.sessionId, "call_initiated", {
+          callSid: call.sid,
+          agentName: body.agentConfig?.agentName,
+          voice: body.agentConfig?.voice,
+          language: body.agentConfig?.language,
+          ttsProvider: body.agentConfig?.ttsProvider,
+        });
+      } catch { /* analytics best-effort */ }
+    }
 
     return Response.json({ callSid: call.sid, status: call.status });
   } catch (err) {

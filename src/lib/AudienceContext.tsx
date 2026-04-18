@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from "react";
 import workshopConfig from "@/workshop.config";
+import { useAnalyticsContext } from "@/lib/AnalyticsContext";
 
 export type AudienceMode = "builder" | "explorer";
 
@@ -18,26 +19,26 @@ const STORAGE_KEY = `workshop-${workshopConfig.id}-audience-mode`;
 const AudienceContext = createContext<AudienceContextValue | null>(null);
 
 export function AudienceProvider({ children }: { children: ReactNode }) {
-  // SSR and first client render must match, so we initialize to the default
-  // ("builder"). The inline AudienceScript has already set `data-audience` on
-  // <html> from localStorage before paint; CSS selectors on that attribute
-  // prevent FOUC for block visibility. React state syncs in the effect below.
+  const { emit } = useAnalyticsContext();
   const [mode, setModeState] = useState<AudienceMode>("builder");
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const hasEmittedSession = useRef(false);
 
   useEffect(() => {
-    // Trust the attribute the inline script set — it read the same localStorage
-    // key, but synchronously before hydration. Reading the attribute avoids a
-    // second localStorage hit and keeps the two sources of truth aligned.
     const attr = document.documentElement.getAttribute("data-audience");
     if (attr === "builder" || attr === "explorer") {
       queueMicrotask(() => setModeState(attr));
+      if (!hasEmittedSession.current) {
+        hasEmittedSession.current = true;
+        emit("session_started", { audience: attr });
+      }
     } else {
       queueMicrotask(() => setNeedsOnboarding(true));
     }
-  }, []);
+  }, [emit]);
 
   const setMode = useCallback((newMode: AudienceMode) => {
+    const oldMode = mode;
     setModeState(newMode);
     setNeedsOnboarding(false);
     try {
@@ -46,7 +47,13 @@ export function AudienceProvider({ children }: { children: ReactNode }) {
       console.warn("[workshop] Could not persist audience mode", err);
     }
     document.documentElement.setAttribute("data-audience", newMode);
-  }, []);
+    if (!hasEmittedSession.current) {
+      hasEmittedSession.current = true;
+      emit("session_started", { audience: newMode });
+    } else if (oldMode !== newMode) {
+      emit("audience_changed", { from: oldMode, to: newMode });
+    }
+  }, [mode, emit]);
 
   const value = useMemo<AudienceContextValue>(
     () => ({

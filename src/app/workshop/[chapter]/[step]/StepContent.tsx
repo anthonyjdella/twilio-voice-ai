@@ -9,6 +9,7 @@ import { StepErrorBoundary } from "@/components/content/StepErrorBoundary";
 import { ConfirmModal } from "@/components/layout/ConfirmModal";
 import { useWorkshop } from "@/lib/WorkshopContext";
 import { useProgressContext } from "@/components/layout/ProgressContext";
+import { useAnalyticsContext } from "@/lib/AnalyticsContext";
 import workshopConfig from "@/workshop.config";
 import { SKIP_AHEAD_COPY } from "@/lib/workshop-copy";
 
@@ -26,6 +27,7 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
   const { getStep, chapters } = useWorkshop();
   const { completeStep, isStepCompleted, loaded, completedStepsSet } =
     useProgressContext();
+  const { emit } = useAnalyticsContext();
 
   const resolved = useMemo(
     () => getStep(chapterSlug, stepSlug),
@@ -88,6 +90,12 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
     }
   }, [chapterSlug, stepSlug, targetPosition]);
 
+  useEffect(() => {
+    if (loaded && chapterId && stepId) {
+      emit("step_viewed", { chapterId, stepId, chapterSlug, stepSlug });
+    }
+  }, [loaded, chapterId, stepId, chapterSlug, stepSlug, emit]);
+
   // Does this step have any verify blocks?
   const hasVerify = useMemo(
     () => stepDef?.blocks.some((b) => b.type === "verify") ?? false,
@@ -112,6 +120,14 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
       }
     }
     setSkipConfirm("allowed");
+    const fromStep = flatSteps[maxAllowedPosition];
+    const toStep = flatSteps[targetPosition];
+    if (fromStep && toStep) {
+      emit("skip_ahead", {
+        fromStep: `${fromStep.chapterSlug}/${fromStep.stepSlug}`,
+        toStep: `${toStep.chapterSlug}/${toStep.stepSlug}`,
+      });
+    }
     for (let i = maxAllowedPosition; i <= targetPosition; i++) {
       const s = flatSteps[i];
       if (!s) continue;
@@ -120,7 +136,7 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
         completeStep(s.chapterId, s.stepId, { silent: true });
       }
     }
-  }, [targetPosition, maxAllowedPosition, flatSteps, completedStepsSet, completeStep]);
+  }, [targetPosition, maxAllowedPosition, flatSteps, completedStepsSet, completeStep, emit]);
 
   const fallbackStep = flatSteps[Math.max(0, maxAllowedPosition)] ?? flatSteps[0];
 

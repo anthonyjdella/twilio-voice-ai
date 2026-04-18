@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Phone, PhoneOff, Loader2 } from "lucide-react";
 import { useAudienceMode } from "@/lib/AudienceContext";
 import { useProgressContext } from "@/components/layout/ProgressContext";
+import { useAnalyticsContext } from "@/lib/AnalyticsContext";
 
 type CallStatus = "idle" | "calling" | "connected" | "ended" | "error";
 
@@ -13,6 +14,7 @@ export function CallMe() {
   const { isBuilder } = useAudienceMode();
   const { progress, incrementCalls, updateWorkshopState } =
     useProgressContext();
+  const { sessionId } = useAnalyticsContext();
 
   const [phoneNumber, setPhoneNumber] = useState(
     () => progress.workshopState.phoneNumber || ""
@@ -47,6 +49,7 @@ export function CallMe() {
 
     const body: Record<string, unknown> = {
       phoneNumber: phoneNumber.trim(),
+      sessionId: sessionId.current || undefined,
       agentConfig: {
         agentName: progress.workshopState.agentName || undefined,
         voice: progress.workshopState.voice || undefined,

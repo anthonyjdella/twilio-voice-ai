@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { buildSystemPrompt } from "./system-prompt.mjs";
 import { toolDefinitions, executeTool } from "./tools.mjs";
+import { recordEvent } from "../analytics/db.mjs";
 
 const MAX_TOOL_ITERATIONS = 5;
 const SILENCE_FIRST_MS = 8000;
@@ -14,6 +15,7 @@ export function handleConversationRelayConnection(ws) {
   let isProcessing = false;
   let silenceTimer = null;
   let silenceCount = 0;
+  let callStartTime = null;
 
   function clearSilenceTimer() {
     if (silenceTimer) {
@@ -65,9 +67,11 @@ export function handleConversationRelayConnection(ws) {
         conversationHistory = [
           { role: "system", content: buildSystemPrompt(config) },
         ];
+        callStartTime = Date.now();
         console.log(
           `[voice-agent] Call ${callSid} connected from ${message.from}`
         );
+        recordEvent(callSid, "call_connected", { callSid, from: message.from });
         silenceCount = 0;
         startSilenceTimer();
         break;
@@ -144,7 +148,9 @@ export function handleConversationRelayConnection(ws) {
   });
 
   ws.on("close", () => {
+    const durationMs = callStartTime ? Date.now() - callStartTime : 0;
     console.log(`[voice-agent] Call ${callSid} disconnected`);
+    recordEvent(callSid, "call_ended", { callSid, durationMs });
     clearSilenceTimer();
   });
 }
@@ -204,6 +210,7 @@ async function streamLLMResponse(openai, history, ws, callSid) {
           const langCode = lastMatch[1];
           pendingSend = pendingSend.replace(LANG_MARKER_RE, "");
           console.log(`[voice-agent] [${callSid}] Language switch: ${langCode}`);
+          recordEvent(callSid, "language_switched", { callSid, langCode });
           sendLanguage(ws, langCode);
         }
 
@@ -214,6 +221,7 @@ async function streamLLMResponse(openai, history, ws, callSid) {
             sendToken(ws, pendingSend, true);
           }
           console.log(`[voice-agent] [${callSid}] Handoff triggered`);
+          recordEvent(callSid, "handoff_triggered", { callSid });
           fullResponse = fullResponse.replace(HANDOFF_MARKER, "").replace(LANG_MARKER_RE, "");
           history.push({ role: "assistant", content: fullResponse });
 
@@ -262,6 +270,7 @@ async function streamLLMResponse(openai, history, ws, callSid) {
         console.log(
           `[voice-agent] [${callSid}] Tool call: ${tc.name}(${JSON.stringify(args)})`
         );
+        recordEvent(callSid, "tool_used", { callSid, toolName: tc.name, args });
         const result = executeTool(tc.name, args);
         history.push({ role: "tool", tool_call_id: tc.id, content: result });
       }

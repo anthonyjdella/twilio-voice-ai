@@ -1,6 +1,7 @@
 # Stage 1: Install dependencies
 FROM node:20-slim AS deps
 WORKDIR /app
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 RUN corepack enable pnpm
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
@@ -27,9 +28,10 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Custom server + voice agent (not traced by Next.js standalone)
+# Custom server + voice agent + analytics (not traced by Next.js standalone)
 COPY --from=builder /app/server.mjs ./server.mjs
 COPY --from=builder /app/voice-agent ./voice-agent
+COPY --from=builder /app/analytics ./analytics
 
 # Full node_modules needed by server.mjs and voice-agent at runtime.
 # pnpm uses symlinks, so selective copies break — copy the whole tree.

@@ -2,6 +2,8 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 import { useProgress } from "@/hooks/useProgress";
+import { useAnalyticsContext } from "@/lib/AnalyticsContext";
+import { useWorkshop } from "@/lib/WorkshopContext";
 
 type ProgressContextType = ReturnType<typeof useProgress>;
 
@@ -9,8 +11,44 @@ const ProgressContext = createContext<ProgressContextType | null>(null);
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const progress = useProgress();
+  const analytics = useAnalyticsContext();
+  const { chapters } = useWorkshop();
+
+  const wrapped: ProgressContextType = {
+    ...progress,
+    completeStep(chapterId: number, stepId: number, options?: { silent?: boolean }) {
+      if (!progress.isStepCompleted(chapterId, stepId)) {
+        const chapter = chapters.find(c => c.id === chapterId);
+        const step = chapter?.steps.find(s => s.id === stepId);
+        analytics.emit("step_completed", {
+          chapterId, stepId,
+          chapterSlug: chapter?.slug ?? "",
+          stepSlug: step?.slug ?? "",
+        });
+      }
+      progress.completeStep(chapterId, stepId, options);
+    },
+    updateWorkshopState(partial: Record<string, string>) {
+      progress.updateWorkshopState(partial);
+      for (const [field, value] of Object.entries(partial)) {
+        analytics.emit("agent_configured", { field, value });
+      }
+    },
+    incrementCalls() {
+      progress.incrementCalls();
+    },
+    earnBadge(badgeId: string) {
+      progress.earnBadge(badgeId);
+      analytics.emit("badge_earned", { badgeId });
+    },
+    resetProgress() {
+      progress.resetProgress();
+      analytics.emit("progress_reset", {});
+    },
+  };
+
   return (
-    <ProgressContext.Provider value={progress}>
+    <ProgressContext.Provider value={wrapped}>
       {children}
     </ProgressContext.Provider>
   );

@@ -1,0 +1,41 @@
+properties:
+  configuration:
+    ingress:
+      external: true
+      targetPort: 8080
+  template:
+    containers:
+      - name: ${APP_NAME}
+        image: ${CONTAINER_IMAGE}
+        resources:
+          cpu: 1.0
+          memory: 2Gi
+        env:
+          - name: PORT
+            value: "8080"
+          - name: NODE_ENV
+            value: production
+          - name: OPENAI_MODEL
+            value: gpt-5.4-nano
+          - name: DATA_MOUNT
+            value: /app/appdata
+          - name: TWILIO_ACCOUNT_SID
+            secretRef: twilio-account-sid
+          - name: TWILIO_AUTH_TOKEN
+            secretRef: twilio-auth-token
+          - name: TWILIO_PHONE_NUMBER
+            secretRef: twilio-phone-number
+          - name: OPENAI_API_KEY
+            secretRef: openai-api-key
+          - name: ADMIN_KEY
+            secretRef: admin-key
+        volumeMounts:
+          - volumeName: appdata
+            mountPath: /app/appdata
+    scale:
+      minReplicas: 1
+      maxReplicas: 1
+    volumes:
+      - name: appdata
+        storageName: appdata
+        storageType: AzureFile

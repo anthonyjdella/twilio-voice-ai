@@ -11,6 +11,8 @@ env:
   LOCATION: centralus
   ACR_NAME: voiceaiworkshop
   ENV_NAME: voiceaiworkshop
+  STORAGE_ACCOUNT: voiceaiworkshop
+  FILE_SHARE: voiceaidata
   IMAGE_TAG: voice-ai-workshop:${{ github.sha }}
 
 jobs:
@@ -91,6 +93,46 @@ jobs:
             echo "Container Apps Environment already exists"
           fi
 
+      - name: Ensure Storage Account
+        run: |
+          az storage account show --name ${{ env.STORAGE_ACCOUNT }} --resource-group ${{ env.RESOURCE_GROUP }} 2>/dev/null || \
+          az storage account create \
+            --name ${{ env.STORAGE_ACCOUNT }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --location ${{ env.LOCATION }} \
+            --sku Standard_LRS \
+            --tags created_by=anthonyjdella \
+            --output none
+
+      - name: Ensure File Share
+        run: |
+          STORAGE_KEY=$(az storage account keys list \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --account-name ${{ env.STORAGE_ACCOUNT }} \
+            --query '[0].value' -o tsv)
+          az storage share create \
+            --name ${{ env.FILE_SHARE }} \
+            --account-name ${{ env.STORAGE_ACCOUNT }} \
+            --account-key "$STORAGE_KEY" \
+            --quota 10 \
+            --output none 2>/dev/null || true
+
+      - name: Configure Azure Files storage mount
+        run: |
+          STORAGE_KEY=$(az storage account keys list \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --account-name ${{ env.STORAGE_ACCOUNT }} \
+            --query '[0].value' -o tsv)
+          az containerapp env storage set \
+            --name ${{ env.ENV_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --storage-name appdata \
+            --azure-file-account-name ${{ env.STORAGE_ACCOUNT }} \
+            --azure-file-account-key "$STORAGE_KEY" \
+            --azure-file-share-name ${{ env.FILE_SHARE }} \
+            --access-mode ReadWrite \
+            --output none
+
       # --- Build ---
 
       - name: Build and push image to ACR
@@ -110,65 +152,55 @@ jobs:
           echo "username=$(az acr credential show --name ${{ env.ACR_NAME }} --query username -o tsv)" >> $GITHUB_OUTPUT
           echo "password=$(az acr credential show --name ${{ env.ACR_NAME }} --query passwords[0].value -o tsv)" >> $GITHUB_OUTPUT
 
+      - name: Set secrets
+        run: |
+          az containerapp secret set \
+            --name ${{ env.APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --secrets \
+              "twilio-account-sid=${{ secrets.TWILIO_ACCOUNT_SID }}" \
+              "twilio-auth-token=${{ secrets.TWILIO_AUTH_TOKEN }}" \
+              "twilio-phone-number=${{ secrets.TWILIO_PHONE_NUMBER }}" \
+              "openai-api-key=${{ secrets.OPENAI_API_KEY }}" \
+              "admin-key=${{ secrets.ADMIN_KEY }}" \
+            --output none 2>/dev/null || true
+
       - name: Deploy Container App
         run: |
-          APP_EXISTS=$(az containerapp show \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --name ${{ env.APP_NAME }} \
-            --query "name" -o tsv 2>/dev/null || echo "")
+          export APP_NAME="${{ env.APP_NAME }}"
+          export CONTAINER_IMAGE="${{ steps.acr.outputs.server }}/${{ env.IMAGE_TAG }}"
+          envsubst < .github/containerapp.yaml > /tmp/containerapp.yaml
 
-          if [ -z "$APP_EXISTS" ]; then
+          if az containerapp show --name ${{ env.APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} 2>/dev/null; then
+            echo "Updating existing container app..."
+            az containerapp update \
+              --name ${{ env.APP_NAME }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --yaml /tmp/containerapp.yaml \
+              --output none
+          else
             echo "Creating new Container App..."
             az containerapp create \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.APP_NAME }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
               --environment ${{ env.ENV_NAME }} \
               --tags created_by=anthonyjdella \
-              --image ${{ steps.acr.outputs.server }}/${{ env.IMAGE_TAG }} \
               --registry-server ${{ steps.acr.outputs.server }} \
               --registry-username ${{ steps.acr.outputs.username }} \
               --registry-password ${{ steps.acr.outputs.password }} \
-              --target-port 8080 \
-              --ingress external \
-              --min-replicas 1 \
-              --max-replicas 1 \
-              --secrets \
-                twilio-account-sid="${{ secrets.TWILIO_ACCOUNT_SID }}" \
-                twilio-auth-token="${{ secrets.TWILIO_AUTH_TOKEN }}" \
-                twilio-phone-number="${{ secrets.TWILIO_PHONE_NUMBER }}" \
-                openai-api-key="${{ secrets.OPENAI_API_KEY }}" \
-              --env-vars \
-                PORT=8080 \
-                NODE_ENV=production \
-                OPENAI_MODEL=gpt-5.4-nano \
-                TWILIO_ACCOUNT_SID=secretref:twilio-account-sid \
-                TWILIO_AUTH_TOKEN=secretref:twilio-auth-token \
-                TWILIO_PHONE_NUMBER=secretref:twilio-phone-number \
-                OPENAI_API_KEY=secretref:openai-api-key
-          else
-            echo "Updating secrets..."
-            az containerapp secret set \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.APP_NAME }} \
-              --secrets \
-                twilio-account-sid="${{ secrets.TWILIO_ACCOUNT_SID }}" \
-                twilio-auth-token="${{ secrets.TWILIO_AUTH_TOKEN }}" \
-                twilio-phone-number="${{ secrets.TWILIO_PHONE_NUMBER }}" \
-                openai-api-key="${{ secrets.OPENAI_API_KEY }}"
+              --yaml /tmp/containerapp.yaml \
+              --output none
 
-            echo "Updating image and env vars..."
-            az containerapp update \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
+            az containerapp secret set \
               --name ${{ env.APP_NAME }} \
-              --image ${{ steps.acr.outputs.server }}/${{ env.IMAGE_TAG }} \
-              --set-env-vars \
-                PORT=8080 \
-                NODE_ENV=production \
-                OPENAI_MODEL=gpt-5.4-nano \
-                TWILIO_ACCOUNT_SID=secretref:twilio-account-sid \
-                TWILIO_AUTH_TOKEN=secretref:twilio-auth-token \
-                TWILIO_PHONE_NUMBER=secretref:twilio-phone-number \
-                OPENAI_API_KEY=secretref:openai-api-key
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --secrets \
+                "twilio-account-sid=${{ secrets.TWILIO_ACCOUNT_SID }}" \
+                "twilio-auth-token=${{ secrets.TWILIO_AUTH_TOKEN }}" \
+                "twilio-phone-number=${{ secrets.TWILIO_PHONE_NUMBER }}" \
+                "openai-api-key=${{ secrets.OPENAI_API_KEY }}" \
+                "admin-key=${{ secrets.ADMIN_KEY }}" \
+              --output none
           fi
 
       - name: Print app URL
