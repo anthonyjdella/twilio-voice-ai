@@ -37,6 +37,8 @@ COPY --from=builder /app/analytics ./analytics
 # pnpm uses symlinks, so selective copies break — copy the whole tree.
 COPY --from=builder /app/node_modules ./node_modules
 
+RUN mkdir -p /app/data
+
 EXPOSE 8080
 
 CMD ["node", "server.mjs"]

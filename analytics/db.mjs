@@ -1,31 +1,21 @@
 import Database from "better-sqlite3";
-import { existsSync, mkdirSync, unlinkSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
 
 let db = null;
 
 function getDbPath() {
-  const mount = process.env.DATA_MOUNT;
-  if (mount) return join(mount, "analytics.db");
-  const fallback = join(process.cwd(), "data");
-  if (!existsSync(fallback)) mkdirSync(fallback, { recursive: true });
-  return join(fallback, "analytics.db");
+  const dir = join(process.cwd(), "data");
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  return join(dir, "analytics.db");
 }
 
 export function getDb() {
   if (db) return db;
 
   const dbPath = getDbPath();
-  const dir = dirname(dbPath);
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-
-  for (const suffix of ["-wal", "-shm"]) {
-    try { unlinkSync(dbPath + suffix); } catch {}
-  }
-
   const instance = new Database(dbPath);
-  instance.pragma("busy_timeout = 5000");
-  instance.pragma("journal_mode = DELETE");
+  instance.pragma("journal_mode = WAL");
   instance.pragma("synchronous = NORMAL");
 
   instance.exec(`
