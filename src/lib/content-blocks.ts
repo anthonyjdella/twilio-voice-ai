@@ -18,7 +18,10 @@ export type ContentBlock =
   | ConceptCardBlock
   | DiffBlock
   | SpacerBlock
-  | CallMeBlock;
+  | CallMeBlock
+  | AgentConfigBlock
+  | VoicePickerBlock
+  | LanguagePickerBlock;
 
 // ─── Base Block ─────────────────────────────────────────────────────
 
@@ -157,6 +160,21 @@ export interface SpacerBlock extends BaseBlock {
 /** "Call Me" button — triggers an outbound call via the API */
 export interface CallMeBlock extends BaseBlock {
   type: "call-me";
+}
+
+/** Interactive persona configurator — name, personality, greeting */
+export interface AgentConfigBlock extends BaseBlock {
+  type: "agent-config";
+}
+
+/** Interactive voice selector — provider + voice */
+export interface VoicePickerBlock extends BaseBlock {
+  type: "voice-picker";
+}
+
+/** Interactive language selector */
+export interface LanguagePickerBlock extends BaseBlock {
+  type: "language-picker";
 }
 
 // ─── Step Definition ────────────────────────────────────────────────

@@ -16,6 +16,9 @@ import { ArchitectureDiagram } from "@/components/diagrams/ArchitectureDiagram";
 import { VisualStep } from "./VisualStep";
 import { ConceptCard } from "./ConceptCard";
 import { CallMe } from "@/components/CallMe";
+import { AgentConfig } from "./AgentConfig";
+import { VoicePicker } from "./VoicePicker";
+import { LanguagePicker } from "./LanguagePicker";
 
 interface StepRendererProps {
   step: StepDefinition;
@@ -147,6 +150,15 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
 
     case "call-me":
       return <CallMe />;
+
+    case "agent-config":
+      return <AgentConfig />;
+
+    case "voice-picker":
+      return <VoicePicker />;
+
+    case "language-picker":
+      return <LanguagePicker />;
 
     default:
       return null;

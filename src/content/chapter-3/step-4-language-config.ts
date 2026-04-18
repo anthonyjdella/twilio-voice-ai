@@ -141,10 +141,23 @@ if (req.url === "/twiml" && req.method === "POST") {
     },
 
     {
+      type: "language-picker",
+      audience: "explorer",
+    },
+
+    {
       type: "callout",
       variant: "warning",
+      audience: "builder",
       content:
         "Make sure your system prompt language matches the `language` attribute. If you set `language=\"es-ES\"` but your system prompt is in English, the AI will respond in English and the caller experience will be inconsistent.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "Your language selection is saved. The agent will listen for and speak this language on your next call.",
     },
   ],
 } satisfies StepDefinition;

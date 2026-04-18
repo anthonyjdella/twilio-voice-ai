@@ -145,8 +145,8 @@ const workshopConfig: WorkshopConfig = {
     widget: "custom",
     title: "Your Agent",
     fields: [
-      { label: "Name", key: "name" },
-      { label: "Voice", key: "voice" },
+      { label: "Name", key: "agentName" },
+      { label: "Voice", key: "voiceLabel" },
       { label: "Language", key: "language" },
     ],
   },

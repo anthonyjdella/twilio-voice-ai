@@ -22,9 +22,13 @@ export async function POST(request: NextRequest) {
     .filter(Boolean)
     .join("\n      ");
 
+  const host = request.headers.get("host") || "localhost:8080";
+  const actionProtocol = host.includes("localhost") ? "http" : "https";
+  const actionUrl = `${actionProtocol}://${host}/api/connect-action`;
+
   const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Connect>
+  <Connect action="${escapeXml(actionUrl)}" method="POST">
     <ConversationRelay
       url="${escapeXml(wsUrl)}"
       voice="${escapeXml(voice)}"

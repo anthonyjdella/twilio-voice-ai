@@ -2,26 +2,28 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "section", title: "Open Your Development Environment" },
+    { type: "section", title: "Open Your Development Environment", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "We use **GitHub Codespaces** for this workshop -- a cloud-based dev environment that starts in seconds with everything pre-installed.",
     },
 
     {
       type: "concept-card",
-      audience: "explorer",
+      audience: "builder",
       title: "Why Codespaces?",
       content:
         "GitHub Codespaces gives every attendee an identical workspace in the cloud -- like opening a fully set-up laptop that already has everything installed. No downloads, no configuration headaches. You just click a button and start building.",
     },
 
-    { type: "section", title: "Launch Your Codespace" },
+    { type: "section", title: "Launch Your Codespace", audience: "builder" },
 
     {
       type: "visual-step",
+      audience: "builder",
       steps: [
         {
           icon: "/images/icons/globe.svg",
@@ -55,14 +57,33 @@ export default {
     {
       type: "callout",
       variant: "info",
+      audience: "builder",
       content:
         "**All you need is a free GitHub account.** No credit card, no local installs, no Node.js setup. If you don't have a GitHub account, create one at [github.com](https://github.com) -- it takes 30 seconds.",
     },
 
-    { type: "section", title: "Workshop Credentials" },
+    { type: "section", title: "You're All Set", audience: "explorer" },
 
     {
       type: "prose",
+      audience: "explorer",
+      content:
+        "Everything you need is right here in this app. As you go through each chapter, you will configure your agent's persona, voice, and language using interactive controls. When you are ready to test, the **Call Me** button will call your phone so you can talk to your custom agent live.",
+    },
+
+    {
+      type: "callout",
+      variant: "info",
+      audience: "explorer",
+      content:
+        "No setup, no downloads, no code. Just follow along, configure your agent, and test it by calling yourself.",
+    },
+
+    { type: "section", title: "Workshop Credentials", audience: "builder" },
+
+    {
+      type: "prose",
+      audience: "builder",
       content:
         "This workshop uses a **shared Twilio account** and a **shared OpenAI API key** -- you do not need to sign up for either service. The credentials are pre-configured in the Codespace environment.",
     },
@@ -92,6 +113,7 @@ MY_PHONE_NUMBER=+1xxxxxxxxxx`,
     {
       type: "callout",
       variant: "error",
+      audience: "builder",
       content:
         "The shared API keys are active only during this workshop session. They will be revoked immediately after the workshop ends. Do not share them outside this session.",
     },
@@ -114,8 +136,16 @@ MY_PHONE_NUMBER=+1xxxxxxxxxx`,
 
     {
       type: "verify",
+      audience: "builder",
       question:
         "Is your Codespace open and the terminal ready?",
+    },
+
+    {
+      type: "verify",
+      audience: "explorer",
+      question:
+        "Ready to start configuring your voice agent?",
     },
   ],
 } satisfies StepDefinition;

@@ -10,7 +10,7 @@ env:
   APP_NAME: voice-ai-workshop
   LOCATION: centralus
   ACR_NAME: voiceaiworkshop
-  ENV_NAME: cae-voice-ai-workshop
+  ENV_NAME: voiceaiworkshop
   IMAGE_TAG: voice-ai-workshop:${{ github.sha }}
 
 jobs:
@@ -30,6 +30,8 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # --- Infrastructure (idempotent — safe to run every time) ---
+
       - name: Ensure Resource Group
         run: |
           az group create \
@@ -39,29 +41,41 @@ jobs:
       - name: Ensure Container Registry
         run: |
           if ! az acr show --name ${{ env.ACR_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} &>/dev/null; then
+            echo "Creating ACR..."
             az acr create \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.ACR_NAME }} \
               --sku Basic \
               --admin-enabled true
+          else
+            echo "ACR already exists"
           fi
+          # Verify ACR is accessible
+          az acr show --name ${{ env.ACR_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --query "loginServer" -o tsv
 
       - name: Ensure Container Apps Environment
         run: |
           if ! az containerapp env show --name ${{ env.ENV_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} &>/dev/null; then
+            echo "Creating Container Apps Environment..."
             az containerapp env create \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.ENV_NAME }} \
               --location ${{ env.LOCATION }}
+          else
+            echo "Container Apps Environment already exists"
           fi
+
+      # --- Build ---
 
       - name: Build and push image to ACR
         run: |
           az acr build \
             --registry ${{ env.ACR_NAME }} \
             --image ${{ env.IMAGE_TAG }} \
-            --image voice-ai-workshop:latest \
+            --image twilio-voice-ai:latest \
             .
+
+      # --- Deploy ---
 
       - name: Get ACR credentials
         id: acr
@@ -78,6 +92,7 @@ jobs:
             --query "name" -o tsv 2>/dev/null || echo "")
 
           if [ -z "$APP_EXISTS" ]; then
+            echo "Creating new Container App..."
             az containerapp create \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.APP_NAME }} \
@@ -104,6 +119,7 @@ jobs:
                 TWILIO_PHONE_NUMBER=secretref:twilio-phone-number \
                 OPENAI_API_KEY=secretref:openai-api-key
           else
+            echo "Updating secrets..."
             az containerapp secret set \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.APP_NAME }} \
@@ -113,6 +129,7 @@ jobs:
                 twilio-phone-number="${{ secrets.TWILIO_PHONE_NUMBER }}" \
                 openai-api-key="${{ secrets.OPENAI_API_KEY }}"
 
+            echo "Updating image and env vars..."
             az containerapp update \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.APP_NAME }} \
@@ -126,3 +143,19 @@ jobs:
                 TWILIO_PHONE_NUMBER=secretref:twilio-phone-number \
                 OPENAI_API_KEY=secretref:openai-api-key
           fi
+
+      - name: Print app URL
+        run: |
+          FQDN=$(az containerapp show \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name ${{ env.APP_NAME }} \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          echo ""
+          echo "=========================================="
+          echo "  Deployment complete!"
+          echo "=========================================="
+          echo "  App URL:     https://${FQDN}"
+          echo "  WebSocket:   wss://${FQDN}/ws"
+          echo "  Call API:    https://${FQDN}/api/call"
+          echo "  TwiML:       https://${FQDN}/api/twiml"
+          echo "=========================================="

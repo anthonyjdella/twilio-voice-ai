@@ -79,16 +79,18 @@ export default {
         "**Amazon Polly:** `Joanna` (female, neural), `Matthew` (male, neural), `Lupe` (female, neural, bilingual en/es), `Amy` (female, British English).",
     },
 
-    { type: "section", title: "Configuring the Voice" },
+    { type: "section", title: "Configuring the Voice", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "To set a specific voice, update the ConversationRelay settings in your server. Add the `voice` attribute with the voice name, and the `ttsProvider` attribute to select the provider:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "xml",
       file: "TwiML Response",
       code: `<!-- Using ElevenLabs (default provider) -->
@@ -105,6 +107,7 @@ export default {
 
     {
       type: "code",
+      audience: "builder",
       language: "xml",
       file: "TwiML Response",
       code: `<!-- Using Google Cloud TTS -->
@@ -121,12 +124,14 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "In your server code, the voice settings go inside the instructions that Twilio reads when a call connects:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `// Inside your http.createServer handler:
@@ -163,9 +168,22 @@ if (req.url === "/twiml" && req.method === "POST") {
     },
 
     {
+      type: "voice-picker",
+      audience: "explorer",
+    },
+
+    {
       type: "prose",
+      audience: "builder",
       content:
         "Pick a voice that fits your persona and update your server. In the next step, we will configure how your agent listens to the caller.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "Your voice selection is saved. The agent will use this voice on your next call.",
     },
   ],
 } satisfies StepDefinition;

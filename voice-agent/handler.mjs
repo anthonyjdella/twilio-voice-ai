@@ -3,6 +3,8 @@ import { buildSystemPrompt } from "./system-prompt.mjs";
 import { toolDefinitions, executeTool } from "./tools.mjs";
 
 const MAX_TOOL_ITERATIONS = 5;
+const SILENCE_FIRST_MS = 8000;
+const SILENCE_SECOND_MS = 6000;
 
 export function handleConversationRelayConnection(ws) {
   const openai = new OpenAI();
@@ -10,6 +12,39 @@ export function handleConversationRelayConnection(ws) {
   let callSid = "";
   let config = {};
   let isProcessing = false;
+  let silenceTimer = null;
+  let silenceCount = 0;
+
+  function clearSilenceTimer() {
+    if (silenceTimer) {
+      clearTimeout(silenceTimer);
+      silenceTimer = null;
+    }
+  }
+
+  function startSilenceTimer() {
+    clearSilenceTimer();
+    const timeout = silenceCount === 0 ? SILENCE_FIRST_MS : SILENCE_SECOND_MS;
+    silenceTimer = setTimeout(async () => {
+      if (isProcessing) return;
+      silenceCount++;
+      if (silenceCount >= 3) {
+        console.log(`[voice-agent] [${callSid}] Ending call after prolonged silence`);
+        sendToken(ws, "It seems like you may have stepped away. I'll end the call now. Goodbye!", true);
+        setTimeout(() => {
+          sendEnd(ws);
+        }, 3000);
+        return;
+      }
+      console.log(`[voice-agent] [${callSid}] Silence nudge #${silenceCount}`);
+      const nudge = silenceCount === 1
+        ? "Are you still there? I'm here if you need anything."
+        : "I haven't heard from you in a while. I'll hang up shortly if there's nothing else.";
+      sendToken(ws, nudge, true);
+      conversationHistory.push({ role: "assistant", content: nudge });
+      startSilenceTimer();
+    }, timeout);
+  }
 
   ws.on("message", async (data) => {
     let message;
@@ -33,9 +68,13 @@ export function handleConversationRelayConnection(ws) {
         console.log(
           `[voice-agent] Call ${callSid} connected from ${message.from}`
         );
+        silenceCount = 0;
+        startSilenceTimer();
         break;
 
       case "prompt":
+        silenceCount = 0;
+        clearSilenceTimer();
         if (isProcessing) {
           console.warn(`[voice-agent] [${callSid}] Dropping overlapping prompt`);
           break;
@@ -53,6 +92,7 @@ export function handleConversationRelayConnection(ws) {
           sendToken(ws, "I'm sorry, I encountered a technical issue. Please try again.", true);
         } finally {
           isProcessing = false;
+          startSilenceTimer();
         }
         break;
 
@@ -67,7 +107,27 @@ export function handleConversationRelayConnection(ws) {
         break;
 
       case "dtmf":
+        silenceCount = 0;
+        clearSilenceTimer();
         console.log(`[voice-agent] [${callSid}] DTMF: ${message.digit}`);
+        if (isProcessing) {
+          console.warn(`[voice-agent] [${callSid}] Dropping DTMF during processing`);
+          break;
+        }
+        isProcessing = true;
+        conversationHistory.push({
+          role: "user",
+          content: `[The caller pressed ${message.digit} on their phone keypad]`,
+        });
+        try {
+          await streamLLMResponse(openai, conversationHistory, ws, callSid);
+        } catch (err) {
+          console.error(`[voice-agent] [${callSid}] LLM error:`, err.message);
+          sendToken(ws, "I'm sorry, I encountered a technical issue. Please try again.", true);
+        } finally {
+          isProcessing = false;
+          startSilenceTimer();
+        }
         break;
 
       case "error":
@@ -80,12 +140,17 @@ export function handleConversationRelayConnection(ws) {
 
   ws.on("error", (err) => {
     console.error(`[voice-agent] [${callSid}] WebSocket error:`, err.message);
+    clearSilenceTimer();
   });
 
   ws.on("close", () => {
     console.log(`[voice-agent] Call ${callSid} disconnected`);
+    clearSilenceTimer();
   });
 }
+
+const LANG_MARKER_RE = /\[LANG:([a-z]{2}-[A-Z]{2})\]/g;
+const HANDOFF_MARKER = "[HANDOFF]";
 
 async function streamLLMResponse(openai, history, ws, callSid) {
   let iterations = 0;
@@ -103,6 +168,7 @@ async function streamLLMResponse(openai, history, ws, callSid) {
     let fullResponse = "";
     let currentToolCalls = [];
     let hasToolCalls = false;
+    let pendingSend = "";
 
     for await (const chunk of stream) {
       const delta = chunk.choices[0]?.delta;
@@ -124,7 +190,54 @@ async function streamLLMResponse(openai, history, ws, callSid) {
 
       if (delta.content) {
         fullResponse += delta.content;
-        sendToken(ws, delta.content, false);
+        pendingSend += delta.content;
+
+        // Buffer text when we see a potential partial marker starting
+        if (/\[(?:LANG|HANDOFF)[^\]]*$/.test(pendingSend)) {
+          continue;
+        }
+
+        // Check for complete language markers
+        const langMatches = [...pendingSend.matchAll(LANG_MARKER_RE)];
+        if (langMatches.length > 0) {
+          const lastMatch = langMatches[langMatches.length - 1];
+          const langCode = lastMatch[1];
+          pendingSend = pendingSend.replace(LANG_MARKER_RE, "");
+          console.log(`[voice-agent] [${callSid}] Language switch: ${langCode}`);
+          sendLanguage(ws, langCode);
+        }
+
+        // Check for complete handoff marker
+        if (pendingSend.includes(HANDOFF_MARKER)) {
+          pendingSend = pendingSend.replace(HANDOFF_MARKER, "");
+          if (pendingSend.trim()) {
+            sendToken(ws, pendingSend, true);
+          }
+          console.log(`[voice-agent] [${callSid}] Handoff triggered`);
+          fullResponse = fullResponse.replace(HANDOFF_MARKER, "").replace(LANG_MARKER_RE, "");
+          history.push({ role: "assistant", content: fullResponse });
+
+          setTimeout(() => {
+            sendEnd(ws, JSON.stringify({
+              reasonCode: "live-agent-handoff",
+              reason: "The caller requested to speak with a human agent",
+            }));
+          }, 1500);
+          return;
+        }
+
+        if (pendingSend) {
+          sendToken(ws, pendingSend, false);
+        }
+        pendingSend = "";
+      }
+    }
+
+    // Flush any remaining buffered text (e.g. partial marker that never completed)
+    if (pendingSend) {
+      const cleaned = pendingSend.replace(LANG_MARKER_RE, "").replace(HANDOFF_MARKER, "");
+      if (cleaned) {
+        sendToken(ws, cleaned, false);
       }
     }
 
@@ -155,10 +268,11 @@ async function streamLLMResponse(openai, history, ws, callSid) {
       continue;
     }
 
-    if (fullResponse) {
-      history.push({ role: "assistant", content: fullResponse });
+    const cleanResponse = fullResponse.replace(LANG_MARKER_RE, "").replace(HANDOFF_MARKER, "");
+    if (cleanResponse) {
+      history.push({ role: "assistant", content: cleanResponse });
       console.log(
-        `[voice-agent] [${callSid}] Agent: ${fullResponse.slice(0, 100)}${fullResponse.length > 100 ? "..." : ""}`
+        `[voice-agent] [${callSid}] Agent: ${cleanResponse.slice(0, 100)}${cleanResponse.length > 100 ? "..." : ""}`
       );
     }
     sendToken(ws, "", true);
@@ -174,6 +288,24 @@ async function streamLLMResponse(openai, history, ws, callSid) {
 function sendToken(ws, token, last) {
   if (ws.readyState !== ws.OPEN) return;
   ws.send(JSON.stringify({ type: "text", token, last }));
+}
+
+function sendEnd(ws, handoffData) {
+  if (ws.readyState !== ws.OPEN) return;
+  const msg = { type: "end" };
+  if (handoffData) {
+    msg.handoffData = handoffData;
+  }
+  ws.send(JSON.stringify(msg));
+}
+
+function sendLanguage(ws, langCode) {
+  if (ws.readyState !== ws.OPEN) return;
+  ws.send(JSON.stringify({
+    type: "language",
+    ttsLanguage: langCode,
+    transcriptionLanguage: langCode,
+  }));
 }
 
 function trimHistoryToInterrupt(history, partialUtterance) {

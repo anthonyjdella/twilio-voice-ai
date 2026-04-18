@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     agentConfig?: {
       agentName?: string;
       voice?: string;
+      ttsProvider?: string;
       language?: string;
       personality?: string;
       welcomeGreeting?: string;
@@ -53,6 +54,8 @@ export async function POST(request: NextRequest) {
   const twimlParams = new URLSearchParams();
   if (body.wsUrl) twimlParams.set("wsUrl", body.wsUrl);
   if (body.agentConfig?.voice) twimlParams.set("voice", body.agentConfig.voice);
+  if (body.agentConfig?.ttsProvider)
+    twimlParams.set("ttsProvider", body.agentConfig.ttsProvider);
   if (body.agentConfig?.language)
     twimlParams.set("language", body.agentConfig.language);
   if (body.agentConfig?.agentName)

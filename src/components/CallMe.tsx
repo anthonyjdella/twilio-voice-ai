@@ -50,6 +50,7 @@ export function CallMe() {
       agentConfig: {
         agentName: progress.workshopState.agentName || undefined,
         voice: progress.workshopState.voice || undefined,
+        ttsProvider: progress.workshopState.ttsProvider || undefined,
         language: progress.workshopState.language || undefined,
         personality: progress.workshopState.personality || undefined,
         welcomeGreeting: progress.workshopState.welcomeGreeting || undefined,

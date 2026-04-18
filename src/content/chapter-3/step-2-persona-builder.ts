@@ -46,12 +46,21 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Here are three different persona styles to show how the same structure produces very different experiences. Notice how each one stays voice-friendly with short, natural sentences. **Pick one of these or write your own, then replace the `SYSTEM_PROMPT` constant from Step 1** with your chosen persona text.",
     },
 
     {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "Here are three different persona styles to show how the same structure produces very different experiences. You can pick one of these presets below, or create your own.",
+    },
+
+    {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "personas/friendly-assistant.js",
       code: `// Friendly Assistant \u2014 warm, casual, helpful
@@ -67,6 +76,7 @@ you'll connect them with a travel specialist.\`;`,
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "personas/professional-concierge.js",
       code: `// Professional Concierge \u2014 polished, efficient, precise
@@ -82,6 +92,7 @@ offer to connect the guest with the appropriate department.\`;`,
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "personas/casual-helper.js",
       code: `// Casual Helper \u2014 relaxed, fun, approachable
@@ -131,9 +142,22 @@ to the menu.\`;`,
     },
 
     {
+      type: "agent-config",
+      audience: "explorer",
+    },
+
+    {
       type: "prose",
+      audience: "builder",
       content:
         "Update your system prompt in `server.js` with your chosen persona. In the next step, we will pick a voice that matches it.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "Your persona settings are saved. When you make your next call, the agent will use the name, personality, and greeting you configured above.",
     },
   ],
 } satisfies StepDefinition;
