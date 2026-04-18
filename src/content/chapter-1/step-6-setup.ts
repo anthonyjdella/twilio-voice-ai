@@ -27,31 +27,17 @@ export default {
       steps: [
         {
           icon: "/images/icons/globe.svg",
-          title: "Open the repository",
+          title: "Open your Codespace",
           description:
-            "Go to the workshop GitHub repository at github.com/anthonyjdella/twilio-voice-ai, or use the direct Codespace link below.",
-        },
-        {
-          icon: "/images/icons/code.svg",
-          title: "Click \"Code\" → \"Codespaces\" → \"Create codespace on main\"",
-          description:
-            "GitHub will spin up a cloud-based coding environment with everything pre-installed. With prebuilds enabled, this takes about 10 seconds.",
+            "Click this link to create your Codespace: [codespaces.new/anthonyjdella/twilio-voice-ai](https://codespaces.new/anthonyjdella/twilio-voice-ai)",
         },
         {
           icon: "/images/icons/settings.svg",
           title: "Wait for the environment to initialize",
           description:
-            "The terminal will show dependencies being installed automatically. When you see the prompt, you're ready to go.",
+            "GitHub will spin up a cloud VS Code with everything pre-installed. The terminal will show dependencies being installed automatically. When you see the prompt, you're ready to go.",
         },
       ],
-    },
-
-    {
-      type: "callout",
-      variant: "tip",
-      audience: "builder",
-      content:
-        "**Quick launch:** [Open a Codespace directly](https://codespaces.new/anthonyjdella/twilio-voice-ai) -- this link creates one in a single click.",
     },
 
     {
@@ -59,7 +45,7 @@ export default {
       variant: "info",
       audience: "builder",
       content:
-        "**All you need is a free GitHub account.** No credit card, no local installs, no Node.js setup. If you don't have a GitHub account, create one at [github.com](https://github.com) -- it takes 30 seconds.",
+        "**All you need is a free GitHub account.** If you don't have a GitHub account, create one at [github.com](https://github.com)",
     },
 
     { type: "section", title: "You're All Set", audience: "explorer" },
@@ -79,35 +65,31 @@ export default {
         "No setup, no downloads, no code. Just follow along, configure your agent, and test it by calling yourself.",
     },
 
-    { type: "section", title: "Workshop Credentials", audience: "builder" },
+    { type: "section", title: "Set Your Phone Number", audience: "builder" },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "This workshop uses a **shared Twilio account** and a **shared OpenAI API key** -- you do not need to sign up for either service. The credentials are pre-configured in the Codespace environment.",
+        "Your Codespace comes with shared Twilio and OpenAI credentials already configured -- you do not need to sign up for either service. The only thing you need to do is set your personal phone number so the agent can call you during testing.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "The Codespace's `.env` file is already populated with the shared credentials:",
+        "Open `workshop/.env` in your Codespace and update `MY_PHONE_NUMBER` with your real phone number in E.164 format:",
     },
 
     {
       type: "code",
       audience: "builder",
-      code: `# Pre-configured in your Codespace -- no changes needed
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx   # your Twilio account SID
-TWILIO_AUTH_TOKEN=your_shared_token                     # used to authenticate outbound calls
-OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      # powers the LLM
-TWILIO_PHONE_NUMBER=+1xxxxxxxxxx                        # the shared Twilio number attendees dial in to
+      code: `# Everything above this line is already configured for you
 
-# Set this to your personal phone so the agent can call you for the outbound test
-MY_PHONE_NUMBER=+1xxxxxxxxxx`,
+# Update this to YOUR phone number (include country code)
+MY_PHONE_NUMBER=+12065551234`,
       language: "bash",
-      file: ".env",
+      file: "workshop/.env",
     },
 
     {
@@ -115,7 +97,7 @@ MY_PHONE_NUMBER=+1xxxxxxxxxx`,
       variant: "error",
       audience: "builder",
       content:
-        "The shared API keys are active only during this workshop session. They will be revoked immediately after the workshop ends. Do not share them outside this session.",
+        "The shared API keys are active only during this workshop session. They will be revoked immediately after the workshop ends.",
     },
 
     {
@@ -131,7 +113,7 @@ MY_PHONE_NUMBER=+1xxxxxxxxxx`,
       audience: "builder",
       variant: "info",
       content:
-        "Your Codespace opens at the repository root. All your server code goes in the `workshop/` directory, which already has a `package.json` and `.env` configured for you. Run terminal commands from inside `workshop/`.",
+        "Your Codespace opens at the repository root. All your server code goes in the `workshop/` directory. Run terminal commands from inside `workshop/`.",
     },
 
     {

@@ -2,7 +2,7 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "section", title: "The Message Flow" },
+    { type: "section", title: "The Conversation Flow" },
 
     {
       type: "prose",

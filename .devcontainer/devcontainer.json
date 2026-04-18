@@ -1,7 +1,7 @@
 {
   "name": "Voice AI Workshop",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
-  "postCreateCommand": "cd workshop && cp -n .env.example .env && npm install",
+  "postCreateCommand": "cd workshop && npm install && cat <<EOF > .env\nTWILIO_ACCOUNT_SID=$TWILIO_ACCOUNT_SID\nTWILIO_AUTH_TOKEN=$TWILIO_AUTH_TOKEN\nTWILIO_PHONE_NUMBER=$TWILIO_PHONE_NUMBER\nOPENAI_API_KEY=$OPENAI_API_KEY\nOPENAI_MODEL=$OPENAI_MODEL\n\n# Set this to your personal phone number in E.164 format\nMY_PHONE_NUMBER=+15551234567\nEOF",
   "forwardPorts": [8080],
   "portsAttributes": {
     "8080": {

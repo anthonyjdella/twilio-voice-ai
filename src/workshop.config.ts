@@ -48,7 +48,7 @@ const workshopConfig: WorkshopConfig = {
         { id: 2, slug: "call-flow", title: "The Call Flow" },
         { id: 3, slug: "chapter-overview", title: "What You\u2019ll Learn" },
         { id: 4, slug: "architecture", title: "Architecture" },
-        { id: 5, slug: "message-flow", title: "Message Flow" },
+        { id: 5, slug: "message-flow", title: "Conversation Flow" },
         { id: 6, slug: "setup", title: "Open Codespace" },
         { id: 7, slug: "ngrok", title: "Expose Your Server" },
         { id: 8, slug: "twilio-config", title: "Configure Twilio" },
