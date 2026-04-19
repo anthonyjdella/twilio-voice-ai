@@ -128,6 +128,7 @@ server.listen(PORT, () => {
       language: "javascript",
       file: "server.js",
       startLine: 16,
+      highlight: ["4-6", "11-20"],
       code: `wss.on("connection", (ws, req) => {
   console.log("📞 New WebSocket connection");
 

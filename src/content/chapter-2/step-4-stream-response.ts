@@ -48,6 +48,7 @@ export default {
       language: "javascript",
       file: "server.js",
       startLine: 1,
+      highlight: [4, "8-10"],
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
@@ -116,6 +117,7 @@ const openai = new OpenAI({
       language: "javascript",
       file: "server.js",
       startLine: 40,
+      highlight: ["1-40"],
       code: `function sendText(ws, token, last = false) {
   ws.send(JSON.stringify({ type: "text", token, last }));
 }
@@ -171,6 +173,7 @@ async function streamLLMResponse(ws, conversationHistory) {
       language: "javascript",
       file: "server.js",
       startLine: 34,
+      highlight: [11],
       code: `      case "prompt":
         if (!message.last) break;
 

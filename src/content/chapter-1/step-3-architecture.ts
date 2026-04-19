@@ -96,20 +96,5 @@ export default {
         "**Tools (Functions)** — The LLM can request actions during a conversation — looking up an order, checking the weather, or querying a database. Your server defines the available tools, executes them when the LLM asks, and feeds the results back so the LLM can incorporate real data into its reply. The LLM never runs tools directly; your server is always in control of what gets executed.",
     },
 
-    {
-      type: "callout",
-      audience: "explorer",
-      variant: "info",
-      content:
-        "That's the full picture -- caller, Twilio, ConversationRelay, server, and AI model. The next step traces a single conversation turn through this architecture so you can see the data flow in action.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "info",
-      content:
-        "You now have the component map. The next step traces a single conversation turn through this architecture with the actual JSON messages your server will send and receive.",
-    },
   ],
 } satisfies StepDefinition;

@@ -97,6 +97,7 @@ export default {
       audience: "builder",
       language: "xml",
       file: "TwiML Response",
+      highlight: [6, 7],
       code: `<!-- Using ElevenLabs (default provider) -->
 <Response>
   <Connect>
@@ -114,6 +115,7 @@ export default {
       audience: "builder",
       language: "xml",
       file: "TwiML Response",
+      highlight: [6, 7],
       code: `<!-- Using Google Cloud TTS -->
 <Response>
   <Connect>
@@ -138,6 +140,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: [8, 9],
       code: `// Inside your http.createServer handler:
 if (req.url === "/twiml" && req.method === "POST") {
   const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
@@ -181,6 +184,33 @@ if (req.url === "/twiml" && req.method === "POST") {
       audience: "builder",
       content:
         "Pick a voice that fits your persona and update your server. In the next step, we will configure how the agent listens to the caller.",
+    },
+
+    {
+      type: "solution",
+      audience: "builder",
+      file: "server.js",
+      language: "javascript",
+      explanation:
+        "The /twiml handler with voice and ttsProvider attributes added to ConversationRelay.",
+      code: `if (req.url === "/twiml" && req.method === "POST") {
+  const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <ConversationRelay
+      url="wss://\${req.headers.host}/ws"
+      voice="Rachel"
+      ttsProvider="ElevenLabs"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
+    />
+  </Connect>
+</Response>\`;
+
+  res.writeHead(200, { "Content-Type": "text/xml" });
+  res.end(twiml);
+  return;
+}`,
     },
 
     {

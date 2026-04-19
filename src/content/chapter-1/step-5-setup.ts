@@ -94,14 +94,6 @@ MY_PHONE_NUMBER=+12065551234`,
     },
 
     {
-      type: "callout",
-      audience: "builder",
-      variant: "info",
-      content:
-        "Your Codespace opens at the repository root. All your server code goes in the `workshop/` directory. Run terminal commands from inside `workshop/`.",
-    },
-
-    {
       type: "verify",
       audience: "builder",
       question:

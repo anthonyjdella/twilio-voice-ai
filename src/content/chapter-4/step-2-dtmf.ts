@@ -75,6 +75,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: ["5-12", "14-16", "29-58"],
       code: `function handleMessage(ws, data) {
   const msg = JSON.parse(data);
 
@@ -167,6 +168,7 @@ function handleDtmfInput(ws, digit) {
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: ["1-10"],
       code: `// Send DTMF tones outbound (e.g., navigating another IVR)
 function sendDigits(ws, digits) {
   ws.send(JSON.stringify({
@@ -218,6 +220,220 @@ sendDigits(ws, "3");  // Press 3 for billing`,
       title: "Collecting multi-digit input",
       content:
         "If you need to collect a multi-digit input like an account number or PIN, you will need to buffer the digits yourself. Each keypress arrives as a separate `dtmf` message. Use a timer to detect when the caller has finished entering digits:\n\n```javascript\nlet dtmfBuffer = \"\";\nlet dtmfTimeout = null;\n\nfunction handleDtmfInput(ws, digit) {\n  dtmfBuffer += digit;\n  clearTimeout(dtmfTimeout);\n\n  // If # is pressed, process immediately\n  if (digit === \"#\") {\n    processCollectedDigits(ws, dtmfBuffer.slice(0, -1));\n    dtmfBuffer = \"\";\n    return;\n  }\n\n  // Otherwise wait 2 seconds for more digits\n  dtmfTimeout = setTimeout(() => {\n    processCollectedDigits(ws, dtmfBuffer);\n    dtmfBuffer = \"\";\n  }, 2000);\n}\n```",
+    },
+
+    {
+      type: "solution",
+      audience: "builder",
+      file: "server.js",
+      language: "javascript",
+      explanation:
+        "Builds on step 1 by adding handleDtmfInput with a menu system, a sendDigits helper for outbound tones, and updating handleMessage so the setup case sends the DTMF menu and the dtmf case routes to handleDtmfInput.",
+      code: `require("dotenv").config();
+const { WebSocketServer } = require("ws");
+const http = require("http");
+const OpenAI = require("openai");
+const twilio = require("twilio");
+
+const PORT = 8080;
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
+const SYSTEM_PROMPT = \`You are a helpful voice assistant for Acme Corp.
+Keep your responses brief -- one to two sentences at most.
+Speak naturally and conversationally.
+Never use markdown, bullet points, or numbered lists.
+If you don't know something, say so honestly.\`;
+
+// Module-scope state (single-caller workshop server)
+const conversationHistory = [
+  { role: "system", content: SYSTEM_PROMPT },
+];
+let activeStream = null;
+
+function sendText(ws, token, last = false) {
+  ws.send(JSON.stringify({ type: "text", token, last }));
+}
+
+function sendDigits(ws, digits) {
+  ws.send(JSON.stringify({ type: "sendDigits", digits }));
+}
+
+async function streamResponse(ws) {
+  activeStream = new AbortController();
+
+  const stream = await openai.chat.completions.create(
+    {
+      model: "gpt-5.4-nano",
+      messages: conversationHistory,
+      stream: true,
+    },
+    { signal: activeStream.signal }
+  );
+
+  try {
+    let assistantText = "";
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content ?? "";
+      if (token) {
+        assistantText += token;
+        sendText(ws, token);
+      }
+    }
+    sendText(ws, "", true);
+    conversationHistory.push({ role: "assistant", content: assistantText });
+  } catch (err) {
+    if (err.name !== "AbortError") throw err;
+  } finally {
+    activeStream = null;
+  }
+}
+
+function handlePrompt(ws, msg) {
+  conversationHistory.push({ role: "user", content: msg.voicePrompt });
+  streamResponse(ws);
+}
+
+function handleInterrupt(msg) {
+  console.log("Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
+
+  if (activeStream) {
+    activeStream.abort();
+    activeStream = null;
+  }
+
+  const lastMsg = conversationHistory[conversationHistory.length - 1];
+  if (lastMsg?.role === "assistant") {
+    lastMsg.content = msg.utteranceUntilInterrupt;
+  }
+}
+
+function handleDtmfInput(ws, digit) {
+  switch (digit) {
+    case "1":
+      conversationHistory.push({
+        role: "user",
+        content: "I want to check my order status.",
+      });
+      streamResponse(ws);
+      break;
+
+    case "2":
+      sendText(ws, "Let me transfer you to a representative. " +
+        "Please hold for a moment.", true);
+      break;
+
+    case "0":
+      sendText(ws, "Returning to the main menu. " +
+        "Press 1 for order status, 2 for a representative, " +
+        "or just tell me what you need.", true);
+      break;
+
+    default:
+      sendText(ws, "I didn't recognize that option. " +
+        "Press 1 for order status, or 2 for a representative.", true);
+      break;
+  }
+}
+
+function handleMessage(ws, data) {
+  const msg = JSON.parse(data);
+
+  switch (msg.type) {
+    case "setup":
+      console.log("Call started:", msg.callSid);
+      sendText(ws, "Press 1 to check your order status, " +
+        "press 2 to speak with a representative, " +
+        "or just tell me what you need.", true);
+      break;
+
+    case "prompt":
+      handlePrompt(ws, msg);
+      break;
+
+    case "interrupt":
+      handleInterrupt(msg);
+      break;
+
+    case "dtmf":
+      console.log("DTMF received:", msg.digit);
+      handleDtmfInput(ws, msg.digit);
+      break;
+
+    default:
+      console.log("Unhandled message type:", msg.type);
+  }
+}
+
+const server = http.createServer(async (req, res) => {
+  if (req.url === "/twiml" && req.method === "POST") {
+    const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <ConversationRelay
+      url="wss://\${req.headers.host}/ws"
+      welcomeGreeting="Hello! How can I help you today?"
+      interruptible="any"
+      dtmfDetection="true"
+    />
+  </Connect>
+</Response>\`;
+
+    res.writeHead(200, { "Content-Type": "text/xml" });
+    res.end(twiml);
+    return;
+  }
+
+  if (req.url === "/call" && req.method === "POST") {
+    try {
+      const call = await twilioClient.calls.create({
+        to: process.env.MY_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        url: \`https://\${req.headers.host}/twiml\`,
+      });
+
+      console.log("Call initiated:", call.sid);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ callSid: call.sid }));
+    } catch (error) {
+      console.error("Call error:", error.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+    return;
+  }
+
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("WebSocket server is running");
+});
+
+const wss = new WebSocketServer({ server, path: "/ws" });
+
+wss.on("connection", (ws) => {
+  console.log("New WebSocket connection");
+
+  ws.on("message", (data) => handleMessage(ws, data));
+
+  ws.on("close", () => {
+    console.log("Call ended");
+  });
+
+  ws.on("error", (err) => {
+    console.error("WebSocket error:", err);
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(\`Server listening on port \${PORT}\`);
+});`,
     },
   ],
 } satisfies StepDefinition;

@@ -134,6 +134,7 @@ CMD ["node", "server.js"]`,
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: ["1-9"],
       code: `// Inside your http.createServer handler, add a health check:
 if (req.url === "/health" && req.method === "GET") {
   res.writeHead(200, { "Content-Type": "application/json" });

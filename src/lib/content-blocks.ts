@@ -59,6 +59,8 @@ export interface CodeBlock extends BaseBlock {
   file?: string;
   startLine?: number;
   showLineNumbers?: boolean;
+  /** Lines to highlight as "new" code. Supports individual numbers and ranges: [3, 5, "7-10"] */
+  highlight?: (number | string)[];
 }
 
 /** Terminal/shell display — lines starting with $ are commands (copyable), rest is output */

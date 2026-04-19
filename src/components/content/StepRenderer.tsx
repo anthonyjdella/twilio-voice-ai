@@ -63,6 +63,7 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
           file={block.file}
           startLine={block.startLine}
           showLineNumbers={block.showLineNumbers}
+          highlight={block.highlight}
         />
       );
 

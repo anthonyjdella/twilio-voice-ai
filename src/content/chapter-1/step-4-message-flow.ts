@@ -118,21 +118,6 @@ export default {
         "Twilio keeps a live two-way connection open to your server for the entire call — that's what makes the conversation feel instant instead of walkie-talkie.",
     },
 
-    {
-      type: "callout",
-      variant: "info",
-      audience: "builder",
-      content:
-        "You now have the full mental model: architecture, call flow, and message format. The next steps get your environment ready so you can start writing code in Chapter 2.",
-    },
-
-    {
-      type: "callout",
-      variant: "info",
-      audience: "explorer",
-      content:
-        "You now have the full picture of how voice AI works under the hood -- the architecture, the call flow, and the data moving through each turn. The remaining steps in this chapter cover environment setup for builders. You can skip ahead to Chapter 2 to see the agent come to life.",
-    },
 
   ],
 } satisfies StepDefinition;

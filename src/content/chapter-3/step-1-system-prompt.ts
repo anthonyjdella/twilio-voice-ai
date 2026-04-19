@@ -94,6 +94,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: ["1-5"],
       code: `const SYSTEM_PROMPT = \`You are a helpful voice assistant for Acme Corp.
 Keep your responses brief \u2014 one to two sentences at most.
 Speak naturally and conversationally.
@@ -113,6 +114,7 @@ If you don't know something, say so honestly.\`;`,
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: ["3-7", "12-16"],
       code: `wss.on("connection", (ws, req) => {
   let callSid = null;
   // Seed each call with the system prompt. Every LLM turn will include
@@ -134,17 +136,9 @@ const stream = await openai.chat.completions.create({
 
     {
       type: "callout",
-      audience: "builder",
-      variant: "warning",
-      content:
-        'Do not include formatting instructions like "respond in markdown" or "use bullet points." The caller hears raw text spoken aloud, so formatting characters will be read out and sound confusing.',
-    },
-
-    {
-      type: "callout",
       variant: "tip",
       content:
-        "Test a system prompt by reading the AI's responses out loud. If they sound natural when spoken, the prompt is on the right track.",
+        "Read the AI's responses out loud. If they sound natural when spoken, the prompt is on the right track. If you hear formatting characters like asterisks or bullet markers, remove them from the instructions -- the caller hears raw text.",
     },
 
     { type: "section", title: "Your Turn", audience: "builder" },

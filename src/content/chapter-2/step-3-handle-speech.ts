@@ -54,6 +54,7 @@ export default {
       language: "javascript",
       file: "server.js",
       startLine: 26,
+      highlight: ["7-21"],
       code: `    switch (message.type) {
       case "setup":
         callSid = message.callSid;

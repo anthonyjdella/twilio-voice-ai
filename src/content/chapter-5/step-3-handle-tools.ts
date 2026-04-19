@@ -69,6 +69,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: ["1-2", 10, "13-14", "22-27", "30-50", "52-61"],
       code: `// At the top of server.js — import from Step 2
 const { tools, toolHandlers } = require("./tool-handlers.js");
 
@@ -174,6 +175,7 @@ async function streamResponse(ws, iteration = 0) {
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: ["1-34"],
       code: `const MAX_TOOL_ITERATIONS = 5;
 
 async function handleToolCalls(ws, toolCalls, iteration = 0) {
@@ -237,33 +239,9 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
     {
       type: "callout",
       audience: "builder",
-      variant: "info",
-      content:
-        "**Why `content: null` on the assistant message?** The OpenAI Chat Completions API requires *either* `content` *or* `tool_calls` on an assistant turn -- and when the model chose to call a tool, there is no user-facing text yet. Setting `content: null` and populating `tool_calls` mirrors exactly what the model returned, so the next request reconstructs the conversation faithfully. Omitting `tool_calls`, or setting `content` to a string like `\"\"`, will make the API reject the follow-up request with a `tool_call_id not found` error.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
       variant: "warning",
       content:
-        "Always wrap tool execution in a try/catch. If a tool throws an error, you still need to send a `tool` message back to OpenAI. Without it, the API will reject your next request because it expects a tool result for every tool call.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "warning",
-      content:
-        "**Tool results must be strings.** The `content` field on a `role: \"tool\"` message must be a JSON string, not a raw object. Always use `JSON.stringify(result)`. If you pass an object directly, the OpenAI API will reject the next request with a parsing error.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "tip",
-      content:
-        "While a tool is running, the caller hears silence. For tools that take more than a second, consider having the agent say something like \"Let me check that for you...\" first. This keeps the conversation feeling natural.",
+        "Three things the OpenAI API is strict about: the assistant message must have `content: null` (not `\"\"`) when it contains `tool_calls`; every tool call must get a `role: \"tool\"` response even if the tool errored; and the `content` on that response must be a `JSON.stringify()`'d string, not a raw object. Miss any of these and the next request will fail.",
     },
 
     {

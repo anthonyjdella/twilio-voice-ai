@@ -95,26 +95,9 @@ export default {
     },
 
     {
-      type: "callout",
-      audience: "builder",
-      variant: "tip",
+      type: "prose",
       content:
-        'If responses are too long, add explicit instructions like "Never respond with more than two sentences" or "Always end with a question to keep the conversation moving."',
-    },
-
-    {
-      type: "callout",
-      variant: "tip",
-      content:
-        "If the voice does not match the persona, try a different voice from the same provider. Sometimes a small change in voice makes the whole experience feel more cohesive.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "tip",
-      content:
-        "If the agent breaks character, strengthen the boundaries in the system prompt. Be very explicit about what the agent should never do.",
+        "**Responses too long?** Add explicit length constraints to the system prompt. **Voice feels off?** Try a different voice from the same provider. **Breaking character?** Strengthen the boundaries -- be very explicit about what the agent should never do.",
     },
 
     {

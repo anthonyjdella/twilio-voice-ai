@@ -42,6 +42,7 @@ export default {
       audience: "builder",
       language: "xml",
       file: "TwiML Response",
+      highlight: [7, 8, 9],
       code: `<Response>
   <Connect>
     <ConversationRelay
@@ -68,6 +69,7 @@ export default {
       audience: "builder",
       language: "xml",
       file: "TwiML Response",
+      highlight: ["5-9"],
       code: `<Response>
   <Connect>
     <ConversationRelay
@@ -113,6 +115,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: [10, 11, 12],
       code: `// Inside your http.createServer handler:
 if (req.url === "/twiml" && req.method === "POST") {
   const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
@@ -153,6 +156,36 @@ if (req.url === "/twiml" && req.method === "POST") {
       audience: "builder",
       content:
         "Make sure your system prompt language matches the `language` attribute. If you set `language=\"es-ES\"` but your system prompt is in English, the AI will respond in English and the caller experience will be inconsistent.",
+    },
+
+    {
+      type: "solution",
+      audience: "builder",
+      file: "server.js",
+      language: "javascript",
+      explanation:
+        "The /twiml handler with voice, TTS, language, and speech recognition all configured.",
+      code: `if (req.url === "/twiml" && req.method === "POST") {
+  const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <ConversationRelay
+      url="wss://\${req.headers.host}/ws"
+      voice="Rachel"
+      ttsProvider="ElevenLabs"
+      language="en-US"
+      transcriptionProvider="Deepgram"
+      speechModel="nova-3-general"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
+    />
+  </Connect>
+</Response>\`;
+
+  res.writeHead(200, { "Content-Type": "text/xml" });
+  res.end(twiml);
+  return;
+}`,
     },
 
     {

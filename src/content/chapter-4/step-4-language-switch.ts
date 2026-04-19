@@ -69,6 +69,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: ["3-10"],
       code: `const systemPrompt = \`You are a helpful customer service agent.
 
 LANGUAGE DETECTION:
@@ -95,6 +96,7 @@ LANGUAGE DETECTION:
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: ["1-27"],
       code: `const LANG_MARKER_REGEX = /^\\[LANG:([\\w-]+)\\]/;
 
 let currentLanguage = "en-US";
@@ -175,19 +177,301 @@ function processLLMResponse(ws, text) {
     },
 
     {
-      type: "callout",
-      audience: "builder",
-      variant: "tip",
-      content:
-        "When switching languages, also consider switching the voice. A Spanish voice will pronounce Spanish text much more naturally than an English voice trying to speak Spanish.",
-    },
-
-    {
       type: "deep-dive",
       audience: "builder",
       title: "Multi-language system prompt strategy",
       content:
         "For truly multilingual agents, write the system prompt in English (since most LLMs perform best with English instructions) but explicitly state that the agent should respond in the caller's language. The LLM will follow instructions in English while generating responses in the target language.\n\nSome teams maintain separate system prompts per language for cultural nuance, but for most use cases, a single English prompt with multilingual instructions works well. The key is testing -- have native speakers call the agent and verify the experience feels natural.",
+    },
+
+    {
+      type: "solution",
+      audience: "builder",
+      file: "server.js",
+      language: "javascript",
+      explanation:
+        "Builds on step 3 by adding a LANGUAGE DETECTION section to the system prompt, a LANG_MARKER_REGEX constant, currentLanguage tracking, and a processLLMResponse function that detects language markers and sends a language switch message to Twilio.",
+      code: `require("dotenv").config();
+const { WebSocketServer } = require("ws");
+const http = require("http");
+const OpenAI = require("openai");
+const twilio = require("twilio");
+
+const PORT = 8080;
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
+const SYSTEM_PROMPT = \`You are a helpful voice assistant for Acme Corp.
+Keep your responses brief -- one to two sentences at most.
+Speak naturally and conversationally.
+Never use markdown, bullet points, or numbered lists.
+If you don't know something, say so honestly.
+
+LANGUAGE DETECTION:
+- You can speak English and Spanish fluently.
+- If the caller switches to a different language, respond in that language.
+- When you detect a language switch, include the marker [LANG:xx-XX]
+  at the very beginning of your response, where xx-XX is the BCP-47
+  language code (e.g., [LANG:es-ES] for Spanish, [LANG:en-US] for English).
+- Only include the marker when the language CHANGES, not on every message.\`;
+
+const SILENCE_TIMEOUT_MS = 8000;
+const MAX_SILENCE_PROMPTS = 2;
+const LANG_MARKER_REGEX = /^\\[LANG:([\\w-]+)\\]/;
+
+// Module-scope state (single-caller workshop server)
+const conversationHistory = [
+  { role: "system", content: SYSTEM_PROMPT },
+];
+let activeStream = null;
+let silenceTimer = null;
+let silencePromptCount = 0;
+let currentLanguage = "en-US";
+
+function sendText(ws, token, last = false) {
+  ws.send(JSON.stringify({ type: "text", token, last }));
+}
+
+function sendDigits(ws, digits) {
+  ws.send(JSON.stringify({ type: "sendDigits", digits }));
+}
+
+function processLLMResponse(ws, text) {
+  const match = text.match(LANG_MARKER_REGEX);
+
+  if (match) {
+    const newLang = match[1];
+
+    if (newLang !== currentLanguage) {
+      console.log(\`Switching language: \${currentLanguage} -> \${newLang}\`);
+      currentLanguage = newLang;
+
+      ws.send(JSON.stringify({
+        type: "language",
+        ttsLanguage: newLang,
+        transcriptionLanguage: newLang,
+      }));
+    }
+
+    text = text.replace(LANG_MARKER_REGEX, "").trim();
+  }
+
+  if (text) {
+    sendText(ws, text, true);
+  }
+}
+
+function resetSilenceTimer(ws) {
+  clearTimeout(silenceTimer);
+  silencePromptCount = 0;
+
+  silenceTimer = setTimeout(() => {
+    handleSilence(ws);
+  }, SILENCE_TIMEOUT_MS);
+}
+
+function handleSilence(ws) {
+  silencePromptCount++;
+
+  if (silencePromptCount >= MAX_SILENCE_PROMPTS) {
+    sendText(ws, "It seems like you may have stepped away. " +
+      "I'll end the call for now. Feel free to call back anytime!", true);
+    ws.send(JSON.stringify({ type: "end" }));
+    return;
+  }
+
+  const prompts = [
+    "Are you still there? Take your time -- I'm here whenever you're ready.",
+    "I'm still here if you need anything. Is there something I can help with?",
+  ];
+
+  sendText(ws, prompts[silencePromptCount - 1], true);
+
+  silenceTimer = setTimeout(() => {
+    handleSilence(ws);
+  }, SILENCE_TIMEOUT_MS);
+}
+
+async function streamResponse(ws) {
+  activeStream = new AbortController();
+
+  const stream = await openai.chat.completions.create(
+    {
+      model: "gpt-5.4-nano",
+      messages: conversationHistory,
+      stream: true,
+    },
+    { signal: activeStream.signal }
+  );
+
+  try {
+    let assistantText = "";
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content ?? "";
+      if (token) {
+        assistantText += token;
+        sendText(ws, token);
+      }
+    }
+    sendText(ws, "", true);
+    conversationHistory.push({ role: "assistant", content: assistantText });
+  } catch (err) {
+    if (err.name !== "AbortError") throw err;
+  } finally {
+    activeStream = null;
+  }
+}
+
+function handlePrompt(ws, msg) {
+  conversationHistory.push({ role: "user", content: msg.voicePrompt });
+  streamResponse(ws);
+}
+
+function handleInterrupt(msg) {
+  console.log("Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
+
+  if (activeStream) {
+    activeStream.abort();
+    activeStream = null;
+  }
+
+  const lastMsg = conversationHistory[conversationHistory.length - 1];
+  if (lastMsg?.role === "assistant") {
+    lastMsg.content = msg.utteranceUntilInterrupt;
+  }
+}
+
+function handleDtmfInput(ws, digit) {
+  switch (digit) {
+    case "1":
+      conversationHistory.push({
+        role: "user",
+        content: "I want to check my order status.",
+      });
+      streamResponse(ws);
+      break;
+
+    case "2":
+      sendText(ws, "Let me transfer you to a representative. " +
+        "Please hold for a moment.", true);
+      break;
+
+    case "0":
+      sendText(ws, "Returning to the main menu. " +
+        "Press 1 for order status, 2 for a representative, " +
+        "or just tell me what you need.", true);
+      break;
+
+    default:
+      sendText(ws, "I didn't recognize that option. " +
+        "Press 1 for order status, or 2 for a representative.", true);
+      break;
+  }
+}
+
+function handleMessage(ws, data) {
+  const msg = JSON.parse(data);
+
+  switch (msg.type) {
+    case "setup":
+      console.log("Call started:", msg.callSid);
+      resetSilenceTimer(ws);
+      sendText(ws, "Press 1 to check your order status, " +
+        "press 2 to speak with a representative, " +
+        "or just tell me what you need.", true);
+      break;
+
+    case "prompt":
+      resetSilenceTimer(ws);
+      handlePrompt(ws, msg);
+      break;
+
+    case "interrupt":
+      resetSilenceTimer(ws);
+      handleInterrupt(msg);
+      break;
+
+    case "dtmf":
+      resetSilenceTimer(ws);
+      console.log("DTMF received:", msg.digit);
+      handleDtmfInput(ws, msg.digit);
+      break;
+
+    default:
+      console.log("Unhandled message type:", msg.type);
+  }
+}
+
+const server = http.createServer(async (req, res) => {
+  if (req.url === "/twiml" && req.method === "POST") {
+    const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <ConversationRelay
+      url="wss://\${req.headers.host}/ws"
+      welcomeGreeting="Hello! How can I help you today?"
+      interruptible="any"
+      dtmfDetection="true"
+    />
+  </Connect>
+</Response>\`;
+
+    res.writeHead(200, { "Content-Type": "text/xml" });
+    res.end(twiml);
+    return;
+  }
+
+  if (req.url === "/call" && req.method === "POST") {
+    try {
+      const call = await twilioClient.calls.create({
+        to: process.env.MY_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        url: \`https://\${req.headers.host}/twiml\`,
+      });
+
+      console.log("Call initiated:", call.sid);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ callSid: call.sid }));
+    } catch (error) {
+      console.error("Call error:", error.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+    return;
+  }
+
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("WebSocket server is running");
+});
+
+const wss = new WebSocketServer({ server, path: "/ws" });
+
+wss.on("connection", (ws) => {
+  console.log("New WebSocket connection");
+
+  ws.on("message", (data) => handleMessage(ws, data));
+
+  ws.on("close", () => {
+    clearTimeout(silenceTimer);
+    console.log("Call ended, timers cleared.");
+  });
+
+  ws.on("error", (err) => {
+    console.error("WebSocket error:", err);
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(\`Server listening on port \${PORT}\`);
+});`,
     },
   ],
 } satisfies StepDefinition;

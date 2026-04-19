@@ -100,6 +100,7 @@ export default {
       audience: "builder",
       language: "xml",
       file: "twiml-response",
+      highlight: [6],
       code: `<!-- The only change vs. your existing TwiML is the new action="/call-ended"
      on <Connect>. Keep every other attribute you already have — voice,
      ttsProvider, welcomeGreeting, language, interruptible, etc. — untouched;
@@ -130,6 +131,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: ["1-35"],
       code: `// Inside your http.createServer handler, add a route for the action URL:
 if (req.url === "/call-ended" && req.method === "POST") {
   let body = "";
@@ -168,29 +170,13 @@ if (req.url === "/call-ended" && req.method === "POST") {
 }`,
     },
 
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "tip",
-      content:
-        "The `<Queue>support</Queue>` example above assumes you have a Twilio TaskRouter queue configured. For simple workshop testing, you can replace it with `<Number>+15551234567</Number>` to dial a specific phone number directly. In production, TaskRouter gives you skills-based routing -- see [Twilio TaskRouter docs](https://www.twilio.com/docs/taskrouter) for setup.",
-    },
-
     { type: "section", title: "Triggering Handoff from a Tool Call", audience: "builder" },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "The cleanest approach is to give the AI a `transfer_to_agent` tool. When the AI decides the caller needs a human, it uses this tool, and your code sends the handoff message:",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "info",
-      content:
-        "**Where this goes:** `transfer_to_agent` is a new entry in the `tools` array and a new key on the `toolHandlers` object -- both defined in `tool-handlers.js` back in Step 2. Paste the function-schema object as another element in `tools`, and the handler as another method on `toolHandlers`. `module.exports = { tools, toolHandlers }` picks them up automatically.",
+        "The cleanest approach is to give the AI a `transfer_to_agent` tool. Add this to the `tools` array and `toolHandlers` object in `tool-handlers.js` (alongside the tools from Step 2). When the AI decides the caller needs a human, it uses this tool, and your code sends the handoff message:",
     },
 
     {
@@ -198,6 +184,7 @@ if (req.url === "/call-ended" && req.method === "POST") {
       audience: "builder",
       language: "javascript",
       file: "tool-handlers.js",
+      highlight: ["1-56"],
       code: `// Add to your tools array (alongside check_weather, lookup_order)
 {
   type: "function",
@@ -259,25 +246,152 @@ transfer_to_agent: async ({ reason, department, summary }, ws) => {
     {
       type: "callout",
       audience: "builder",
-      variant: "warning",
-      content:
-        "After sending the `end` message, the connection closes. Do not try to send any more messages after this point. Make sure the caller hears the transfer announcement before you send the end message -- that is why the example above waits 2 seconds.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "tip",
-      content:
-        "Include a conversation summary in `handoffData`. Human agents strongly prefer knowing what the caller already discussed with the AI rather than making the caller repeat themselves.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
       variant: "error",
       content:
         "**Do not pass sensitive information (credit card numbers, social security numbers, health records) through `handoffData` or through the AI.** This data gets logged by Twilio and stored on your server. If the caller needs to share payment or personal details, let the human agent collect it after the transfer -- not the AI.",
+    },
+
+    {
+      type: "solution",
+      audience: "builder",
+      file: "tool-handlers.js",
+      language: "javascript",
+      explanation:
+        "The complete tool-handlers.js with all three tool definitions and handlers, including the transfer_to_agent handoff tool added in this step.",
+      code: `const tools = [
+  {
+    type: "function",
+    function: {
+      name: "check_weather",
+      description: "Get the current weather for a given city. " +
+        "Use when the caller asks about weather, temperature, " +
+        "or conditions in a specific location.",
+      parameters: {
+        type: "object",
+        properties: {
+          city: {
+            type: "string",
+            description: "The city name, e.g. 'Austin' or 'New York'"
+          },
+          unit: {
+            type: "string",
+            enum: ["fahrenheit", "celsius"],
+            description: "Temperature unit (defaults to fahrenheit)"
+          }
+        },
+        required: ["city"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "lookup_order",
+      description: "Look up the status of a customer order by order ID. " +
+        "Use when the caller asks about an order, shipment, or delivery.",
+      parameters: {
+        type: "object",
+        properties: {
+          order_id: {
+            type: "string",
+            description: "The order ID, e.g. 'ORD-12345'"
+          }
+        },
+        required: ["order_id"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "transfer_to_agent",
+      description: "Transfer the caller to a live human agent. " +
+        "Use this when the caller explicitly requests a human, " +
+        "or when you cannot resolve their issue.",
+      parameters: {
+        type: "object",
+        properties: {
+          reason: {
+            type: "string",
+            description: "Brief reason for the transfer"
+          },
+          department: {
+            type: "string",
+            enum: ["billing", "technical", "general"],
+            description: "Department to route to"
+          },
+          summary: {
+            type: "string",
+            description: "Summary of the conversation so far"
+          }
+        },
+        required: ["reason", "summary"]
+      }
+    }
+  }
+];
+
+const toolHandlers = {
+  check_weather: async ({ city, unit = "fahrenheit" }, _ws) => {
+    const mockWeather = {
+      "austin": { temp: 78, condition: "sunny", humidity: 45 },
+      "new york": { temp: 55, condition: "cloudy", humidity: 72 },
+      "seattle": { temp: 48, condition: "rainy", humidity: 88 },
+    };
+    const weather = mockWeather[city.toLowerCase()];
+    if (!weather) {
+      return { error: "Weather data not available for " + city };
+    }
+    const temp = unit === "celsius"
+      ? Math.round((weather.temp - 32) * 5 / 9)
+      : weather.temp;
+    return {
+      city, temperature: temp, unit,
+      condition: weather.condition,
+      humidity: weather.humidity + "%"
+    };
+  },
+
+  lookup_order: async ({ order_id }, _ws) => {
+    const mockOrders = {
+      "ORD-12345": { status: "shipped", tracking: "1Z999AA10123456784", eta: "March 15, 2026" },
+      "ORD-67890": { status: "processing", tracking: null, eta: "March 20, 2026" },
+    };
+    const order = mockOrders[order_id];
+    if (!order) {
+      return { error: "Order not found: " + order_id };
+    }
+    return { order_id, ...order };
+  },
+
+  transfer_to_agent: async ({ reason, department, summary }, ws) => {
+    // Let the caller know what's happening.
+    // sendText lives in server.js, not here — use ws.send directly.
+    ws.send(JSON.stringify({
+      type: "text",
+      token: "I understand you need more help with this. " +
+        "Let me connect you with a team member who can assist.",
+      last: true
+    }));
+
+    // Small delay so the caller hears the message before the session ends
+    setTimeout(() => {
+      ws.send(JSON.stringify({
+        type: "end",
+        handoffData: JSON.stringify({
+          reason,
+          department: department || "general",
+          summary,
+          timestamp: new Date().toISOString()
+        })
+      }));
+    }, 2000);
+
+    return { status: "transferring" };
+  }
+};
+
+module.exports = { tools, toolHandlers };`,
     },
 
     {

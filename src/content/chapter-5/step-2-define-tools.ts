@@ -104,6 +104,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "tool-handlers.js",
+      highlight: ["19-39"],
       code: `const tools = [
   {
     type: "function",
@@ -216,14 +217,6 @@ module.exports = { tools, toolHandlers };`,
         "Always return a result from your tool functions, even on error. If a function crashes without returning anything, the AI will not know what happened and may fabricate an answer. Return an error message like `{ error: \"Not found\" }` so the AI can tell the caller what went wrong.",
     },
 
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "info",
-      content:
-        "**Handler signature:** each handler receives two arguments -- `(args, ws)`. The second argument is the active WebSocket. Most tools only need `args`, but tools like `transfer_to_agent` (step 4) need `ws` to send an `end` message mid-call. Accept it now so every handler has a uniform shape.",
-    },
-
     { type: "section", title: "Passing Tools to OpenAI", audience: "builder" },
 
     {
@@ -238,6 +231,7 @@ module.exports = { tools, toolHandlers };`,
       audience: "builder",
       language: "javascript",
       file: "server.js",
+      highlight: [4],
       code: `const response = await openai.chat.completions.create({
   model: "gpt-5.4-nano",
   messages: conversationHistory,
