@@ -122,6 +122,8 @@ export interface DiagramBlock extends BaseBlock {
     | "tools"
     | "handoff"
     | "complete";
+  showTools?: boolean;
+  showHandoff?: boolean;
 }
 
 /** Image with alt text and optional caption */

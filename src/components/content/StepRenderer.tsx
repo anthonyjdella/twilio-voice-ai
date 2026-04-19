@@ -107,8 +107,8 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
       return (
         <ArchitectureDiagram
           highlight={block.highlight}
-          showTools={block.highlight === "tools" || block.highlight === "all" || block.highlight === "complete"}
-          showHandoff={block.highlight === "handoff" || block.highlight === "complete"}
+          showTools={block.showTools ?? (block.highlight === "tools" || block.highlight === "all" || block.highlight === "complete")}
+          showHandoff={block.showHandoff ?? (block.highlight === "handoff" || block.highlight === "complete")}
         />
       );
 

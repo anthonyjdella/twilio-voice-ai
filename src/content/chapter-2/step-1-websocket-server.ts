@@ -2,52 +2,64 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "diagram", variant: "architecture", highlight: "server" },
+    { type: "diagram", variant: "architecture", highlight: "server", showTools: true },
 
-    { type: "section", title: "Your WebSocket Server" },
+    { type: "section", title: "The WebSocket Server" },
 
     {
       type: "concept-card",
       audience: "explorer",
       title: "What a WebSocket Server Does Here",
       content:
-        "A WebSocket is a two-way pipe that stays open for the whole phone call. Twilio uses it to stream the caller's words to your code as text, and to stream your AI's replies back as text -- no audio files, no reconnecting between turns. Your \"server\" is just the program listening at the other end of that pipe.",
+        "A WebSocket is a two-way pipe that stays open for the whole phone call. Twilio uses it to stream the caller's words to the server as text, and to stream the AI's replies back as text -- no audio files, no reconnecting between turns. The server is just the program listening at the other end of that pipe.",
     },
 
     {
       type: "prose",
       content:
-        "When a call connects, Twilio opens a live two-way channel to your server that stays open for the entire call. The caller's words flow in as text, and your AI's replies flow out as text. Your job is to set up a server that can keep that channel open.",
+        "When a call connects, Twilio opens a live two-way channel to the server that stays open for the entire call. The caller's words flow in as text, and the AI's replies flow out as text.",
     },
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "We will use the `ws` npm package to create a lightweight WebSocket server in Node.js, plus `dotenv` to load the credentials from your `.env` file. Install them now from the `workshop/` directory:",
+        "The server needs to do three things: accept the incoming connection from Twilio, listen for messages (like the caller's speech), and send messages back (like the AI's response). Think of it like a receptionist who picks up the phone, listens to the caller, and passes their words along to the right person.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "We will use the `ws` npm package to create a lightweight WebSocket server in Node.js, plus `dotenv` to load the credentials from your `.env` file. Install them now:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "bash",
-      code: "cd workshop\nnpm install ws dotenv",
+      code: "npm install ws dotenv",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Now create a file called `server.js` inside the `workshop/` directory.",
+        "Now create a file called `server.js` in the current directory.",
     },
 
-    { type: "section", title: "The Skeleton" },
+    { type: "section", title: "The Skeleton", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Start with this minimal structure. It loads your `.env` file, creates an HTTP server, attaches a WebSocket server to it, and listens for incoming connections:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       startLine: 1,
@@ -96,7 +108,7 @@ server.listen(PORT, () => {
     {
       type: "prose",
       content:
-        "The very first message Twilio sends through the connection is a `setup` message. This arrives immediately when the call connects and contains information about the call -- including the phone numbers involved and a unique identifier for the call.",
+        "The very first message Twilio sends through the connection is a `setup` message. It arrives immediately when the call connects and contains information about the call -- the phone numbers involved, a unique identifier, and whether the call is inbound or outbound.",
     },
 
     {
@@ -118,12 +130,21 @@ server.listen(PORT, () => {
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "You should handle the `setup` message to prepare for the call -- for example, creating a blank conversation history and saving the call ID for your logs.",
+        "This is the first thing the server sees when a call begins. It includes who is calling (`from`), who they called (`to`), and a unique call ID (`callSid`) so everything that happens during the conversation can be tracked together. The server saves this information and gets ready to start relaying messages between the caller and the AI.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "Handle the `setup` message to prepare for the call -- create a blank conversation history and save the call ID for your logs:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       startLine: 16,
@@ -155,7 +176,7 @@ server.listen(PORT, () => {
       type: "callout",
       variant: "tip",
       content:
-        "Each connection corresponds to exactly one phone call. When the caller hangs up, the connection closes automatically. This means each call gets its own conversation history -- no extra bookkeeping needed.",
+        "Each connection corresponds to exactly one phone call. When the caller hangs up, the connection closes automatically. Each call gets its own conversation history.",
     },
 
     {

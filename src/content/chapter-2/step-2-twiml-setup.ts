@@ -2,7 +2,7 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "diagram", variant: "architecture", highlight: "setup" },
+    { type: "diagram", variant: "architecture", highlight: "setup", showTools: true },
 
     { type: "section", title: "Making an Outbound Call with ConversationRelay" },
 
@@ -11,39 +11,50 @@ export default {
       audience: "explorer",
       title: "TwiML in One Minute",
       content:
-        "TwiML is a short instruction sheet you hand to Twilio. When a call connects, Twilio reads it and does what it says -- \"play this greeting\", \"connect to my server\", \"listen for keypresses\". In this workshop, one short set of instructions is all it takes to wire a live phone call into your code.",
+        "TwiML is a short instruction sheet you hand to Twilio. When a call connects, Twilio reads it and does what it says -- \"play this greeting\", \"connect to my server\", \"listen for keypresses\". In this workshop, one short set of instructions is all it takes to wire a live phone call into the AI agent.",
     },
 
     {
       type: "prose",
       content:
-        "In this workshop, your server calls you rather than waiting for an incoming call. When someone picks up, Twilio asks your server \"what should I do with this call?\" and your server replies with a short set of instructions that says \"connect this call to my AI agent.\" That handoff is what wires the live phone call into your code.",
+        "In this workshop, the server calls you rather than waiting for an incoming call. When someone picks up, Twilio asks the server \"what should I do with this call?\" and the server replies with a short set of instructions that says \"connect this call to my AI agent.\" That handoff is what wires the live phone call into the code.",
     },
-
-    { type: "section", title: "Install the Twilio SDK" },
 
     {
       type: "prose",
+      audience: "explorer",
+      content:
+        "This is a two-step process: first, the server triggers Twilio to dial your phone. Then, when you answer, Twilio calls back to the server asking for instructions. The server tells Twilio to open a live connection for the AI conversation.",
+    },
+
+    { type: "section", title: "Install the Twilio SDK", audience: "builder" },
+
+    {
+      type: "prose",
+      audience: "builder",
       content:
         "You will need the Twilio library to make outbound calls. Install it now:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "bash",
       code: "npm install twilio",
     },
 
-    { type: "section", title: "The TwiML Endpoint" },
+    { type: "section", title: "The TwiML Endpoint", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Add a route to your server that responds with instructions. When Twilio connects the outbound call, it asks your server what to do. Your server replies with a short set of instructions that tells Twilio to connect the call to your AI agent.",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       startLine: 7,
@@ -73,16 +84,18 @@ export default {
 });`,
     },
 
-    { type: "section", title: "Initiate the Outbound Call" },
+    { type: "section", title: "Initiate the Outbound Call", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Add a `/call` endpoint that tells Twilio to call your phone. When triggered, it dials your number and points Twilio at your instructions endpoint:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       startLine: 1,
@@ -141,10 +154,18 @@ const server = http.createServer(async (req, res) => {
 });`,
     },
 
-    { type: "section", title: "Key Attributes" },
+    { type: "section", title: "How the Connection Is Configured" },
 
     {
       type: "prose",
+      audience: "explorer",
+      content:
+        "The instructions the server sends to Twilio include a few important settings that control how the call behaves:",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
       content:
         "The ConversationRelay instruction accepts several important settings:",
     },
@@ -152,31 +173,32 @@ const server = http.createServer(async (req, res) => {
     {
       type: "prose",
       content:
+        "**Welcome greeting** -- An optional message that Twilio speaks the moment the call connects, before anything else happens. This avoids the awkward silence while the AI gets ready.",
+    },
+
+    {
+      type: "prose",
+      content:
+        "**Keypad detection** -- When enabled, Twilio can detect when the caller presses buttons on their phone. This lets the caller navigate menus or enter account numbers.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
         "**url** -- The address where Twilio connects to your server. This must be a secure `wss://` address that Twilio can reach over the internet. In Codespaces, your forwarded port URL handles this automatically.",
     },
 
     {
       type: "prose",
       content:
-        "**welcomeGreeting** -- An optional greeting that Twilio speaks immediately when the call connects, before anything else happens. This avoids the initial silence while your server is getting ready.",
+        "**Speech and voice providers** -- ConversationRelay defaults to **ElevenLabs** for turning text into speech and **Deepgram** for turning speech into text. These can be changed later if a different voice or transcription provider is preferred.",
     },
 
     {
       type: "prose",
       content:
-        "**dtmfDetection** -- When `true`, Twilio detects keypad presses and tells your server which key was pressed. This lets the caller press buttons to navigate menus or enter account numbers.",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**ttsProvider / transcriptionProvider** -- ConversationRelay defaults to **ElevenLabs** for turning text into speech and **Deepgram** for turning speech into text. Since these are the defaults, we leave them out to keep things simple. You can change them later if you prefer Google or Amazon voices.",
-    },
-
-    {
-      type: "prose",
-      content:
-        '**interruptible** -- Controls what can interrupt AI speech. Set to `"any"` (default) to allow both voice and keypad interruption, `"speech"` for voice only, `"dtmf"` for keypress only, or `"none"` to disable interruption entirely.',
+        "**Interruption handling** -- By default, the caller can interrupt the AI mid-sentence by speaking or pressing a key. When that happens, the AI stops talking and listens to the new input.",
     },
 
     {
@@ -188,27 +210,31 @@ const server = http.createServer(async (req, res) => {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
         "The `url` attribute must use `wss://` (secure connection), not `ws://`. Twilio requires a secure connection, and Codespace port forwarding provides this automatically. If you use `ws://`, the connection will fail silently and the call will hang.",
     },
 
-    { type: "section", title: "Codespace Port Forwarding" },
+    { type: "section", title: "Codespace Port Forwarding", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Your server is running on port `8080` inside the Codespace. GitHub gives you a public URL automatically. Your URL will look like `your-codespace-8080.app.github.dev`. Make sure the port visibility is set to **Public** in the Ports tab.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "You will need this URL in two places: once with `wss://` for the live connection, and once with `https://` for the call setup. The code handles this automatically using `req.headers.host`.",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         "In the Codespace Ports tab, right-click your port and select \"Port Visibility\" > \"Public\". Twilio needs to reach your server from the internet. The Codespace URL is stable for the lifetime of the Codespace, so you do not need to update it after restarts.",

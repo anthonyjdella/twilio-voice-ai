@@ -2,7 +2,7 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "diagram", variant: "architecture", highlight: "llm" },
+    { type: "diagram", variant: "architecture", highlight: "llm", showTools: true },
 
     { type: "section", title: "Connecting to the AI" },
 
@@ -11,43 +11,48 @@ export default {
       audience: "explorer",
       title: "Why Streaming Feels Natural",
       content:
-        "A large language model can take a few seconds to finish a full reply. Instead of waiting for the whole thing, we hand each word to Twilio the moment it's generated -- so the caller hears the AI start speaking almost immediately, word by word.",
+        "An AI model can take a few seconds to finish a full reply. Instead of waiting for the whole thing, the server hands each word to Twilio the moment it is generated -- so the caller hears the AI start speaking almost immediately, word by word.",
     },
 
     {
       type: "prose",
       audience: "explorer",
       content:
-        "Imagine texting someone who types their entire paragraph before hitting send — versus someone who sends one sentence at a time. Streaming works the same way: the AI generates words one by one, and we send each word to Twilio the instant it appears. The caller starts hearing the response within milliseconds instead of waiting several seconds for the full answer. That is what makes this feel like a conversation, not a voicemail.",
+        "Imagine texting someone who types their entire paragraph before hitting send -- versus someone who sends one sentence at a time. Streaming works the same way: the AI generates words one by one, and the server sends each word to Twilio the instant it appears. The caller starts hearing the response within milliseconds instead of waiting several seconds for the full answer. That is what makes this feel like a conversation, not a voicemail.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "When the caller speaks, you send their words to the AI, get a response, and send it back to Twilio so the caller hears a reply. Instead of waiting for the entire answer, you send each piece the moment it's ready -- so the caller starts hearing a response almost instantly.",
     },
 
-    { type: "section", title: "Install the OpenAI SDK" },
+    { type: "section", title: "Install the OpenAI SDK", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content: "First, add the OpenAI package to your project:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "bash",
       code: "npm install openai",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Then add the import and client initialization at the top of `server.js`:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       startLine: 1,
@@ -68,7 +73,7 @@ const openai = new OpenAI({
     {
       type: "prose",
       content:
-        "To send speech back to the caller, your server sends text messages to Twilio. Each message carries a piece of the reply. You mark the last piece with a \"done\" flag so Twilio knows the response is complete. Twilio starts converting text to speech the moment the first piece arrives, so the caller hears a response almost instantly.",
+        "To send speech back to the caller, the server sends text messages to Twilio. Each message carries a piece of the reply. The last piece is marked with a \"done\" flag so Twilio knows the response is complete. Twilio starts converting text to speech the moment the first piece arrives, so the caller hears a response almost instantly.",
     },
 
     {
@@ -94,6 +99,13 @@ const openai = new OpenAI({
     },
 
     {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "So the full flow for a single exchange goes: the caller speaks, Twilio transcribes it and sends the text to the server, the server sends that text to the AI, the AI generates a reply word by word, and the server sends each word back to Twilio, which speaks it aloud to the caller. All of this happens in under two seconds.",
+    },
+
+    {
       type: "callout",
       audience: "builder",
       variant: "warning",
@@ -101,16 +113,18 @@ const openai = new OpenAI({
         "You **must** send exactly one message with `last: true` to signal the end of your response. If you forget this, Twilio will keep waiting for more tokens and the caller will hear silence. If you send `last: true` more than once, Twilio will treat each as a separate utterance.",
     },
 
-    { type: "section", title: "Streaming Implementation" },
+    { type: "section", title: "Streaming Implementation", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Create a function that sends the conversation to the AI, receives the reply piece by piece, and forwards each piece to Twilio so the caller hears it immediately:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       startLine: 40,
@@ -162,16 +176,18 @@ async function streamLLMResponse(ws, conversationHistory) {
 }`,
     },
 
-    { type: "section", title: "Wire It Up" },
+    { type: "section", title: "Wire It Up", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Replace the `TODO` comment in your prompt handler with a call to the streaming function:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       startLine: 34,
@@ -193,6 +209,7 @@ async function streamLLMResponse(ws, conversationHistory) {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         "Notice we are not using `await` here. The function runs in the background, sending each piece of the reply as it arrives. Your server can continue handling other events (like the caller interrupting) while the response streams.",
