@@ -11,38 +11,44 @@ export default {
       audience: "explorer",
       title: "Why Barge-In Matters",
       content:
-        "Real conversations aren't turn-based. People cut each other off, change their mind mid-sentence, and repeat themselves when they feel unheard. If your voice agent insists on finishing every sentence before listening, it feels robotic fast. Barge-in is the feature that lets the caller interrupt at any moment, and it's half the reason a ConversationRelay agent feels alive.",
+        "Real conversations aren't turn-based. People cut each other off, change their mind mid-sentence, and repeat themselves when they feel unheard. If a voice agent insists on finishing every sentence before listening, it feels robotic fast. Barge-in is the feature that lets the caller interrupt at any moment, and it's half the reason a ConversationRelay agent feels alive.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Real conversations are messy. People interrupt, change their minds mid-sentence, and talk over each other. A great voice agent handles all of this gracefully. ConversationRelay has built-in **barge-in** support -- when a caller speaks while the AI is still talking, Twilio detects it, stops the AI mid-sentence, and lets your server know what happened.",
+        "Real conversations are messy. People interrupt, change their minds mid-sentence, and talk over each other. A great voice agent handles all of this gracefully. ConversationRelay has built-in **barge-in** support -- when a caller speaks while the AI is still talking, Twilio detects it, stops the AI mid-sentence, and sends a WebSocket message describing what happened.",
     },
 
-    { type: "section", title: "How Barge-In Works" },
+    { type: "section", title: "How Barge-In Works", audience: "builder" },
 
     {
       type: "prose",
-      content: "Here is the flow when a caller interrupts:",
-    },
-
-    {
-      type: "prose",
+      audience: "explorer",
       content:
-        "1. Your AI agent is speaking to the caller.\n2. The caller starts talking before the agent finishes.\n3. Twilio immediately stops the agent's voice and lets your server know what happened.\n4. Your server cancels the AI's current reply so it does not keep generating text nobody will hear.\n5. Twilio sends the caller's new words to your server, and the conversation continues from there.",
+        "When a caller interrupts, the system immediately stops the AI's voice, notes how much the caller actually heard, and then processes whatever the caller said next. The conversation picks up from there.",
     },
-
-    { type: "section", title: "The Interrupt Message" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "When barge-in occurs, ConversationRelay sends this message to your server:",
+        "Here is the flow when a caller interrupts:\n\n1. The AI agent is speaking to the caller.\n2. The caller starts talking before the agent finishes.\n3. Twilio immediately stops the agent's voice and sends an `interrupt` message over the WebSocket.\n4. The server cancels the in-flight LLM stream so it stops generating text nobody will hear.\n5. Twilio sends the caller's new speech as a `prompt` message, and the conversation continues from there.",
+    },
+
+    { type: "section", title: "The Interrupt Message", audience: "builder" },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "When barge-in occurs, ConversationRelay sends this message over the WebSocket:",
     },
 
     {
       type: "json-message",
+      audience: "builder",
       direction: "inbound",
       messageType: "interrupt",
       code: `{
@@ -54,22 +60,18 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "The `utteranceUntilInterrupt` field tells you exactly how much of the AI's response the caller actually heard before they interrupted. This is important because the AI needs to know what the caller actually heard -- otherwise it might reference something it said but the caller never got to listen to.",
+        "`utteranceUntilInterrupt` tells you exactly how much of the AI's response the caller heard before they cut in. The AI needs this so it doesn't reference something it said but the caller never heard.",
     },
 
-    { type: "section", title: "Handling the Interrupt" },
+    { type: "section", title: "Handling the Interrupt", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "When the caller interrupts, your server needs to do two things: stop the AI from continuing its reply, and update the conversation record so the AI knows what the caller actually heard.",
-    },
-
-    {
-      type: "prose",
-      content:
-        "The code below makes the AI's response cancellable. When an interrupt arrives, it immediately stops the AI from generating more text.",
+        "When the caller interrupts, the server needs to stop the AI from continuing its reply and update the conversation history so the AI knows what the caller actually heard.",
     },
 
     {
@@ -77,12 +79,12 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**Scope change — this is a move, not an add.** Up through Chapter 3, `conversationHistory` was declared *inside* `wss.on(\"connection\", (ws, req) => { ... })` as per-call state. Starting in this chapter you must move it to module scope so `handlePrompt`, the interrupt handler, and the tool loop in Chapter 5 can all share it.\n\nIf you paste the new code additively and leave the old functions in place, the per-connection `conversationHistory` shadows the module-scope one and your interrupt / tool-call handlers will write to the wrong array, producing silently corrupted state.\n\n**Refactoring checklist — do this before pasting the code below:**\n\n1. Find `const conversationHistory = [...]` inside `wss.on(\"connection\", ...)` — **delete that line.**\n2. Find `async function streamLLMResponse(ws, conversationHistory)` from Chapter 2 — **delete the entire function.**\n3. Paste the module-scope code block below at the **top of `server.js`**, outside any handler.\n4. Verify your `model` field is set to `\"gpt-5.4-nano\"` (same model used throughout the workshop).\n\nThe new `streamResponse` function replaces `streamLLMResponse` — same streaming idea, but it reads `conversationHistory` from module scope and adds `AbortController` support for interrupt handling. This workshop is built for a single concurrent call on one Codespace; if you need true multi-call concurrency in production, swap the module-scope state for a `Map<callSid, state>` keyed on `message.callSid`.",
+        "**Scope change -- this is a move, not an add.** Up through Chapter 3, `conversationHistory` was declared *inside* `wss.on(\"connection\", ...)` as per-call state. Starting in this chapter, move it to module scope so `handlePrompt`, the interrupt handler, and the tool loop in Chapter 5 can all share it.\n\n**Refactoring checklist:**\n\n1. Find `const conversationHistory = [...]` inside `wss.on(\"connection\", ...)` -- **delete that line.**\n2. Find `async function streamLLMResponse(ws, conversationHistory)` from Chapter 2 -- **delete the entire function.**\n3. Paste the module-scope code block below at the **top of `server.js`**, outside any handler.\n4. Verify `model` is set to `\"gpt-5.4-nano\"`.\n\nThe new `streamResponse` replaces `streamLLMResponse` -- same streaming idea, but it reads `conversationHistory` from module scope and adds `AbortController` support. If you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and interrupt/tool-call handlers will write to the wrong array.",
     },
-
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `// Module-scope state for the current call. For a single-caller workshop
@@ -168,16 +170,18 @@ function handleMessage(ws, data) {
 }`,
     },
 
-    { type: "section", title: "Interruption Settings" },
+    { type: "section", title: "Interruption Settings", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "You control interruption behavior through settings on the ConversationRelay configuration. These are set when the call first connects, not at runtime.",
+        "Interruption behavior is controlled through attributes on the ConversationRelay TwiML element, set when the call first connects:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "xml",
       file: "twiml-response",
       code: `<Response>
@@ -193,17 +197,14 @@ function handleMessage(ws, data) {
 
     {
       type: "prose",
-      content: "The `interruptible` attribute controls what can interrupt AI speech. It accepts four values:",
-    },
-
-    {
-      type: "prose",
+      audience: "builder",
       content:
-        '**`"any"`** (the default) -- both voice and DTMF keypresses interrupt. **`"speech"`** -- only voice interrupts, keypresses are silently collected. **`"dtmf"`** -- only keypresses interrupt. **`"none"`** -- the AI always finishes speaking before accepting new input (useful for legal disclaimers or important announcements).',
+        "The `interruptible` attribute accepts four values:\n\n**`\"any\"`** (the default) -- both voice and DTMF keypresses interrupt. **`\"speech\"`** -- only voice interrupts, keypresses are silently collected. **`\"dtmf\"`** -- only keypresses interrupt. **`\"none\"`** -- the AI always finishes speaking before accepting new input (useful for legal disclaimers or important announcements).",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         'Keep `interruptible` set to `"any"` (the default) for natural conversation flow. Use `"none"` only for specific messages where the caller must hear the full content.',

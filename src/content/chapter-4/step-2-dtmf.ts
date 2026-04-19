@@ -9,25 +9,35 @@ export default {
       audience: "explorer",
       title: "Keypad = Accessibility + Accuracy",
       content:
-        "DTMF is the old-school phone keypad -- the beeps when you press 1, 2, 3. It's still the most reliable way to capture exact info: credit card digits, account numbers, a menu selection in a noisy room. Supporting the keypad alongside natural speech makes your agent work for callers who can't speak (or just shouldn't, in a meeting) without losing the conversational feel for everyone else.",
+        "DTMF is the old-school phone keypad -- the beeps when you press 1, 2, 3. It's still the most reliable way to capture exact info: credit card digits, account numbers, a menu selection in a noisy room. Supporting the keypad alongside natural speech makes the agent work for callers who can't speak (or just shouldn't, in a meeting) without losing the conversational feel for everyone else.",
     },
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "When a caller presses keys on their phone keypad (like \"press 1 for support\"), those are called DTMF tones. Twilio can detect these keypresses and tell your server which key was pressed, so you can build menu options alongside your AI conversation.",
+        "When a caller presses keys on their phone, Twilio detects the tone and tells the AI which key was pressed. This means the agent can offer menu options like \"press 1 for support\" alongside normal conversation.",
     },
-
-    { type: "section", title: "Receiving DTMF Input" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "When a caller presses a key, ConversationRelay sends a `dtmf` message to your server:",
+        "When a caller presses keys on their phone keypad (like \"press 1 for support\"), those are DTMF tones. Twilio detects these keypresses and sends a WebSocket message with the digit, so you can build menu options alongside the AI conversation.",
+    },
+
+    { type: "section", title: "Receiving DTMF Input", audience: "builder" },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "When a caller presses a key, ConversationRelay sends a `dtmf` message:",
     },
 
     {
       type: "json-message",
+      audience: "builder",
       direction: "inbound",
       messageType: "dtmf",
       code: `{
@@ -38,16 +48,18 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Each keypress arrives as a separate message. The `digit` field contains the key that was pressed: `0`-`9`, `*`, or `#`.",
     },
 
-    { type: "section", title: "Handling DTMF in Your Message Switch" },
+    { type: "section", title: "Handling DTMF in the Message Switch", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Add a `dtmf` case to your message handler. Here is an example that builds a simple menu system:",
+        "Add a `dtmf` case to the message handler. This example builds a simple menu system:",
     },
 
     {
@@ -55,11 +67,12 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "**Using `streamResponse` from Step 1.** The `case \"1\":` branch below pushes a synthetic user turn into `conversationHistory` and then calls `streamResponse(ws)` — the helper we extracted in Step 1 so DTMF and tool calls (Chapter 5) could both reuse it. `streamResponse` reads from module-scope `conversationHistory`, so you don't pass it explicitly.",
+        "**Using `streamResponse` from Step 1.** The `case \"1\":` branch below pushes a synthetic user turn into `conversationHistory` and calls `streamResponse(ws)` -- the helper extracted in Step 1. `streamResponse` reads from module-scope `conversationHistory`, so you don't pass it explicitly.",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `function handleMessage(ws, data) {
@@ -76,7 +89,7 @@ export default {
       break;
 
     case "dtmf":
-      console.log("🔢 DTMF received:", msg.digit);
+      console.log("DTMF received:", msg.digit);
       handleDtmfInput(ws, msg.digit);
       break;
 
@@ -123,21 +136,24 @@ function handleDtmfInput(ws, digit) {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
-        "A good pattern is to translate keypad inputs into natural language messages and add them to the conversation history. This way, the AI handles the actual response while the keypad just provides a shortcut for common actions.",
+        "A good pattern is to translate keypad inputs into natural language messages and add them to the conversation history. The AI handles the actual response while the keypad provides a shortcut for common actions.",
     },
 
-    { type: "section", title: "Sending DTMF Tones Outbound" },
+    { type: "section", title: "Sending DTMF Tones Outbound", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "You can also send keypad tones outbound -- for example, if your AI agent needs to navigate another phone system during a call transfer (like pressing 1 for English). Send a `sendDigits` message:",
+        "You can also send keypad tones outbound -- for example, if the AI agent needs to navigate another phone system during a call transfer (like pressing 1 for English):",
     },
 
     {
       type: "json-message",
+      audience: "builder",
       direction: "outbound",
       messageType: "sendDigits",
       code: `{
@@ -148,6 +164,7 @@ function handleDtmfInput(ws, digit) {
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `// Send DTMF tones outbound (e.g., navigating another IVR)
@@ -163,16 +180,18 @@ sendDigits(ws, "1");  // Press 1 for English
 sendDigits(ws, "3");  // Press 3 for billing`,
     },
 
-    { type: "section", title: "Enabling DTMF Detection" },
+    { type: "section", title: "Enabling DTMF Detection", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "DTMF detection is controlled by the `dtmfDetection` setting in your ConversationRelay configuration. Make sure it is set to `true`:",
+        "DTMF detection is controlled by the `dtmfDetection` attribute in the ConversationRelay TwiML. Make sure it is set to `true`:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "xml",
       file: "twiml-response",
       code: `<Response>
@@ -188,8 +207,9 @@ sendDigits(ws, "3");  // Press 3 for billing`,
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Setting `interruptible` to `\"any\"` means that both speech and DTMF keypresses will stop the AI from speaking. Other options are `\"speech\"` (voice only), `\"dtmf\"` (keypress only), or `\"none\"` (no interruptions).",
+        'Setting `interruptible` to `"any"` means both speech and DTMF keypresses stop the AI from speaking. Other options are `"speech"` (voice only), `"dtmf"` (keypress only), or `"none"` (no interruptions).',
     },
 
     {

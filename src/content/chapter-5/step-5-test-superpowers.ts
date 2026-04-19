@@ -9,7 +9,7 @@ export default {
       audience: "explorer",
       title: "What a Great Test Call Looks Like",
       content:
-        "A good test call has three beats: ask something the tool should answer, ask something only a human should handle, and see if the agent makes the right choice each time. If the weather question gets a weather answer and the sensitive request gets a graceful handoff, your agent has real superpowers -- not just conversation skills.",
+        "A good test call has three beats: ask something the tool should answer, ask something only a human should handle, and see if the agent makes the right choice each time. If the weather question gets a weather answer and the sensitive request gets a graceful handoff, the agent has real superpowers.",
     },
 
     {
@@ -28,6 +28,14 @@ Server listening on port 8080`,
 
     {
       type: "prose",
+      audience: "explorer",
+      content:
+        "Use the Call Me button below to trigger a test call:",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
       content:
         "Trigger a test call using the Call Me button below:",
     },
@@ -51,20 +59,14 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        'When your phone rings, answer and ask: "What is the weather in Austin?"',
-    },
-
-    {
-      type: "prose",
-      audience: "builder",
-      content: "Watch your terminal. You should see:",
+        'When the phone rings, answer and ask: "What is the weather in Austin?"',
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        '1. The `prompt` message with the transcribed speech.\n2. A log line showing `Tool call: check_weather { city: "Austin" }`.\n3. The tool result being added to the conversation.\n4. The LLM\'s natural language response being streamed to Twilio.',
+        'Watch your terminal. You should see:\n\n1. The `prompt` message with the transcribed speech.\n2. A log line showing `Tool call: check_weather { city: "Austin" }`.\n3. The tool result being added to the conversation.\n4. The LLM\'s natural language response being streamed to Twilio.',
     },
 
     {
@@ -78,7 +80,7 @@ Server listening on port 8080`,
       audience: "builder",
       variant: "info",
       content:
-        "If the agent makes up weather data instead of using the actual tool, double-check that you are passing the tools list when calling the AI. Without it, the AI does not know any tools exist and will guess instead.",
+        "If the agent makes up weather data instead of using the tool, double-check that you are passing the tools list when calling the AI. Without it, the AI does not know any tools exist and will guess instead.",
     },
 
     { type: "section", title: "Test 2: Order Lookup Tool" },
@@ -92,7 +94,7 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        'The agent should look up the order and tell you the shipping status and tracking number. Then try an order that does not exist: "What about order ORD-99999?" The agent should let you know it could not find that order.',
+        'The agent should look up the order and report the shipping status and tracking number. Then try an order that does not exist: "What about order ORD-99999?" The agent should let the caller know it could not find that order.',
     },
 
     { type: "section", title: "Test 3: Multi-Tool Call" },
@@ -108,11 +110,12 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        'Say: "I need to speak with a real person." or "Transfer me to an agent." The AI should acknowledge your request and start the transfer to a human.',
+        'Say: "I need to speak with a real person." or "Transfer me to an agent." The AI should acknowledge the request and start the transfer to a human.',
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
         "If you have not set up the transfer destination yet, the call will simply end when the handoff triggers. That is fine for testing -- the important thing is that the AI recognizes the request and initiates the transfer.",
@@ -124,8 +127,16 @@ Server listening on port 8080`,
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "With tool calling and handoff working, your agent is no longer just a chatbot. It can take real actions, look up real data, and seamlessly hand off to humans when needed. These are the superpowers that make voice AI practical for production use cases.",
+        "With tool calling and handoff working, the agent is no longer just a chatbot. It can take real actions, look up real data, and hand off to humans when needed.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "With tool calling and handoff working, your agent is no longer just a chatbot. It can take real actions, look up real data, and seamlessly hand off to humans when needed.",
     },
   ],
 } satisfies StepDefinition;

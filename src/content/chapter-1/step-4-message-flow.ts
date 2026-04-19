@@ -24,19 +24,19 @@ export default {
           icon: "/images/icons/pencil.svg",
           title: "Speech becomes text",
           description:
-            "Twilio listens to the caller's voice and converts it into written text -- like automatic subtitles. Once the caller finishes their sentence, the text is sent to your server.",
+            "Twilio listens to the caller's voice and converts it into written text -- like automatic subtitles. Once the caller finishes their sentence, the text is sent to the server.",
         },
         {
           icon: "/images/icons/lightbulb-doc.svg",
           title: "The AI thinks",
           description:
-            "Your server sends the caller's words to an AI model, along with everything said so far in the conversation. The AI starts composing a reply immediately.",
+            "The server sends the caller's words to an AI model, along with everything said so far in the conversation. The AI starts composing a reply immediately.",
         },
         {
           icon: "/images/icons/chat-bubble.svg",
           title: "Reply streams back word by word",
           description:
-            "Instead of waiting for the full answer, your server sends each piece of the reply to Twilio the moment it's ready -- so the caller starts hearing a response almost instantly.",
+            "Instead of waiting for the full answer, the server sends each piece of the reply to Twilio the moment it's ready -- so the caller starts hearing a response almost instantly.",
         },
         {
           icon: "/images/icons/sound-wave.svg",

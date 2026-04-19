@@ -14,16 +14,25 @@ export default {
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "Silence is information. When a caller goes quiet, it could mean they are thinking, they are confused, they walked away, or the call dropped. Your agent needs to handle silence gracefully rather than sitting in awkward dead air.",
+        "The agent can also be tuned for how sensitive it is to background noise. In a quiet room, even a soft \"um\" should register. In a noisy environment, the threshold goes up so random sounds don't trigger false interrupts.",
     },
-
-    { type: "section", title: "How Silence Detection Works" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "ConversationRelay does not send a dedicated \"silence\" message. Instead, your server watches the clock -- if the caller has not spoken for a certain amount of time, you can nudge them or gracefully end the call.",
+        "Silence is information. When a caller goes quiet, it could mean they are thinking, confused, stepped away, or the call dropped. The agent needs to handle silence gracefully rather than sitting in dead air.",
+    },
+
+    { type: "section", title: "How Silence Detection Works", audience: "builder" },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "ConversationRelay does not send a dedicated \"silence\" message. Instead, the server watches the clock -- if the caller has not spoken for a set amount of time, it can nudge them or gracefully end the call.",
     },
 
     {
@@ -31,11 +40,12 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "Like `conversationHistory` and `activeStream` in step 1, we use module-scope state here -- one caller at a time on the workshop server. For a production multi-call server, move `silenceTimer` and `silencePromptCount` into a per-call state map keyed on `callSid`, or bind them to the `ws` via a `WeakMap`. Otherwise concurrent calls will clobber each other's timers.",
+        "Like `conversationHistory` and `activeStream` in Step 1, we use module-scope state here -- one caller at a time on the workshop server. For a production multi-call server, move `silenceTimer` and `silencePromptCount` into a per-call state map keyed on `callSid`.",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `const SILENCE_TIMEOUT_MS = 8000;   // 8 seconds of silence
@@ -79,16 +89,18 @@ function handleSilence(ws) {
 }`,
     },
 
-    { type: "section", title: "Integrating with Your Message Handler" },
+    { type: "section", title: "Integrating with the Message Handler", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Reset the silence timer every time the caller speaks or presses a key. Start it after the initial greeting, and clear it when the call ends:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `function handleMessage(ws, data) {
@@ -118,36 +130,37 @@ function handleSilence(ws) {
   }
 }
 
-// Inside wss.on("connection", (ws, req) => { ... }) — the same block where
-// ws.on("message", ...) lives. The \`ws\` variable only exists in that scope,
-// so the close handler has to go there too.
+// Inside wss.on("connection", (ws, req) => { ... })
 wss.on("connection", (ws, req) => {
   // ...existing ws.on("message", ...) handler stays here...
 
   ws.on("close", () => {
     clearTimeout(silenceTimer);
-    console.log("👋 Call ended, timers cleared.");
+    console.log("Call ended, timers cleared.");
   });
 });`,
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
-        "Be careful with your silence timeout value. Too short (under 5 seconds) and you will interrupt callers who are thinking. Too long (over 15 seconds) and the experience feels unresponsive. Start with 8-10 seconds and adjust based on your use case.",
+        "Be careful with the silence timeout value. Too short (under 5 seconds) and you will interrupt callers who are thinking. Too long (over 15 seconds) and the experience feels unresponsive. Start with 8-10 seconds and adjust based on your use case.",
     },
 
-    { type: "section", title: "Interrupt Sensitivity" },
+    { type: "section", title: "Interrupt Sensitivity", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "ConversationRelay provides an `interruptSensitivity` attribute that controls how easily the caller's speech triggers an interrupt. This affects how Twilio distinguishes intentional speech from background noise:",
+        "ConversationRelay provides an `interruptSensitivity` attribute that controls how easily the caller's speech triggers an interrupt -- how Twilio distinguishes intentional speech from background noise:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "xml",
       file: "twiml-response",
       code: `<Response>
@@ -163,8 +176,9 @@ wss.on("connection", (ws, req) => {
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        'The `interruptSensitivity` attribute accepts `"low"`, `"medium"`, or `"high"` (the default). At `"high"`, even brief sounds can trigger an interrupt. Use `"medium"` or `"low"` in noisy environments where background sounds might be mistaken for speech.',
+        '`interruptSensitivity` accepts `"low"`, `"medium"`, or `"high"` (the default). At `"high"`, even brief sounds can trigger an interrupt. Use `"medium"` or `"low"` in noisy environments where background sounds might be mistaken for speech.',
     },
 
     {
@@ -177,9 +191,10 @@ wss.on("connection", (ws, req) => {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
-        "When you end a call due to prolonged silence, log the event. Patterns in silence timeouts can reveal UX issues -- maybe callers do not understand a particular prompt, or the agent is asking for information the caller does not have.",
+        "When ending a call due to prolonged silence, log the event. Patterns in silence timeouts can reveal UX issues -- maybe callers do not understand a particular prompt, or the agent is asking for information the caller does not have.",
     },
   ],
 } satisfies StepDefinition;

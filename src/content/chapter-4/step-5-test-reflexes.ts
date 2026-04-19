@@ -7,7 +7,7 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "Signs Your Agent Feels Alive",
+      title: "Signs the Agent Feels Alive",
       content:
         "On this call you're checking for *liveliness*: does the agent stop talking the instant you interrupt, notice a keypress, react to silence, and recover when you switch languages? If all four feel natural, the agent has proper reflexes. Stiffness on any one of them is usually the giveaway that something needs tuning.",
     },
@@ -16,7 +16,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Time to put your agent's reflexes to the test. Make sure your server is running and port 8080 is set to **Public** in your Codespace's Ports tab.",
+        "Time to put the agent's reflexes to the test. Make sure the server is running and port 8080 is set to **Public** in the Codespace's Ports tab.",
     },
 
     {
@@ -37,7 +37,7 @@ Server listening on port 8080`,
     {
       type: "prose",
       audience: "builder",
-      content: "Or run this from your Codespace terminal:",
+      content: "Or run this from the Codespace terminal:",
     },
 
     {
@@ -51,20 +51,14 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        'When your phone rings, answer and ask a question that will produce a long response, like "Tell me everything about your return policy." While the agent is speaking, interrupt it by saying "Actually, never mind."',
-    },
-
-    {
-      type: "prose",
-      audience: "builder",
-      content: "Watch your terminal output. You should see:",
+        'When the phone rings, answer and ask a question that will produce a long response, like "Tell me everything about your return policy." While the agent is speaking, interrupt it by saying "Actually, never mind."',
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "1. The `interrupt` message logged with the partial utterance.\n2. The OpenAI stream being aborted.\n3. A new `prompt` message with your interruption.\n4. The agent responding to your new input, not continuing the old response.",
+        "Watch the terminal output. You should see:\n\n1. The `interrupt` message logged with the partial utterance.\n2. The OpenAI stream being aborted.\n3. A new `prompt` message with the interruption.\n4. The agent responding to the new input, not continuing the old response.",
     },
 
     {
@@ -72,7 +66,7 @@ Server listening on port 8080`,
       audience: "builder",
       variant: "info",
       content:
-        'If the agent keeps talking after you interrupt, check that interruptions are enabled in your ConversationRelay settings (`interruptible` should be `"any"` or `"speech"`) and that your interrupt handler is stopping the current response.',
+        'If the agent keeps talking after you interrupt, check that `interruptible` is set to `"any"` or `"speech"` in the ConversationRelay TwiML, and that the interrupt handler is aborting the active stream.',
     },
 
     { type: "section", title: "Test 2: DTMF" },
@@ -80,7 +74,7 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        "Trigger another call and press **1** on your keypad while the agent is speaking or after it finishes. The agent should respond based on how you configured keypad input.",
+        "Trigger another call and press **1** on the keypad while the agent is speaking or after it finishes. The agent should respond based on the configured keypad options.",
     },
 
     {
@@ -102,7 +96,7 @@ Server listening on port 8080`,
       audience: "builder",
       variant: "warning",
       content:
-        "If silence detection is not triggering, make sure you are starting the silence timer after the `setup` message and resetting it on each `prompt` message. Also check that you are not accidentally clearing the timer without restarting it.",
+        "If silence detection is not triggering, make sure the silence timer starts after the `setup` message and resets on each `prompt` message. Also check that the timer is not being cleared without being restarted.",
     },
 
     { type: "section", title: "Test 4: Language Switch" },
@@ -110,21 +104,29 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        "Trigger another call. Start speaking in English, then say something in Spanish like \"¿Puedes hablar en español?\" The agent should respond in Spanish with a natural-sounding Spanish voice.",
+        'Trigger another call. Start speaking in English, then say something in Spanish like "Puedes hablar en espanol?" The agent should respond in Spanish with a natural-sounding Spanish voice.',
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "Watch your terminal for:\n\n1. The `[LANG:es-ES]` marker being detected in the LLM output.\n2. A `language` message sent to Twilio with `ttsLanguage: \"es-ES\"`.\n3. The agent responding in Spanish.\n4. The voice sounding natural in Spanish (not an English voice attempting Spanish pronunciation).",
+        "Watch the terminal for:\n\n1. The `[LANG:es-ES]` marker being detected in the LLM output.\n2. A `language` message sent to Twilio with `ttsLanguage: \"es-ES\"`.\n3. The agent responding in Spanish.\n4. The voice sounding natural in Spanish (not an English voice attempting Spanish pronunciation).",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
-        "Language switching is the most optional feature in this chapter. If you skipped Step 4 or the AI does not reliably produce the language marker, that is OK — the other three tests are the critical ones.",
+        "Language switching is the most optional feature in this chapter. If you skipped Step 4 or the LLM does not reliably produce the language marker, that is OK -- the other three tests are the critical ones.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "Language switching is optional. If it does not work perfectly on this call, that is fine -- the other three tests (interruption, keypad, silence) are the important ones.",
     },
 
     { type: "section", title: "Checkpoint" },
@@ -137,7 +139,7 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        "If all four tests pass, your agent now has solid reflexes. It can handle real-world conversational dynamics: interruptions, keypad input, silence, and language switches. These are the foundations of a production-quality voice agent.",
+        "If all four tests pass, the agent now has solid reflexes -- it can handle interruptions, keypad input, silence, and language switches. These are the foundations that make a voice agent feel responsive and natural.",
     },
   ],
 } satisfies StepDefinition;

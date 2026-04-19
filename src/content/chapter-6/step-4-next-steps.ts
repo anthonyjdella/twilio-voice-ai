@@ -7,21 +7,16 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "What to Try Next",
+      title: "What Comes Next",
       content:
-        "You've built the core. Now the fun part: make it yours. Try a different persona, plug in a real API your team already uses, or let the agent speak another language. Each small experiment teaches you something about how voice AI fits into your product -- and none of them require starting from scratch.",
+        "The core agent is done. From here the possibilities open up: a different persona, a real API integration, another language. Each small experiment teaches something about how voice AI fits into a product -- and none of them require starting from scratch.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "You now have a voice AI agent that listens, speaks, uses tools, handles interruptions, and hands off to humans -- built with Twilio ConversationRelay.",
-    },
-
-    {
-      type: "prose",
-      content:
-        "Here are some directions to take your agent further.",
+        "The agent listens, speaks, uses tools, handles interruptions, and hands off to humans -- all built with Twilio ConversationRelay. Here are directions to take it further.",
     },
 
     { type: "section", title: "SSML for Fine-Grained Voice Control" },
@@ -29,18 +24,20 @@ export default {
     {
       type: "prose",
       content:
-        "You can give the AI fine-grained control over how it speaks -- adding pauses, changing speed, or spelling out codes letter by letter -- using a special markup format called SSML.",
+        "The agent can control exactly how it speaks -- adding pauses, changing speed, or spelling out codes letter by letter -- using a markup format called SSML.",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
-        "**SSML support depends on your voice provider.** The example below uses tags like `<say-as>`, `<break>`, and `<prosody>`, which work with **Google** and **Amazon** voices. The default provider (**ElevenLabs**) only supports the `<phoneme>` tag, and only in English. If you want full SSML support, switch to Google (`ttsProvider=\"Google\"` in your ConversationRelay settings) or stick to plain text.",
+        "**SSML support depends on the voice provider.** Tags like `<say-as>`, `<break>`, and `<prosody>` work with **Google** and **Amazon** voices. The default provider (**ElevenLabs**) only supports `<phoneme>`, and only in English. For full SSML, switch to Google (`ttsProvider=\"Google\"`).",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       code: `// Send SSML instead of plain text
 ws.send(JSON.stringify({
@@ -63,13 +60,21 @@ ws.send(JSON.stringify({
     {
       type: "prose",
       content:
-        "You already learned about dynamic language switching in Chapter 4. Take it further by building a truly multilingual agent:",
+        "Dynamic language switching was introduced in Chapter 4. A multilingual agent can go further:",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "**Language-specific voices** -- Map each language to a native-sounding voice for the best pronunciation.\n**Cultural adaptation** -- Adjust greetings, formality levels, and conversation patterns per language.\n**Auto-detect from caller ID** -- Use the caller's phone number country code to set a default language before they even speak.",
+        "**Language-specific voices** -- Map each language to a native-sounding voice for better pronunciation.\n**Cultural adaptation** -- Adjust greetings, formality levels, and conversation patterns per language.\n**Auto-detect from caller ID** -- Use the caller's phone number country code to set a default language before they speak.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "An agent can greet callers in their own language, switch mid-call if asked, and adapt its tone to match cultural norms -- all from the same server.",
     },
 
     { type: "section", title: "Twilio Conversational Intelligence" },
@@ -77,19 +82,19 @@ ws.send(JSON.stringify({
     {
       type: "prose",
       content:
-        "Twilio offers a **Conversational Intelligence** service that can automatically analyze your voice AI calls after they happen. It provides:",
+        "Twilio offers a **Conversational Intelligence** service that automatically analyzes voice AI calls after they happen:",
     },
 
     {
       type: "prose",
       content:
-        "**Transcripts** -- Full written records of every call.\n**Sentiment analysis** -- Track how the caller is feeling over the course of a call.\n**Sensitive info detection** -- Automatically flag and hide personal information like credit card numbers.\n**Custom categories** -- Tag calls by topic, outcome, or any criteria you define.",
+        "**Transcripts** -- Full written records of every call.\n**Sentiment analysis** -- Track how the caller feels over the course of a call.\n**Sensitive info detection** -- Automatically flag and redact personal information like credit card numbers.\n**Custom categories** -- Tag calls by topic, outcome, or any criteria you define.",
     },
 
     {
       type: "prose",
       content:
-        "This is invaluable for understanding how your agent is doing across hundreds or thousands of calls without listening to each one.",
+        "This makes it possible to understand agent performance across hundreds or thousands of calls without listening to each one.",
     },
 
     { type: "section", title: "Audio Playback" },
@@ -97,11 +102,12 @@ ws.send(JSON.stringify({
     {
       type: "prose",
       content:
-        "Your agent can also play pre-recorded audio files during a call. This is useful for hold music, legal disclaimers, or branded audio intros:",
+        "The agent can also play pre-recorded audio files during a call -- useful for hold music, legal disclaimers, or branded audio intros.",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       code: `// Play a pre-recorded audio file
 ws.send(JSON.stringify({
@@ -116,7 +122,7 @@ ws.send(JSON.stringify({
       audience: "builder",
       variant: "info",
       content:
-        "The `play` message also supports `interruptible` (whether the caller's voice can stop playback) and `preemptible` (whether a subsequent message can stop it). Audio must be a publicly accessible URL (MP3 or WAV). Check the [ConversationRelay docs](https://www.twilio.com/docs/voice/conversationrelay) for the latest supported fields and formats.",
+        "The `play` message also supports `interruptible` (whether the caller's voice can stop playback) and `preemptible` (whether a subsequent message can stop it). Audio must be a publicly accessible URL (MP3 or WAV). Check the [ConversationRelay docs](https://www.twilio.com/docs/voice/conversationrelay) for supported fields and formats.",
     },
 
     { type: "section", title: "Advanced Tool Patterns" },
@@ -124,13 +130,13 @@ ws.send(JSON.stringify({
     {
       type: "prose",
       content:
-        "Expand your agent's capabilities with more sophisticated tool designs:",
+        "Beyond weather and order lookup, voice agents can integrate with almost any backend system:",
     },
 
     {
       type: "prose",
       content:
-        "**Database queries** -- Let the agent look up customer information, product catalogs, or knowledge base articles.\n**Appointment scheduling** -- Integrate with a calendar API to book, modify, or cancel appointments.\n**Payment processing** -- Collect payment information (with PCI compliance considerations) and process transactions.\n**CRM integration** -- Log call notes, update customer records, and create support tickets automatically.",
+        "**Database queries** -- Look up customer information, product catalogs, or knowledge base articles.\n**Appointment scheduling** -- Integrate with a calendar API to book, modify, or cancel appointments.\n**Payment processing** -- Collect payment information (with PCI compliance considerations) and process transactions.\n**CRM integration** -- Log call notes, update customer records, and create support tickets automatically.",
     },
 
     { type: "section", title: "Resources" },
@@ -157,15 +163,24 @@ ws.send(JSON.stringify({
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
-        "The best voice AI agents are built iteratively. Deploy early, listen to real calls, and improve continuously. Your first version does not need to be perfect -- it needs to be in production, generating real feedback.",
+        "The best voice AI agents are built iteratively. Deploy early, listen to real calls, and improve continuously. The first version does not need to be perfect -- it needs to be in production, generating real feedback.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "You started this workshop with a blank server and a Twilio phone number. You now have a voice AI agent that can hold real conversations, look things up, and hand off to humans. Whether you are building a customer service agent, an appointment scheduler, or something entirely new, you have the foundation to make it happen. Go build something great.",
+        "This workshop started with a blank server and a Twilio phone number. Now the agent holds real conversations, looks things up, and hands off to humans. Whether the goal is a customer service agent, an appointment scheduler, or something entirely new, the foundation is in place.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "That is the full picture -- from a phone call arriving at Twilio, through speech-to-text, an AI generating a response, and text-to-speech back to the caller. Every piece connects through ConversationRelay, and the result is a voice agent that can hold a real conversation.",
     },
   ],
 } satisfies StepDefinition;

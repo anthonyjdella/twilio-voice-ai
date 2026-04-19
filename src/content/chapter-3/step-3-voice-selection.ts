@@ -17,7 +17,7 @@ export default {
     {
       type: "prose",
       content:
-        "Twilio turns your AI's text replies into spoken audio automatically. You get to choose which voice the caller hears -- from warm and conversational to crisp and professional -- and you can switch providers to find the one that best fits your agent's personality.",
+        "The AI's text replies are converted into spoken audio automatically. The voice the caller hears can range from warm and conversational to crisp and professional, and different providers offer different strengths.",
     },
 
     { type: "section", title: "Voice Providers" },
@@ -25,56 +25,60 @@ export default {
     {
       type: "prose",
       content:
-        "Twilio ConversationRelay supports three voice providers, each with different strengths:",
+        "ConversationRelay supports three voice providers, each with different strengths:",
     },
 
     {
       type: "prose",
       content:
-        "**ElevenLabs (default).** Known for the most natural, human-like voices. Supports a wide range of emotions and speaking styles. This is the default provider \u2014 if you don't specify a voice, ConversationRelay will use an ElevenLabs voice.",
+        "**ElevenLabs (default).** Known for the most natural, human-like voices. Supports a wide range of emotions and speaking styles. This is the default provider.",
     },
 
     {
       type: "prose",
       content:
-        "**Google Cloud TTS.** Offers reliable, clear voices with excellent multilingual support. A solid choice if you need a wide variety of languages or prefer Google's ecosystem.",
+        "**Google Cloud TTS.** Offers reliable, clear voices with excellent multilingual support. A solid choice for a wide variety of languages.",
     },
 
     {
       type: "prose",
       content:
-        "**Amazon Polly.** Provides standard and neural voices at competitive pricing. Neural voices from Polly are quite natural, and Polly is a good option for high-volume production workloads.",
+        "**Amazon Polly.** Provides standard and neural voices at competitive pricing. Neural voices from Polly are quite natural, and it is a good option for high-volume workloads.",
     },
 
     {
       type: "callout",
       variant: "info",
       content:
-        "ElevenLabs is the default voice provider for ConversationRelay. If you want the most natural-sounding voices out of the box, you can stick with the defaults.",
+        "ElevenLabs is the default voice provider. It produces the most natural-sounding voices out of the box.",
     },
 
-    { type: "section", title: "Popular Voices" },
+    { type: "section", title: "Popular Voices", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Here are some popular voices across each provider. Use these as a starting point \u2014 each provider has many more options in their documentation.",
+        "Here are some popular voices across each provider. Use these as a starting point -- each provider has many more options in their documentation.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**ElevenLabs:** `Rachel` (warm, female), `Drew` (confident, male), `Bella` (soft, female), `Antoni` (friendly, male), `Elli` (youthful, female).",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "**Google Cloud TTS:** `en-US-Neural2-C` (female), `en-US-Neural2-D` (male), `en-US-Studio-O` (female, studio quality), `en-US-Studio-Q` (male, studio quality). Google also offers newer **Chirp3 HD** voices with names like `en-US-Chirp3-HD-Achernar` — you will see these later in the workshop. The naming pattern is `language-Model-Quality-VoiceName`.",
+        "**Google Cloud TTS:** `en-US-Neural2-C` (female), `en-US-Neural2-D` (male), `en-US-Studio-O` (female, studio quality), `en-US-Studio-Q` (male, studio quality). Google also offers newer **Chirp3 HD** voices with names like `en-US-Chirp3-HD-Achernar`. The naming pattern is `language-Model-Quality-VoiceName`.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**Amazon Polly:** `Joanna` (female, neural), `Matthew` (male, neural), `Lupe` (female, neural, bilingual en/es), `Amy` (female, British English).",
     },
@@ -126,7 +130,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "In your server code, the voice settings go inside the instructions that Twilio reads when a call connects:",
+        "In your server code, the voice settings go inside the TwiML that Twilio reads when a call connects:",
     },
 
     {
@@ -156,7 +160,7 @@ if (req.url === "/twiml" && req.method === "POST") {
       type: "callout",
       variant: "tip",
       content:
-        "Match the voice to the persona. If your agent is \"Ms. Chen, a professional concierge,\" pick a polished, clear voice. If your agent is \"Jake from Pete's Pizza,\" pick something warmer and more casual.",
+        "Match the voice to the persona. If the agent is \"Ms. Chen, a professional concierge,\" pick a polished, clear voice. If it is \"Jake from Pete's Pizza,\" pick something warmer and more casual.",
     },
 
     {
@@ -176,7 +180,7 @@ if (req.url === "/twiml" && req.method === "POST") {
       type: "prose",
       audience: "builder",
       content:
-        "Pick a voice that fits your persona and update your server. In the next step, we will configure how your agent listens to the caller.",
+        "Pick a voice that fits your persona and update your server. In the next step, we will configure how the agent listens to the caller.",
     },
 
     {

@@ -63,7 +63,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Open `workshop/.env` in your Codespace and update `MY_PHONE_NUMBER` with your real phone number in E.164 format:",
+        "Open `workshop/.env` in your Codespace and update `MY_PHONE_NUMBER` with your real phone number in E.164 format (international format, e.g. `+12065551234`):",
     },
 
     {

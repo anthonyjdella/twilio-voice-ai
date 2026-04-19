@@ -9,22 +9,24 @@ export default {
       audience: "explorer",
       title: "Describing Tools So the AI Understands",
       content:
-        "You don't teach the AI a tool by showing it code -- you describe it in plain English: what it does, when to use it, and what information it needs. The AI uses that description to pick the right tool at the right moment, the same way a new hire would follow a help-desk handbook. A clear description is everything; a vague one makes the agent guess wrong.",
+        "You don't teach the AI a tool by showing it code -- you describe it in plain English: what it does, when to use it, and what information it needs. The AI uses that description to pick the right tool at the right moment. A clear description is everything; a vague one makes the agent guess wrong.",
     },
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "Each tool has a short description that tells the AI what it does, what information it needs, and when to use it. Think of it like writing a name tag and instruction card for each tool so the AI knows which one to grab.",
+        "Each tool has a short description that tells the AI what it does and what information it needs. Think of it like writing a name tag and instruction card for each tool so the AI knows which one to grab.",
     },
-
-    { type: "section", title: "Tool Schema Format" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Each tool definition follows this structure:",
+        "Each tool is described in a JSON schema that tells the AI what it does, what parameters it needs, and when to use it. The AI reads these descriptions to decide which tool to call.",
     },
+
+    { type: "section", title: "Tool Schema Format", audience: "builder" },
 
     {
       type: "callout",
@@ -35,7 +37,15 @@ export default {
     },
 
     {
+      type: "prose",
+      audience: "builder",
+      content:
+        "Each tool definition follows this structure:",
+    },
+
+    {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "tool-handlers.js",
       code: `const tools = [
@@ -67,27 +77,31 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "The description fields are critical. The AI reads them to decide when to use each tool and what information to provide. Vague descriptions lead to the AI picking the wrong tool, so be specific and include examples.",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         "Write tool descriptions as if you are explaining the tool to a new teammate. Include when to use it, what it returns, and any constraints. The better the description, the more accurately the AI will use the tool.",
     },
 
-    { type: "section", title: "Adding More Tools" },
+    { type: "section", title: "Adding More Tools", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Let us add a second tool for looking up order status. This is a common use case for customer service agents:",
+        "Let us add a second tool for looking up order status:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "tool-handlers.js",
       code: `const tools = [
@@ -130,16 +144,18 @@ export default {
 ];`,
     },
 
-    { type: "section", title: "Implementing the Tool Functions" },
+    { type: "section", title: "Implementing the Tool Functions", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Now create the actual functions that run when the AI asks for a tool. For this workshop, we will use sample data, but in a real product these would connect to your actual services:",
+        "Now create the actual functions that run when the AI asks for a tool. For this workshop, we use sample data, but in a real product these would connect to actual services:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "tool-handlers.js",
       code: `// Map of tool name -> handler function
@@ -194,9 +210,10 @@ module.exports = { tools, toolHandlers };`,
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
-        "Always return a result from your tool functions, even on error. If the function crashes without returning anything, the AI will not know what happened and may make up an answer. Return an error message like `{ error: \"Not found\" }` so the AI can tell the caller what went wrong.",
+        "Always return a result from your tool functions, even on error. If a function crashes without returning anything, the AI will not know what happened and may fabricate an answer. Return an error message like `{ error: \"Not found\" }` so the AI can tell the caller what went wrong.",
     },
 
     {
@@ -207,16 +224,18 @@ module.exports = { tools, toolHandlers };`,
         "**Handler signature:** each handler receives two arguments -- `(args, ws)`. The second argument is the active WebSocket. Most tools only need `args`, but tools like `transfer_to_agent` (step 4) need `ws` to send an `end` message mid-call. Accept it now so every handler has a uniform shape.",
     },
 
-    { type: "section", title: "Passing Tools to OpenAI" },
+    { type: "section", title: "Passing Tools to OpenAI", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Include the tools list in every request to the AI:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `const response = await openai.chat.completions.create({
@@ -233,7 +252,7 @@ module.exports = { tools, toolHandlers };`,
       file: "tool-handlers.js",
       language: "javascript",
       explanation:
-        "The complete `tool-handlers.js` — both the `tools` schema array and the `toolHandlers` dispatch map, with both exported so `server.js` can pull them in via `const { tools, toolHandlers } = require(\"./tool-handlers.js\");`.",
+        "The complete `tool-handlers.js` -- both the `tools` schema array and the `toolHandlers` dispatch map, with both exported so `server.js` can pull them in via `const { tools, toolHandlers } = require(\"./tool-handlers.js\");`.",
       code: `const tools = [
   {
     type: "function",

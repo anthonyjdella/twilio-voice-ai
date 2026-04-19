@@ -8,8 +8,16 @@ export default {
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "So far, your agent can listen, think, and speak. But it cannot **do** anything in the real world. Tool calling changes that — it lets the AI look things up, check databases, and take actions during a call, then use what it finds to give the caller a real answer.",
+        "So far, the agent can listen, think, and speak -- but it cannot **do** anything in the real world. Tool calling changes that. It lets the AI look things up, check databases, and take actions during a call, then use what it finds to give the caller a real answer.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "So far, your agent can listen, think, and speak. But it cannot **do** anything in the real world. Tool calling changes that -- it lets the AI look things up, check databases, and take actions during a call, then use what it finds to give the caller a real answer.",
     },
 
     {
@@ -17,13 +25,51 @@ export default {
       audience: "explorer",
       title: "What Are Tools?",
       content:
-        "Tools let your AI agent take real-world actions during a call — check a database, look up weather, process a payment. The agent decides when to use a tool based on what the caller asks.",
+        "Tools let an AI agent take real-world actions during a call -- check a database, look up weather, process a payment. The agent decides when to use a tool based on what the caller asks.",
     },
 
     { type: "section", title: "How Tool Calling Works" },
 
     {
       type: "visual-step",
+      audience: "explorer",
+      steps: [
+        {
+          icon: "/images/icons/voice-wave.svg",
+          title: "Caller speaks",
+          description:
+            'The caller says something like "What is the weather in Austin?"',
+        },
+        {
+          icon: "/images/icons/robot.svg",
+          title: "AI receives the question",
+          description:
+            "The AI gets the caller's words along with a list of tools it knows how to use.",
+        },
+        {
+          icon: "/images/icons/wrench.svg",
+          title: "AI picks a tool",
+          description:
+            'Instead of answering right away, the AI says "I need to look up the weather in Austin."',
+        },
+        {
+          icon: "/images/icons/arrow-cycle.svg",
+          title: "Tool runs and returns data",
+          description:
+            "The weather service (or database, or any other system) is called and the answer comes back.",
+        },
+        {
+          icon: "/images/icons/chat-bubble.svg",
+          title: "AI responds with real info",
+          description:
+            'The AI weaves the data into a natural reply: "It is currently 78 degrees and sunny in Austin."',
+        },
+      ],
+    },
+
+    {
+      type: "visual-step",
+      audience: "builder",
       steps: [
         {
           icon: "/images/icons/voice-wave.svg",
@@ -71,13 +117,14 @@ export default {
           icon: "/images/icons/sound-wave.svg",
           title: "Speak to caller",
           description:
-            "You send the text to Twilio to be spoken to the caller.",
+            "The text is sent to Twilio to be spoken to the caller.",
         },
       ],
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "info",
       content:
         "The key insight is that the AI never runs the tool itself. It asks your server to run it, and your server sends the answer back. You are always in control of what gets executed.",
@@ -97,7 +144,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        'Sometimes the LLM needs multiple tool calls to answer a single question — for example, "What is the weather in Austin and what is my order status?" requires two separate calls. The LLM can request multiple tools in one response. Your server executes each one, appends the results to the conversation, and sends the updated conversation back to OpenAI. This repeats until the response is plain text with no more tool calls, at which point you send the final text to Twilio.',
+        'Sometimes the LLM needs multiple tool calls to answer a single question -- for example, "What is the weather in Austin and what is my order status?" requires two separate calls. The LLM can request multiple tools in one response. Your server executes each one, appends the results to the conversation, and sends the updated conversation back to OpenAI. This repeats until the response is plain text with no more tool calls, at which point you send the final text to Twilio.',
     },
 
     {
@@ -113,7 +160,7 @@ export default {
       audience: "builder",
       title: "Why Not Call APIs Directly?",
       content:
-        'You might wonder: why not just detect keywords and call APIs directly without involving the LLM? The answer is flexibility and natural language understanding. The LLM handles:\n\n**Ambiguity resolution** — "Check my order" vs. "What is order 12345?" The LLM extracts the right parameters.\n\n**Multi-step reasoning** — "Cancel my last order" requires first looking up the last order, then canceling it.\n\n**Natural responses** — The LLM weaves tool results into natural conversation rather than reading raw data.',
+        'You might wonder: why not just detect keywords and call APIs directly without involving the LLM? The answer is flexibility and natural language understanding. The LLM handles:\n\n**Ambiguity resolution** -- "Check my order" vs. "What is order 12345?" The LLM extracts the right parameters.\n\n**Multi-step reasoning** -- "Cancel my last order" requires first looking up the last order, then canceling it.\n\n**Natural responses** -- The LLM weaves tool results into natural conversation rather than reading raw data.',
     },
 
     {

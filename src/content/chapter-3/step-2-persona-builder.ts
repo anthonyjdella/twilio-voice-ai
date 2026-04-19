@@ -14,6 +14,7 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "A great voice agent is more than a system prompt. It's a **persona** \u2014 a consistent character with a name, tone, and set of behaviors that callers can relate to. Before writing any code, think through these four dimensions:",
     },
@@ -21,25 +22,25 @@ export default {
     {
       type: "prose",
       content:
-        '**Name and role.** Give your agent a name and a clear job title. "Hi, I\'m Ava, your Acme Corp concierge" instantly sets expectations. The caller knows who they\'re talking to and what kind of help to expect.',
+        '**Name and role.** Give the agent a name and a clear job title. "Hi, I\'m Ava, your Acme Corp concierge" instantly sets expectations. The caller knows who they\'re talking to and what kind of help to expect.',
     },
 
     {
       type: "prose",
       content:
-        "**Tone.** Is your agent formal or casual? Warm or efficient? A healthcare appointment scheduler should sound professional and calm. A pizza ordering bot can afford to be upbeat and playful.",
+        "**Tone.** Is the agent formal or casual? Warm or efficient? A healthcare appointment scheduler should sound professional and calm. A pizza ordering bot can afford to be upbeat and playful.",
     },
 
     {
       type: "prose",
       content:
-        '**Boundaries.** Define what the agent can and cannot do. This prevents the AI from making up capabilities it does not have. Be explicit: "You cannot process payments" or "You can only answer questions about our menu."',
+        '**Boundaries.** Define what the agent can and cannot do. This prevents it from making up capabilities it does not have. For example: "You cannot process payments" or "You can only answer questions about our menu."',
     },
 
     {
       type: "prose",
       content:
-        "**Fallback behavior.** Every persona needs a graceful way to say \"I don't know.\" Decide whether the agent should offer to transfer to a human, suggest calling back, or simply acknowledge the limitation.",
+        "**Fallback behavior.** Every persona needs a graceful way to say \"I don't know.\" The agent might offer to transfer to a human, suggest calling back, or simply acknowledge the limitation.",
     },
 
     { type: "section", title: "Persona Examples" },
@@ -106,10 +107,11 @@ isn't pizza-related, joke about it briefly and steer things back
 to the menu.\`;`,
     },
 
-    { type: "section", title: "Voice-Specific Prompt Engineering Tips" },
+    { type: "section", title: "Voice-Specific Tips", audience: "builder" },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         'Avoid telling the AI to "list the options." Instead, say "mention a couple of the most popular options and ask which sounds good." This produces responses that flow naturally in conversation.',
@@ -117,20 +119,23 @@ to the menu.\`;`,
 
     {
       type: "prose",
+      audience: "builder",
       content:
         '**Favor questions over statements.** A chatbot might say "Here are your options: A, B, and C." A voice agent should say "Would you prefer A or B? We also have C if you\'re interested." Questions keep the conversation moving.',
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         '**Use filler phrases sparingly.** A well-placed "Let me check on that for you" sounds human and buys time. But too many fillers sound evasive. Strike a balance.',
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        '**Instruct on pronunciation.** If your agent says company names, technical terms, or acronyms, include pronunciation hints in the prompt. For example: "Pronounce ACME as two syllables: AK-mee."',
+        '**Include pronunciation hints.** If the agent says company names, technical terms, or acronyms, add pronunciation guidance in the prompt. For example: "Pronounce ACME as two syllables: AK-mee."',
     },
 
     {

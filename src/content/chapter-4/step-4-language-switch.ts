@@ -9,25 +9,36 @@ export default {
       audience: "explorer",
       title: "Switching Languages Mid-Call",
       content:
-        "Some callers start in one language and slide into another -- maybe they're more comfortable in Spanish, or they switch between English and Mandarin at home. ConversationRelay can flip both the listening (speech-to-text) and speaking (voice synthesis) language on the fly, without dropping the call. It's a small feature with a huge accessibility payoff.",
+        "Some callers start in one language and slide into another -- maybe they're more comfortable in Spanish, or they switch between English and Mandarin at home. ConversationRelay can flip both the listening and speaking language on the fly, without dropping the call. It's a small feature with a huge accessibility payoff.",
+    },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "info",
+      content:
+        "Imagine a caller starts in English and mid-sentence switches to Spanish. Within seconds, the agent is listening in Spanish *and* responding in Spanish -- no transfer, no menu, no \"press 2 for espanol.\" That is a much more human experience.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "One of ConversationRelay's most powerful features is the ability to switch languages **mid-call** -- both the listening side (understanding the caller) and the speaking side (the voice the caller hears). If a caller switches from English to Spanish, your agent can adapt instantly without dropping the call.",
+        "ConversationRelay can switch languages **mid-call** -- both the speech-to-text side (understanding the caller) and the text-to-speech side (the voice the caller hears). If a caller switches from English to Spanish, the agent adapts instantly without dropping the call.",
     },
 
-    { type: "section", title: "The Language Message" },
+    { type: "section", title: "The Language Message", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "To switch languages, send a `language` message to Twilio. It will immediately update both how it listens to the caller and which voice it uses to speak:",
+        "To switch languages, send a `language` message over the WebSocket. Twilio immediately updates both how it listens and which voice it uses:",
     },
 
     {
       type: "json-message",
+      audience: "builder",
       direction: "outbound",
       messageType: "language",
       code: `{
@@ -39,20 +50,23 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "You can also update just one side. For example, keep the listening language in English while switching the speaking voice to Spanish, or vice versa. Each field is individually optional, but **at least one must be present**. Only include the fields you want to change.",
+        "Each field is individually optional, but **at least one must be present**. You can update just one side -- for example, keep transcription in English while switching the speaking voice to Spanish.",
     },
 
-    { type: "section", title: "Detecting Language Switches" },
+    { type: "section", title: "Detecting Language Switches", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "The AI is your best tool for detecting language changes. When a caller switches to Spanish, the text will contain Spanish words. You can tell the AI to detect this and respond accordingly. Add language detection instructions to your system prompt:",
+        "The LLM is the best tool for detecting language changes. When a caller switches to Spanish, the transcribed text contains Spanish words. Add language detection instructions to the system prompt:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `const systemPrompt = \`You are a helpful customer service agent.
@@ -67,16 +81,18 @@ LANGUAGE DETECTION:
 \`;`,
     },
 
-    { type: "section", title: "Handling the Language Switch" },
+    { type: "section", title: "Handling the Language Switch", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Check the AI's response for language markers and tell Twilio to switch languages before sending the text to be spoken:",
+        "Check the LLM's response for language markers and send the `language` message to Twilio before sending the text to be spoken:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `const LANG_MARKER_REGEX = /^\\[LANG:([\\w-]+)\\]/;
@@ -90,7 +106,7 @@ function processLLMResponse(ws, text) {
     const newLang = match[1];
 
     if (newLang !== currentLanguage) {
-      console.log(\`🌐 Switching language: \${currentLanguage} -> \${newLang}\`);
+      console.log(\`Switching language: \${currentLanguage} -> \${newLang}\`);
       currentLanguage = newLang;
 
       // Tell Twilio to switch STT and TTS
@@ -114,36 +130,32 @@ function processLLMResponse(ws, text) {
 
     {
       type: "callout",
-      audience: "explorer",
-      variant: "info",
-      content:
-        "Imagine a caller starts in English and mid-sentence switches to Spanish. Within seconds, the agent is listening in Spanish *and* responding in Spanish — no transfer, no menu, no \"press 2 for español.\" That's a huge accessibility win and a much more human experience.",
-    },
-
-    {
-      type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
-        "The language switch takes effect immediately. Make sure you send the `language` message **before** sending the text that should be spoken in the new language. Otherwise Twilio will try to speak Spanish text with an English voice, which sounds garbled.",
+        "The language switch takes effect immediately. Send the `language` message **before** sending the text that should be spoken in the new language. Otherwise Twilio will try to speak Spanish text with an English voice, which sounds garbled.",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
-        "**Wiring this in:** Right now, `streamResponse` sends tokens one at a time, so the `[LANG:xx-XX]` marker would be spoken aloud before you could strip it. In Chapter 5, you will refactor `streamResponse` to buffer text in sentence-sized chunks. Once that refactor is done, call `processLLMResponse(ws, sentence)` on each sentence *before* passing it to `sendText` — the marker lands in the first sentence, gets stripped, and the `language` message reaches Twilio before any text is spoken.\n\nThis integration is **optional** — if you skip language switching, no changes to `streamResponse` are needed.",
+        "**Wiring this in:** Right now, `streamResponse` sends tokens one at a time, so the `[LANG:xx-XX]` marker would be spoken aloud before you could strip it. In Chapter 5, you will refactor `streamResponse` to buffer text in sentence-sized chunks. Once that refactor is done, call `processLLMResponse(ws, sentence)` on each sentence *before* passing it to `sendText` -- the marker lands in the first sentence, gets stripped, and the `language` message reaches Twilio before any text is spoken.\n\nThis integration is **optional** -- if you skip language switching, no changes to `streamResponse` are needed.",
     },
 
-    { type: "section", title: "Supported Languages" },
+    { type: "section", title: "Supported Languages", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "ConversationRelay supports a wide range of BCP-47 language codes. Some commonly used ones:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       code: `const SUPPORTED_LANGUAGES = {
   "en-US": "English (US)",
@@ -164,6 +176,7 @@ function processLLMResponse(ws, text) {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         "When switching languages, also consider switching the voice. A Spanish voice will pronounce Spanish text much more naturally than an English voice trying to speak Spanish.",
@@ -174,7 +187,7 @@ function processLLMResponse(ws, text) {
       audience: "builder",
       title: "Multi-language system prompt strategy",
       content:
-        "For truly multilingual agents, write your system prompt in English (since most LLMs perform best with English instructions) but explicitly state that the agent should respond in the caller's language. The LLM will follow instructions in English while generating responses in the target language.\n\nSome teams maintain separate system prompts per language for cultural nuance, but for most use cases, a single English prompt with multilingual instructions works well. The key is testing -- have native speakers call your agent and verify the experience feels natural.",
+        "For truly multilingual agents, write the system prompt in English (since most LLMs perform best with English instructions) but explicitly state that the agent should respond in the caller's language. The LLM will follow instructions in English while generating responses in the target language.\n\nSome teams maintain separate system prompts per language for cultural nuance, but for most use cases, a single English prompt with multilingual instructions works well. The key is testing -- have native speakers call the agent and verify the experience feels natural.",
     },
   ],
 } satisfies StepDefinition;

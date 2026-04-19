@@ -14,26 +14,30 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "You have a working voice AI agent with tool calling, interruption handling, and handoff support. Before launch, let us go through a polishing pass to make it feel professional and reliable.",
+        "The agent works end to end. Before launch, a polishing pass makes it feel professional and reliable.",
     },
 
-    { type: "section", title: "Refine Your System Prompt" },
+    { type: "section", audience: "builder", title: "Refine Your System Prompt" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Your system prompt -- the instructions you give the AI -- is the single biggest lever for agent quality. Review it against this checklist:",
+        "The system prompt is the single biggest lever for agent quality. Review it against this checklist:",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**Identity** -- Does the prompt clearly define who the agent is, what company it works for, and its role?\n**Boundaries** -- Does it specify what the agent should NOT do (e.g., make promises, share internal information)?\n**Tone** -- Is the tone appropriate for your use case? Customer support should be warm and helpful; a scheduling bot can be more concise.\n**Edge cases** -- Does it handle off-topic questions, profanity, or requests for competitors?\n**Conciseness** -- Voice responses should be shorter than text chat. Tell the AI to keep answers brief and conversational.",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `const systemPrompt = \`You are Ava, a customer service agent for Acme Corp.
@@ -63,12 +67,13 @@ VOICE GUIDELINES:
 \`;`,
     },
 
-    { type: "section", title: "Optimize Voice Settings" },
+    { type: "section", audience: "builder", title: "Optimize Voice Settings" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Fine-tune your voice settings for the best caller experience:",
+        "Fine-tune the ConversationRelay voice settings for the best caller experience:",
     },
 
     {
@@ -76,11 +81,12 @@ VOICE GUIDELINES:
       audience: "builder",
       variant: "info",
       content:
-        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** — don't paste it as a second route. You already have a TwiML response from Chapter 2; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `reportInputDuringAgentSpeech`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`. Every attribute you set in earlier chapters is still here; new ones are layered on top.",
+        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** -- don't paste it as a second route. You already have a TwiML response from Chapter 2; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `reportInputDuringAgentSpeech`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`.",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "xml",
       file: "twiml-response",
       code: `<Response>
@@ -103,48 +109,47 @@ VOICE GUIDELINES:
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "A few of these settings are worth calling out:",
+        "**`welcomeGreetingInterruptible`** -- same values as `interruptible` (`none`, `dtmf`, `speech`, `any`), but applies only to the welcome greeting. `\"speech\"` is a good default: callers can interject without accidentally triggering on a DTMF tone.\n\n**`reportInputDuringAgentSpeech`** -- controls whether Twilio forwards speech or DTMF that arrives *while* the agent is talking, without interrupting. Default is `\"none\"`. Setting it to `\"dtmf\"` is handy for IVR-style \"press 0 for an operator\" flows.\n\n**`hints`** -- comma-separated phrases the transcriber should bias toward. If the agent deals with proper nouns, product SKUs, or acronyms, listing them here improves recognition accuracy.\n\n**`debug`** -- a space-separated list of `debugging`, `speaker-events`, `tokens-played`. Turn this on during development; turn it off before you ship.",
+    },
+
+    { type: "section", audience: "builder", title: "Pre-Launch Checklist" },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "Work through each item before considering the agent ready for real callers:",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "**`welcomeGreetingInterruptible`** -- same values as `interruptible` (`none`, `dtmf`, `speech`, `any`), but applies only to the welcome greeting. `\"speech\"` is a good default: callers can interject (\"hi, I just need to cancel an order\") without accidentally triggering on a DTMF tone from their keypad.\n\n**`reportInputDuringAgentSpeech`** -- controls whether Twilio forwards speech or DTMF that arrives *while* your agent is talking, without interrupting. Default is `\"none\"` (drops those inputs). Setting it to `\"dtmf\"` is handy for IVR-style \"press 0 for an operator\" flows where you want the keypress reported but not treated as a barge-in.\n\n**`hints`** -- comma-separated phrases the transcriber should bias toward. If your agent deals with proper nouns, product SKUs, or acronyms (\"Acme\", \"ENT-400\", \"SAML\"), listing them here measurably improves recognition accuracy.\n\n**`debug`** -- a space-separated list of `debugging`, `speaker-events`, `tokens-played`. Turn this on during development to see extra lifecycle events in the WebSocket; turn it off before you ship.",
-    },
-
-    { type: "section", title: "Pre-Launch Checklist" },
-
-    {
-      type: "prose",
-      content:
-        "Work through each item before considering your agent ready for real callers:",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**Error handling** -- Does your agent recover gracefully when the AI service is slow, a tool fails, or the network hiccups?\n**Conversation length limits** -- Are you keeping the conversation history from growing too long? (Trim or summarize after ~20 back-and-forth exchanges.)\n**Clean call endings** -- Does the agent wrap up cleanly when a call ends, clearing timers and closing connections?\n**Logging** -- Are you recording enough to troubleshoot problems but not so much that you expose sensitive caller data?\n**Timeouts** -- Do you have time limits on all outside calls (AI, tools, services) to prevent the caller from waiting forever?\n**Rate limiting** -- Is there protection against a single caller making an excessive number of requests?",
+        "**Error handling** -- Does the agent recover gracefully when the AI service is slow, a tool fails, or the network hiccups?\n**Conversation length limits** -- Is the conversation history trimmed or summarized after ~20 exchanges to avoid growing too long?\n**Clean call endings** -- Does the agent clear timers and close connections when a call ends?\n**Logging** -- Is there enough to troubleshoot problems without exposing sensitive caller data?\n**Timeouts** -- Are all outside calls (AI, tools, services) time-limited so the caller never waits forever?\n**Rate limiting** -- Is there protection against a single caller making excessive requests?",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
-        "Record a few test calls and listen to them critically. You will catch pacing issues, awkward phrasing, and edge cases that you miss during interactive testing. Pay special attention to the first 5 seconds -- that is when the caller decides if they are talking to a competent system.",
+        "Record a few test calls and listen to them critically. You'll catch pacing issues, awkward phrasing, and edge cases you miss during interactive testing. Pay special attention to the first 5 seconds -- that's when the caller decides if they're talking to a competent system.",
     },
 
-    { type: "section", title: "Handle Inbound `error` Messages" },
+    { type: "section", audience: "builder", title: "Handle Inbound `error` Messages" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Sometimes something goes wrong on Twilio's side -- the voice generation fails, the transcription times out, or a message was formatted incorrectly. When this happens, Twilio sends your server an error message so you can react gracefully instead of leaving the caller in silence.",
+        "When something goes wrong on Twilio's side -- voice generation fails, transcription times out, or a message is malformed -- Twilio sends an error message so the server can react gracefully instead of leaving the caller in silence.",
     },
 
     {
       type: "json-message",
+      audience: "builder",
       direction: "inbound",
       messageType: "error",
       code: `{
@@ -155,6 +160,7 @@ VOICE GUIDELINES:
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `function handleMessage(ws, data) {
@@ -180,15 +186,17 @@ VOICE GUIDELINES:
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
-        "In production you'd also emit a structured log entry here (with the current `callSid` and conversation context) so the error shows up in your observability dashboard. Lost audio is invisible to the caller until they notice the agent isn't responding — catch it on the server side instead.",
+        "In production, also emit a structured log entry here (with the `callSid` and conversation context) so the error shows up in your observability dashboard. Lost audio is invisible to the caller until they notice the agent isn't responding -- catch it on the server side.",
     },
 
-    { type: "section", title: "Handle AI Errors Gracefully" },
+    { type: "section", audience: "builder", title: "Handle AI Errors Gracefully" },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `async function streamResponse(ws, iteration = 0) {

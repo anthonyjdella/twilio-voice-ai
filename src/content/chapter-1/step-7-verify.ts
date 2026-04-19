@@ -26,7 +26,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**2. Credentials are loaded** -- Your `workshop/.env` file has the shared API keys (auto-configured from Codespace Secrets).",
+        "**2. Credentials are loaded** -- Your `workshop/.env` file has the shared API keys (pre-configured in the Codespace environment).",
     },
 
     {

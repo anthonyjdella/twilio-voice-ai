@@ -4,34 +4,35 @@ export default {
   blocks: [
     { type: "diagram", variant: "architecture", highlight: "server", showTools: true },
 
-    { type: "section", title: "The WebSocket Server" },
+    { type: "section", title: "The Server" },
 
     {
       type: "concept-card",
       audience: "explorer",
-      title: "What a WebSocket Server Does Here",
+      title: "What the Server Does",
       content:
-        "A WebSocket is a two-way pipe that stays open for the whole phone call. Twilio uses it to stream the caller's words to the server as text, and to stream the AI's replies back as text -- no audio files, no reconnecting between turns. The server is just the program listening at the other end of that pipe.",
-    },
-
-    {
-      type: "prose",
-      content:
-        "When a call connects, Twilio opens a live two-way channel to the server that stays open for the entire call. The caller's words flow in as text, and the AI's replies flow out as text.",
+        "The server is the middleman between the phone call and the AI. It stays connected to Twilio for the entire call, passing the caller's words to the AI and the AI's replies back to the caller.",
     },
 
     {
       type: "prose",
       audience: "explorer",
       content:
-        "The server needs to do three things: accept the incoming connection from Twilio, listen for messages (like the caller's speech), and send messages back (like the AI's response). Think of it like a receptionist who picks up the phone, listens to the caller, and passes their words along to the right person.",
+        "Think of it like a receptionist who picks up the phone, listens to the caller, and passes their words along to the right person. The connection stays open the whole time -- no hanging up and calling back between turns.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "We will use the `ws` npm package to create a lightweight WebSocket server in Node.js, plus `dotenv` to load the credentials from your `.env` file. Install them now:",
+        "When a call connects, Twilio opens a persistent WebSocket to your server. The caller's words arrive as text messages, and your AI's replies go back as text messages. The connection stays open for the entire call.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "Install the `ws` and `dotenv` packages:",
     },
 
     {
@@ -45,16 +46,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Now create a file called `server.js` in the current directory.",
-    },
-
-    { type: "section", title: "The Skeleton", audience: "builder" },
-
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "Start with this minimal structure. It loads your `.env` file, creates an HTTP server, attaches a WebSocket server to it, and listens for incoming connections:",
+        "Create `server.js` with this skeleton. It sets up an HTTP server, attaches a WebSocket server, and listens for connections:",
     },
 
     {
@@ -103,16 +95,18 @@ server.listen(PORT, () => {
 });`,
     },
 
-    { type: "section", title: "The Setup Message" },
+    { type: "section", title: "The Setup Message", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "The very first message Twilio sends through the connection is a `setup` message. It arrives immediately when the call connects and contains information about the call -- the phone numbers involved, a unique identifier, and whether the call is inbound or outbound.",
+        "The first message Twilio sends is a `setup` message with call details. Handle it to save the call ID and initialize the conversation history:",
     },
 
     {
       type: "json-message",
+      audience: "builder",
       direction: "inbound",
       messageType: "setup",
       code: `{
@@ -126,20 +120,6 @@ server.listen(PORT, () => {
   "callStatus": "RINGING",
   "customParameters": {}
 }`,
-    },
-
-    {
-      type: "prose",
-      audience: "explorer",
-      content:
-        "This is the first thing the server sees when a call begins. It includes who is calling (`from`), who they called (`to`), and a unique call ID (`callSid`) so everything that happens during the conversation can be tracked together. The server saves this information and gets ready to start relaying messages between the caller and the AI.",
-    },
-
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "Handle the `setup` message to prepare for the call -- create a blank conversation history and save the call ID for your logs:",
     },
 
     {
@@ -174,6 +154,7 @@ server.listen(PORT, () => {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         "Each connection corresponds to exactly one phone call. When the caller hangs up, the connection closes automatically. Each call gets its own conversation history.",
@@ -201,27 +182,23 @@ server.listen(PORT, () => {
       file: "server.js",
       language: "javascript",
       explanation:
-        "This is the complete WebSocket server skeleton. It handles the setup message and logs the call SID. In the next steps we will add TwiML, speech handling, and LLM integration.",
+        "The complete WebSocket server skeleton. It handles the setup message and logs the call SID. In the next steps we will add TwiML, speech handling, and LLM integration.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
 
 const PORT = 8080;
 
-// Create a basic HTTP server (Twilio needs HTTP for TwiML)
 const server = http.createServer((req, res) => {
   res.writeHead(200, { "Content-Type": "text/plain" });
   res.end("WebSocket server is running");
 });
 
-// Attach WebSocket server. The "/ws" path keeps WebSocket upgrades isolated
-// from HTTP routes like /twiml and /call on the same server.
 const wss = new WebSocketServer({ server, path: "/ws" });
 
 wss.on("connection", (ws, req) => {
   console.log("📞 New WebSocket connection");
 
-  // Per-call state
   let callSid = null;
   const conversationHistory = [];
 

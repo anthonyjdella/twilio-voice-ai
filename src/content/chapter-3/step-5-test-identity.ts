@@ -16,7 +16,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "You have crafted a system prompt, designed a persona, selected a voice, and configured the language settings. Now it is time to hear your agent in action. Restart your server to pick up the changes:",
+        "You have crafted a system prompt, designed a persona, selected a voice, and configured the language settings. Restart your server to pick up the changes:",
     },
 
     { type: "terminal", audience: "builder", commands: "$ node server.js" },
@@ -25,7 +25,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Make sure port 8080 is set to **Public** in your Codespace's Ports tab. This allows Twilio to reach your server.",
+        "Make sure port 8080 is set to **Public** in your Codespace's Ports tab so Twilio can reach your server.",
     },
 
     {
@@ -48,34 +48,36 @@ export default {
       commands: `$ curl -X POST https://<your-codespace-url>/call`,
     },
 
+    { type: "section", title: "What to Check" },
+
     {
       type: "prose",
       content:
-        "Your server will place an outbound call to your phone. When you answer, you should hear your agent greet you with the voice and personality you configured. Try a few things during the call:",
+        "When the call connects, listen for these things:",
     },
 
     {
       type: "prose",
       content:
-        "**Test the greeting.** Does the agent introduce itself with the name and role you defined in the system prompt?",
+        "**Greeting.** Does the agent introduce itself with the name and role from its persona?",
     },
 
     {
       type: "prose",
       content:
-        "**Test the tone.** Does the agent sound like the persona you designed? Is it formal when it should be formal, casual when it should be casual?",
+        "**Tone.** Does the agent sound like the personality that was configured? Is it formal when it should be formal, casual when it should be casual?",
     },
 
     {
       type: "prose",
       content:
-        "**Test the boundaries.** Ask something off-topic. Does the agent stay in character and redirect the conversation?",
+        "**Boundaries.** Ask something off-topic. Does the agent stay in character and redirect the conversation?",
     },
 
     {
       type: "prose",
       content:
-        "**Test response length.** Are the responses short and natural, or is the agent rambling? If responses are too long, tighten the system prompt with more explicit length instructions.",
+        "**Response length.** Are the responses short and natural, or is the agent rambling?",
     },
 
     {
@@ -84,16 +86,17 @@ export default {
         "Does your agent respond with the right personality and voice?",
     },
 
-    { type: "section", title: "Iterating on Your Persona" },
+    { type: "section", title: "Iterating on the Persona" },
 
     {
       type: "prose",
       content:
-        "Getting the persona right is an iterative process. Here are some common adjustments:",
+        "Getting the persona right is an iterative process. A few common adjustments:",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         'If responses are too long, add explicit instructions like "Never respond with more than two sentences" or "Always end with a question to keep the conversation moving."',
@@ -108,21 +111,23 @@ export default {
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
-        "If the agent breaks character, strengthen the boundaries in your system prompt. Be very explicit about what the agent should never do.",
+        "If the agent breaks character, strengthen the boundaries in the system prompt. Be very explicit about what the agent should never do.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "The system prompt is the most powerful lever for shaping behavior. Keep refining it throughout the workshop as you add new capabilities. Make sure you are happy with the basic personality and voice before moving on.",
     },
 
     {
       type: "prose",
       content:
-        "**The system prompt is your most powerful tool.** You will keep refining it throughout the workshop as you add new capabilities. For now, make sure you are happy with the basic personality and voice before moving on.",
-    },
-
-    {
-      type: "prose",
-      content:
-        "In the next chapter, we will give your agent **reflexes** \u2014 the ability to handle interruptions, detect keypad presses, manage silence, and switch languages on the fly.",
+        "In the next chapter, the agent gains **reflexes** \u2014 the ability to handle interruptions, detect keypad presses, manage silence, and switch languages on the fly.",
     },
   ],
 } satisfies StepDefinition;

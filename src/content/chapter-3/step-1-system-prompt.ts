@@ -16,49 +16,56 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "The system prompt is a set of instructions you give the AI before every conversation. It defines **who** the agent is, **how** it should behave, and **what** it should (and should not) do. Think of it as the agent's backstory, personality, and operating manual rolled into one.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "For voice AI, the system prompt matters even more than in a chat app. Your caller can't skim a long paragraph or scroll back -- they hear every word in real time. So the instructions must push the AI to speak concisely, like a real person on the phone.",
     },
 
-    { type: "section", title: "Voice AI Prompt Principles" },
+    { type: "section", title: "Voice AI Prompt Principles", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Writing prompts for voice is different from writing prompts for chat. Keep these principles in mind:",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**1. Keep responses short.** A good voice response is one to two sentences. Long monologues lose the caller. Tell the AI to be brief and to ask follow-up questions instead of dumping information.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**2. Use conversational language.** Avoid bullet points, numbered lists, and markdown formatting. The voice engine will read those literally. Write the way people actually talk.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**3. No markdown or special characters.** Asterisks, headers, and links make no sense when spoken aloud. Tell the AI explicitly not to use any formatting.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**4. Handle edge cases.** What happens if the caller asks something off-topic? What if they're rude? Define these boundaries in the prompt so the agent stays on track.",
     },
 
-    { type: "section", title: "Adding the System Message" },
+    { type: "section", title: "Adding the System Message", audience: "builder" },
 
     {
       type: "callout",
@@ -70,18 +77,21 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Chapter 3 shifts the system prompt into the conversation history itself -- it becomes the first thing the AI reads for every call. Two changes:",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**1.** Pull the prompt out into a constant (so you can edit it in one place):",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `const SYSTEM_PROMPT = \`You are a helpful voice assistant for Acme Corp.
@@ -93,12 +103,14 @@ If you don't know something, say so honestly.\`;`,
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**2.** Add the system message to the conversation history when the call connects, then remove the hardcoded system message from the streaming function:",
     },
 
     {
       type: "code",
+      audience: "builder",
       language: "javascript",
       file: "server.js",
       code: `wss.on("connection", (ws, req) => {
@@ -122,6 +134,7 @@ const stream = await openai.chat.completions.create({
 
     {
       type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
         'Do not include formatting instructions like "respond in markdown" or "use bullet points." The caller hears raw text spoken aloud, so formatting characters will be read out and sound confusing.',
@@ -131,15 +144,16 @@ const stream = await openai.chat.completions.create({
       type: "callout",
       variant: "tip",
       content:
-        "Test your system prompt by reading the AI's responses out loud. If they sound natural when spoken, you're on the right track.",
+        "Test a system prompt by reading the AI's responses out loud. If they sound natural when spoken, the prompt is on the right track.",
     },
 
-    { type: "section", title: "Your Turn" },
+    { type: "section", title: "Your Turn", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Write a system prompt for your agent. Think about what kind of assistant you want to build. A restaurant booking agent? A tech support helper? A friendly concierge? Craft a prompt that defines the personality and keeps responses voice-friendly.",
+        "Write a system prompt for your agent. Think about what kind of assistant you want to build -- a restaurant booking agent, a tech support helper, a friendly concierge -- then craft a prompt that defines the personality and keeps responses voice-friendly.",
     },
 
     {

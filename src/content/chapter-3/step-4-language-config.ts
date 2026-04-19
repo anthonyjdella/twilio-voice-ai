@@ -5,17 +5,18 @@ export default {
     { type: "section", title: "Speech-to-Text Configuration" },
 
     {
-      type: "prose",
-      content:
-        "Your agent already turns the caller's voice into text automatically. In this step, you can fine-tune how that works -- choosing which language the system listens for and which speech recognition engine it uses for better accuracy.",
-    },
-
-    {
       type: "concept-card",
       audience: "explorer",
       title: "Speech Recognition",
       content:
         "Your AI agent automatically converts the caller's spoken words into text using speech-to-text technology. This happens behind the scenes so the agent can understand and respond to anything the caller says. You choose the language (English, Spanish, and many more) and the system handles the rest. For most conversations the defaults work perfectly.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "Your agent already turns the caller's voice into text automatically. In this step, you can fine-tune how that works -- choosing which language the system listens for and which speech recognition engine it uses for better accuracy.",
     },
 
     { type: "section", title: "Speech Recognition Providers", audience: "builder" },
@@ -27,7 +28,7 @@ export default {
         "**Deepgram** is the default provider — fast, low-latency, and optimized for English. **Google Cloud Speech-to-Text** offers stronger multilingual support across dozens of languages.",
     },
 
-    { type: "section", title: "Configuring Language and Provider" },
+    { type: "section", title: "Configuring Language and Provider", audience: "builder" },
 
     {
       type: "prose",
@@ -87,11 +88,12 @@ export default {
       type: "concept-card",
       title: "Supported Languages",
       content:
-        "**English:** en-US, en-GB, en-AU | **Spanish:** es-ES, es-MX | **French:** fr-FR, fr-CA | **German:** de-DE | **Portuguese:** pt-BR, pt-PT | **Japanese:** ja-JP | **Chinese:** zh-CN | **Korean:** ko-KR | **Italian:** it-IT | **Hindi:** hi-IN — and 20+ more.",
+        "English, Spanish, French, German, Portuguese, Japanese, Chinese, Korean, Italian, Hindi, and 20+ more languages are supported. Each language has regional variants (for example, US English vs. British English, or European Spanish vs. Mexican Spanish).",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         "If your agent handles a single language, set the `language` attribute explicitly. This helps the speech recognizer optimize for that language and improves accuracy. You should also tell your AI to respond in the same language via the system prompt.",

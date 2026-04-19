@@ -4,39 +4,33 @@ export default {
   blocks: [
     { type: "diagram", variant: "architecture", highlight: "websocket-prompt", showTools: true },
 
-    { type: "section", title: "Receiving the Caller's Speech" },
+    { type: "section", title: "Listening to the Caller" },
 
     {
       type: "concept-card",
       audience: "explorer",
-      title: "From Voice to Text",
+      title: "How the Server Hears You",
       content:
-        "When the caller says something, Twilio transcribes it into plain text behind the scenes and hands that text to the server as a single message. The server never deals with raw audio -- by the time it arrives, it's already a tidy string like \"I need help with my order\".",
-    },
-
-    {
-      type: "prose",
-      content:
-        "When the caller finishes speaking, Twilio converts their words into text and sends it to the server. This message contains exactly what the caller said, ready for the AI to read and respond to.",
+        "When you speak during a call, Twilio converts your voice into text and sends it to the server. The server never hears audio -- it just reads what you said, like a live transcript.",
     },
 
     {
       type: "prose",
       audience: "explorer",
       content:
-        "The server keeps a running log of the conversation -- everything the caller says and everything the AI replies. This history is what gives the AI context. Without it, every exchange would feel like talking to someone with amnesia -- the AI would have no memory of what was just discussed.",
+        "The server also keeps a log of the full conversation so the AI remembers what was said earlier. Without this, every reply would start from scratch.",
     },
-
-    { type: "section", title: "The Prompt Message" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Here is what a `prompt` message looks like when the caller says \"Hi, I need help with my account\":",
+        "When the caller finishes speaking, Twilio sends a `prompt` message with the transcribed text. Add a handler that saves it to the conversation history:",
     },
 
     {
       type: "json-message",
+      audience: "builder",
       direction: "inbound",
       messageType: "prompt",
       code: `{
@@ -49,42 +43,9 @@ export default {
 
     {
       type: "prose",
-      content: "The key fields are:",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**voicePrompt** -- The transcribed text of what the caller said. This is what gets sent to the AI for a response.",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**lang** -- The detected language of the speech. Useful for building a multilingual agent.",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**last** -- Indicates whether this is the final transcript for this utterance. Twilio may send partial results as the caller speaks, followed by a final result with `last: true`. Only the final result gets processed.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "tip",
-      content:
-        "The `last` field is important for avoiding duplicate processing. If you handle every `prompt` message regardless of the `last` field, you will send partial transcripts to the AI and get multiple overlapping responses. Always check `last === true` before processing.",
-    },
-
-    { type: "section", title: "Handle the Prompt", audience: "builder" },
-
-    {
-      type: "prose",
       audience: "builder",
       content:
-        "Add a handler for when the caller finishes speaking. When their words arrive, save them to the conversation history and get ready to send them to the AI:",
+        "**voicePrompt** is the transcribed text. **last** indicates whether this is the final transcript -- Twilio may send partial results while the caller is still speaking. Only process messages where `last` is `true`.",
     },
 
     {
@@ -124,7 +85,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "The conversation history array follows the OpenAI chat format -- each entry has a `role` (`\"user\"`, `\"assistant\"`, or `\"system\"`) and a `content` string. This makes it straightforward to pass directly to the OpenAI API in the next step.",
+        "The conversation history follows the OpenAI chat format (`role` + `content`), so it can be passed directly to the API in the next step.",
     },
 
     {

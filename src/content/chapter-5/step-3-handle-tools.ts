@@ -9,23 +9,24 @@ export default {
       audience: "explorer",
       title: "The Tool Loop in Plain English",
       content:
-        "When the AI decides it needs a tool, it doesn't answer the caller yet -- it pauses and says, essentially, \"please look this up for me.\" Your code runs the tool (check weather, look up an order), hands the answer back to the model, and *then* the model speaks to the caller. This little back-and-forth loop is what lets a voice agent actually *do* things, not just talk about them.",
+        "When the AI decides it needs a tool, it pauses and says \"please look this up for me.\" The tool runs, the answer comes back, and then the AI speaks to the caller. This back-and-forth loop is what lets a voice agent actually do things, not just talk about them.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Now that your tools are defined, you need to connect them to the conversation flow. When the AI decides to use a tool instead of responding with words, your code runs the tool, sends the answer back to the AI, and lets the conversation continue.",
     },
 
-    { type: "section", title: "Detecting Tool Calls in the Stream" },
+    { type: "section", title: "Detecting Tool Calls in the Stream", audience: "builder" },
 
     {
       type: "callout",
       audience: "builder",
       variant: "warning",
       content:
-        "**Replace, don't append.** The `streamResponse(ws)` function below **replaces two things** from earlier chapters:\n\n1. **Delete `handlePrompt`** (from Chapter 4). The prompt case now pushes the user turn inline and calls `streamResponse(ws)` directly — see the diff below.\n2. **Delete `streamLLMResponse`** (from Chapter 2, if it still exists). `streamResponse` is its successor — same streaming idea, but with `AbortController` support, module-scope `conversationHistory`, and tool-call handling.\n\nIf you leave either old function in place alongside `streamResponse`, you'll have two `for await` loops fighting over the same `conversationHistory` and `activeStream` — the tool-call branch will never fire because the old function gets the prompt first. `conversationHistory` and `activeStream` stay at module scope (set up in Chapter 4); only the stream loop itself is swapped.",
+        "**Replace, don't append.** The `streamResponse(ws)` function below **replaces two things** from earlier chapters:\n\n1. **Delete `handlePrompt`** (from Chapter 4). The prompt case now pushes the user turn inline and calls `streamResponse(ws)` directly -- see the diff below.\n2. **Delete `streamLLMResponse`** (from Chapter 2, if it still exists). `streamResponse` is its successor -- same streaming idea, but with `AbortController` support, module-scope `conversationHistory`, and tool-call handling.\n\nIf you leave either old function in place alongside `streamResponse`, you'll have two `for await` loops fighting over the same `conversationHistory` and `activeStream` -- the tool-call branch will never fire because the old function gets the prompt first. `conversationHistory` and `activeStream` stay at module scope (set up in Chapter 4); only the stream loop itself is swapped.",
     },
 
     {
@@ -46,19 +47,21 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "The `require(\"./tool-handlers.js\")` import at the top of the code below must go **near the top of `server.js`**, alongside your other `require` statements. The `streamResponse` function references `tools` (passed to OpenAI) and `toolHandlers` (dispatched when a tool call fires). Without the import you'll hit `ReferenceError: tools is not defined` the moment the model tries to call a function.",
+        "The `require(\"./tool-handlers.js\")` import must go **near the top of `server.js`**, alongside your other `require` statements. The `streamResponse` function references `tools` (passed to OpenAI) and `toolHandlers` (dispatched when a tool call fires). Without the import you'll hit `ReferenceError: tools is not defined`.",
     },
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "Here is the high-level logic for how your server handles tool calls during a conversation:",
+        "Here is the high-level logic: send the conversation to the AI, listen for the reply. If the reply is words, speak them to the caller. If the AI asks for a tool, run it, send the result back, and let the AI try again with real data.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "1. Send the conversation to the AI and start listening for the reply.\n2. As the reply comes in: if it is **words**, send them to the caller sentence by sentence. If the AI is **asking for a tool**, collect those requests.\n3. If the AI asked for tools → run each tool, send the results back to the AI, and let it try again with the real data.\n4. If the AI is done talking → send the last bit of text and save the reply.",
+        "Here is the high-level logic:\n\n1. Send the conversation to the AI and start listening for the reply.\n2. As the reply streams in: if it is **words**, send them to the caller sentence by sentence. If the AI is **requesting a tool**, collect those requests.\n3. If the AI asked for tools, run each one, send the results back to the AI, and let it try again with the real data.\n4. If the AI is done talking, send the last bit of text and save the reply.",
     },
 
     {
@@ -157,10 +160,11 @@ async function streamResponse(ws, iteration = 0) {
 }`,
     },
 
-    { type: "section", title: "Executing Tool Calls" },
+    { type: "section", title: "Executing Tool Calls", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "When the AI asks for tools instead of responding with text, your server runs each tool, adds the results to the conversation, and sends everything back to the AI so it can craft a final answer:",
     },
@@ -200,7 +204,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
     let result;
     try {
       const fnArgs = JSON.parse(toolCall.function.arguments);
-      console.log(\`🔧 Calling tool: \${fnName}\`, fnArgs);
+      console.log(\`Tool call: \${fnName}\`, fnArgs);
 
       const handler = toolHandlers[fnName];
       if (!handler) {
@@ -211,7 +215,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
         result = await handler(fnArgs, ws);
       }
     } catch (err) {
-      console.error(\`❌ Tool error (\${fnName}):\`, err.message);
+      console.error(\`Tool error (\${fnName}):\`, err.message);
       result = { error: \`Tool execution failed: \${err.message}\` };
     }
 
@@ -235,7 +239,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
       audience: "builder",
       variant: "info",
       content:
-        "**Why `content: null` on the assistant message?** The OpenAI Chat Completions API requires *either* `content` *or* `tool_calls` on an assistant turn — and when the model chose to call a tool, there is no user-facing text yet. Setting `content: null` and populating `tool_calls` mirrors exactly what the model returned, so the next request reconstructs the conversation faithfully. Omitting `tool_calls`, or setting `content` to a string like `\"\"`, will make the API reject the follow-up request with a `tool_call_id not found` error on the matching `role: \"tool\"` message.",
+        "**Why `content: null` on the assistant message?** The OpenAI Chat Completions API requires *either* `content` *or* `tool_calls` on an assistant turn -- and when the model chose to call a tool, there is no user-facing text yet. Setting `content: null` and populating `tool_calls` mirrors exactly what the model returned, so the next request reconstructs the conversation faithfully. Omitting `tool_calls`, or setting `content` to a string like `\"\"`, will make the API reject the follow-up request with a `tool_call_id not found` error.",
     },
 
     {
@@ -251,11 +255,12 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
       audience: "builder",
       variant: "warning",
       content:
-        "**Tool results must be strings.** The `content` field on a `role: \"tool\"` message must be a JSON string, not a raw object. Always use `JSON.stringify(result)` when adding tool results to `conversationHistory`. If you pass an object directly, the OpenAI API will reject the next request with a parsing error.",
+        "**Tool results must be strings.** The `content` field on a `role: \"tool\"` message must be a JSON string, not a raw object. Always use `JSON.stringify(result)`. If you pass an object directly, the OpenAI API will reject the next request with a parsing error.",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         "While a tool is running, the caller hears silence. For tools that take more than a second, consider having the agent say something like \"Let me check that for you...\" first. This keeps the conversation feeling natural.",
@@ -390,7 +395,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
     let result;
     try {
       const fnArgs = JSON.parse(toolCall.function.arguments);
-      console.log("🔧 Tool call:", fnName, fnArgs);
+      console.log("Tool call:", fnName, fnArgs);
 
       const handler = toolHandlers[fnName];
       // Pass ws as the second arg so handlers that need to send messages
