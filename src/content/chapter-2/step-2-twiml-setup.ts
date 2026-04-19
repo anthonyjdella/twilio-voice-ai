@@ -14,8 +14,6 @@ export default {
         "The server tells Twilio to dial your phone. When you pick up, Twilio connects the call to the AI agent and plays a welcome greeting so there is no awkward silence.",
     },
 
-    { type: "page-break" },
-
     {
       type: "prose",
       audience: "builder",
@@ -195,23 +193,6 @@ const server = http.createServer(async (req, res) => {
     },
 
     { type: "page-break" },
-
-    { type: "section", title: "Codespace Port Forwarding", audience: "builder" },
-
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "Make sure port `8080` visibility is set to **Public** in the Codespace Ports tab so Twilio can reach your server from the internet.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "tip",
-      content:
-        "Right-click port 8080 in the Ports tab and select \"Port Visibility\" > \"Public\". The URL is stable for the lifetime of the Codespace.",
-    },
 
     {
       type: "deep-dive",

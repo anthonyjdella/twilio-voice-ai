@@ -50,8 +50,6 @@ export default {
 🚀 Server listening on port 8080`,
     },
 
-    { type: "page-break" },
-
     { type: "section", title: "Call Me" },
 
     {
@@ -104,7 +102,29 @@ export default {
 
     {
       type: "verify",
+      audience: "builder",
       question: "Did you hear the AI respond to your voice?",
+      troubleshooting: [
+        "Watch your terminal while you call -- you should see logs for `📞 New WebSocket connection`, `✅ Call started`, and `🗣️ Caller: ...`",
+        "No WebSocket connection logged? Port 8080 is probably not Public in the Codespace Ports tab",
+        "Call connects but silence on the line? Your server may not be reaching OpenAI -- check `OPENAI_API_KEY` is set and the terminal for LLM errors",
+        "Call never rings? Check the `/call` response in the terminal and verify `TWILIO_PHONE_NUMBER` is a voice-capable number you own",
+        "Number format must be E.164 (`+15551234567`) in both `MY_PHONE_NUMBER` and the Call Me input",
+        "Trial accounts can only call verified numbers -- verify `MY_PHONE_NUMBER` in the Twilio Console if you're on a trial",
+      ],
+    },
+
+    {
+      type: "verify",
+      audience: "explorer",
+      question: "Did you hear the AI respond to your voice?",
+      troubleshooting: [
+        "Make sure you entered your phone number with country code (like +12065551234)",
+        "Check that your phone has signal and isn't on Do Not Disturb",
+        "The call can take a few seconds to arrive -- give it about 10 seconds",
+        "If nothing rings, try the Call Me button again",
+        "Some carriers flag unknown numbers as spam -- check your recent calls",
+      ],
     },
 
     {

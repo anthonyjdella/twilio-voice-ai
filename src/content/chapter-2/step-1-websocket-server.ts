@@ -21,8 +21,6 @@ export default {
         "Think of it like a receptionist who picks up the phone, listens to the caller, and passes their words along to the right person. The connection stays open the whole time -- no hanging up and calling back between turns.",
     },
 
-    { type: "page-break" },
-
     {
       type: "prose",
       audience: "builder",

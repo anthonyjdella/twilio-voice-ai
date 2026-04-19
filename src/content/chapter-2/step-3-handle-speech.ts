@@ -21,8 +21,6 @@ export default {
         "The server also keeps a log of the full conversation so the AI remembers what was said earlier. Without this, every reply would start from scratch.",
     },
 
-    { type: "page-break" },
-
     {
       type: "prose",
       audience: "builder",
@@ -105,8 +103,64 @@ export default {
       file: "server.js",
       language: "javascript",
       explanation:
-        "The prompt handler checks the last field, logs the transcript, and appends it to the conversation history. The LLM integration comes in the next step.",
-      code: `wss.on("connection", (ws, req) => {
+        "The full server.js so far: HTTP routes for TwiML and /call, plus the WebSocket handler with setup and prompt handling. LLM streaming comes in the next step.",
+      code: `require("dotenv").config();
+const { WebSocketServer } = require("ws");
+const http = require("http");
+const twilio = require("twilio");
+
+const PORT = 8080;
+
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
+const server = http.createServer(async (req, res) => {
+  if (req.url === "/twiml" && req.method === "POST") {
+    const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <ConversationRelay
+      url="wss://\${req.headers.host}/ws"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
+    />
+  </Connect>
+</Response>\`;
+
+    res.writeHead(200, { "Content-Type": "text/xml" });
+    res.end(twiml);
+    return;
+  }
+
+  if (req.url === "/call" && req.method === "POST") {
+    try {
+      const call = await twilioClient.calls.create({
+        to: process.env.MY_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        url: \`https://\${req.headers.host}/twiml\`,
+      });
+
+      console.log("📞 Call initiated:", call.sid);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ callSid: call.sid }));
+    } catch (error) {
+      console.error("❌ Call error:", error.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+    return;
+  }
+
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("WebSocket server is running");
+});
+
+const wss = new WebSocketServer({ server, path: "/ws" });
+
+wss.on("connection", (ws, req) => {
   console.log("📞 New WebSocket connection");
 
   let callSid = null;
@@ -148,6 +202,10 @@ export default {
   ws.on("error", (err) => {
     console.error("❌ WebSocket error:", err);
   });
+});
+
+server.listen(PORT, () => {
+  console.log(\`🚀 Server listening on port \${PORT}\`);
 });`,
     },
   ],

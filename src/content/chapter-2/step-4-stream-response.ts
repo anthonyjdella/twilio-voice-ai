@@ -14,8 +14,6 @@ export default {
         "The server sends the caller's words to an AI model. Instead of waiting for the full reply, each word is sent to Twilio as it is generated -- so the caller hears the AI start talking almost immediately, just like a real conversation.",
     },
 
-    { type: "page-break" },
-
     {
       type: "prose",
       audience: "builder",
