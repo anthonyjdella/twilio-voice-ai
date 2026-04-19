@@ -275,85 +275,202 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
       file: "server.js",
       language: "javascript",
       explanation:
-        "The complete streamResponse and handleToolCalls functions, including filler messages for slow tools and iteration limits for safety.",
-      code: `// Pulled in from step 2 — drives both the tools array and the dispatch table
+        "The complete `server.js` at the end of this step. Building on Chapter 4 Step 4: `tool-handlers.js` is required at the top, `streamLLMResponse`/`handlePrompt` are gone, `streamResponse` passes `tools` to OpenAI and accumulates tool-call deltas, `handleToolCalls` dispatches each call through `toolHandlers`, and the `prompt` case in `handleMessage` now pushes the user turn and calls `streamResponse(ws)` directly. `MAX_TOOL_ITERATIONS` bounds recursion and `SLOW_TOOLS` triggers a filler message so the caller hears something during slow lookups.",
+      code: `require("dotenv").config();
+const { WebSocketServer } = require("ws");
+const http = require("http");
+const OpenAI = require("openai");
+const twilio = require("twilio");
 const { tools, toolHandlers } = require("./tool-handlers.js");
 
+const PORT = 8080;
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
+const SYSTEM_PROMPT = \`You are a helpful voice assistant for Acme Corp.
+Keep your responses brief -- one to two sentences at most.
+Speak naturally and conversationally.
+Never use markdown, bullet points, or numbered lists.
+If you don't know something, say so honestly.
+
+LANGUAGE DETECTION:
+- You can speak English and Spanish fluently.
+- If the caller switches to a different language, respond in that language.
+- When you detect a language switch, include the marker [LANG:xx-XX]
+  at the very beginning of your response, where xx-XX is the BCP-47
+  language code (e.g., [LANG:es-ES] for Spanish, [LANG:en-US] for English).
+- Only include the marker when the language CHANGES, not on every message.\`;
+
+const SILENCE_TIMEOUT_MS = 8000;
+const MAX_SILENCE_PROMPTS = 2;
 const MAX_TOOL_ITERATIONS = 5;
 const SLOW_TOOLS = ["lookup_order"];
+const LANG_MARKER_REGEX = /^\\[LANG:([\\w-]+)\\]/;
+
+const conversationHistory = [
+  { role: "system", content: SYSTEM_PROMPT },
+];
+let activeStream = null;
+let silenceTimer = null;
+let silencePromptCount = 0;
+let currentLanguage = "en-US";
+
+function sendText(ws, token, last = false) {
+  ws.send(JSON.stringify({ type: "text", token, last }));
+}
+
+function sendDigits(ws, digits) {
+  ws.send(JSON.stringify({ type: "sendDigits", digits }));
+}
+
+function processLLMResponse(ws, text) {
+  const match = text.match(LANG_MARKER_REGEX);
+
+  if (match) {
+    const newLang = match[1];
+
+    if (newLang !== currentLanguage) {
+      console.log(\`Switching language: \${currentLanguage} -> \${newLang}\`);
+      currentLanguage = newLang;
+
+      ws.send(JSON.stringify({
+        type: "language",
+        ttsLanguage: newLang,
+        transcriptionLanguage: newLang,
+      }));
+    }
+
+    text = text.replace(LANG_MARKER_REGEX, "").trim();
+  }
+
+  if (text) {
+    sendText(ws, text, true);
+  }
+}
+
+function resetSilenceTimer(ws) {
+  clearTimeout(silenceTimer);
+  silencePromptCount = 0;
+
+  silenceTimer = setTimeout(() => {
+    handleSilence(ws);
+  }, SILENCE_TIMEOUT_MS);
+}
+
+function handleSilence(ws) {
+  silencePromptCount++;
+
+  if (silencePromptCount >= MAX_SILENCE_PROMPTS) {
+    sendText(ws, "It seems like you may have stepped away. " +
+      "I'll end the call for now. Feel free to call back anytime!", true);
+    ws.send(JSON.stringify({ type: "end" }));
+    return;
+  }
+
+  const prompts = [
+    "Are you still there? Take your time -- I'm here whenever you're ready.",
+    "I'm still here if you need anything. Is there something I can help with?",
+  ];
+
+  sendText(ws, prompts[silencePromptCount - 1], true);
+
+  silenceTimer = setTimeout(() => {
+    handleSilence(ws);
+  }, SILENCE_TIMEOUT_MS);
+}
 
 async function streamResponse(ws, iteration = 0) {
   activeStream = new AbortController();
 
-  const stream = await openai.chat.completions.create({
-    model: "gpt-5.4-nano",
-    messages: conversationHistory,
-    tools: tools,
-    stream: true,
-  }, { signal: activeStream.signal });
+  const stream = await openai.chat.completions.create(
+    {
+      model: "gpt-5.4-nano",
+      messages: conversationHistory,
+      tools: tools,
+      stream: true,
+    },
+    { signal: activeStream.signal }
+  );
 
   let textBuffer = "";
   let fullAssistantText = "";
   let toolCalls = [];
 
-  for await (const chunk of stream) {
-    const delta = chunk.choices[0]?.delta;
-    const finishReason = chunk.choices[0]?.finish_reason;
+  try {
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta;
+      const finishReason = chunk.choices[0]?.finish_reason;
 
-    if (delta?.content) {
-      textBuffer += delta.content;
-      fullAssistantText += delta.content;
-      const sentenceEnd = textBuffer.search(/[.!?]\\s/);
-      if (sentenceEnd !== -1) {
-        const sentence = textBuffer.slice(0, sentenceEnd + 1);
-        sendText(ws, sentence);
-        textBuffer = textBuffer.slice(sentenceEnd + 2);
+      if (delta?.content) {
+        textBuffer += delta.content;
+        fullAssistantText += delta.content;
+
+        const sentenceEnd = textBuffer.search(/[.!?]\\s/);
+        if (sentenceEnd !== -1) {
+          const sentence = textBuffer.slice(0, sentenceEnd + 1);
+          sendText(ws, sentence);
+          textBuffer = textBuffer.slice(sentenceEnd + 2);
+        }
       }
-    }
 
-    if (delta?.tool_calls) {
-      for (const tc of delta.tool_calls) {
-        if (tc.index !== undefined) {
-          if (!toolCalls[tc.index]) {
-            toolCalls[tc.index] = {
-              id: tc.id || "",
-              function: { name: "", arguments: "" }
-            };
+      if (delta?.tool_calls) {
+        for (const tc of delta.tool_calls) {
+          if (tc.index !== undefined) {
+            if (!toolCalls[tc.index]) {
+              toolCalls[tc.index] = {
+                id: tc.id || "",
+                function: { name: "", arguments: "" }
+              };
+            }
+            if (tc.id) toolCalls[tc.index].id = tc.id;
+            if (tc.function?.name) {
+              toolCalls[tc.index].function.name += tc.function.name;
+            }
+            if (tc.function?.arguments) {
+              toolCalls[tc.index].function.arguments += tc.function.arguments;
+            }
           }
-          if (tc.id) toolCalls[tc.index].id = tc.id;
-          if (tc.function?.name) toolCalls[tc.index].function.name += tc.function.name;
-          if (tc.function?.arguments) toolCalls[tc.index].function.arguments += tc.function.arguments;
+        }
+      }
+
+      if (finishReason === "tool_calls") {
+        activeStream = null;
+        await handleToolCalls(ws, toolCalls, iteration);
+        return;
+      }
+
+      if (finishReason === "stop") {
+        if (textBuffer.trim()) {
+          sendText(ws, textBuffer.trim());
+          textBuffer = "";
+        }
+        sendText(ws, "", true);
+        if (fullAssistantText.trim()) {
+          conversationHistory.push({
+            role: "assistant",
+            content: fullAssistantText.trim(),
+          });
         }
       }
     }
-
-    if (finishReason === "tool_calls") {
-      // Clear activeStream before recursing; the chained streamResponse will set its own
-      activeStream = null;
-      // Pass iteration through so the chained tool loop can count correctly
-      await handleToolCalls(ws, toolCalls, iteration);
-      return;
-    }
-
-    if (finishReason === "stop") {
-      if (textBuffer.trim()) {
-        sendText(ws, textBuffer.trim());
-        textBuffer = "";
-      }
-      sendText(ws, "", true); // end-of-turn signal
-    }
+  } catch (err) {
+    if (err.name !== "AbortError") throw err;
+  } finally {
+    activeStream = null;
   }
-
-  // Save the *full* assistant reply to history, not just the unsent tail
-  if (fullAssistantText.trim()) {
-    conversationHistory.push({ role: "assistant", content: fullAssistantText.trim() });
-  }
-  activeStream = null;
 }
 
 async function handleToolCalls(ws, toolCalls, iteration = 0) {
   if (iteration >= MAX_TOOL_ITERATIONS) {
-    sendText(ws, "I'm having trouble processing that. Can you try rephrasing?", true);
+    sendText(ws, "I'm having trouble processing that. " +
+      "Can you try rephrasing?", true);
     return;
   }
 
@@ -380,12 +497,11 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
       console.log("Tool call:", fnName, fnArgs);
 
       const handler = toolHandlers[fnName];
-      // Pass ws as the second arg so handlers that need to send messages
-      // mid-call (e.g. the transfer_to_agent handoff tool in step 4) can do so.
       result = handler
         ? await handler(fnArgs, ws)
         : { error: "Unknown tool: " + fnName };
     } catch (err) {
+      console.error(\`Tool error (\${fnName}):\`, err.message);
       result = { error: "Tool failed: " + err.message };
     }
 
@@ -396,9 +512,142 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
     });
   }
 
-  // Increment the counter before recursing so MAX_TOOL_ITERATIONS actually bounds the loop
   await streamResponse(ws, iteration + 1);
-}`,
+}
+
+function handleInterrupt(msg) {
+  console.log("Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
+
+  if (activeStream) {
+    activeStream.abort();
+    activeStream = null;
+  }
+
+  const lastMsg = conversationHistory[conversationHistory.length - 1];
+  if (lastMsg?.role === "assistant") {
+    lastMsg.content = msg.utteranceUntilInterrupt;
+  }
+}
+
+function handleDtmfInput(ws, digit) {
+  switch (digit) {
+    case "1":
+      conversationHistory.push({
+        role: "user",
+        content: "I want to check my order status.",
+      });
+      streamResponse(ws);
+      break;
+
+    case "2":
+      sendText(ws, "Let me transfer you to a representative. " +
+        "Please hold for a moment.", true);
+      break;
+
+    case "0":
+      sendText(ws, "Returning to the main menu. " +
+        "Press 1 for order status, 2 for a representative, " +
+        "or just tell me what you need.", true);
+      break;
+
+    default:
+      sendText(ws, "I didn't recognize that option. " +
+        "Press 1 for order status, or 2 for a representative.", true);
+      break;
+  }
+}
+
+function handleMessage(ws, data) {
+  const msg = JSON.parse(data);
+
+  switch (msg.type) {
+    case "setup":
+      console.log("Call started:", msg.callSid);
+      resetSilenceTimer(ws);
+      sendText(ws, "Press 1 to check your order status, " +
+        "press 2 to speak with a representative, " +
+        "or just tell me what you need.", true);
+      break;
+
+    case "prompt":
+      resetSilenceTimer(ws);
+      conversationHistory.push({ role: "user", content: msg.voicePrompt });
+      streamResponse(ws);
+      break;
+
+    case "interrupt":
+      resetSilenceTimer(ws);
+      handleInterrupt(msg);
+      break;
+
+    case "dtmf":
+      resetSilenceTimer(ws);
+      console.log("DTMF received:", msg.digit);
+      handleDtmfInput(ws, msg.digit);
+      break;
+
+    default:
+      console.log("Unhandled message type:", msg.type);
+  }
+}
+
+const server = http.createServer(async (req, res) => {
+  if (req.url === "/twiml" && req.method === "POST") {
+    const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <ConversationRelay
+      url="wss://\${req.headers.host}/ws"
+      welcomeGreeting="Hello! How can I help you today?"
+      interruptible="any"
+      dtmfDetection="true"
+    />
+  </Connect>
+</Response>\`;
+
+    res.writeHead(200, { "Content-Type": "text/xml" });
+    res.end(twiml);
+    return;
+  }
+
+  if (req.url === "/call" && req.method === "POST") {
+    try {
+      const call = await twilioClient.calls.create({
+        to: process.env.MY_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        url: \`https://\${req.headers.host}/twiml\`,
+      });
+
+      console.log("Call initiated:", call.sid);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ callSid: call.sid }));
+    } catch (error) {
+      console.error("Call error:", error.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+    return;
+  }
+
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("WebSocket server is running");
+});
+
+const wss = new WebSocketServer({ server, path: "/ws" });
+
+wss.on("connection", (ws) => {
+  console.log("WebSocket connection opened");
+  ws.on("message", (data) => handleMessage(ws, data));
+  ws.on("close", () => {
+    clearTimeout(silenceTimer);
+    console.log("WebSocket connection closed");
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(\`Server listening on port \${PORT}\`);
+});`,
     },
 
     {

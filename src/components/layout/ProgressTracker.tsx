@@ -38,21 +38,24 @@ export function ProgressTracker() {
         (prev.chapterSlug !== chapterSlug || prev.stepSlug !== stepSlug)) {
       const resolved = getStep(prev.chapterSlug, prev.stepSlug);
       if (resolved && !isStepCompleted(resolved.chapter.id, resolved.step.id)) {
-        // Build flat step order, figure out position of the step we're
-        // leaving, and compute the furthest position the learner has
-        // actually completed. If we're leaving a position more than one
-        // past the furthest-completed, it was a skip-ahead visit — don't
-        // silently count it as done.
+        // Build flat step order. Celebrating a step only makes sense when
+        // the learner is *advancing* past it — not when they hit the back
+        // button or jump to an earlier step. Track three positions:
+        //   - leavingPos:     the step they just left
+        //   - destinationPos: the step they arrived at
+        //   - maxCompletedPos: their furthest-completed step (guards against
+        //                     deep-link/skip-ahead drive-bys)
         let leavingPos = -1;
+        let destinationPos = -1;
         let maxCompletedPos = -1;
         let pos = 0;
         for (const c of chapters) {
           for (const s of c.steps) {
-            if (
-              c.slug === prev.chapterSlug &&
-              s.slug === prev.stepSlug
-            ) {
+            if (c.slug === prev.chapterSlug && s.slug === prev.stepSlug) {
               leavingPos = pos;
+            }
+            if (c.slug === chapterSlug && s.slug === stepSlug) {
+              destinationPos = pos;
             }
             if (completedStepsSet.has(`chapter-${c.id}:step-${s.id}`)) {
               if (pos > maxCompletedPos) maxCompletedPos = pos;
@@ -60,8 +63,10 @@ export function ProgressTracker() {
             pos++;
           }
         }
+        const movedForward =
+          leavingPos >= 0 && destinationPos > leavingPos;
         const isNaturalProgress =
-          leavingPos >= 0 && leavingPos <= maxCompletedPos + 1;
+          movedForward && leavingPos <= maxCompletedPos + 1;
         if (isNaturalProgress) {
           // Fire the step celebration as the learner advances past the step
           // they just left — this is the only moment "step complete" is

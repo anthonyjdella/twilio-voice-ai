@@ -11,7 +11,31 @@ export default {
       audience: "explorer",
       title: "The System Prompt Shapes Behavior",
       content:
-        "The system prompt is a single paragraph you hand the AI at the start of every call -- it's the backstory, job description, and rulebook all at once. It's why the same AI can be a cheerful pizza-ordering bot on one call and a calm medical intake nurse on the next. The words you choose here control the entire personality and scope of the agent.",
+        "The system prompt is a single paragraph handed to the AI at the start of every call -- it's the backstory, job description, and rulebook all at once. It's why the same AI can be a cheerful pizza-ordering bot on one call and a calm medical intake nurse on the next. The words in that paragraph shape the entire personality and scope of the agent.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Same Caller, Two Different Agents",
+      content:
+        "Imagine a caller asks, \"What are your hours?\" Given a system prompt that describes a warm pizza shop helper, the agent might reply, \"We're slinging pies until midnight tonight -- want to order something?\" Given a system prompt that describes a formal hotel concierge, the same caller gets, \"The front desk is open twenty-four hours. May I help you with a reservation?\" Same caller, same question, two completely different experiences -- and the only thing that changed was the paragraph at the top.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What Lives in a Good Prompt",
+      content:
+        "A strong system prompt covers three things: who the agent is (a name, a role, a tone), what it should and shouldn't do (the boundaries), and how it should sound on the phone (short, conversational, no reading lists aloud). Get those three right and the agent feels like a real person. Miss any one of them and the caller hears it immediately.",
+    },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "info",
+      content:
+        "In the next step, you'll shape your own agent's personality -- pick a preset like Friendly Assistant or Professional Concierge, or write your own -- and then call it to hear the difference.",
     },
 
     {
@@ -50,14 +74,14 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**2. Use conversational language.** Avoid bullet points, numbered lists, and markdown formatting. The voice engine will read those literally. Write the way people actually talk.",
+        "**2. Tell the AI to speak conversationally.** You're writing instructions the AI will read, not a script it will recite -- so bullets and structure in your prompt are fine (you'll see them in the solution below). What matters is the AI's *output*: tell it to answer the way people actually talk on the phone, not the way a web page is laid out.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "**3. No markdown or special characters.** Asterisks, headers, and links make no sense when spoken aloud. Tell the AI explicitly not to use any formatting.",
+        "**3. Ban markdown in the AI's responses.** Asterisks, headers, and bullet markers make no sense when spoken aloud -- the voice engine reads them literally (\"asterisk asterisk\"). Put an explicit rule in the prompt telling the AI not to use any formatting in what it says back.",
     },
 
     {
@@ -140,6 +164,7 @@ const stream = await openai.chat.completions.create({
 
     {
       type: "callout",
+      audience: "builder",
       variant: "tip",
       content:
         "Read the AI's responses out loud. If they sound natural when spoken, the prompt is on the right track. If you hear formatting characters like asterisks or bullet markers, remove them from the instructions -- the caller hears raw text.",
@@ -162,8 +187,25 @@ const stream = await openai.chat.completions.create({
       language: "javascript",
       file: "server.js",
       explanation:
-        "The full wiring: a module-scope SYSTEM_PROMPT constant, seeded as the first message on every new WebSocket connection, and picked up automatically by streamLLMResponse since it passes the whole conversationHistory to OpenAI. Ava is a sample persona -- adapt the prompt to your own use case.",
-      code: `const SYSTEM_PROMPT = \`You are Ava, a friendly and professional virtual concierge
+        "The complete `server.js` at the end of this step. A module-scope `SYSTEM_PROMPT` constant holds the persona, `conversationHistory` is seeded with it on every new WebSocket connection, and `streamLLMResponse` passes the whole history to OpenAI (so the hardcoded system message from Chapter 2 is gone). Ava is a sample persona -- adapt the prompt to your own use case.",
+      code: `require("dotenv").config();
+const { WebSocketServer } = require("ws");
+const http = require("http");
+const OpenAI = require("openai");
+const twilio = require("twilio");
+
+const PORT = 8080;
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
+const SYSTEM_PROMPT = \`You are Ava, a friendly and professional virtual concierge
 for Acme Corp. You help callers with appointment scheduling, general
 company information, and directing them to the right department.
 
@@ -180,7 +222,88 @@ Guidelines:
   like to book an appointment for Tuesday at 3pm, is that right?"
 - Be warm and personable. Use the caller's name if they share it.\`;
 
+const server = http.createServer(async (req, res) => {
+  if (req.url === "/twiml" && req.method === "POST") {
+    const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <ConversationRelay
+      url="wss://\${req.headers.host}/ws"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
+    />
+  </Connect>
+</Response>\`;
+
+    res.writeHead(200, { "Content-Type": "text/xml" });
+    res.end(twiml);
+    return;
+  }
+
+  if (req.url === "/call" && req.method === "POST") {
+    try {
+      const call = await twilioClient.calls.create({
+        to: process.env.MY_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        url: \`https://\${req.headers.host}/twiml\`,
+      });
+
+      console.log("\u{1F4DE} Call initiated:", call.sid);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ callSid: call.sid }));
+    } catch (error) {
+      console.error("\u274C Call error:", error.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+    return;
+  }
+
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("WebSocket server is running");
+});
+
+function sendText(ws, token, last = false) {
+  ws.send(JSON.stringify({ type: "text", token, last }));
+}
+
+async function streamLLMResponse(ws, conversationHistory) {
+  try {
+    const stream = await openai.chat.completions.create({
+      model: "gpt-5.4-nano",
+      messages: conversationHistory,
+      stream: true,
+    });
+
+    let fullResponse = "";
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (!content) continue;
+
+      fullResponse += content;
+      sendText(ws, content);
+    }
+
+    sendText(ws, "", true);
+
+    conversationHistory.push({
+      role: "assistant",
+      content: fullResponse,
+    });
+
+  } catch (error) {
+    console.error("\u274C LLM error:", error);
+    sendText(ws, "I'm sorry, I encountered an error. Could you repeat that?", true);
+  }
+}
+
+const wss = new WebSocketServer({ server, path: "/ws" });
+
 wss.on("connection", (ws, req) => {
+  console.log("\u{1F4DE} New WebSocket connection");
+
   let callSid = null;
   const conversationHistory = [
     { role: "system", content: SYSTEM_PROMPT },
@@ -193,30 +316,39 @@ wss.on("connection", (ws, req) => {
       case "setup":
         callSid = message.callSid;
         console.log(\`\u2705 Call started: \${callSid}\`);
+        console.log(\`\u{1F464} From: \${message.from}\`);
         break;
 
       case "prompt":
         if (!message.last) break;
+
+        console.log(\`\u{1F5E3}\uFE0F Caller: \${message.voicePrompt}\`);
+
         conversationHistory.push({
           role: "user",
           content: message.voicePrompt,
         });
+
         streamLLMResponse(ws, conversationHistory);
         break;
+
+      default:
+        console.log("\u26A0\uFE0F Unhandled message type:", message.type);
     }
+  });
+
+  ws.on("close", () => {
+    console.log(\`\u{1F44B} Call ended: \${callSid}\`);
+  });
+
+  ws.on("error", (err) => {
+    console.error("\u274C WebSocket error:", err);
   });
 });
 
-// streamLLMResponse no longer hardcodes a system message --
-// it comes from the first entry in conversationHistory.
-async function streamLLMResponse(ws, conversationHistory) {
-  const stream = await openai.chat.completions.create({
-    model: "gpt-5.4-nano",
-    messages: conversationHistory,
-    stream: true,
-  });
-  // ...token forwarding as in Chapter 2
-}`,
+server.listen(PORT, () => {
+  console.log(\`\u{1F680} Server listening on port \${PORT}\`);
+});`,
     },
   ],
 } satisfies StepDefinition;

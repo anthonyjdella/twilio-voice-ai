@@ -196,9 +196,44 @@ if (req.url === "/twiml" && req.method === "POST") {
       file: "server.js",
       language: "javascript",
       explanation:
-        "The /twiml handler with voice and ttsProvider attributes added to ConversationRelay.",
-      code: `if (req.url === "/twiml" && req.method === "POST") {
-  const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
+        "The complete `server.js` at the end of this step. The only change from Chapter 3 Step 1 is inside the `/twiml` handler: the `ConversationRelay` element now declares `voice=\"Rachel\"` and `ttsProvider=\"ElevenLabs\"` so Twilio uses that voice for the whole call. Swap in any voice/provider combo from the tables above.",
+      code: `require("dotenv").config();
+const { WebSocketServer } = require("ws");
+const http = require("http");
+const OpenAI = require("openai");
+const twilio = require("twilio");
+
+const PORT = 8080;
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
+const SYSTEM_PROMPT = \`You are Ava, a friendly and professional virtual concierge
+for Acme Corp. You help callers with appointment scheduling, general
+company information, and directing them to the right department.
+
+Guidelines:
+- Keep every response to one or two sentences.
+- Speak naturally as if you're having a real phone conversation.
+- Never use markdown, lists, bullet points, or special formatting.
+- If the caller asks about something outside Acme Corp, politely
+  redirect them: "I'm only able to help with Acme Corp questions,
+  but I'd be happy to transfer you to someone who can help."
+- If you don't know the answer, say so and offer to connect them
+  with a human agent.
+- Always confirm actions before taking them: "Just to confirm, you'd
+  like to book an appointment for Tuesday at 3pm, is that right?"
+- Be warm and personable. Use the caller's name if they share it.\`;
+
+const server = http.createServer(async (req, res) => {
+  if (req.url === "/twiml" && req.method === "POST") {
+    const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Connect>
     <ConversationRelay
@@ -211,10 +246,120 @@ if (req.url === "/twiml" && req.method === "POST") {
   </Connect>
 </Response>\`;
 
-  res.writeHead(200, { "Content-Type": "text/xml" });
-  res.end(twiml);
-  return;
-}`,
+    res.writeHead(200, { "Content-Type": "text/xml" });
+    res.end(twiml);
+    return;
+  }
+
+  if (req.url === "/call" && req.method === "POST") {
+    try {
+      const call = await twilioClient.calls.create({
+        to: process.env.MY_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        url: \`https://\${req.headers.host}/twiml\`,
+      });
+
+      console.log("\u{1F4DE} Call initiated:", call.sid);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ callSid: call.sid }));
+    } catch (error) {
+      console.error("\u274C Call error:", error.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+    return;
+  }
+
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("WebSocket server is running");
+});
+
+function sendText(ws, token, last = false) {
+  ws.send(JSON.stringify({ type: "text", token, last }));
+}
+
+async function streamLLMResponse(ws, conversationHistory) {
+  try {
+    const stream = await openai.chat.completions.create({
+      model: "gpt-5.4-nano",
+      messages: conversationHistory,
+      stream: true,
+    });
+
+    let fullResponse = "";
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (!content) continue;
+
+      fullResponse += content;
+      sendText(ws, content);
+    }
+
+    sendText(ws, "", true);
+
+    conversationHistory.push({
+      role: "assistant",
+      content: fullResponse,
+    });
+
+  } catch (error) {
+    console.error("\u274C LLM error:", error);
+    sendText(ws, "I'm sorry, I encountered an error. Could you repeat that?", true);
+  }
+}
+
+const wss = new WebSocketServer({ server, path: "/ws" });
+
+wss.on("connection", (ws, req) => {
+  console.log("\u{1F4DE} New WebSocket connection");
+
+  let callSid = null;
+  const conversationHistory = [
+    { role: "system", content: SYSTEM_PROMPT },
+  ];
+
+  ws.on("message", (data) => {
+    const message = JSON.parse(data);
+
+    switch (message.type) {
+      case "setup":
+        callSid = message.callSid;
+        console.log(\`\u2705 Call started: \${callSid}\`);
+        console.log(\`\u{1F464} From: \${message.from}\`);
+        break;
+
+      case "prompt":
+        if (!message.last) break;
+
+        console.log(\`\u{1F5E3}\uFE0F Caller: \${message.voicePrompt}\`);
+
+        conversationHistory.push({
+          role: "user",
+          content: message.voicePrompt,
+        });
+
+        streamLLMResponse(ws, conversationHistory);
+        break;
+
+      default:
+        console.log("\u26A0\uFE0F Unhandled message type:", message.type);
+    }
+  });
+
+  ws.on("close", () => {
+    console.log(\`\u{1F44B} Call ended: \${callSid}\`);
+  });
+
+  ws.on("error", (err) => {
+    console.error("\u274C WebSocket error:", err);
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(\`\u{1F680} Server listening on port \${PORT}\`);
+});`,
     },
 
     {
