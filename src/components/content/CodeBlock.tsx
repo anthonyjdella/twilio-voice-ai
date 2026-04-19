@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useId, useMemo } from "react";
 import { CopyButton } from "./CopyButton";
 import { getHighlighter, CODE_THEME_DARK, CODE_THEME_LIGHT } from "@/lib/highlighter";
 import { useAudienceMode } from "@/lib/AudienceContext";
@@ -198,7 +198,10 @@ function ShikiWithHighlight({
   html: string;
   highlightedLines: Set<number> | null;
 }) {
-  const id = useMemo(() => `hl-${Math.random().toString(36).slice(2, 9)}`, []);
+  // useId gives a stable, SSR-safe unique id per component instance — replaces
+  // a Math.random() call that the react-hooks/purity lint rule flags.
+  const reactId = useId();
+  const id = `hl-${reactId.replace(/:/g, "")}`;
 
   if (!highlightedLines || highlightedLines.size === 0) {
     return (
