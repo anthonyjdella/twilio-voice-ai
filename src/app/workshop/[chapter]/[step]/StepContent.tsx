@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useEffect, useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { stepRegistry } from "@/content/registry";
 import { StepRenderer } from "@/components/content/StepRenderer";
@@ -10,6 +10,9 @@ import { ConfirmModal } from "@/components/layout/ConfirmModal";
 import { useWorkshop } from "@/lib/WorkshopContext";
 import { useProgressContext } from "@/components/layout/ProgressContext";
 import { useAnalyticsContext } from "@/lib/AnalyticsContext";
+import { useAudienceMode } from "@/lib/AudienceContext";
+import { splitIntoPages } from "@/lib/page-utils";
+import { usePageContext } from "@/lib/PageContext";
 import workshopConfig from "@/workshop.config";
 import { SKIP_AHEAD_COPY } from "@/lib/workshop-copy";
 
@@ -24,10 +27,12 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
   const key = `${chapterSlug}/${stepSlug}`;
   const stepDef = useMemo(() => stepRegistry[key], [key]);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { mode } = useAudienceMode();
   const { getStep, chapters } = useWorkshop();
-  const { completeStep, isStepCompleted, loaded, completedStepsSet } =
-    useProgressContext();
+  const { completeStep, loaded, completedStepsSet } = useProgressContext();
   const { emit } = useAnalyticsContext();
+  const { setPageInfo } = usePageContext();
 
   const resolved = useMemo(
     () => getStep(chapterSlug, stepSlug),
@@ -96,11 +101,19 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
     }
   }, [loaded, chapterId, stepId, chapterSlug, stepSlug, emit]);
 
-  // Does this step have any verify blocks?
-  const hasVerify = useMemo(
-    () => stepDef?.blocks.some((b) => b.type === "verify") ?? false,
-    [stepDef]
+  const pages = useMemo(
+    () => (stepDef ? splitIntoPages(stepDef.blocks, mode) : []),
+    [stepDef, mode]
   );
+  const totalPages = pages.length;
+
+  const rawPage = parseInt(searchParams.get("p") ?? "0", 10);
+  const currentPage = Math.max(0, Math.min(rawPage, totalPages - 1));
+  const currentBlocks = pages[currentPage] ?? [];
+
+  useEffect(() => {
+    setPageInfo(currentPage, totalPages);
+  }, [currentPage, totalPages, setPageInfo]);
 
   const isAhead =
     loaded && targetPosition >= 0 && targetPosition > maxAllowedPosition;
@@ -140,36 +153,8 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
 
   const fallbackStep = flatSteps[Math.max(0, maxAllowedPosition)] ?? flatSteps[0];
 
-  // Auto-complete non-verify steps when visited
-  // Steps with verify blocks are only completed via the Verify button
-  // Gate on `loaded` to avoid racing with localStorage hydration, and never
-  // auto-complete a step the learner jumped ahead to — even after confirming
-  // the skip-ahead modal. Confirming only *unblocks* the content; completion
-  // still requires natural progression (forward-nav through ProgressTracker)
-  // or the step's own verify action.
-  useEffect(() => {
-    if (
-      loaded &&
-      !hasVerify &&
-      !isAhead &&
-      chapterId &&
-      stepId &&
-      !isStepCompleted(chapterId, stepId)
-    ) {
-      const isColdStart = targetPosition === 0 && completedStepsSet.size === 0;
-      completeStep(chapterId, stepId, { silent: isColdStart });
-    }
-  }, [
-    loaded,
-    hasVerify,
-    isAhead,
-    chapterId,
-    stepId,
-    completeStep,
-    isStepCompleted,
-    targetPosition,
-    completedStepsSet,
-  ]);
+  // Non-verify steps complete when the learner *leaves* the step (handled by
+  // ProgressTracker). Verify-gated steps complete via the button below.
 
   // Verify callback: mark step complete when user confirms
   const handleVerifySuccess = useCallback(() => {
@@ -192,7 +177,7 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
       <AnimatePresence mode="wait">
         {!blockContent && (
           <motion.div
-            key={key}
+            key={`${key}?p=${currentPage}`}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -200,7 +185,7 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
           >
             <StepErrorBoundary chapterSlug={chapterSlug} stepSlug={stepSlug}>
               <StepRenderer
-                step={stepDef}
+                blocks={currentBlocks}
                 chapterId={chapterId}
                 stepId={stepId}
                 onVerifySuccess={handleVerifySuccess}
@@ -215,8 +200,6 @@ export function StepContent({ chapterSlug, stepSlug }: StepContentProps) {
         title={SKIP_AHEAD_COPY.title}
         message={SKIP_AHEAD_COPY.message}
         confirmLabel={SKIP_AHEAD_COPY.confirmLabel}
-        // StepContent's cancel = route back, so the label is "Go back" not
-        // "Stay here" (Sidebar's cancel = keep the current ahead-step modal).
         cancelLabel="Go back"
         onConfirm={allowSkip}
         onCancel={() => {

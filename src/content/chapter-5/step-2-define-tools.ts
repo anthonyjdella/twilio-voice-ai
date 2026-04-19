@@ -90,6 +90,8 @@ export default {
         "Write tool descriptions as if you are explaining the tool to a new teammate. Include when to use it, what it returns, and any constraints. The better the description, the more accurately the AI will use the tool.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Adding More Tools", audience: "builder" },
 
     {
@@ -144,6 +146,8 @@ export default {
   }
 ];`,
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Implementing the Tool Functions", audience: "builder" },
 

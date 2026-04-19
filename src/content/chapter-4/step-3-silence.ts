@@ -26,6 +26,8 @@ export default {
         "Silence is information. When a caller goes quiet, it could mean they are thinking, confused, stepped away, or the call dropped. The agent needs to handle silence gracefully rather than sitting in dead air.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "How Silence Detection Works", audience: "builder" },
 
     {
@@ -81,6 +83,8 @@ function handleSilence(ws) {
   }, SILENCE_TIMEOUT_MS);
 }`,
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Integrating with the Message Handler", audience: "builder" },
 
@@ -142,6 +146,8 @@ wss.on("connection", (ws, req) => {
       content:
         "Be careful with the silence timeout value. Too short (under 5 seconds) and you will interrupt callers who are thinking. Too long (over 15 seconds) and the experience feels unresponsive. Start with 8-10 seconds and adjust based on your use case.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Interrupt Sensitivity", audience: "builder" },
 

@@ -28,6 +28,8 @@ export default {
         "Tools let an AI agent take real-world actions during a call -- check a database, look up weather, process a payment. The agent decides when to use a tool based on what the caller asks.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "How Tool Calling Works" },
 
     {
@@ -137,6 +139,8 @@ export default {
       content:
         "From the caller's perspective, this takes about two seconds. They ask a question, hear a brief pause (or a filler like \"Let me check that for you...\"), and then get an answer pulled from live data.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "The Tool Calling Loop", audience: "builder" },
 

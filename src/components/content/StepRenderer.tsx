@@ -1,7 +1,6 @@
 "use client";
 
-import type { ContentBlock, StepDefinition } from "@/lib/content-blocks";
-import { useAudienceMode } from "@/lib/AudienceContext";
+import type { ContentBlock } from "@/lib/content-blocks";
 import { renderMarkdown } from "@/lib/markdown";
 import { SectionHeader, Prose } from "./Prose";
 import { CodeBlock } from "./CodeBlock";
@@ -22,27 +21,22 @@ import { LanguagePicker } from "./LanguagePicker";
 import { BuilderOnly } from "./BuilderOnly";
 
 interface StepRendererProps {
-  step: StepDefinition;
+  blocks: ContentBlock[];
   chapterId?: number;
   stepId?: number;
   onVerifySuccess?: () => void;
 }
 
-export function StepRenderer({ step, onVerifySuccess }: StepRendererProps) {
-  const { mode } = useAudienceMode();
-
+export function StepRenderer({ blocks, onVerifySuccess }: StepRendererProps) {
   return (
     <>
-      {step.blocks.map((block, i) => {
-        if (block.audience && block.audience !== mode) return null;
-        return (
-          <BlockRenderer
-            key={`${block.type}-${i}`}
-            block={block}
-            onVerifySuccess={onVerifySuccess}
-          />
-        );
-      })}
+      {blocks.map((block, i) => (
+        <BlockRenderer
+          key={`${block.type}-${i}`}
+          block={block}
+          onVerifySuccess={onVerifySuccess}
+        />
+      ))}
     </>
   );
 }
@@ -113,9 +107,17 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
         />
       );
 
-    case "image":
+    case "image": {
+      const sizeClass =
+        block.size === "sm"
+          ? "max-w-xs"
+          : block.size === "md"
+            ? "max-w-sm"
+            : block.size === "lg"
+              ? "max-w-xl"
+              : "w-full";
       return (
-        <figure className="mb-6">
+        <figure className={`mb-6 ${block.size && block.size !== "full" ? "mx-auto " + sizeClass : ""}`}>
           <div className="rounded-xl overflow-hidden border border-navy-border">
             <img src={block.src} alt={block.alt} className="w-full h-auto" />
           </div>
@@ -126,6 +128,7 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
           )}
         </figure>
       );
+    }
 
     case "visual-step":
       return <VisualStep steps={block.steps} />;
@@ -164,6 +167,9 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
 
     case "builder-only":
       return <BuilderOnly context={block.context} />;
+
+    case "page-break":
+      return null;
 
     default:
       return null;

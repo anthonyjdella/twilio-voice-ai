@@ -26,6 +26,8 @@ export default {
         "When a caller presses keys on their phone keypad (like \"press 1 for support\"), those are DTMF tones. Twilio detects these keypresses and sends a WebSocket message with the digit, so you can build menu options alongside the AI conversation.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Receiving DTMF Input", audience: "builder" },
 
     {
@@ -52,6 +54,8 @@ export default {
       content:
         "Each keypress arrives as a separate message. The `digit` field contains the key that was pressed: `0`-`9`, `*`, or `#`.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Handling DTMF in the Message Switch", audience: "builder" },
 
@@ -142,6 +146,8 @@ function handleDtmfInput(ws, digit) {
       content:
         "A good pattern is to translate keypad inputs into natural language messages and add them to the conversation history. The AI handles the actual response while the keypad provides a shortcut for common actions.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Sending DTMF Tones Outbound", audience: "builder" },
 

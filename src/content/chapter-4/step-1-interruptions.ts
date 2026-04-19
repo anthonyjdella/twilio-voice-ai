@@ -37,6 +37,8 @@ export default {
         "Here is the flow when a caller interrupts:\n\n1. The AI agent is speaking to the caller.\n2. The caller starts talking before the agent finishes.\n3. Twilio immediately stops the agent's voice and sends an `interrupt` message over the WebSocket.\n4. The server cancels the in-flight LLM stream so it stops generating text nobody will hear.\n5. Twilio sends the caller's new speech as a `prompt` message, and the conversation continues from there.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "The Interrupt Message", audience: "builder" },
 
     {
@@ -64,6 +66,8 @@ export default {
       content:
         "`utteranceUntilInterrupt` tells you exactly how much of the AI's response the caller heard before they cut in. The AI needs this so it doesn't reference something it said but the caller never heard.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Handling the Interrupt", audience: "builder" },
 
@@ -170,6 +174,8 @@ function handleMessage(ws, data) {
   }
 }`,
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Interruption Settings", audience: "builder" },
 

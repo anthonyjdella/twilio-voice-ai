@@ -67,6 +67,8 @@ VOICE GUIDELINES:
 \`;`,
     },
 
+    { type: "page-break" },
+
     { type: "section", audience: "builder", title: "Optimize Voice Settings" },
 
     {
@@ -115,6 +117,8 @@ VOICE GUIDELINES:
         "**`welcomeGreetingInterruptible`** -- same values as `interruptible` (`none`, `dtmf`, `speech`, `any`), but applies only to the welcome greeting. `\"speech\"` is a good default: callers can interject without accidentally triggering on a DTMF tone.\n\n**`reportInputDuringAgentSpeech`** -- controls whether Twilio forwards speech or DTMF that arrives *while* the agent is talking, without interrupting. Default is `\"none\"`. Setting it to `\"dtmf\"` is handy for IVR-style \"press 0 for an operator\" flows.\n\n**`hints`** -- comma-separated phrases the transcriber should bias toward. If the agent deals with proper nouns, product SKUs, or acronyms, listing them here improves recognition accuracy.\n\n**`debug`** -- a space-separated list of `debugging`, `speaker-events`, `tokens-played`. Turn this on during development; turn it off before you ship.",
     },
 
+    { type: "page-break" },
+
     { type: "section", audience: "builder", title: "Pre-Launch Checklist" },
 
     {
@@ -138,6 +142,8 @@ VOICE GUIDELINES:
       content:
         "Record a few test calls and listen to them critically. You'll catch pacing issues, awkward phrasing, and edge cases you miss during interactive testing. Pay special attention to the first 5 seconds -- that's when the caller decides if they're talking to a competent system.",
     },
+
+    { type: "page-break" },
 
     { type: "section", audience: "builder", title: "Handle Inbound `error` Messages" },
 

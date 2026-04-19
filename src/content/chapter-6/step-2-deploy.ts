@@ -43,6 +43,8 @@ export default {
         "Do **not** deploy to serverless platforms like AWS Lambda, Vercel Functions, or Cloudflare Workers. These have execution time limits and do not support persistent WebSocket connections. Calls will drop after a few seconds.",
     },
 
+    { type: "page-break" },
+
     { type: "section", audience: "builder", title: "Option 1: Railway" },
 
     {
@@ -67,6 +69,8 @@ $ railway up`,
       content:
         "Set environment variables in the Railway dashboard under project settings. Update the Twilio webhook URL to the Railway-provided domain.",
     },
+
+    { type: "page-break" },
 
     { type: "section", audience: "builder", title: "Option 2: Render" },
 
@@ -153,6 +157,8 @@ if (req.url === "/health" && req.method === "GET") {
       commands: `$ docker build -t voice-agent .
 $ docker run -p 8080:8080 --env-file .env voice-agent`,
     },
+
+    { type: "page-break" },
 
     { type: "section", audience: "builder", title: "Cloud-Specific Deployment" },
 

@@ -2,7 +2,12 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "section", title: "What We're Building" },
+    {
+      type: "image",
+      src: "/images/illustrations/conversation-relay-hero.png",
+      alt: "A person on a phone call with a virtual AI voice agent",
+      size: "md",
+    },
 
     {
       type: "prose",
@@ -26,7 +31,16 @@ export default {
         "A Node.js WebSocket server that connects to Twilio's phone network through ConversationRelay. Your server receives the caller's words as text, sends them to an LLM, and streams the reply back -- Twilio handles all the audio. By the end, your agent will have a custom personality, real-time tool calling, and live handoff to a human.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "How It Works" },
+
+    {
+      type: "image",
+      src: "/images/illustrations/conversation-relay-how-works.png",
+      alt: "Diagram showing ConversationRelay bridging a phone call and an AI model",
+      size: "md",
+    },
 
     {
       type: "prose",
@@ -49,6 +63,8 @@ export default {
       content:
         "ConversationRelay opens a WebSocket to your server. When the caller speaks, you get a `prompt` message with the transcribed text. You send back `text` messages with the AI's reply, and Twilio synthesizes them into speech. Your server never touches audio -- just JSON over a WebSocket.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "What You Will Learn" },
 

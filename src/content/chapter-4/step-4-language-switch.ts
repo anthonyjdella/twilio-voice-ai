@@ -27,6 +27,8 @@ export default {
         "ConversationRelay can switch languages **mid-call** -- both the speech-to-text side (understanding the caller) and the text-to-speech side (the voice the caller hears). If a caller switches from English to Spanish, the agent adapts instantly without dropping the call.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "The Language Message", audience: "builder" },
 
     {
@@ -55,6 +57,8 @@ export default {
         "Each field is individually optional, but **at least one must be present**. You can update just one side -- for example, keep transcription in English while switching the speaking voice to Spanish.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Detecting Language Switches", audience: "builder" },
 
     {
@@ -81,6 +85,8 @@ LANGUAGE DETECTION:
 - Only include the marker when the language CHANGES, not on every message.
 \`;`,
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Handling the Language Switch", audience: "builder" },
 

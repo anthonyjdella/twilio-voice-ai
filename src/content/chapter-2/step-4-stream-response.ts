@@ -14,6 +14,8 @@ export default {
         "The server sends the caller's words to an AI model. Instead of waiting for the full reply, each word is sent to Twilio as it is generated -- so the caller hears the AI start talking almost immediately, just like a real conversation.",
     },
 
+    { type: "page-break" },
+
     {
       type: "prose",
       audience: "builder",
@@ -61,6 +63,8 @@ const openai = new OpenAI({
 });`,
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Outbound Text Messages", audience: "builder" },
 
     {
@@ -101,6 +105,8 @@ const openai = new OpenAI({
       content:
         "You **must** send exactly one message with `last: true` to end the response. Missing it causes silence. Sending it more than once creates separate utterances.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Streaming Implementation", audience: "builder" },
 

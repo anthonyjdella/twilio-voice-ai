@@ -28,6 +28,8 @@ export default {
         "For voice AI, the system prompt matters even more than in a chat app. Your caller can't skim a long paragraph or scroll back -- they hear every word in real time. So the instructions must push the AI to speak concisely, like a real person on the phone.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Voice AI Prompt Principles", audience: "builder" },
 
     {
@@ -64,6 +66,8 @@ export default {
       content:
         "**4. Handle edge cases.** What happens if the caller asks something off-topic? What if they're rude? Define these boundaries in the prompt so the agent stays on track.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Adding the System Message", audience: "builder" },
 
@@ -140,6 +144,8 @@ const stream = await openai.chat.completions.create({
       content:
         "Read the AI's responses out loud. If they sound natural when spoken, the prompt is on the right track. If you hear formatting characters like asterisks or bullet markers, remove them from the instructions -- the caller hears raw text.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Your Turn", audience: "builder" },
 

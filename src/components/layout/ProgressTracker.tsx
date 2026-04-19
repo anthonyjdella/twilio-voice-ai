@@ -63,7 +63,10 @@ export function ProgressTracker() {
         const isNaturalProgress =
           leavingPos >= 0 && leavingPos <= maxCompletedPos + 1;
         if (isNaturalProgress) {
-          completeStep(resolved.chapter.id, resolved.step.id, { silent: true });
+          // Fire the step celebration as the learner advances past the step
+          // they just left — this is the only moment "step complete" is
+          // unambiguously true without stepping on their reading flow.
+          completeStep(resolved.chapter.id, resolved.step.id);
         }
       }
     }

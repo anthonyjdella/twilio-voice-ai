@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import workshopConfig from "@/workshop.config";
@@ -39,5 +40,9 @@ export default async function StepPage({ params }: Props) {
   const step = chapter.steps.find((s) => s.slug === stepSlug);
   if (!step) notFound();
 
-  return <StepContent chapterSlug={chapterSlug} stepSlug={stepSlug} />;
+  return (
+    <Suspense>
+      <StepContent chapterSlug={chapterSlug} stepSlug={stepSlug} />
+    </Suspense>
+  );
 }

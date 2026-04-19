@@ -53,6 +53,8 @@ export default {
         "ElevenLabs is the default voice provider. It produces the most natural-sounding voices out of the box.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Popular Voices", audience: "builder" },
 
     {
@@ -82,6 +84,8 @@ export default {
       content:
         "**Amazon Polly:** `Joanna` (female, neural), `Matthew` (male, neural), `Lupe` (female, neural, bilingual en/es), `Amy` (female, British English).",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Configuring the Voice", audience: "builder" },
 

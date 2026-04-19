@@ -50,6 +50,8 @@ export default {
 
     { type: "builder-only", audience: "explorer", context: "Builders are setting up their cloud coding environment. You'll skip ahead automatically." },
 
+    { type: "page-break" },
+
     { type: "section", title: "Set Your Phone Number", audience: "builder" },
 
     {

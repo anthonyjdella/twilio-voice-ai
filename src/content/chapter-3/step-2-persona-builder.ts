@@ -43,6 +43,8 @@ export default {
         "**Fallback behavior.** Every persona needs a graceful way to say \"I don't know.\" The agent might offer to transfer to a human, suggest calling back, or simply acknowledge the limitation.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Persona Examples" },
 
     {
@@ -106,6 +108,8 @@ only. No fancy formatting. If someone asks about something that
 isn't pizza-related, joke about it briefly and steer things back
 to the menu.\`;`,
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Voice-Specific Tips", audience: "builder" },
 

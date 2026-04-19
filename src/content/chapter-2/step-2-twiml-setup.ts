@@ -14,6 +14,8 @@ export default {
         "The server tells Twilio to dial your phone. When you pick up, Twilio connects the call to the AI agent and plays a welcome greeting so there is no awkward silence.",
     },
 
+    { type: "page-break" },
+
     {
       type: "prose",
       audience: "builder",
@@ -73,6 +75,8 @@ export default {
   res.end("WebSocket server is running");
 });`,
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Initiate the Outbound Call", audience: "builder" },
 
@@ -189,6 +193,8 @@ const server = http.createServer(async (req, res) => {
       content:
         "The `url` must use `wss://`, not `ws://`. Twilio requires a secure connection. Codespace port forwarding handles this automatically.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Codespace Port Forwarding", audience: "builder" },
 

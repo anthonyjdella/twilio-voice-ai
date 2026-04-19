@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useWorkshop } from "@/lib/WorkshopContext";
 import { useProgressContext } from "./ProgressContext";
+import { usePageContext } from "@/lib/PageContext";
+import { useAudienceMode } from "@/lib/AudienceContext";
+import { splitIntoPages } from "@/lib/page-utils";
+import { stepRegistry } from "@/content/registry";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import workshopConfig from "@/workshop.config";
 
@@ -16,6 +20,8 @@ export function BottomNav() {
   const stepSlug = params.step as string;
   const { getAdjacentSteps, getStep } = useWorkshop();
   const { completionPercentage, completedStepsSet } = useProgressContext();
+  const { currentPage, totalPages } = usePageContext();
+  const { mode } = useAudienceMode();
   const accent = workshopConfig.branding.accentColor;
   const pct = completionPercentage();
   const onCompletePage = pathname === "/workshop/complete";
@@ -26,80 +32,116 @@ export function BottomNav() {
 
   const current = chapterSlug && stepSlug ? getStep(chapterSlug, stepSlug) : null;
 
+  const hasSubPages = totalPages > 1;
+
+  const prevStepLastPage = useMemo(() => {
+    if (!adjacent?.prev) return 0;
+    const prevKey = `${adjacent.prev.chapter.slug}/${adjacent.prev.step.slug}`;
+    const prevDef = stepRegistry[prevKey];
+    if (!prevDef) return 0;
+    const prevPages = splitIntoPages(prevDef.blocks, mode);
+    return Math.max(0, prevPages.length - 1);
+  }, [adjacent?.prev, mode]);
+
+  const prevHref = useMemo(() => {
+    if (!adjacent) return null;
+    if (hasSubPages && currentPage > 0) {
+      return `/workshop/${chapterSlug}/${stepSlug}?p=${currentPage - 1}`;
+    }
+    if (adjacent.prev) {
+      const base = `/workshop/${adjacent.prev.chapter.slug}/${adjacent.prev.step.slug}`;
+      return prevStepLastPage > 0 ? `${base}?p=${prevStepLastPage}` : base;
+    }
+    return null;
+  }, [adjacent, hasSubPages, currentPage, chapterSlug, stepSlug, prevStepLastPage]);
+
+  const prevLabel = useMemo(() => {
+    if (hasSubPages && currentPage > 0) return current?.step.title ?? "Previous";
+    return adjacent?.prev?.step.title ?? null;
+  }, [hasSubPages, currentPage, current, adjacent]);
+
+  const nextHref = useMemo(() => {
+    if (!adjacent) return null;
+    if (hasSubPages && currentPage < totalPages - 1) {
+      return `/workshop/${chapterSlug}/${stepSlug}?p=${currentPage + 1}`;
+    }
+    if (adjacent.next) {
+      return `/workshop/${adjacent.next.chapter.slug}/${adjacent.next.step.slug}`;
+    }
+    return null;
+  }, [adjacent, hasSubPages, currentPage, totalPages, chapterSlug, stepSlug]);
+
+  const nextLabel = useMemo(() => {
+    if (hasSubPages && currentPage < totalPages - 1) return current?.step.title ?? "Next";
+    return adjacent?.next?.step.title ?? null;
+  }, [hasSubPages, currentPage, totalPages, current, adjacent]);
+
   useEffect(() => {
     if (!adjacent) return;
 
     function handleKeyDown(e: KeyboardEvent) {
-      // Don't hijack browser-level shortcuts (Cmd/Ctrl/Alt + Arrow = history nav).
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
       const target = e.target as HTMLElement;
       const tag = target.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) return;
-
-      // Skip if focus is inside a horizontally-scrollable element (code blocks,
-      // terminals) so arrow keys can scroll their content instead.
       if (target.closest('[data-scroll-x="true"]')) return;
 
-      if (e.key === "ArrowLeft" && adjacent!.prev) {
+      if (e.key === "ArrowLeft" && prevHref) {
         e.preventDefault();
-        router.push(`/workshop/${adjacent!.prev.chapter.slug}/${adjacent!.prev.step.slug}`);
-      } else if (e.key === "ArrowRight" && adjacent!.next) {
+        router.push(prevHref);
+      } else if (e.key === "ArrowRight" && nextHref) {
         e.preventDefault();
-        router.push(`/workshop/${adjacent!.next.chapter.slug}/${adjacent!.next.step.slug}`);
+        router.push(nextHref);
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [adjacent, router]);
+  }, [adjacent, router, prevHref, nextHref]);
 
   if (!adjacent || onCompletePage) return null;
 
-  const { prev, next } = adjacent;
+  const { next } = adjacent;
 
   const stepIndexInChapter = current
     ? current.chapter.steps.findIndex((s) => s.slug === current.step.slug)
     : -1;
 
-  // When we're on the very last step and the learner has verified it, turn the
-  // dead-end "Next" slot into a primary CTA to the /workshop/complete page.
   const isLastStep = next === null;
+  const isLastPage = currentPage === totalPages - 1;
   const currentStepCompleted =
     current != null &&
     completedStepsSet.has(
       `chapter-${current.chapter.id}:step-${current.step.id}`
     );
-  const showFinishCta = isLastStep && currentStepCompleted;
+  const showFinishCta = isLastStep && isLastPage && currentStepCompleted;
 
   return (
     <footer className="h-16 border-t border-navy-border bg-navy/80 backdrop-blur-md flex items-center px-6 shrink-0 z-30">
       {/* Previous */}
       <div className="w-52 shrink-0">
-        {prev && (
+        {prevHref && prevLabel && (
           <Link
-            href={`/workshop/${prev.chapter.slug}/${prev.step.slug}`}
+            href={prevHref}
             className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
           >
             <ChevronLeft className="w-4 h-4 shrink-0" />
-            <span className="font-bold truncate">{prev.step.title}</span>
+            <span className="font-bold truncate">{prevLabel}</span>
           </Link>
         )}
       </div>
 
-      {/* Center: Progress bar */}
+      {/* Center: Progress bar + page dots */}
       <div className="flex-1 flex flex-col items-center gap-1.5 px-6">
         <div className="w-full max-w-md h-2.5 rounded-full bg-surface-3 overflow-hidden border border-navy-border">
           <div
             className="h-full rounded-full transition-all duration-700 ease-out relative"
             style={{
               width: `${pct}%`,
-              // Gradient derived from the configured accent so a forked
-              // workshop's brand color flows through without a CSS refactor.
               backgroundImage: `linear-gradient(to right, ${accent}, var(--color-success))`,
             }}
           >
-            {/* Shine effect on the bar */}
             {pct > 0 && (
               <div className="absolute inset-0 overflow-hidden rounded-full">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_infinite]" style={{ animationDelay: "0s" }} />
@@ -113,6 +155,23 @@ export function BottomNav() {
               Chapter {current.chapter.id} &middot; Step {stepIndexInChapter + 1}/{current.chapter.steps.length}
             </span>
           ) : null}
+          {hasSubPages && (
+            <>
+              <span className="text-text-muted">|</span>
+              <span className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`inline-block w-1.5 h-1.5 rounded-full transition-colors ${
+                      i === currentPage
+                        ? "bg-text-primary"
+                        : "bg-text-muted/40"
+                    }`}
+                  />
+                ))}
+              </span>
+            </>
+          )}
           <span className="text-text-muted">|</span>
           <span className={pct === 100 ? "text-success font-bold" : ""}>{pct}% overall</span>
         </div>
@@ -120,12 +179,12 @@ export function BottomNav() {
 
       {/* Next */}
       <div className="w-52 flex justify-end shrink-0">
-        {next ? (
+        {nextHref && nextLabel ? (
           <Link
-            href={`/workshop/${next.chapter.slug}/${next.step.slug}`}
+            href={nextHref}
             className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
           >
-            <span className="font-bold truncate">{next.step.title}</span>
+            <span className="font-bold truncate">{nextLabel}</span>
             <ChevronRight className="w-4 h-4 shrink-0" />
           </Link>
         ) : showFinishCta ? (

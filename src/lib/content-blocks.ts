@@ -22,7 +22,8 @@ export type ContentBlock =
   | AgentConfigBlock
   | VoicePickerBlock
   | LanguagePickerBlock
-  | BuilderOnlyBlock;
+  | BuilderOnlyBlock
+  | PageBreakBlock;
 
 // ─── Base Block ─────────────────────────────────────────────────────
 
@@ -134,6 +135,8 @@ export interface ImageBlock extends BaseBlock {
   src: string;
   alt: string;
   caption?: string;
+  /** Max width. Defaults to full column width. */
+  size?: "sm" | "md" | "lg" | "full";
 }
 
 /** Numbered visual steps — for non-technical "click here, then there" instructions */
@@ -187,6 +190,11 @@ export interface LanguagePickerBlock extends BaseBlock {
 export interface BuilderOnlyBlock extends BaseBlock {
   type: "builder-only";
   context?: string;
+}
+
+/** Sub-page boundary — splits a step's content into paginated slides */
+export interface PageBreakBlock extends BaseBlock {
+  type: "page-break";
 }
 
 // ─── Step Definition ────────────────────────────────────────────────

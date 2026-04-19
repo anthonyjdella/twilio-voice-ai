@@ -55,6 +55,8 @@ ws.send(JSON.stringify({
         "This is especially useful for reading back numbers, spelling out codes, and adding natural pauses that make the agent sound more human.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Multi-Language Support" },
 
     {
@@ -77,6 +79,8 @@ ws.send(JSON.stringify({
         "An agent can greet callers in their own language, switch mid-call if asked, and adapt its tone to match cultural norms -- all from the same server.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Twilio Conversational Intelligence" },
 
     {
@@ -96,6 +100,8 @@ ws.send(JSON.stringify({
       content:
         "This makes it possible to understand agent performance across hundreds or thousands of calls without listening to each one.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Audio Playback" },
 
@@ -138,6 +144,8 @@ ws.send(JSON.stringify({
       content:
         "**Database queries** -- Look up customer information, product catalogs, or knowledge base articles.\n**Appointment scheduling** -- Integrate with a calendar API to book, modify, or cancel appointments.\n**Payment processing** -- Collect payment information (with PCI compliance considerations) and process transactions.\n**CRM integration** -- Log call notes, update customer records, and create support tickets automatically.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Resources" },
 

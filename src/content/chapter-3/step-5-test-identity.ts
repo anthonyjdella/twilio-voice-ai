@@ -48,6 +48,8 @@ export default {
       commands: `$ curl -X POST https://<your-codespace-url>/call`,
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "What to Check" },
 
     {
@@ -85,6 +87,8 @@ export default {
       question:
         "Does your agent respond with the right personality and voice?",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Iterating on the Persona" },
 

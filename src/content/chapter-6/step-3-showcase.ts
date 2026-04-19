@@ -42,6 +42,8 @@ export default {
         '1. **Trigger a call** using the workshop app or curl command, and let the agent greet you.\n2. **Ask a tool question**: "What is the weather in Austin?" to show tool calling.\n3. **Test interruption**: Ask a long question, then interrupt mid-answer to show barge-in.\n4. **Try the keypad**: Press a key on your phone to show DTMF handling.\n5. **Request handoff**: Say "I need to talk to a person" to show live agent transfer.',
     },
 
+    { type: "page-break" },
+
     { type: "section", audience: "builder", title: "Share Your Creation" },
 
     {
@@ -65,6 +67,8 @@ export default {
       content:
         'Keep your terminal visible during the demo so the audience can see tool lookups, interruptions, and messages in real time. That view is often more impressive than the audio alone.',
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "What Makes a Great Demo" },
 

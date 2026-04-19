@@ -19,6 +19,8 @@ export default {
         "Now that your tools are defined, you need to connect them to the conversation flow. When the AI decides to use a tool instead of responding with words, your code runs the tool, sends the answer back to the AI, and lets the conversation continue.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Detecting Tool Calls in the Stream", audience: "builder" },
 
     {
@@ -160,6 +162,8 @@ async function streamResponse(ws, iteration = 0) {
   activeStream = null;
 }`,
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Executing Tool Calls", audience: "builder" },
 

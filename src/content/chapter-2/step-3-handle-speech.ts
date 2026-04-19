@@ -21,6 +21,8 @@ export default {
         "The server also keeps a log of the full conversation so the AI remembers what was said earlier. Without this, every reply would start from scratch.",
     },
 
+    { type: "page-break" },
+
     {
       type: "prose",
       audience: "builder",

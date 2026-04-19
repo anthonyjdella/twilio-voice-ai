@@ -84,6 +84,8 @@ export default {
 </Response>`,
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Supported Languages" },
 
     {
@@ -92,6 +94,8 @@ export default {
       content:
         "English, Spanish, French, German, Portuguese, Japanese, Chinese, Korean, Italian, Hindi, and 20+ more languages are supported. Each language has regional variants (for example, US English vs. British English, or European Spanish vs. Mexican Spanish).",
     },
+
+    { type: "page-break" },
 
     {
       type: "callout",

@@ -54,6 +54,8 @@ Server listening on port 8080`,
       commands: `$ curl -X POST https://<your-codespace-url>/call`,
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Test 1: Weather Tool" },
 
     {
@@ -96,6 +98,8 @@ Server listening on port 8080`,
       content:
         'The agent should look up the order and report the shipping status and tracking number. Then try an order that does not exist: "What about order ORD-99999?" The agent should let the caller know it could not find that order.',
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Test 3: Multi-Tool Call" },
 

@@ -48,12 +48,8 @@ export default {
     },
 
     // Explorer: latency summary
-    {
-      type: "prose",
-      audience: "explorer",
-      content:
-        "That's it -- five steps, under two seconds, and the caller never knows an AI is involved. It feels like talking to a real person.",
-    },
+
+    { type: "page-break" },
 
     // Builder: json-message examples
     {
@@ -100,6 +96,8 @@ export default {
       content:
         "The `last` field is critical. Setting `last: true` on the final token tells ConversationRelay that your response is complete. This lets the TTS engine flush its buffer and signals that the system should start listening for the caller's next utterance.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Why WebSockets?" },
 

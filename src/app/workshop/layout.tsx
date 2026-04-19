@@ -7,6 +7,7 @@ import { AudienceProvider, useAudienceMode } from "@/lib/AudienceContext";
 import { ThemeProvider } from "@/lib/ThemeContext";
 import { ProgressProvider } from "@/components/layout/ProgressContext";
 import { AnalyticsProvider } from "@/lib/AnalyticsContext";
+import { PageProvider } from "@/lib/PageContext";
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -66,7 +67,9 @@ export default function WorkshopLayout({
         <WorkshopProvider>
           <AudienceProvider>
             <ProgressProvider>
-              <WorkshopShell>{children}</WorkshopShell>
+              <PageProvider>
+                <WorkshopShell>{children}</WorkshopShell>
+              </PageProvider>
             </ProgressProvider>
           </AudienceProvider>
         </WorkshopProvider>

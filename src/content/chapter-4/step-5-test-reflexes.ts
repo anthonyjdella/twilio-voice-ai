@@ -46,6 +46,8 @@ Server listening on port 8080`,
       commands: `$ curl -X POST https://<your-codespace-url>/call`,
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Test 1: Interruption" },
 
     {
@@ -82,6 +84,8 @@ Server listening on port 8080`,
       content:
         "Try pressing different keys and see how the agent responds to each one.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Test 3: Silence" },
 
@@ -128,6 +132,8 @@ Server listening on port 8080`,
       content:
         "Language switching is optional. If it does not work perfectly on this call, that is fine -- the other three tests (interruption, keypad, silence) are the important ones.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Checkpoint" },
 

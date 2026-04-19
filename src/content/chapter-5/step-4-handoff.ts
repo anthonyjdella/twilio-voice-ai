@@ -28,6 +28,8 @@ export default {
         "No AI agent can handle every situation. Sometimes the caller needs a human -- for complex complaints, sensitive account changes, or when the AI cannot solve the problem. A smooth handoff from AI to a live agent is essential for production voice systems.",
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "How Handoff Works" },
 
     {
@@ -51,6 +53,8 @@ export default {
       content:
         "For the caller, a good handoff feels seamless: the AI says \"Let me connect you with someone who can help,\" there is a brief hold, and the human agent already knows what the conversation was about. No repeating yourself.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "The End Message with Handoff", audience: "builder" },
 
@@ -77,6 +81,8 @@ export default {
       content:
         "The `handoffData` field carries context about the conversation so the human agent knows what happened. Include the reason for the transfer, a summary, caller information, and any relevant order or account numbers.",
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Setting Up the Action URL", audience: "builder" },
 
@@ -169,6 +175,8 @@ if (req.url === "/call-ended" && req.method === "POST") {
   return;
 }`,
     },
+
+    { type: "page-break" },
 
     { type: "section", title: "Triggering Handoff from a Tool Call", audience: "builder" },
 

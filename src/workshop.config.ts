@@ -45,12 +45,10 @@ const workshopConfig: WorkshopConfig = {
       particleColor: "#0263E0",
       steps: [
         { id: 1, slug: "what-were-building", title: "What We\u2019re Building" },
-        { id: 2, slug: "call-flow", title: "The Call Flow" },
-        { id: 3, slug: "architecture", title: "Architecture" },
-        { id: 4, slug: "message-flow", title: "Conversation Flow" },
-        { id: 5, slug: "setup", title: "Open Codespace" },
-        { id: 6, slug: "expose-server", title: "Expose Your Server" },
-        { id: 7, slug: "verify", title: "Verify Setup" },
+        { id: 2, slug: "how-it-works", title: "How It Works" },
+        { id: 3, slug: "conversation-flow", title: "Conversation Flow" },
+        { id: 4, slug: "setup", title: "Open Codespace" },
+        { id: 5, slug: "verify", title: "Verify Setup" },
       ],
     },
     {
