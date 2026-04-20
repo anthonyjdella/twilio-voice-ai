@@ -86,6 +86,12 @@ export default {
       type: "verify",
       question:
         "Does your agent respond with the right personality and voice?",
+      troubleshooting: [
+        "Voice sounds wrong? Revisit the voice picker — your choice takes effect on the next call, not the current one",
+        "Agent using a different name or tone? Your system prompt probably needs stronger wording about the persona",
+        "Agent breaks character on off-topic questions? Add explicit boundaries to the system prompt about what it should refuse",
+        "Responses too long or rambling? Add a length rule like \"Keep every response to one or two sentences\" to the system prompt",
+      ],
     },
 
     { type: "page-break" },
