@@ -26,6 +26,13 @@ export default {
         "Silence is information. When a caller goes quiet, it could mean they are thinking, confused, stepped away, or the call dropped. The agent needs to handle silence gracefully rather than sitting in dead air.",
     },
 
+    {
+      type: "image",
+      src: "/images/illustrations/question-mark.svg",
+      alt: "A floating question mark — the unspoken prompt behind every stretch of silence on a call.",
+      size: "sm",
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "How Silence Detection Works", audience: "builder" },
