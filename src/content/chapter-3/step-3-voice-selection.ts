@@ -53,6 +53,13 @@ export default {
         "ElevenLabs is the default voice provider. It produces the most natural-sounding voices out of the box.",
     },
 
+    {
+      type: "callout",
+      variant: "tip",
+      content:
+        "**Preview ElevenLabs voices before you pick.** Try different voices side-by-side in the [ElevenLabs Voice Tester](https://elevenlabs-voice-tester-5339-dev.twil.io/index.html) and copy the name of the one you like into your configuration.",
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "Popular Voices", audience: "builder" },
