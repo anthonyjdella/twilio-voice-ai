@@ -27,6 +27,13 @@ export default {
         "ConversationRelay can switch languages **mid-call** -- both the speech-to-text side (understanding the caller) and the text-to-speech side (the voice the caller hears). If a caller switches from English to Spanish, the agent adapts instantly without dropping the call.",
     },
 
+    {
+      type: "image",
+      src: "/images/illustrations/map-location.png",
+      alt: "A map with location pins — a visual metaphor for meeting callers wherever they are, in whichever language they speak.",
+      size: "md",
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "The Language Message", audience: "builder" },
