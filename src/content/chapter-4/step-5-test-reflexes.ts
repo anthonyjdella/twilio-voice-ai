@@ -139,7 +139,14 @@ Server listening on port 8080`,
 
     {
       type: "verify",
-      question: "Can you interrupt the AI mid-sentence?",
+      question: "Did all four reflexes work — interruption, keypad, silence, and language switch?",
+      troubleshooting: [
+        "Agent kept talking after you interrupted? Check that interruptible=\"any\" in your TwiML and that your interrupt handler aborts the active LLM stream",
+        "No response to keypad presses? Confirm dtmfDetection=\"true\" in TwiML and that your server handles the dtmf WebSocket message",
+        "Silence didn't trigger a prompt? Make sure the silence timer starts after setup and resets on every prompt/interrupt/dtmf message",
+        "Didn't switch to Spanish? Language switching is optional — check that the LLM produced a [LANG:es-ES] marker and your server sent a language WebSocket message",
+        "Nothing happening at all? Make sure your server is running (node server.js) and port 8080 is set to Public in the Codespace Ports tab",
+      ],
     },
 
     {
