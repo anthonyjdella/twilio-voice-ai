@@ -147,7 +147,16 @@ const server = http.createServer(async (req, res) => {
 });`,
     },
 
+    { type: "page-break" },
+
     { type: "section", title: "Key ConversationRelay Attributes", audience: "builder" },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "Your TwiML response included a few ConversationRelay attributes. Here is what each one does so you can tune them for your own agent later.",
+    },
 
     {
       type: "prose",
@@ -191,8 +200,6 @@ const server = http.createServer(async (req, res) => {
       content:
         "The `url` must use `wss://`, not `ws://`. Twilio requires a secure connection. Codespace port forwarding handles this automatically.",
     },
-
-    { type: "page-break" },
 
     {
       type: "deep-dive",
