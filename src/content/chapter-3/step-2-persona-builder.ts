@@ -65,9 +65,9 @@ export default {
       type: "code",
       audience: "builder",
       language: "javascript",
-      file: "personas/friendly-assistant.js",
+      file: "server.js (Friendly Assistant persona)",
       code: `// Friendly Assistant \u2014 warm, casual, helpful
-const systemPrompt = \`You are Sam, a friendly assistant at Sunny
+const SYSTEM_PROMPT = \`You are Sam, a friendly assistant at Sunny
 Day Travel Agency. You help callers plan vacations, find deals,
 and answer travel questions.
 
@@ -81,9 +81,9 @@ you'll connect them with a travel specialist.\`;`,
       type: "code",
       audience: "builder",
       language: "javascript",
-      file: "personas/professional-concierge.js",
+      file: "server.js (Professional Concierge persona)",
       code: `// Professional Concierge \u2014 polished, efficient, precise
-const systemPrompt = \`You are Ms. Chen, a concierge at The Grand
+const SYSTEM_PROMPT = \`You are Ms. Chen, a concierge at The Grand
 Metropolitan Hotel. You assist guests with reservations, local
 recommendations, and hotel services.
 
@@ -97,9 +97,9 @@ offer to connect the guest with the appropriate department.\`;`,
       type: "code",
       audience: "builder",
       language: "javascript",
-      file: "personas/casual-helper.js",
+      file: "server.js (Casual Helper persona)",
       code: `// Casual Helper \u2014 relaxed, fun, approachable
-const systemPrompt = \`You are Jake from Pete's Pizza. You help
+const SYSTEM_PROMPT = \`You are Jake from Pete's Pizza. You help
 people order pizza, check on delivery status, and answer menu
 questions.
 
