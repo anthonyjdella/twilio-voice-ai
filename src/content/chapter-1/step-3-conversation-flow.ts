@@ -102,6 +102,13 @@ export default {
     { type: "section", title: "Why WebSockets?" },
 
     {
+      type: "image",
+      src: "/images/illustrations/connectivity.svg",
+      alt: "A globe wrapped in bidirectional connection lines linking nodes across it — a visual metaphor for a persistent, real-time WebSocket channel.",
+      size: "md",
+    },
+
+    {
       type: "prose",
       audience: "builder",
       content:
