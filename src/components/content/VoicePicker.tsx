@@ -97,10 +97,10 @@ export function VoicePicker() {
                     onClick={() =>
                       selectVoice(voice.id, group.provider, voice.name)
                     }
-                    className={`text-left p-3 rounded-lg border transition-colors ${
+                    className={`text-left p-3 rounded-lg border-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-twilio-red/50 ${
                       isActive
-                        ? "border-twilio-red bg-twilio-red/10"
-                        : "border-navy-border bg-surface-2 hover:border-text-muted/30"
+                        ? "border-twilio-red bg-twilio-red/15 shadow-[0_0_0_2px_rgba(239,34,58,0.25)]"
+                        : "border-text-muted/30 bg-surface-2 hover:border-twilio-red/60 hover:bg-twilio-red/5 hover:-translate-y-0.5 active:translate-y-0 active:bg-twilio-red/10"
                     }`}
                   >
                     <div className="text-sm font-medium text-text-primary">
