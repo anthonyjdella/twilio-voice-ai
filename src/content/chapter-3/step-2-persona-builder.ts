@@ -114,14 +114,6 @@ to the menu.\`;`,
     { type: "section", title: "Voice-Specific Tips", audience: "builder" },
 
     {
-      type: "callout",
-      audience: "builder",
-      variant: "tip",
-      content:
-        'Avoid telling the AI to "list the options." Instead, say "mention a couple of the most popular options and ask which sounds good." This produces responses that flow naturally in conversation.',
-    },
-
-    {
       type: "prose",
       audience: "builder",
       content:
