@@ -58,7 +58,12 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "Here are three different persona styles to show how the same structure produces very different experiences. You can pick one of these presets below, or create your own.",
+        "Below you'll see three preset personas -- Friendly Assistant, Professional Concierge, and Casual Helper. Each one gives the agent a different name, tone, and greeting. Pick the one that fits the kind of call you want to have, or write your own in the fields below.",
+    },
+
+    {
+      type: "agent-config",
+      audience: "explorer",
     },
 
     {
@@ -109,7 +114,7 @@ isn't pizza-related, joke about it briefly and steer things back
 to the menu.\`;`,
     },
 
-    { type: "page-break" },
+    { type: "page-break", audience: "builder" },
 
     { type: "section", title: "Voice-Specific Tips", audience: "builder" },
 
@@ -140,11 +145,6 @@ to the menu.\`;`,
       title: "How Persona Affects Turn-Taking",
       content:
         'The persona you choose impacts more than just word choice \u2014 it affects pacing. A formal persona tends to produce longer, more complete sentences. A casual persona generates shorter bursts that feel more like texting out loud. For phone conversations, shorter turns generally work better because they give the caller more opportunities to jump in. If your agent is monologuing, try making the persona more casual or adding an explicit instruction like "after every two sentences, pause and ask if the caller has questions."',
-    },
-
-    {
-      type: "agent-config",
-      audience: "explorer",
     },
 
     {
