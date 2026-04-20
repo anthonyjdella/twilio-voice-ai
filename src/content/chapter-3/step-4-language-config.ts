@@ -13,6 +13,14 @@ export default {
         },
 
         {
+            type: "image",
+            audience: "explorer",
+            src: "/images/illustrations/rotary-phone.svg",
+            alt: "A classic rotary phone — evoking the timeless act of speaking into a receiver, now understood and transcribed by the AI.",
+            size: "md",
+        },
+
+        {
             type: "prose",
             audience: "builder",
             content:
