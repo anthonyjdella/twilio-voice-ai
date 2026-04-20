@@ -2,7 +2,7 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "diagram", variant: "architecture", highlight: "stt-tts" },
+    { type: "diagram", variant: "architecture", highlight: "stt-tts", showTools: true },
 
     { type: "section", title: "Choosing a Voice" },
 
