@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useWorkshop } from "@/lib/WorkshopContext";
+import { useAudienceMode } from "@/lib/AudienceContext";
 import { useProgressContext } from "./ProgressContext";
 import { ConfirmModal } from "./ConfirmModal";
 import { RotateCcw, Menu, X } from "lucide-react";
@@ -44,6 +45,7 @@ export function Sidebar() {
   const chapter = chapterSlug ? getChapter(chapterSlug) : chapters[0];
   const { progress, completedStepsSet, resetProgress, completionPercentage } =
     useProgressContext();
+  const { isBuilder } = useAudienceMode();
 
   const [showResetModal, setShowResetModal] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
@@ -254,13 +256,26 @@ export function Sidebar() {
 
             <div className="space-y-2.5 text-sm">
               {sidebarConfig.fields.map((field) => {
-                const val = progress.workshopState[field.key];
+                const userVal = progress.workshopState[field.key];
+                // Builders edit server.js directly — this app can't read their file.
+                // When a Builder hasn't explicitly configured something via a widget,
+                // fall back to the defaults baked into the Chapter 3 Step 1 solution
+                // (Ava persona, ElevenLabs, en-US) so the sidebar matches their code.
+                const builderDefaults: Record<string, string> = {
+                  agentName: "Ava",
+                  voiceLabel: "Rachel (ElevenLabs)",
+                  language: "en-US",
+                };
+                const val = userVal || (isBuilder ? builderDefaults[field.key] : undefined);
+                const isDefault = !userVal && isBuilder && !!val;
                 return (
                   <div key={field.key} className="flex justify-between items-center">
                     <span className="text-text-muted text-xs">{field.label}</span>
                     <span className={`font-mono text-xs px-2 py-0.5 rounded-md ${
                       val
-                        ? "bg-twilio-red/10 text-twilio-red border border-twilio-red/20"
+                        ? isDefault
+                          ? "bg-surface-1 text-text-muted border border-navy-border"
+                          : "bg-twilio-red/10 text-twilio-red border border-twilio-red/20"
                         : "bg-surface-1 text-text-muted border border-navy-border"
                     }`}>
                       {val || "\u2014"}
