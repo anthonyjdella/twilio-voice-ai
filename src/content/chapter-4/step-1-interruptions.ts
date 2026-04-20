@@ -4,7 +4,7 @@ export default {
   blocks: [
     { type: "section", title: "Interruption Handling" },
 
-    { type: "diagram", variant: "architecture", highlight: "websocket" },
+    { type: "diagram", variant: "architecture", highlight: "websocket", showTools: true },
 
     {
       type: "concept-card",
