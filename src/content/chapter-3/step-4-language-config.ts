@@ -97,6 +97,13 @@ export default {
         { type: "section", title: "Supported Languages" },
 
         {
+            type: "image",
+            src: "/images/illustrations/hugging-earth.svg",
+            alt: "A person hugging the Earth — a warm visual for language support spanning the globe.",
+            size: "md",
+        },
+
+        {
             type: "concept-card",
             title: "Supported Languages",
             content:
