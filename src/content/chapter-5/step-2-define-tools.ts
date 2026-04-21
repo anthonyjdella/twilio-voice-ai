@@ -20,6 +20,35 @@ export default {
     },
 
     {
+      type: "image",
+      audience: "explorer",
+      src: "/images/illustrations/grid-icon.svg",
+      alt: "A grid of labeled tiles — the tool catalog the AI browses to pick the right tool for the job.",
+      size: "md",
+    },
+
+    { type: "page-break", audience: "explorer" },
+
+    { type: "section", title: "Pick Your Agent's Tools", audience: "explorer" },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "Your agent comes with two ready-made tools. Turn them on or off below, then listen to how the agent behaves on your next test call. With a tool turned off, the agent has to admit it cannot help with that kind of question.",
+    },
+
+    { type: "tool-picker", audience: "explorer" },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "tip",
+      content:
+        "Try it both ways. With **Check Weather** on, ask \"What's the weather in Tokyo?\" With it off, ask the same thing — the agent will explain it can't look that up. That's tool selection in action.",
+    },
+
+    {
       type: "prose",
       audience: "builder",
       content:
@@ -247,11 +276,13 @@ module.exports = { tools, toolHandlers };`,
     {
       type: "solution",
       audience: "builder",
-      file: "tool-handlers.js",
-      language: "javascript",
       explanation:
-        "The complete `tool-handlers.js` -- both the `tools` schema array and the `toolHandlers` dispatch map, with both exported so `server.js` can pull them in via `const { tools, toolHandlers } = require(\"./tool-handlers.js\");`.",
-      code: `const tools = [
+        "`tool-handlers.js` holds the `tools` schema plus the `toolHandlers` dispatch map and exports both. `server.js` requires that module and passes the `tools` array into every `openai.chat.completions.create` call. Switch between the two files with the tabs above the code.",
+      files: [
+        {
+          file: "tool-handlers.js",
+          language: "javascript",
+          code: `const tools = [
   {
     type: "function",
     function: {
@@ -331,6 +362,295 @@ const toolHandlers = {
 };
 
 module.exports = { tools, toolHandlers };`,
+        },
+        {
+          file: "server.js",
+          language: "javascript",
+          code: `require("dotenv").config();
+const { WebSocketServer } = require("ws");
+const http = require("http");
+const OpenAI = require("openai");
+const twilio = require("twilio");
+const { tools } = require("./tool-handlers.js");
+
+const PORT = 8080;
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
+const SYSTEM_PROMPT = \`You are a helpful voice assistant for Acme Corp.
+Keep your responses brief -- one to two sentences at most.
+Speak naturally and conversationally.
+Never use markdown, bullet points, or numbered lists.
+If you don't know something, say so honestly.
+
+LANGUAGE DETECTION:
+- You can speak English and Spanish fluently.
+- If the caller switches to a different language, respond in that language.
+- When you detect a language switch, include the marker [LANG:xx-XX]
+  at the very beginning of your response, where xx-XX is the BCP-47
+  language code (e.g., [LANG:es-ES] for Spanish, [LANG:en-US] for English).
+- Only include the marker when the language CHANGES, not on every message.\`;
+
+const SILENCE_TIMEOUT_MS = 8000;
+const MAX_SILENCE_PROMPTS = 2;
+const LANG_MARKER_REGEX = /^\\[LANG:([\\w-]+)\\]/;
+
+// Module-scope state (single-caller workshop server)
+const conversationHistory = [
+  { role: "system", content: SYSTEM_PROMPT },
+];
+let activeStream = null;
+let silenceTimer = null;
+let silencePromptCount = 0;
+let currentLanguage = "en-US";
+
+function sendText(ws, token, last = false) {
+  ws.send(JSON.stringify({ type: "text", token, last }));
+}
+
+function sendDigits(ws, digits) {
+  ws.send(JSON.stringify({ type: "sendDigits", digits }));
+}
+
+function processLLMResponse(ws, text) {
+  const match = text.match(LANG_MARKER_REGEX);
+
+  if (match) {
+    const newLang = match[1];
+
+    if (newLang !== currentLanguage) {
+      console.log(\`Switching language: \${currentLanguage} -> \${newLang}\`);
+      currentLanguage = newLang;
+
+      ws.send(JSON.stringify({
+        type: "language",
+        ttsLanguage: newLang,
+        transcriptionLanguage: newLang,
+      }));
+    }
+
+    text = text.replace(LANG_MARKER_REGEX, "").trim();
+  }
+
+  if (text) {
+    sendText(ws, text, true);
+  }
+}
+
+function resetSilenceTimer(ws) {
+  clearTimeout(silenceTimer);
+  silencePromptCount = 0;
+
+  silenceTimer = setTimeout(() => {
+    handleSilence(ws);
+  }, SILENCE_TIMEOUT_MS);
+}
+
+function handleSilence(ws) {
+  silencePromptCount++;
+
+  if (silencePromptCount >= MAX_SILENCE_PROMPTS) {
+    sendText(ws, "It seems like you may have stepped away. " +
+      "I'll end the call for now. Feel free to call back anytime!", true);
+    ws.send(JSON.stringify({ type: "end" }));
+    return;
+  }
+
+  const prompts = [
+    "Are you still there? Take your time -- I'm here whenever you're ready.",
+    "I'm still here if you need anything. Is there something I can help with?",
+  ];
+
+  sendText(ws, prompts[silencePromptCount - 1], true);
+
+  silenceTimer = setTimeout(() => {
+    handleSilence(ws);
+  }, SILENCE_TIMEOUT_MS);
+}
+
+async function streamResponse(ws) {
+  activeStream = new AbortController();
+
+  const stream = await openai.chat.completions.create(
+    {
+      model: "gpt-5.4-nano",
+      messages: conversationHistory,
+      tools: tools,
+      stream: true,
+    },
+    { signal: activeStream.signal }
+  );
+
+  try {
+    let assistantText = "";
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content ?? "";
+      if (token) {
+        assistantText += token;
+        sendText(ws, token);
+      }
+    }
+    sendText(ws, "", true);
+    conversationHistory.push({ role: "assistant", content: assistantText });
+  } catch (err) {
+    if (err.name !== "AbortError") throw err;
+  } finally {
+    activeStream = null;
+  }
+}
+
+function handlePrompt(ws, msg) {
+  conversationHistory.push({ role: "user", content: msg.voicePrompt });
+  streamResponse(ws);
+}
+
+function handleInterrupt(msg) {
+  console.log("Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
+
+  if (activeStream) {
+    activeStream.abort();
+    activeStream = null;
+  }
+
+  const lastMsg = conversationHistory[conversationHistory.length - 1];
+  if (lastMsg?.role === "assistant") {
+    lastMsg.content = msg.utteranceUntilInterrupt;
+  }
+}
+
+function handleDtmfInput(ws, digit) {
+  switch (digit) {
+    case "1":
+      conversationHistory.push({
+        role: "user",
+        content: "I want to check my order status.",
+      });
+      streamResponse(ws);
+      break;
+
+    case "2":
+      sendText(ws, "Let me transfer you to a representative. " +
+        "Please hold for a moment.", true);
+      break;
+
+    case "0":
+      sendText(ws, "Returning to the main menu. " +
+        "Press 1 for order status, 2 for a representative, " +
+        "or just tell me what you need.", true);
+      break;
+
+    default:
+      sendText(ws, "I didn't recognize that option. " +
+        "Press 1 for order status, or 2 for a representative.", true);
+      break;
+  }
+}
+
+function handleMessage(ws, data) {
+  const msg = JSON.parse(data);
+
+  switch (msg.type) {
+    case "setup":
+      console.log("Call started:", msg.callSid);
+      resetSilenceTimer(ws);
+      sendText(ws, "Press 1 to check your order status, " +
+        "press 2 to speak with a representative, " +
+        "or just tell me what you need.", true);
+      break;
+
+    case "prompt":
+      resetSilenceTimer(ws);
+      handlePrompt(ws, msg);
+      break;
+
+    case "interrupt":
+      resetSilenceTimer(ws);
+      handleInterrupt(msg);
+      break;
+
+    case "dtmf":
+      resetSilenceTimer(ws);
+      console.log("DTMF received:", msg.digit);
+      handleDtmfInput(ws, msg.digit);
+      break;
+
+    default:
+      console.log("Unhandled message type:", msg.type);
+  }
+}
+
+const server = http.createServer(async (req, res) => {
+  if (req.url === "/twiml" && req.method === "POST") {
+    const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <ConversationRelay
+      url="wss://\${req.headers.host}/ws"
+      welcomeGreeting="Hello! How can I help you today?"
+      interruptible="any"
+      dtmfDetection="true"
+    />
+  </Connect>
+</Response>\`;
+
+    res.writeHead(200, { "Content-Type": "text/xml" });
+    res.end(twiml);
+    return;
+  }
+
+  if (req.url === "/call" && req.method === "POST") {
+    try {
+      const call = await twilioClient.calls.create({
+        to: process.env.MY_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        url: \`https://\${req.headers.host}/twiml\`,
+      });
+
+      console.log("Call initiated:", call.sid);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ callSid: call.sid }));
+    } catch (error) {
+      console.error("Call error:", error.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+    return;
+  }
+
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("WebSocket server is running");
+});
+
+const wss = new WebSocketServer({ server, path: "/ws" });
+
+wss.on("connection", (ws) => {
+  console.log("New WebSocket connection");
+
+  ws.on("message", (data) => handleMessage(ws, data));
+
+  ws.on("close", () => {
+    clearTimeout(silenceTimer);
+    console.log("Call ended, timers cleared.");
+  });
+
+  ws.on("error", (err) => {
+    console.error("WebSocket error:", err);
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(\`Server listening on port \${PORT}\`);
+});`,
+        },
+      ],
     },
 
     {

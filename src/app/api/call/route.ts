@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
       language?: string;
       personality?: string;
       welcomeGreeting?: string;
+      enabledTools?: string;
     };
   };
 
@@ -65,6 +66,8 @@ export async function POST(request: NextRequest) {
     twimlParams.set("personality", body.agentConfig.personality);
   if (body.agentConfig?.welcomeGreeting)
     twimlParams.set("welcomeGreeting", body.agentConfig.welcomeGreeting);
+  if (body.agentConfig?.enabledTools)
+    twimlParams.set("enabledTools", body.agentConfig.enabledTools);
 
   const twimlUrl = `${twimlBaseUrl}?${twimlParams.toString()}`;
 

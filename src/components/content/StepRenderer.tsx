@@ -18,6 +18,7 @@ import { CallMe } from "@/components/CallMe";
 import { AgentConfig } from "./AgentConfig";
 import { VoicePicker } from "./VoicePicker";
 import { LanguagePicker } from "./LanguagePicker";
+import { ToolPicker } from "./ToolPicker";
 import { BuilderOnly } from "./BuilderOnly";
 
 interface StepRendererProps {
@@ -82,6 +83,7 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
           code={block.code}
           file={block.file}
           language={block.language}
+          files={block.files}
           explanation={block.explanation}
         />
       );
@@ -164,6 +166,9 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
 
     case "language-picker":
       return <LanguagePicker />;
+
+    case "tool-picker":
+      return <ToolPicker />;
 
     case "builder-only":
       return <BuilderOnly context={block.context} />;

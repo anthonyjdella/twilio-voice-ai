@@ -35,6 +35,28 @@ export const toolDefinitions = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "tell_joke",
+      description:
+        "Tell the caller a short, friendly joke. Use when the caller asks for a joke, wants to laugh, or asks you to be funny.",
+      parameters: {
+        type: "object",
+        properties: {},
+      },
+    },
+  },
+];
+
+const JOKES = [
+  "Why don't scientists trust atoms? Because they make up everything.",
+  "I told my computer I needed a break, and it said: no problem, I'll go to sleep.",
+  "Why did the developer go broke? Because they used up all their cache.",
+  "Parallel lines have so much in common. It's a shame they'll never meet.",
+  "I'm reading a book on anti-gravity. It's impossible to put down.",
+  "Why do programmers prefer dark mode? Because light attracts bugs.",
+  "What do you call a fish wearing a crown? Your royal haddock.",
 ];
 
 const MOCK_WEATHER = {
@@ -94,6 +116,10 @@ export function executeTool(name, args) {
         items: order.items,
         estimated_delivery: order.delivery,
       });
+    }
+    case "tell_joke": {
+      const joke = JOKES[Math.floor(Math.random() * JOKES.length)];
+      return JSON.stringify({ joke });
     }
     default:
       return JSON.stringify({ error: `Unknown tool: ${name}` });

@@ -12,6 +12,7 @@ export function handleConversationRelayConnection(ws) {
   let conversationHistory = [];
   let callSid = "";
   let config = {};
+  let activeTools = toolDefinitions;
   let isProcessing = false;
   let silenceTimer = null;
   let silenceCount = 0;
@@ -64,6 +65,7 @@ export function handleConversationRelayConnection(ws) {
           agentName: message.customParameters?.agentName,
           personality: message.customParameters?.personality,
         };
+        activeTools = filterTools(message.customParameters?.enabledTools);
         conversationHistory = [
           { role: "system", content: buildSystemPrompt(config) },
         ];
@@ -90,7 +92,7 @@ export function handleConversationRelayConnection(ws) {
           content: message.voicePrompt,
         });
         try {
-          await streamLLMResponse(openai, conversationHistory, ws, callSid);
+          await streamLLMResponse(openai, conversationHistory, ws, callSid, activeTools);
         } catch (err) {
           console.error(`[voice-agent] [${callSid}] LLM error:`, err.message);
           sendToken(ws, "I'm sorry, I encountered a technical issue. Please try again.", true);
@@ -124,7 +126,7 @@ export function handleConversationRelayConnection(ws) {
           content: `[The caller pressed ${message.digit} on their phone keypad]`,
         });
         try {
-          await streamLLMResponse(openai, conversationHistory, ws, callSid);
+          await streamLLMResponse(openai, conversationHistory, ws, callSid, activeTools);
         } catch (err) {
           console.error(`[voice-agent] [${callSid}] LLM error:`, err.message);
           sendToken(ws, "I'm sorry, I encountered a technical issue. Please try again.", true);
@@ -158,18 +160,22 @@ export function handleConversationRelayConnection(ws) {
 const LANG_MARKER_RE = /\[LANG:([a-z]{2}-[A-Z]{2})\]/g;
 const HANDOFF_MARKER = "[HANDOFF]";
 
-async function streamLLMResponse(openai, history, ws, callSid) {
+async function streamLLMResponse(openai, history, ws, callSid, tools = toolDefinitions) {
   let iterations = 0;
 
   while (iterations < MAX_TOOL_ITERATIONS) {
     iterations++;
 
-    const stream = await openai.chat.completions.create({
+    const requestBody = {
       model: process.env.OPENAI_MODEL || "gpt-5.4-nano",
       messages: history,
-      tools: toolDefinitions,
       stream: true,
-    });
+    };
+    if (tools && tools.length > 0) {
+      requestBody.tools = tools;
+    }
+
+    const stream = await openai.chat.completions.create(requestBody);
 
     let fullResponse = "";
     let currentToolCalls = [];
@@ -315,6 +321,19 @@ function sendLanguage(ws, langCode) {
     ttsLanguage: langCode,
     transcriptionLanguage: langCode,
   }));
+}
+
+function filterTools(enabledParam) {
+  if (enabledParam === undefined || enabledParam === null) {
+    return toolDefinitions;
+  }
+  const allow = new Set(
+    String(enabledParam)
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  );
+  return toolDefinitions.filter((t) => allow.has(t.function.name));
 }
 
 function trimHistoryToInterrupt(history, partialUtterance) {

@@ -14,10 +14,12 @@ export async function POST(request: NextRequest) {
     "Hello! I'm your AI assistant. How can I help you today?";
   const agentName = url.searchParams.get("agentName") || "";
   const personality = url.searchParams.get("personality") || "";
+  const enabledTools = url.searchParams.get("enabledTools") || "";
 
   const paramElements = [
     agentName && `<Parameter name="agentName" value="${escapeXml(agentName)}"/>`,
     personality && `<Parameter name="personality" value="${escapeXml(personality)}"/>`,
+    enabledTools && `<Parameter name="enabledTools" value="${escapeXml(enabledTools)}"/>`,
   ]
     .filter(Boolean)
     .join("\n      ");

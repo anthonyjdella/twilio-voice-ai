@@ -144,6 +144,8 @@ const workshopConfig: WorkshopConfig = {
       { label: "Name", key: "agentName" },
       { label: "Voice", key: "voiceLabel" },
       { label: "Language", key: "language" },
+      { label: "Tools", key: "enabledTools" },
+      { label: "Handoff", key: "_handoff" },
     ],
   },
 

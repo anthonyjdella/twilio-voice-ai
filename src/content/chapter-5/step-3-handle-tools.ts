@@ -19,6 +19,13 @@ export default {
         "Now that your tools are defined, you need to connect them to the conversation flow. When the AI decides to use a tool instead of responding with words, your code runs the tool, sends the answer back to the AI, and lets the conversation continue.",
     },
 
+    {
+      type: "image",
+      src: "/images/illustrations/gears.svg",
+      alt: "Two interlocking gears — the tool loop turning: AI requests, tool runs, answer flows back.",
+      size: "md",
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "Detecting Tool Calls in the Stream", audience: "builder" },
@@ -56,7 +63,52 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "Here is the high-level logic: send the conversation to the AI, listen for the reply. If the reply is words, speak them to the caller. If the AI asks for a tool, run it, send the result back, and let the AI try again with real data.",
+        "Think of it as a quick back-and-forth. The AI looks at what the caller said and has two options: **answer with words**, or **pause and ask for a tool**. If it asks for a tool, your server runs the tool, hands the answer back, and the AI turns that answer into a natural sentence. Only then does the caller hear a reply.",
+    },
+
+    {
+      type: "visual-step",
+      audience: "explorer",
+      steps: [
+        {
+          icon: "/images/icons/voice-wave.svg",
+          title: "Caller asks a question",
+          description:
+            '**Caller:** "Where is my order, ORD-12345?"',
+        },
+        {
+          icon: "/images/icons/robot.svg",
+          title: "AI pauses and requests a tool",
+          description:
+            'Instead of guessing, the AI signals: _"I need to run `lookup_order` with order number ORD-12345."_ No words go to the caller yet.',
+        },
+        {
+          icon: "/images/icons/wrench.svg",
+          title: "Tool runs and returns an answer",
+          description:
+            'Your server runs the tool and gets back: _"Shipped. Arriving April 22. Tracking 1Z999AA10123456784."_',
+        },
+        {
+          icon: "/images/icons/arrow-cycle.svg",
+          title: "AI loops with the real data",
+          description:
+            'The AI reads the tool\'s answer and decides what to say next. It might call another tool if it still needs more — or it might be ready to reply.',
+        },
+        {
+          icon: "/images/icons/chat-bubble.svg",
+          title: "AI replies with natural words",
+          description:
+            '**Agent:** "Your order shipped and should arrive April 22. I can text you the tracking number if you\'d like."',
+        },
+      ],
+    },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "tip",
+      content:
+        "You'll hear this loop in action on your test call. Ask about an order, or ask for the weather — listen for that tiny pause where the AI runs the tool before answering. That pause is the loop doing its job.",
     },
 
     {

@@ -22,6 +22,7 @@ export type ContentBlock =
   | AgentConfigBlock
   | VoicePickerBlock
   | LanguagePickerBlock
+  | ToolPickerBlock
   | BuilderOnlyBlock
   | PageBreakBlock;
 
@@ -84,12 +85,15 @@ export interface DeepDiveBlock extends BaseBlock {
   content: string;
 }
 
-/** Expandable "stuck? show solution" block with full code and explanation */
+/** Expandable "stuck? show solution" block with full code and explanation.
+ *  Pass either a single file (code + file + language) or a `files` array
+ *  to render a tabbed switcher across multiple files. */
 export interface SolutionBlock extends BaseBlock {
   type: "solution";
-  code: string;
-  file: string;
+  code?: string;
+  file?: string;
   language?: string;
+  files?: Array<{ file: string; code: string; language?: string }>;
   explanation: string;
 }
 
@@ -184,6 +188,11 @@ export interface VoicePickerBlock extends BaseBlock {
 /** Interactive language selector */
 export interface LanguagePickerBlock extends BaseBlock {
   type: "language-picker";
+}
+
+/** Interactive tool toggle — pick which tools the AI can call on the next test call */
+export interface ToolPickerBlock extends BaseBlock {
+  type: "tool-picker";
 }
 
 /** Placeholder shown to Explorers on Builder-only steps */

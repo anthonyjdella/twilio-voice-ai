@@ -266,8 +266,43 @@ export function Sidebar() {
                   voiceLabel: "Rachel (ElevenLabs)",
                   language: "en-US",
                 };
-                const val = userVal || (isBuilder ? builderDefaults[field.key] : undefined);
-                const isDefault = !userVal && isBuilder && !!val;
+
+                // Per-field presentation rules. Some keys are synthetic capability
+                // indicators (like _handoff) and some need formatting (enabledTools
+                // is stored as a comma list but shown as a count).
+                let val: string | undefined;
+                let isDefault = false;
+                if (field.key === "_handoff") {
+                  // Both the built-in Explorer server and the finished Builder code
+                  // support live-agent handoff. Show it as a capability indicator
+                  // (muted styling) rather than a user-editable field.
+                  val = "Yes";
+                  isDefault = true;
+                } else if (field.key === "enabledTools") {
+                  // Explorer: picker writes a comma-separated list of tool IDs.
+                  // Builder: no picker — their server.js owns the tool list, and
+                  // the Step 2 solution ships with exactly two tools.
+                  const BUILTIN_TOOL_COUNT = 3;
+                  const BUILDER_DEFAULT_COUNT = 2;
+                  if (isBuilder) {
+                    val = `${BUILDER_DEFAULT_COUNT} / ${BUILDER_DEFAULT_COUNT}`;
+                    isDefault = true;
+                  } else if (userVal !== undefined) {
+                    const count = userVal
+                      .split(",")
+                      .map((s) => s.trim())
+                      .filter(Boolean).length;
+                    val = `${count} / ${BUILTIN_TOOL_COUNT}`;
+                  } else {
+                    // Explorer hasn't touched the picker yet — all tools are on by default.
+                    val = `${BUILTIN_TOOL_COUNT} / ${BUILTIN_TOOL_COUNT}`;
+                    isDefault = true;
+                  }
+                } else {
+                  val = userVal || (isBuilder ? builderDefaults[field.key] : undefined);
+                  isDefault = !userVal && isBuilder && !!val;
+                }
+
                 return (
                   <div key={field.key} className="flex justify-between items-center">
                     <span className="text-text-muted text-xs">{field.label}</span>
