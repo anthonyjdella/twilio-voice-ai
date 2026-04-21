@@ -7,9 +7,9 @@ import { useWorkshop } from "@/lib/WorkshopContext";
 import { useAudienceMode } from "@/lib/AudienceContext";
 import { useProgressContext } from "./ProgressContext";
 import { ConfirmModal } from "./ConfirmModal";
-import { RotateCcw, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import workshopConfig from "@/workshop.config";
-import { SKIP_AHEAD_COPY, RESET_COPY } from "@/lib/workshop-copy";
+import { SKIP_AHEAD_COPY } from "@/lib/workshop-copy";
 
 const SKIP_UNLOCK_KEY = `workshop-${workshopConfig.id}-skip-unlock-position`;
 
@@ -43,11 +43,9 @@ export function Sidebar() {
   const onCompletePage = pathname === "/workshop/complete";
   const { config, chapters, getChapter } = useWorkshop();
   const chapter = chapterSlug ? getChapter(chapterSlug) : chapters[0];
-  const { progress, completedStepsSet, resetProgress, completionPercentage } =
-    useProgressContext();
+  const { progress, completedStepsSet } = useProgressContext();
   const { isBuilder } = useAudienceMode();
 
-  const [showResetModal, setShowResetModal] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -273,11 +271,18 @@ export function Sidebar() {
                 let val: string | undefined;
                 let isDefault = false;
                 if (field.key === "_handoff") {
-                  // Both the built-in Explorer server and the finished Builder code
-                  // support live-agent handoff. Show it as a capability indicator
-                  // (muted styling) rather than a user-editable field.
-                  val = "Yes";
-                  isDefault = true;
+                  // Builder: capability indicator — their Step 4 code enables handoff.
+                  // Explorer: reflects the HandoffToggle. Default OFF so the first test
+                  // call demonstrates the agent politely declining, then the Explorer
+                  // flips it on and calls again to feel the difference.
+                  if (isBuilder) {
+                    val = "Yes";
+                    isDefault = true;
+                  } else {
+                    const toggled = progress.workshopState.handoffEnabled === "true";
+                    val = toggled ? "On" : "Off";
+                    isDefault = !toggled;
+                  }
                 } else if (field.key === "enabledTools") {
                   // Explorer: picker writes a comma-separated list of tool IDs.
                   // Builder: no picker — their server.js owns the tool list, and
@@ -349,21 +354,6 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Reset progress */}
-      {completionPercentage() > 0 && (
-        <>
-          <div className="h-px bg-navy-border mx-4" />
-          <div className="p-4">
-            <button
-              onClick={() => setShowResetModal(true)}
-              className="flex items-center gap-2 text-xs text-text-muted hover:text-twilio-red transition-colors w-full px-3 py-2 rounded-lg hover:bg-surface-1"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Reset progress
-            </button>
-          </div>
-        </>
-      )}
     </>
   );
 
@@ -404,19 +394,6 @@ export function Sidebar() {
           </aside>
         </div>
       )}
-
-      <ConfirmModal
-        open={showResetModal}
-        title={RESET_COPY.title}
-        message={RESET_COPY.message}
-        confirmLabel={RESET_COPY.confirmLabel}
-        cancelLabel={RESET_COPY.cancelLabel}
-        onConfirm={() => {
-          resetProgress();
-          setShowResetModal(false);
-        }}
-        onCancel={() => setShowResetModal(false)}
-      />
 
       <ConfirmModal
         open={pendingHref !== null}

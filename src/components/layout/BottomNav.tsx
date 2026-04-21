@@ -19,7 +19,8 @@ export function BottomNav() {
   const chapterSlug = params.chapter as string;
   const stepSlug = params.step as string;
   const { getAdjacentSteps, getStep } = useWorkshop();
-  const { completionPercentage, completedStepsSet } = useProgressContext();
+  const { completionPercentage, completedStepsSet, completeStep } =
+    useProgressContext();
   const { currentPage, totalPages } = usePageContext();
   const { mode } = useAudienceMode();
   const accent = workshopConfig.branding.accentColor;
@@ -100,21 +101,30 @@ export function BottomNav() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [adjacent, router, prevHref, nextHref]);
 
-  if (!adjacent || onCompletePage) return null;
-
-  const { next } = adjacent;
-
-  const stepIndexInChapter = current
-    ? current.chapter.steps.findIndex((s) => s.slug === current.step.slug)
-    : -1;
-
-  const isLastStep = next === null;
+  const isLastStep = adjacent?.next === null;
   const isLastPage = currentPage === totalPages - 1;
   const currentStepCompleted =
     current != null &&
     completedStepsSet.has(
       `chapter-${current.chapter.id}:step-${current.step.id}`
     );
+
+  // The terminal step has nowhere to navigate forward to, so ProgressTracker's
+  // "complete on leave" trigger never fires for it. Auto-complete it once the
+  // learner reaches the final page so the Finish CTA can appear and the
+  // /workshop/complete guard stops redirecting them back. Keep this hook
+  // *before* the early returns below so hook order stays stable across renders.
+  useEffect(() => {
+    if (!current || !isLastStep || !isLastPage || currentStepCompleted) return;
+    completeStep(current.chapter.id, current.step.id, { silent: true });
+  }, [current, isLastStep, isLastPage, currentStepCompleted, completeStep]);
+
+  if (!adjacent || onCompletePage) return null;
+
+  const stepIndexInChapter = current
+    ? current.chapter.steps.findIndex((s) => s.slug === current.step.slug)
+    : -1;
+
   const showFinishCta = isLastStep && isLastPage && currentStepCompleted;
 
   return (
