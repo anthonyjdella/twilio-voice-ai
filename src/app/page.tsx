@@ -206,7 +206,7 @@ function HomeContent() {
               key={ch.id}
               variants={cardVariant}
               whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="rounded-xl bg-surface-1 border border-navy-border p-5 hover:bg-surface-3 hover:border-surface-4 transition-colors cursor-default"
+              className="rounded-xl bg-surface-1 border border-navy-border p-5 hover:bg-surface-3 hover:border-surface-4 transition-colors"
             >
               <div className="w-8 h-8 mb-2.5">
                 {ch.badgeIcon.startsWith("/") ? (

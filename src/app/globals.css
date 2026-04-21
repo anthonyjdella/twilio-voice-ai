@@ -213,6 +213,36 @@ body {
   cursor: url('/images/cursors/cursor.png') 4 4, auto;
 }
 
+/* The browser sets its own `cursor: auto` on many elements (SVG, motion.div
+   with whileHover, some UA-styled blocks), which breaks inheritance and shows
+   the OS arrow instead of the custom PNG. Force inheritance on everything,
+   then restore meaningful cursors for the elements that actually need them. */
+*,
+*::before,
+*::after {
+  cursor: inherit;
+}
+a,
+button,
+[role="button"],
+label[for],
+summary,
+select,
+[onclick],
+.cursor-pointer {
+  cursor: url('/images/cursors/cursor2.png') 6 2, pointer;
+}
+input,
+textarea,
+[contenteditable="true"] {
+  cursor: text;
+}
+:disabled,
+[aria-disabled="true"],
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
