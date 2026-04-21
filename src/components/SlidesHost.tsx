@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { HelpCircle, Maximize2, RefreshCw, X, ArrowLeft } from "lucide-react";
 
@@ -30,7 +30,18 @@ export default function SlidesHost({ embedUrl }: { embedUrl: string | null }) {
   const cameFromWorkshopRef = useRef<boolean>(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-  const [isPresenter, setIsPresenter] = useState(false);
+  // Lazy initializer so the localStorage read runs once during mount state
+  // construction rather than as a setState-in-effect (which ESLint flags as
+  // a cascading-render hazard). SSR guard: localStorage is undefined on the
+  // server, so we probe `typeof window` first.
+  const [isPresenter] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(PRESENTER_FLAG_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
 
   const isSlidesRoute = pathname === "/slides";
 
@@ -42,15 +53,35 @@ export default function SlidesHost({ embedUrl }: { embedUrl: string | null }) {
     }
   }, [pathname]);
 
-  // Read the presenter flag once on mount. /admin writes it; attendees never
-  // see it, so their `S` keypresses stay scoped to form/text inputs.
-  useEffect(() => {
-    try {
-      setIsPresenter(localStorage.getItem(PRESENTER_FLAG_KEY) === "1");
-    } catch {
-      // localStorage can throw in private mode -- treat as non-presenter.
+  // Helper actions. Declared above the effects that reference them so ESLint
+  // (react-hooks/immutability) doesn't flag temporal-dead-zone reads inside
+  // the keydown handler.
+  const toggleFullscreen = useCallback(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
     }
   }, []);
+
+  const exitToWorkshop = useCallback(() => {
+    // history.back() restores the exact scroll position Next.js saved for the
+    // previous entry. router.push() would re-render from the top. Fall back
+    // to pushing the tracked path if there's no history (e.g. /slides opened
+    // directly in a new tab).
+    if (cameFromWorkshopRef.current && typeof window !== "undefined" && window.history.length > 1) {
+      window.history.back();
+    } else {
+      router.push(lastWorkshopPathRef.current || "/");
+    }
+  }, [router]);
+
+  const enterSlides = useCallback(() => {
+    cameFromWorkshopRef.current = true;
+    router.push("/slides");
+  }, [router]);
 
   // Focus the iframe on route entry so arrow keys drive the deck immediately.
   // Tradeoff: while the iframe has focus, cross-origin rules prevent keydown
@@ -106,34 +137,7 @@ export default function SlidesHost({ embedUrl }: { embedUrl: string | null }) {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isPresenter, isSlidesRoute, router]);
-
-  function toggleFullscreen() {
-    const el = wrapperRef.current;
-    if (!el) return;
-    if (!document.fullscreenElement) {
-      el.requestFullscreen?.().catch(() => {});
-    } else {
-      document.exitFullscreen?.().catch(() => {});
-    }
-  }
-
-  function exitToWorkshop() {
-    // history.back() restores the exact scroll position Next.js saved for the
-    // previous entry. router.push() would re-render from the top. Fall back
-    // to pushing the tracked path if there's no history (e.g. /slides opened
-    // directly in a new tab).
-    if (cameFromWorkshopRef.current && typeof window !== "undefined" && window.history.length > 1) {
-      window.history.back();
-    } else {
-      router.push(lastWorkshopPathRef.current || "/");
-    }
-  }
-
-  function enterSlides() {
-    cameFromWorkshopRef.current = true;
-    router.push("/slides");
-  }
+  }, [isPresenter, isSlidesRoute, exitToWorkshop, enterSlides, toggleFullscreen]);
 
   // Render nothing when the URL isn't configured -- /slides itself will show
   // the configuration instructions.
