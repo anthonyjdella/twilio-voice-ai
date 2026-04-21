@@ -2,6 +2,12 @@ export const metadata = {
   title: "Slides — Voice AI Workshop",
 };
 
+// Read WORKSHOP_SLIDES_EMBED_URL at request time, not build time. Otherwise
+// Next.js pre-renders this route during `pnpm build` inside the Docker image
+// when no env var exists yet, baking in the "not configured" fallback. The
+// Azure Container App's secret is only populated after the image is built.
+export const dynamic = "force-dynamic";
+
 // The slide deck itself is rendered by <SlidesHost /> mounted in the root
 // layout. Keeping the iframe there (rather than here) means navigating away
 // and back doesn't reset the current slide -- the iframe stays alive and

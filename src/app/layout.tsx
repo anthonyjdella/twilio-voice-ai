@@ -18,13 +18,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Normalize the Google Slides URL here so SlidesHost (a client component)
-  // never sees the raw env var. /pub and /embed both accepted.
-  const rawSlidesUrl = process.env.WORKSHOP_SLIDES_EMBED_URL;
-  const slidesEmbedUrl = rawSlidesUrl
-    ? rawSlidesUrl.replace("/pub?", "/embed?").replace(/\/pub$/, "/embed")
-    : null;
-
+  // SlidesHost fetches the embed URL from /api/slides-url on mount. Reading
+  // process.env here would force the layout to be dynamic, disabling static
+  // generation for every page in the app.
   return (
     <html lang="en" className="h-full antialiased" data-theme={defaultTheme} suppressHydrationWarning>
       <head>
@@ -36,7 +32,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full">
         {children}
-        <SlidesHost embedUrl={slidesEmbedUrl ?? null} />
+        <SlidesHost />
       </body>
     </html>
   );

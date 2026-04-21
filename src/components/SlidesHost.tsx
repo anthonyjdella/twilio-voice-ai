@@ -18,7 +18,7 @@ const SHORTCUTS: Array<{ keys: string; label: string }> = [
 
 const PRESENTER_FLAG_KEY = "workshop-presenter-mode";
 
-export default function SlidesHost({ embedUrl }: { embedUrl: string | null }) {
+export default function SlidesHost() {
   const pathname = usePathname();
   const router = useRouter();
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -30,6 +30,24 @@ export default function SlidesHost({ embedUrl }: { embedUrl: string | null }) {
   const cameFromWorkshopRef = useRef<boolean>(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  // Fetched from /api/slides-url at runtime so it picks up the Azure secret
+  // value (injected into the container env after the Docker image was built).
+  const [embedUrl, setEmbedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/slides-url", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data: { embedUrl: string | null }) => {
+        if (!cancelled) setEmbedUrl(data.embedUrl);
+      })
+      .catch(() => {
+        // Network error -- leave embedUrl null so the iframe stays hidden.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   // Lazy initializer so the localStorage read runs once during mount state
   // construction rather than as a setState-in-effect (which ESLint flags as
   // a cascading-render hazard). SSR guard: localStorage is undefined on the
