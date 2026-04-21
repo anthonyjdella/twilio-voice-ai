@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import next from "next";
 import { WebSocketServer } from "ws";
 import { handleConversationRelayConnection } from "./voice-agent/handler.mjs";
-import { recordEvent } from "./analytics/db.mjs";
+import { recordEvent, wipeAllEvents } from "./analytics/db.mjs";
 import { getAllMetrics } from "./analytics/queries.mjs";
 import { renderAdminPage } from "./analytics/admin-html.mjs";
 import { generateReport } from "./analytics/report-pdf.mjs";
@@ -31,6 +31,23 @@ app.prepare().then(() => {
         } catch {}
         res.writeHead(204).end();
       });
+      return;
+    }
+
+    // Admin-only: wipe every event in the analytics database so the next run
+    // starts from a clean slate. Meant for pre-workshop testing; the UI shows
+    // a double-confirm. No auth here because the whole /admin surface is
+    // expected to sit behind an upstream gate in production.
+    if (pathname === "/admin/reset-all" && req.method === "POST") {
+      try {
+        const removed = wipeAllEvents();
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true, removed }));
+      } catch (err) {
+        console.error("[admin] reset-all error:", err);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: false, error: String(err?.message ?? err) }));
+      }
       return;
     }
 

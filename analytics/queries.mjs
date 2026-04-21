@@ -11,11 +11,38 @@ function stmt(sql) {
   return s;
 }
 
+// Each session's "current" audience = the `to` of its latest audience_changed,
+// otherwise the `audience` from session_started. Computed once and reused so
+// the overview numbers match the audience-breakdown panel (otherwise switching
+// from builder to explorer left both counters stale/doubled).
+const CURRENT_AUDIENCE_SQL = `
+  WITH session_audience AS (
+    SELECT
+      session_id,
+      COALESCE(
+        (
+          SELECT json_extract(payload, '$.to')
+          FROM events e2
+          WHERE e2.session_id = e1.session_id AND e2.event_type = 'audience_changed'
+          ORDER BY e2.id DESC LIMIT 1
+        ),
+        (
+          SELECT json_extract(payload, '$.audience')
+          FROM events e3
+          WHERE e3.session_id = e1.session_id AND e3.event_type = 'session_started'
+          ORDER BY e3.id ASC LIMIT 1
+        )
+      ) AS audience
+    FROM events e1
+    GROUP BY session_id
+  )
+`;
+
 export function getOverview() {
   const totalSessions = stmt(`SELECT COUNT(DISTINCT session_id) AS c FROM events`).get().c;
   const sessionsToday = stmt(`SELECT COUNT(DISTINCT session_id) AS c FROM events WHERE created_at >= datetime('now', 'start of day')`).get().c;
-  const builders = stmt(`SELECT COUNT(DISTINCT session_id) AS c FROM events WHERE event_type = 'session_started' AND json_extract(payload, '$.audience') = 'builder'`).get().c;
-  const explorers = stmt(`SELECT COUNT(DISTINCT session_id) AS c FROM events WHERE event_type = 'session_started' AND json_extract(payload, '$.audience') = 'explorer'`).get().c;
+  const builders = stmt(`${CURRENT_AUDIENCE_SQL} SELECT COUNT(*) AS c FROM session_audience WHERE audience = 'builder'`).get().c;
+  const explorers = stmt(`${CURRENT_AUDIENCE_SQL} SELECT COUNT(*) AS c FROM session_audience WHERE audience = 'explorer'`).get().c;
   const totalCalls = stmt(`SELECT COUNT(*) AS c FROM events WHERE event_type = 'call_initiated'`).get().c;
   const totalCompleted = stmt(`
     SELECT COUNT(DISTINCT session_id) AS c FROM events
@@ -54,34 +81,36 @@ export function getChapterCompletion() {
 }
 
 export function getAudienceBreakdown() {
+  // All three of these now use each session's current audience (factoring in
+  // audience_changed events). Previously these anchored on the original
+  // session_started value and couldn't reflect users who switched modes.
   const audiences = stmt(`
-    SELECT json_extract(payload, '$.audience') AS audience,
-           COUNT(DISTINCT session_id) AS sessions
-    FROM events
-    WHERE event_type = 'session_started'
+    ${CURRENT_AUDIENCE_SQL}
+    SELECT audience, COUNT(*) AS sessions
+    FROM session_audience
+    WHERE audience IS NOT NULL
     GROUP BY audience
   `).all();
 
   const completionByAudience = stmt(`
-    SELECT e1.audience, COUNT(DISTINCT e2.session_id) AS completed
-    FROM (
-      SELECT session_id, json_extract(payload, '$.audience') AS audience
-      FROM events WHERE event_type = 'session_started'
-    ) e1
-    JOIN events e2 ON e1.session_id = e2.session_id
+    ${CURRENT_AUDIENCE_SQL}
+    SELECT sa.audience, COUNT(DISTINCT e2.session_id) AS completed
+    FROM session_audience sa
+    JOIN events e2 ON sa.session_id = e2.session_id
       AND e2.event_type = 'badge_earned'
       AND json_extract(e2.payload, '$.badgeId') = 'chapter-6'
-    GROUP BY e1.audience
+    WHERE sa.audience IS NOT NULL
+    GROUP BY sa.audience
   `).all();
 
   const stepsPerAudience = stmt(`
-    SELECT e1.audience, COUNT(DISTINCT e2.session_id || ':' || json_extract(e2.payload, '$.chapterId') || ':' || json_extract(e2.payload, '$.stepId')) AS steps
-    FROM (
-      SELECT session_id, json_extract(payload, '$.audience') AS audience
-      FROM events WHERE event_type = 'session_started'
-    ) e1
-    JOIN events e2 ON e1.session_id = e2.session_id AND e2.event_type = 'step_completed'
-    GROUP BY e1.audience
+    ${CURRENT_AUDIENCE_SQL}
+    SELECT sa.audience,
+           COUNT(DISTINCT e2.session_id || ':' || json_extract(e2.payload, '$.chapterId') || ':' || json_extract(e2.payload, '$.stepId')) AS steps
+    FROM session_audience sa
+    JOIN events e2 ON sa.session_id = e2.session_id AND e2.event_type = 'step_completed'
+    WHERE sa.audience IS NOT NULL
+    GROUP BY sa.audience
   `).all();
 
   return { audiences, completionByAudience, stepsPerAudience };

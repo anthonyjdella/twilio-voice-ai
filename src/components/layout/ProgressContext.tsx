@@ -25,6 +25,20 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           chapterSlug: chapter?.slug ?? "",
           stepSlug: step?.slug ?? "",
         });
+
+        // If this step completion finishes a chapter, the hook grants the
+        // badge in state but does not emit -- emit here so admin analytics
+        // (chapter completion panel, users-with-badges counter) stay in sync.
+        const badgeId = `chapter-${chapterId}`;
+        if (chapter && !progress.progress.badges.includes(badgeId)) {
+          const allDoneAfter = chapter.steps.every((s) =>
+            s.id === stepId ||
+            progress.progress.completedSteps.includes(`chapter-${chapterId}:step-${s.id}`),
+          );
+          if (allDoneAfter) {
+            analytics.emit("badge_earned", { badgeId });
+          }
+        }
       }
       progress.completeStep(chapterId, stepId, options);
     },

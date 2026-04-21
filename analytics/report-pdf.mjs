@@ -42,24 +42,43 @@ export function generateReport(data) {
     doc.y = M;
   });
 
+  // Reserve at the bottom so the footer ("Page N of M") never collides with
+  // the last row of a section. 60 was too tight once bigger sub-labels landed.
+  const BOTTOM_GUARD = 70;
+
   function ensureSpace(needed) {
-    if (doc.y + needed > doc.page.height - 60) {
+    if (doc.y + needed > doc.page.height - BOTTOM_GUARD) {
       doc.addPage();
     }
   }
 
   function sectionTitle(title) {
-    ensureSpace(40);
-    doc.rect(M, doc.y, 3, 14).fill(RED);
-    doc.font("display-xb").fontSize(13).fillColor(WHITE).text(title, M + 12, doc.y, { width: CONTENT_W - 12 });
-    doc.moveDown(0.6);
+    // 40 covers the bar + title line + moveDown — plus one row of the section
+    // body. Otherwise a title can land at the page bottom with its first row
+    // on the next page, which reads as a blank panel.
+    ensureSpace(56);
+    const y = doc.y;
+    doc.rect(M, y, 3, 14).fill(RED);
+    doc.font("display-xb").fontSize(13).fillColor(WHITE).text(title, M + 12, y, { width: CONTENT_W - 12 });
+    doc.y = y + 22;
   }
 
   function statRow(label, value) {
+    ensureSpace(18);
     const y = doc.y;
     doc.font("text").fontSize(10).fillColor(MUTED).text(label, M, y, { width: CONTENT_W * 0.65 });
     doc.font("text-semi").fontSize(10).fillColor(WHITE).text(String(value), M + CONTENT_W * 0.65, y, { width: CONTENT_W * 0.35, align: "right" });
     doc.y = y + 16;
+  }
+
+  // Sub-labels inside a section ("Tool usage:", "Popular voices:") used to be
+  // written with raw doc.text() + moveDown, which could straddle a page break.
+  // Treat them as first-class rows so they participate in pagination.
+  function subLabel(text) {
+    ensureSpace(20);
+    const y = doc.y;
+    doc.font("text").fontSize(8).fillColor(MUTED).text(text, M, y, { width: CONTENT_W });
+    doc.y = y + 14;
   }
 
   function drawBar(x, y, width, maxWidth, color) {
@@ -118,13 +137,14 @@ export function generateReport(data) {
     doc.y = baseY + cardH + 10;
   }
 
-  doc.moveDown(0.8);
+  doc.y += 12;
 
   // --- Completion Funnel ---
   sectionTitle("Completion Funnel");
   if (funnel.length === 0) {
-    doc.font("text").fontSize(10).fillColor(MUTED).text("No completion data yet", M);
-    doc.moveDown(0.5);
+    ensureSpace(20);
+    doc.font("text").fontSize(10).fillColor(MUTED).text("No completion data yet", M, doc.y);
+    doc.y += 16;
   } else {
     const barMaxW = CONTENT_W * 0.45;
     for (const row of funnel) {
@@ -139,13 +159,14 @@ export function generateReport(data) {
     }
   }
 
-  doc.moveDown(0.5);
+  doc.y += 8;
 
   // --- Chapter Completion ---
   sectionTitle("Chapter Completion");
   if (chapters.length === 0) {
-    doc.font("text").fontSize(10).fillColor(MUTED).text("No chapter completions yet", M);
-    doc.moveDown(0.5);
+    ensureSpace(20);
+    doc.font("text").fontSize(10).fillColor(MUTED).text("No chapter completions yet", M, doc.y);
+    doc.y += 16;
   } else {
     const barMaxW = CONTENT_W * 0.45;
     for (const ch of chapters) {
@@ -160,7 +181,7 @@ export function generateReport(data) {
     }
   }
 
-  doc.moveDown(0.5);
+  doc.y += 8;
 
   // --- Time per Chapter ---
   if (timePerChapter.length > 0) {
@@ -175,7 +196,7 @@ export function generateReport(data) {
       doc.font("mono").fontSize(8).fillColor(WHITE).text(`${ch.medianMinutes} min`, M + CONTENT_W * 0.85, y, { width: 50, align: "right" });
       doc.y = y + 14;
     }
-    doc.moveDown(0.5);
+    doc.y += 8;
   }
 
   // --- Audience Breakdown ---
@@ -184,14 +205,11 @@ export function generateReport(data) {
     statRow(a.audience, `${a.sessions} users`);
   }
   if (audience.completionByAudience.length > 0) {
-    doc.font("text").fontSize(8).fillColor(MUTED).text("Completed workshop:", M, doc.y + 4);
-    doc.moveDown(0.4);
+    subLabel("Completed workshop:");
     for (const a of audience.completionByAudience) {
       statRow(`  ${a.audience}`, a.completed);
     }
   }
-
-  doc.moveDown(0.5);
 
   // --- Call Analytics ---
   sectionTitle("Call Analytics");
@@ -203,34 +221,26 @@ export function generateReport(data) {
   statRow("Handoffs triggered", calls.handoffs);
   statRow("Language switches", calls.langSwitches);
   if (calls.toolUsage.length > 0) {
-    doc.font("text").fontSize(8).fillColor(MUTED).text("Tool usage:", M, doc.y + 4);
-    doc.moveDown(0.4);
+    subLabel("Tool usage:");
     for (const t of calls.toolUsage) {
       statRow(`  ${t.tool}`, t.c);
     }
   }
 
-  doc.moveDown(0.5);
-
   // --- Agent Config ---
   sectionTitle("Agent Configuration");
   if (agentConfig.voices.length > 0) {
-    doc.font("text").fontSize(8).fillColor(MUTED).text("Popular voices:", M);
-    doc.moveDown(0.3);
+    subLabel("Popular voices:");
     for (const v of agentConfig.voices) statRow(`  ${v.voice || "(default)"}`, v.c);
   }
   if (agentConfig.languages.length > 0) {
-    doc.font("text").fontSize(8).fillColor(MUTED).text("Languages:", M, doc.y + 2);
-    doc.moveDown(0.3);
+    subLabel("Languages:");
     for (const l of agentConfig.languages) statRow(`  ${l.language}`, l.c);
   }
   if (agentConfig.names.length > 0) {
-    doc.font("text").fontSize(8).fillColor(MUTED).text("Agent names:", M, doc.y + 2);
-    doc.moveDown(0.3);
+    subLabel("Agent names:");
     for (const n of agentConfig.names.slice(0, 10)) statRow(`  ${n.name || "(unnamed)"}`, n.c);
   }
-
-  doc.moveDown(0.5);
 
   // --- Pacing & Engagement ---
   sectionTitle("Pacing & Engagement");
@@ -249,13 +259,16 @@ export function generateReport(data) {
 
   // --- Hourly Activity ---
   if (hourlyActivity.length > 0) {
-    doc.moveDown(0.5);
+    const chartH = 60;
+    const labelH = 16;
+    // Reserve enough for title + chart + labels as one atomic block so the
+    // chart never straddles a page break. 56 for sectionTitle + chart + labels
+    // means any short-of-space triggers a clean addPage before we draw.
+    ensureSpace(56 + chartH + labelH);
     sectionTitle("Hourly Activity");
-    ensureSpace(90);
     const chartX = M;
     const chartY = doc.y;
     const chartW = CONTENT_W;
-    const chartH = 60;
     const maxEvents = Math.max(1, ...hourlyActivity.map(h => h.events));
     const barW = chartW / 24 - 2;
 
@@ -267,12 +280,12 @@ export function generateReport(data) {
       const bx = chartX + i * (barW + 2) + 1;
       doc.rect(bx, chartY + chartH - barH - 2, barW, barH).fill(RED);
     }
-    doc.y = chartY + chartH + 4;
+    const labelsY = chartY + chartH + 4;
     for (let i = 0; i < 24; i += 3) {
       doc.font("mono").fontSize(6).fillColor(MUTED)
-        .text(String(i), chartX + i * (barW + 2), doc.y, { width: barW * 3, align: "left" });
+        .text(String(i), chartX + i * (barW + 2), labelsY, { width: barW * 3, align: "left" });
     }
-    doc.y += 12;
+    doc.y = labelsY + labelH;
   }
 
   // --- Footer on every page ---

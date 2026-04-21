@@ -73,9 +73,23 @@ body { font-family: var(--font-text); background: var(--navy); color: var(--text
 .section-title { font-family: var(--font-display); font-weight: 800; font-size: 16px; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .section-title::before { content: ''; width: 3px; height: 16px; background: var(--red); border-radius: 2px; }
 .panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+/* Multi-column sections use stretched items so all panels in a row match
+   the tallest one, and the column itself is a flex column so the panel can
+   grow to fill the leftover space below the .section-title. */
+.two-col, .three-col { display: grid; gap: 16px; align-items: stretch; }
+.two-col { grid-template-columns: 1fr 1fr; }
+.three-col { grid-template-columns: 1fr 1fr 1fr; }
+.two-col > div, .three-col > div { display: flex; flex-direction: column; }
+.two-col > div > .panel, .three-col > div > .panel { flex: 1; }
 @media (max-width: 900px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+/* Fixed-height scroll regions for panels that otherwise grow unbounded
+   (completion funnel, recent activity, per-chapter times on big workshops). */
+.scroll-panel { max-height: 320px; overflow-y: auto; padding-right: 6px; }
+.scroll-panel::-webkit-scrollbar { width: 8px; }
+.scroll-panel::-webkit-scrollbar-track { background: transparent; }
+.scroll-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+.scroll-panel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.16); }
+.scroll-table { max-height: 420px; overflow-y: auto; }
 .bar-row { display: flex; align-items: center; margin-bottom: 6px; font-size: 13px; }
 .bar-label { width: 180px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); }
 .bar-track { flex: 1; height: 20px; background: rgba(255,255,255,0.04); border-radius: 4px; margin: 0 10px; overflow: hidden; }
@@ -122,6 +136,8 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); }
       <span><span class="dot"></span> Live</span>
       <span id="lastUpdate"></span>
     </div>
+    <button id="resetProgressBtn" class="btn btn-outline" title="Clears this browser's workshop progress (localStorage). Does not affect other attendees or server analytics.">Reset My Progress</button>
+    <button id="resetAllBtn" class="btn btn-outline" style="border-color:rgba(239,34,58,0.5);color:#ff8a9a" title="DESTRUCTIVE: wipes every analytics event from the server. Use this before a workshop to start with a clean dashboard.">Reset All Sessions</button>
     <a href="/admin/report" class="btn btn-red">Download PDF Report</a>
   </div>
 </div>
@@ -171,7 +187,7 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); }
 
 <div class="section">
   <div class="section-title">Completion Funnel</div>
-  <div class="panel">
+  <div class="panel scroll-panel">
     ${funnel.length === 0 ? '<p class="empty">No completion data yet</p>' : funnel.map(row => {
       const pct = overview.totalSessions > 0 ? Math.round((row.sessions / overview.totalSessions) * 100) : 0;
       return `<div class="bar-row">
@@ -327,7 +343,7 @@ ${hourlyActivity.length > 0 ? `<div class="section">
 
 <div class="section">
   <div class="section-title">Recent Activity</div>
-  <div class="panel" style="overflow-x:auto">
+  <div class="panel scroll-table" style="overflow-x:auto">
     <table>
       <thead><tr><th>Time</th><th>Session</th><th>Event</th><th>Details</th></tr></thead>
       <tbody>
@@ -355,6 +371,65 @@ ${hourlyActivity.length > 0 ? `<div class="section">
 <script>
 document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
 setInterval(() => location.reload(), 30000);
+
+// Reset workshop progress for the current browser. This clears the
+// localStorage keys the workshop app writes (progress + session-scoped
+// skip-ahead unlock) and sessionStorage entries. Server-side analytics are
+// untouched -- this is strictly a per-browser nuke for re-running the flow.
+//
+// NOTE: this block is interpolated inside a template literal in
+// renderAdminPage(), so any backslash escapes must be DOUBLED (\\n, not \\n)
+// to survive the outer template-literal pass into the emitted HTML.
+document.getElementById("resetProgressBtn").addEventListener("click", function () {
+  var ok = window.confirm("Reset this browser's workshop progress? This clears completed steps, badges, and celebrations saved in this browser. It does NOT affect other attendees or the analytics shown on this page.");
+  if (!ok) return;
+  try {
+    var removed = [];
+    for (var i = localStorage.length - 1; i >= 0; i--) {
+      var key = localStorage.key(i);
+      if (key && key.indexOf("workshop-") === 0) {
+        localStorage.removeItem(key);
+        removed.push(key);
+      }
+    }
+    for (var j = sessionStorage.length - 1; j >= 0; j--) {
+      var skey = sessionStorage.key(j);
+      if (skey && skey.indexOf("workshop-") === 0) {
+        sessionStorage.removeItem(skey);
+      }
+    }
+    window.alert("Progress cleared (" + removed.length + " key" + (removed.length === 1 ? "" : "s") + "). Open the workshop in a new tab to start fresh.");
+  } catch (err) {
+    window.alert("Could not clear storage: " + (err && err.message ? err.message : err));
+  }
+});
+
+// Destructive server-side wipe. Double-confirmed because it deletes every
+// attendee's analytics, not just this browser's. Refreshes the page after a
+// successful wipe so the counters snap to zero without waiting for the 30s
+// auto-refresh.
+document.getElementById("resetAllBtn").addEventListener("click", function () {
+  var first = window.confirm("Wipe ALL analytics events from the server? This deletes every attendee's session data and cannot be undone. Use this only for testing before a workshop.");
+  if (!first) return;
+  var second = window.prompt("Type DELETE to confirm wiping all sessions.");
+  if (second !== "DELETE") {
+    window.alert("Cancelled (confirmation phrase did not match).");
+    return;
+  }
+  fetch("/admin/reset-all", { method: "POST" })
+    .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+    .then(function (result) {
+      if (result.ok && result.body && result.body.ok) {
+        window.alert("Wiped " + result.body.removed + " event" + (result.body.removed === 1 ? "" : "s") + " from the server.");
+        location.reload();
+      } else {
+        window.alert("Reset failed: " + (result.body && result.body.error ? result.body.error : "unknown error"));
+      }
+    })
+    .catch(function (err) {
+      window.alert("Reset failed: " + (err && err.message ? err.message : err));
+    });
+});
 </script>
 </body>
 </html>`;

@@ -48,3 +48,15 @@ export function recordEvent(sessionId, eventType, payload) {
     console.error("[analytics] Failed to record event:", err.message);
   }
 }
+
+// Wipes every event and resets the id counter. Intended for admin/testing use
+// only -- drops all workshop analytics irreversibly. Returns the number of
+// rows removed so the caller can confirm the operation.
+export function wipeAllEvents() {
+  const d = getDb();
+  const before = d.prepare(`SELECT COUNT(*) AS c FROM events`).get().c;
+  d.prepare(`DELETE FROM events`).run();
+  // Reset the AUTOINCREMENT counter so the next attendee starts from id 1.
+  d.prepare(`DELETE FROM sqlite_sequence WHERE name = 'events'`).run();
+  return before;
+}
