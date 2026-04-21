@@ -33,6 +33,14 @@ export default {
     {
       type: "callout",
       audience: "builder",
+      variant: "info",
+      content:
+        "**Before you paste the code below, make these four changes to `server.js`:**\n\n- [ ] **Add** `const { tools, toolHandlers } = require(\"./tool-handlers.js\");` near the top with your other `require` statements\n- [ ] **Delete** the `handlePrompt` function (added in Chapter 4)\n- [ ] **Delete** the `streamLLMResponse` function (from Chapter 2, if it's still there)\n- [ ] **Update** the `prompt` case inside `handleMessage` to call `streamResponse(ws)` directly -- see the diff below\n\nThe warnings below explain *why* each change matters. If anything behaves unexpectedly during Step 5 testing, come back to this checklist first.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
       variant: "warning",
       content:
         "**Replace, don't append.** The `streamResponse(ws)` function below **replaces two things** from earlier chapters:\n\n1. **Delete `handlePrompt`** (from Chapter 4). The prompt case now pushes the user turn inline and calls `streamResponse(ws)` directly -- see the diff below.\n2. **Delete `streamLLMResponse`** (from Chapter 2, if it still exists). `streamResponse` is its successor -- same streaming idea, but with `AbortController` support, module-scope `conversationHistory`, and tool-call handling.\n\nIf you leave either old function in place alongside `streamResponse`, you'll have two `for await` loops fighting over the same `conversationHistory` and `activeStream` -- the tool-call branch will never fire because the old function gets the prompt first. `conversationHistory` and `activeStream` stay at module scope (set up in Chapter 4); only the stream loop itself is swapped.",
@@ -57,13 +65,6 @@ export default {
       variant: "warning",
       content:
         "The `require(\"./tool-handlers.js\")` import must go **near the top of `server.js`**, alongside your other `require` statements. The `streamResponse` function references `tools` (passed to OpenAI) and `toolHandlers` (dispatched when a tool call fires). Without the import you'll hit `ReferenceError: tools is not defined`.",
-    },
-
-    {
-      type: "prose",
-      audience: "explorer",
-      content:
-        "Think of it as a quick back-and-forth. The AI looks at what the caller said and has two options: **answer with words**, or **pause and ask for a tool**. If it asks for a tool, your server runs the tool, hands the answer back, and the AI turns that answer into a natural sentence. Only then does the caller hear a reply.",
     },
 
     {
@@ -108,7 +109,7 @@ export default {
       audience: "explorer",
       variant: "tip",
       content:
-        "You'll hear this loop in action on your test call. Ask about an order, or ask for the weather — listen for that tiny pause where the AI runs the tool before answering. That pause is the loop doing its job.",
+        "You'll hear this loop in action on your test call. Ask about the weather or an order -- whichever tools you have turned on -- and listen for that tiny pause where the AI runs the tool before answering. That pause is the loop doing its job.",
     },
 
     {
@@ -141,77 +142,86 @@ async function streamResponse(ws, iteration = 0) {
   let fullAssistantText = ""; // holds the full reply so we can save it to history
   let toolCalls = [];
 
-  for await (const chunk of stream) {
-    const delta = chunk.choices[0]?.delta;
-    const finishReason = chunk.choices[0]?.finish_reason;
+  try {
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta;
+      const finishReason = chunk.choices[0]?.finish_reason;
 
-    // Accumulate text content
-    if (delta?.content) {
-      textBuffer += delta.content;
-      fullAssistantText += delta.content;
+      // Accumulate text content
+      if (delta?.content) {
+        textBuffer += delta.content;
+        fullAssistantText += delta.content;
 
-      // Send text in sentence-sized chunks for natural pacing
-      const sentenceEnd = textBuffer.search(/[.!?]\\s/);
-      if (sentenceEnd !== -1) {
-        const sentence = textBuffer.slice(0, sentenceEnd + 1);
-        sendText(ws, sentence);
-        textBuffer = textBuffer.slice(sentenceEnd + 2);
+        // Flush whole sentences through processLLMResponse so any
+        // [LANG:xx-XX] marker is stripped and the language switch
+        // message reaches Twilio before the text is spoken.
+        const sentenceEnd = textBuffer.search(/[.!?]\\s/);
+        if (sentenceEnd !== -1) {
+          const sentence = textBuffer.slice(0, sentenceEnd + 1);
+          processLLMResponse(ws, sentence);
+          textBuffer = textBuffer.slice(sentenceEnd + 2);
+        }
       }
-    }
 
-    // Accumulate tool call data
-    if (delta?.tool_calls) {
-      for (const tc of delta.tool_calls) {
-        if (tc.index !== undefined) {
-          if (!toolCalls[tc.index]) {
-            toolCalls[tc.index] = {
-              id: tc.id || "",
-              function: { name: "", arguments: "" }
-            };
-          }
-          if (tc.id) toolCalls[tc.index].id = tc.id;
-          if (tc.function?.name) {
-            toolCalls[tc.index].function.name += tc.function.name;
-          }
-          if (tc.function?.arguments) {
-            toolCalls[tc.index].function.arguments += tc.function.arguments;
+      // Accumulate tool call data
+      if (delta?.tool_calls) {
+        for (const tc of delta.tool_calls) {
+          if (tc.index !== undefined) {
+            if (!toolCalls[tc.index]) {
+              toolCalls[tc.index] = {
+                id: tc.id || "",
+                function: { name: "", arguments: "" }
+              };
+            }
+            if (tc.id) toolCalls[tc.index].id = tc.id;
+            if (tc.function?.name) {
+              toolCalls[tc.index].function.name += tc.function.name;
+            }
+            if (tc.function?.arguments) {
+              toolCalls[tc.index].function.arguments += tc.function.arguments;
+            }
           }
         }
       }
-    }
 
-    // Stream finished
-    if (finishReason === "tool_calls") {
-      // Clear activeStream before recursing — handleToolCalls will call
-      // streamResponse again which reassigns activeStream, but if an interrupt
-      // fires between tool execution and the next stream we want the
-      // AbortController reference to match the *current* in-flight call.
-      activeStream = null;
-      // Pass iteration so the tool loop can bound recursion via MAX_TOOL_ITERATIONS
-      await handleToolCalls(ws, toolCalls, iteration);
-      return;
-    }
+      // Stream finished
+      if (finishReason === "tool_calls") {
+        // handleToolCalls recurses into streamResponse, which will assign
+        // its own activeStream. Null this out so the inner call "owns"
+        // the AbortController reference, then skip the outer finally.
+        activeStream = null;
+        // Pass iteration so the tool loop can bound recursion via MAX_TOOL_ITERATIONS
+        await handleToolCalls(ws, toolCalls, iteration);
+        return;
+      }
 
-    if (finishReason === "stop") {
-      // Flush any remaining tail text, then save the whole reply to history
-      if (textBuffer.trim()) {
-        sendText(ws, textBuffer.trim());
-        textBuffer = "";
-      }
-      // Signal end-of-turn so Twilio stops waiting for more tokens.
-      // Without this the caller hears the last sentence, then dead air
-      // until the next prompt arrives.
-      sendText(ws, "", true);
-      if (fullAssistantText.trim()) {
-        conversationHistory.push({
-          role: "assistant",
-          content: fullAssistantText.trim(),
-        });
+      if (finishReason === "stop") {
+        // Flush any remaining tail text, then save the whole reply to history
+        if (textBuffer.trim()) {
+          processLLMResponse(ws, textBuffer.trim());
+          textBuffer = "";
+        }
+        // Signal end-of-turn so Twilio stops waiting for more tokens.
+        // Without this the caller hears the last sentence, then dead air
+        // until the next prompt arrives.
+        sendText(ws, "", true);
+        if (fullAssistantText.trim()) {
+          conversationHistory.push({
+            role: "assistant",
+            content: fullAssistantText.trim(),
+          });
+        }
       }
     }
+  } catch (err) {
+    // Interrupt handling aborts the stream via activeStream.abort(), which
+    // surfaces here as an AbortError. Swallow it; re-throw anything else.
+    if (err.name !== "AbortError") throw err;
+  } finally {
+    // Only null activeStream on the outermost call; the tool-call branch
+    // already nulled it before recursing into the next stream.
+    if (iteration === 0) activeStream = null;
   }
-
-  activeStream = null;
 }`,
     },
 
@@ -305,8 +315,10 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      code: `// Send a filler message for slow tools
-const SLOW_TOOLS = ["lookup_order", "search_inventory"];
+      code: `// Send a filler message for slow tools. Add any tool name that
+// routinely takes more than ~500ms so the caller hears something
+// instead of dead air while the lookup runs.
+const SLOW_TOOLS = ["lookup_order"];
 
 async function handleToolCalls(ws, toolCalls, iteration = 0) {
   const hasSlowTool = toolCalls.some(
@@ -378,10 +390,6 @@ function sendText(ws, token, last = false) {
   ws.send(JSON.stringify({ type: "text", token, last }));
 }
 
-function sendDigits(ws, digits) {
-  ws.send(JSON.stringify({ type: "sendDigits", digits }));
-}
-
 function processLLMResponse(ws, text) {
   const match = text.match(LANG_MARKER_REGEX);
 
@@ -402,8 +410,10 @@ function processLLMResponse(ws, text) {
     text = text.replace(LANG_MARKER_REGEX, "").trim();
   }
 
+  // streamResponse calls this per sentence and emits the terminating
+  // last=true marker once the full LLM response completes.
   if (text) {
-    sendText(ws, text, true);
+    sendText(ws, text);
   }
 }
 
@@ -464,10 +474,13 @@ async function streamResponse(ws, iteration = 0) {
         textBuffer += delta.content;
         fullAssistantText += delta.content;
 
+        // Flush whole sentences through processLLMResponse so any
+        // [LANG:xx-XX] marker is stripped and the language switch
+        // message reaches Twilio before the text is spoken.
         const sentenceEnd = textBuffer.search(/[.!?]\\s/);
         if (sentenceEnd !== -1) {
           const sentence = textBuffer.slice(0, sentenceEnd + 1);
-          sendText(ws, sentence);
+          processLLMResponse(ws, sentence);
           textBuffer = textBuffer.slice(sentenceEnd + 2);
         }
       }
@@ -493,6 +506,9 @@ async function streamResponse(ws, iteration = 0) {
       }
 
       if (finishReason === "tool_calls") {
+        // handleToolCalls recurses into streamResponse, which will assign
+        // its own activeStream. Null this out so the inner call "owns"
+        // the AbortController reference, then skip the outer finally.
         activeStream = null;
         await handleToolCalls(ws, toolCalls, iteration);
         return;
@@ -500,7 +516,7 @@ async function streamResponse(ws, iteration = 0) {
 
       if (finishReason === "stop") {
         if (textBuffer.trim()) {
-          sendText(ws, textBuffer.trim());
+          processLLMResponse(ws, textBuffer.trim());
           textBuffer = "";
         }
         sendText(ws, "", true);
@@ -515,7 +531,10 @@ async function streamResponse(ws, iteration = 0) {
   } catch (err) {
     if (err.name !== "AbortError") throw err;
   } finally {
-    activeStream = null;
+    // Only null activeStream on the outermost call; the tool-call path
+    // already nulled it before recursing, so an inner call's controller
+    // shouldn't be clobbered here.
+    if (iteration === 0) activeStream = null;
   }
 }
 
@@ -616,9 +635,6 @@ function handleMessage(ws, data) {
     case "setup":
       console.log("Call started:", msg.callSid);
       resetSilenceTimer(ws);
-      sendText(ws, "Press 1 to check your order status, " +
-        "press 2 to speak with a representative, " +
-        "or just tell me what you need.", true);
       break;
 
     case "prompt":

@@ -21,6 +21,22 @@ export default {
     },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Why a Workshop Environment Isn't Home",
+      content:
+        "Workshop environments like Codespaces are temporary -- perfect for building and testing, but they pause when no one is using them. For a real launch, an agent needs a permanent home: a server that stays awake around the clock, keeps a live connection open for every call, and picks itself back up if anything goes wrong. Teams call that \"hosting,\" and the decision comes down to where the agent should live.",
+    },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "info",
+      content:
+        "A hosted agent can be wired up to a real phone number that anyone can call -- customers, coworkers, a demo audience. That's the difference between \"someone built something cool\" and \"call this number and try it yourself.\" Showcase comes next.",
+    },
+
+    {
       type: "prose",
       audience: "builder",
       content:
@@ -147,13 +163,14 @@ CMD ["node", "server.js"]`,
       language: "javascript",
       file: "server.js",
       highlight: ["1-9"],
-      code: `// Inside your http.createServer handler, add a health check:
+      code: `// Inside your http.createServer handler, add a health check.
+// Place this route anywhere alongside /twiml and /call; the platform's
+// health checker pings it on a schedule to confirm the server is alive.
 if (req.url === "/health" && req.method === "GET") {
   res.writeHead(200, { "Content-Type": "application/json" });
   res.end(JSON.stringify({
     status: "ok",
     uptime: process.uptime(),
-    activeCalls: wss.clients.size,
   }));
   return;
 }`,

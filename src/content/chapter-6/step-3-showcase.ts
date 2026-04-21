@@ -40,15 +40,10 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "The best demo is a live call. A suggested script that hits every feature:",
+        "The best demo is a live call. The script below matches the tools and handoff setting you picked earlier -- if you turned something off in Chapter 5, it will not show up here:",
     },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        '1. **Trigger a call** using the workshop app or curl command, and let the agent greet you.\n2. **Ask a tool question**: "What is the weather in Austin?" to show tool calling.\n3. **Test interruption**: Ask a long question, then interrupt mid-answer to show barge-in.\n4. **Try the keypad**: Press a key on your phone to show DTMF handling.\n5. **Request handoff**: Say "I need to talk to a person" to show live agent transfer.',
-    },
+    { type: "demo-script", audience: "builder" },
 
     { type: "page-break" },
 

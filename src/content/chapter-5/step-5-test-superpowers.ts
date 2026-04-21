@@ -112,16 +112,32 @@ Server listening on port 8080`,
 
     {
       type: "prose",
+      audience: "builder",
       content:
         'Ask a question that needs multiple lookups at once: "What is the weather in Seattle, and can you check order ORD-67890?" The agent should answer both questions in one response.',
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        'Ask a question that needs two lookups in one breath: "What is the weather in Tokyo, and can you check order ORD-12345?" The agent should answer both parts in a single reply. If you turned one of those tools off back in Step 2, re-enable it before this test -- otherwise the agent can only answer the half it still has a tool for.',
     },
 
     { type: "section", title: "Test 4: Handoff" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         'Say: "I need to speak with a real person." or "Transfer me to an agent." The AI should acknowledge the request and start the transfer to a human.',
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        'Say: "I need to speak with a real person." What happens next depends on your Live Handoff toggle from Step 4. If Handoff is **on**, the agent should acknowledge the request and start the transfer. If Handoff is **off** (the default), the agent should politely decline and keep trying to help -- both outcomes are correct, depending on the toggle.',
     },
 
     {
@@ -144,7 +160,7 @@ Server listening on port 8080`,
         "Order lookup returned nothing? Check the terminal for `Tool call: lookup_order` — if missing, the LLM isn't picking the tool. Tighten the tool description",
         "Multi-tool call only answered half the question? Make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again",
         "Handoff didn't trigger? Verify the `transfer_to_agent` tool is in your `tools` array and its handler is sending the `end` message with `handoffData`",
-        "Agent said the answer but kept hallucinating after? You may be missing the `role: \"tool\"` response with `tool_call_id` — OpenAI needs that back or it loses the thread",
+        "Second turn crashes with an OpenAI 400 error about missing tool responses? You're skipping the `role: \"tool\"` message with `tool_call_id` — OpenAI requires exactly one per tool call before the next request",
         "Nothing happening at all? Restart your server and confirm port 8080 is Public in the Codespace Ports tab",
       ],
     },

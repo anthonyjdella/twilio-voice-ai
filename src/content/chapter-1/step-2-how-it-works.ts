@@ -127,7 +127,7 @@ export default {
     {
       type: "prose",
       content:
-        "Before going further, let's make sure you have a clear mental model of how all the pieces fit together. The architecture has five components connected in a straight line, with the server at the center.",
+        "Before going further, let's make sure you have a clear mental model of how all the pieces fit together. The architecture is a straight line with the server at the center, connecting the caller on one side to the AI on the other.",
     },
 
     { type: "diagram", variant: "architecture", highlight: "all" },
@@ -137,7 +137,7 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "The Five Components",
+      title: "The Three Main Pieces",
       content:
         "When a call connects, Twilio activates ConversationRelay, which converts speech to text and text back to speech in real time. The server sits in the middle -- it takes the caller's words (now text), sends them to an AI model, and sends the AI's reply back through Twilio so the caller hears a natural voice response.",
     },

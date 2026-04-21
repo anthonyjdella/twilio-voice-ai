@@ -53,7 +53,7 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        'When the phone rings, answer and ask a question that will produce a long response, like "Tell me everything about your return policy." While the agent is speaking, interrupt it by saying "Actually, never mind."',
+        'When the phone rings, answer and ask a question that will produce a long response -- something like "Can you tell me everything you know about yourself?" or "What can you help me with, in detail?" While the agent is speaking, interrupt it by saying "Actually, never mind."',
     },
 
     {
@@ -75,14 +75,23 @@ Server listening on port 8080`,
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Trigger another call and press **1** on the keypad while the agent is speaking or after it finishes. The agent should respond based on the configured keypad options.",
+        "Trigger another call and press **1** on the keypad while the agent is speaking or after it finishes. The agent should check in about your order status.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "Try pressing different keys and see how the agent responds to each one.",
+        "The agent does not speak a menu -- DTMF is a silent shortcut wired up in `handleDtmfInput`. With the code from Step 2 you should see:\n\n- **1** -- the agent starts talking about your order status (a synthetic user turn is pushed into `conversationHistory` and sent to the LLM).\n- **2** -- the agent offers to transfer you to a representative.\n- **0** -- the agent reads out the keypad options.\n- any other digit -- the agent says it didn't recognize that option.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "Trigger another call and try pressing **1**, **2**, or **0** on the keypad while the agent is speaking or after it finishes. The keypad shortcuts are wired to fixed responses regardless of your persona -- **1** asks about an order, **2** offers a transfer, **0** reads the options back -- so don't worry if the topic doesn't match the personality you picked. You're testing that the keypress is heard and acted on, not what the agent actually says.",
     },
 
     { type: "page-break" },
@@ -139,6 +148,7 @@ Server listening on port 8080`,
 
     {
       type: "verify",
+      audience: "builder",
       question: "Did all four reflexes work — interruption, keypad, silence, and language switch?",
       troubleshooting: [
         "Agent kept talking after you interrupted? Check that interruptible=\"any\" in your TwiML and that your interrupt handler aborts the active LLM stream",
@@ -146,6 +156,19 @@ Server listening on port 8080`,
         "Silence didn't trigger a prompt? Make sure the silence timer starts after setup and resets on every prompt/interrupt/dtmf message",
         "Didn't switch to Spanish? Language switching is optional — check that the LLM produced a [LANG:es-ES] marker and your server sent a language WebSocket message",
         "Nothing happening at all? Make sure your server is running (node server.js) and port 8080 is set to Public in the Codespace Ports tab",
+      ],
+    },
+
+    {
+      type: "verify",
+      audience: "explorer",
+      question: "Did all four reflexes work — interruption, keypad, silence, and language switch?",
+      troubleshooting: [
+        "Agent kept talking after you interrupted? Hang up and try again — interruption works best when you speak clearly a second or two into the agent's response",
+        "No response to keypad presses? Make sure you press the key firmly on your phone's dialpad during the call, not the contacts screen",
+        "Silence didn't trigger a prompt? Stay fully quiet for about ten seconds — even light background noise can reset the timer",
+        "Language switch didn't happen? This one is the most optional — if it doesn't kick in, the other three tests are the important ones",
+        "Nothing happening at all? Try the Call Me button again — occasional connection hiccups are normal",
       ],
     },
 

@@ -24,7 +24,7 @@ export default {
     {
       type: "prose",
       content:
-        "The agent can control exactly how it speaks -- adding pauses, changing speed, or spelling out codes letter by letter -- using a markup format called SSML.",
+        "With the right voice provider, an agent can control exactly how it speaks -- adding pauses, changing speed, or spelling out codes letter by letter -- using a markup format called SSML.",
     },
 
     {
@@ -142,7 +142,7 @@ ws.send(JSON.stringify({
       audience: "builder",
       variant: "info",
       content:
-        "The `play` message also supports `interruptible` (whether the caller's voice can stop playback) and `preemptible` (whether a subsequent message can stop it). Audio must be a publicly accessible URL (MP3 or WAV). Check the [ConversationRelay docs](https://www.twilio.com/docs/voice/conversationrelay) for supported fields and formats.",
+        "The `play` message also supports `interruptible` (whether the caller's voice can stop playback) and `preemptible` (whether a subsequent `text` or `play` message can stop it). `loop` controls repeat count -- use `0` to loop up to the 1,000-play maximum, useful for hold music. Audio must be a publicly accessible URL. See the [WebSocket messages reference](https://www.twilio.com/docs/voice/conversationrelay/websocket-messages) for the full schema.",
     },
 
     { type: "section", title: "Advanced Tool Patterns" },

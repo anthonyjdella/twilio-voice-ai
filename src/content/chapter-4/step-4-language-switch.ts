@@ -61,7 +61,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Each field is individually optional, but **at least one must be present**. You can update just one side -- for example, keep transcription in English while switching the speaking voice to Spanish.",
+        "Each field is individually optional, but **at least one must be present**. You could keep transcription in English while switching just the speaking voice, but for almost every real caller the STT and TTS languages should move together -- otherwise the agent hears Spanish and answers in an English voice, or vice versa. The implementation below sends both fields on every switch for that reason.",
     },
 
     { type: "page-break" },
@@ -136,9 +136,11 @@ function processLLMResponse(ws, text) {
     text = text.replace(LANG_MARKER_REGEX, "").trim();
   }
 
-  // Send the cleaned text to be spoken (last=true signals end of utterance)
+  // Send the cleaned text to be spoken. streamResponse calls this per
+  // sentence and emits the terminating last=true marker once the full
+  // LLM response completes, so we don't set last=true here.
   if (text) {
-    sendText(ws, text, true);
+    sendText(ws, text);
   }
 }`,
     },
@@ -151,12 +153,77 @@ function processLLMResponse(ws, text) {
         "The language switch takes effect immediately. Send the `language` message **before** sending the text that should be spoken in the new language. Otherwise Twilio will try to speak Spanish text with an English voice, which sounds garbled.",
     },
 
+    { type: "page-break" },
+
+    { type: "section", title: "Wire It Into `streamResponse`", audience: "builder" },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "Right now, `streamResponse` sends every token to Twilio the moment it arrives. That's a problem: the `[LANG:xx-XX]` marker would be spoken out loud before the helper had a chance to strip it. The fix is to buffer tokens until a sentence ends, then run each full sentence through `processLLMResponse` before speaking it.",
+    },
+
+    {
+      type: "code",
+      audience: "builder",
+      language: "javascript",
+      file: "server.js",
+      highlight: ["12-27", "30-34"],
+      code: `async function streamResponse(ws) {
+  activeStream = new AbortController();
+
+  const stream = await openai.chat.completions.create(
+    {
+      model: "gpt-5.4-nano",
+      messages: conversationHistory,
+      stream: true,
+    },
+    { signal: activeStream.signal }
+  );
+
+  try {
+    let textBuffer = "";
+    let assistantText = "";
+
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content ?? "";
+      if (!token) continue;
+
+      textBuffer += token;
+      assistantText += token;
+
+      // Flush whole sentences through processLLMResponse so the
+      // [LANG:xx-XX] marker (if any) is stripped and the language
+      // message reaches Twilio before any text is spoken.
+      const sentenceEnd = textBuffer.search(/[.!?]\\s/);
+      if (sentenceEnd !== -1) {
+        const sentence = textBuffer.slice(0, sentenceEnd + 1);
+        processLLMResponse(ws, sentence);
+        textBuffer = textBuffer.slice(sentenceEnd + 2);
+      }
+    }
+
+    // Flush trailing text after the final sentence terminator.
+    if (textBuffer.trim()) {
+      processLLMResponse(ws, textBuffer.trim());
+    }
+    sendText(ws, "", true);
+    conversationHistory.push({ role: "assistant", content: assistantText });
+  } catch (err) {
+    if (err.name !== "AbortError") throw err;
+  } finally {
+    activeStream = null;
+  }
+}`,
+    },
+
     {
       type: "callout",
       audience: "builder",
       variant: "tip",
       content:
-        "**Wiring this in:** Right now, `streamResponse` sends tokens one at a time, so the `[LANG:xx-XX]` marker would be spoken aloud before you could strip it. In Chapter 5, you will refactor `streamResponse` to buffer text in sentence-sized chunks. Once that refactor is done, call `processLLMResponse(ws, sentence)` on each sentence *before* passing it to `sendText` -- the marker lands in the first sentence, gets stripped, and the `language` message reaches Twilio before any text is spoken.\n\nThis integration is **optional** -- if you skip language switching, no changes to `streamResponse` are needed.",
+        "Why sentence buffering, not word buffering? A marker like `[LANG:es-ES]` can arrive split across tokens (`[LANG`, `:es-`, `ES]`). Waiting for a sentence boundary guarantees the full marker is present before the regex runs, and it keeps perceived latency low because callers hear the agent speak one sentence at a time anyway.\n\nThe simple `/[.!?]\\s/` split will mis-flush on abbreviations like `Mr. Smith` or `e.g.,` and on numbers like `3.14`. For a workshop agent that is fine -- the marker only needs to be intact at the *start* of the first sentence. For a production agent you would swap in a proper sentence tokenizer (such as `compromise` or `sbd`).",
     },
 
     { type: "section", title: "Supported Languages", audience: "builder" },
@@ -165,28 +232,27 @@ function processLLMResponse(ws, text) {
       type: "prose",
       audience: "builder",
       content:
-        "ConversationRelay supports a wide range of BCP-47 language codes. Some commonly used ones:",
+        "ConversationRelay supports a wide range of BCP-47 language codes. Some commonly used ones -- pass any of these values as the `ttsLanguage` or `transcriptionLanguage` in the `language` message:",
     },
 
     {
       type: "code",
       audience: "builder",
       language: "javascript",
-      code: `const SUPPORTED_LANGUAGES = {
-  "en-US": "English (US)",
-  "en-GB": "English (UK)",
-  "es-ES": "Spanish (Spain)",
-  "es-MX": "Spanish (Mexico)",
-  "fr-FR": "French",
-  "de-DE": "German",
-  "it-IT": "Italian",
-  "pt-BR": "Portuguese (Brazil)",
-  "ja-JP": "Japanese",
-  "ko-KR": "Korean",
-  "zh-CN": "Chinese (Mandarin)",
-  "hi-IN": "Hindi",
-  "ar-SA": "Arabic",
-};`,
+      code: `// Reference: common BCP-47 codes for ConversationRelay
+// "en-US" -> English (US)
+// "en-GB" -> English (UK)
+// "es-ES" -> Spanish (Spain)
+// "es-MX" -> Spanish (Mexico)
+// "fr-FR" -> French
+// "de-DE" -> German
+// "it-IT" -> Italian
+// "pt-BR" -> Portuguese (Brazil)
+// "ja-JP" -> Japanese
+// "ko-KR" -> Korean
+// "zh-CN" -> Chinese (Mandarin)
+// "hi-IN" -> Hindi
+// "ar-SA" -> Arabic`,
     },
 
     {
@@ -203,7 +269,7 @@ function processLLMResponse(ws, text) {
       file: "server.js",
       language: "javascript",
       explanation:
-        "Builds on step 3 by adding a LANGUAGE DETECTION section to the system prompt, a LANG_MARKER_REGEX constant, currentLanguage tracking, and a processLLMResponse function that detects language markers and sends a language switch message to Twilio.",
+        "Builds on step 3 by adding a LANGUAGE DETECTION section to the system prompt, a LANG_MARKER_REGEX constant, currentLanguage tracking, and a processLLMResponse function that detects language markers and sends a language switch message to Twilio. streamResponse now buffers tokens into whole sentences and routes each through processLLMResponse, so the [LANG:xx-XX] marker is stripped and the language message reaches Twilio before the new-language text is spoken.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
@@ -252,10 +318,6 @@ function sendText(ws, token, last = false) {
   ws.send(JSON.stringify({ type: "text", token, last }));
 }
 
-function sendDigits(ws, digits) {
-  ws.send(JSON.stringify({ type: "sendDigits", digits }));
-}
-
 function processLLMResponse(ws, text) {
   const match = text.match(LANG_MARKER_REGEX);
 
@@ -276,8 +338,10 @@ function processLLMResponse(ws, text) {
     text = text.replace(LANG_MARKER_REGEX, "").trim();
   }
 
+  // streamResponse calls this per sentence and emits the terminating
+  // last=true marker once the full LLM response completes.
   if (text) {
-    sendText(ws, text, true);
+    sendText(ws, text);
   }
 }
 
@@ -325,13 +389,30 @@ async function streamResponse(ws) {
   );
 
   try {
+    let textBuffer = "";
     let assistantText = "";
+
     for await (const chunk of stream) {
       const token = chunk.choices[0]?.delta?.content ?? "";
-      if (token) {
-        assistantText += token;
-        sendText(ws, token);
+      if (!token) continue;
+
+      textBuffer += token;
+      assistantText += token;
+
+      // Flush whole sentences through processLLMResponse so the
+      // [LANG:xx-XX] marker (if any) is stripped and the language
+      // message reaches Twilio before any text is spoken.
+      const sentenceEnd = textBuffer.search(/[.!?]\\s/);
+      if (sentenceEnd !== -1) {
+        const sentence = textBuffer.slice(0, sentenceEnd + 1);
+        processLLMResponse(ws, sentence);
+        textBuffer = textBuffer.slice(sentenceEnd + 2);
       }
+    }
+
+    // Flush trailing text after the final sentence terminator.
+    if (textBuffer.trim()) {
+      processLLMResponse(ws, textBuffer.trim());
     }
     sendText(ws, "", true);
     conversationHistory.push({ role: "assistant", content: assistantText });
@@ -396,9 +477,6 @@ function handleMessage(ws, data) {
     case "setup":
       console.log("Call started:", msg.callSid);
       resetSilenceTimer(ws);
-      sendText(ws, "Press 1 to check your order status, " +
-        "press 2 to speak with a representative, " +
-        "or just tell me what you need.", true);
       break;
 
     case "prompt":

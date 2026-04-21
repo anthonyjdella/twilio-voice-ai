@@ -100,7 +100,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**Code change ahead.** In Chapter 2, the system prompt was hardcoded inside `streamLLMResponse`. Starting now, the prompt lives in `conversationHistory` instead. After pasting the code below, **find the hardcoded system message inside `streamLLMResponse`** (the `{ role: \"system\", content: \"...\" }` object in the `messages` array) **and delete it**. If you leave both in place, the AI receives duplicate system prompts and may behave unpredictably.",
+        "**Code change ahead.** In Chapter 2, the system prompt was hardcoded inside `streamLLMResponse`. Starting now, the prompt lives in `conversationHistory` instead. After pasting the code below, open `streamLLMResponse`, find the `{ role: \"system\", content: \"...\" }` object at the top of the `messages` array, and delete it along with the `...conversationHistory,` spread that follows -- the whole array becomes just `messages: conversationHistory`. If you leave the old system message in place, the AI receives duplicate system prompts and may behave unpredictably.",
     },
 
     {
@@ -143,7 +143,7 @@ If you don't know something, say so honestly.\`;`,
       language: "javascript",
       file: "server.js",
       highlight: ["3-7", "12-16"],
-      code: `wss.on("connection", (ws, req) => {
+      code: `wss.on("connection", (ws) => {
   let callSid = null;
   // Seed each call with the system prompt. Every LLM turn will include
   // it, because openai.chat.completions.create receives the whole history.
@@ -295,13 +295,15 @@ async function streamLLMResponse(ws, conversationHistory) {
 
   } catch (error) {
     console.error("\u274C LLM error:", error);
-    sendText(ws, "I'm sorry, I encountered an error. Could you repeat that?", true);
+    const apology = "I'm sorry, I encountered an error. Could you repeat that?";
+    sendText(ws, apology, true);
+    conversationHistory.push({ role: "assistant", content: apology });
   }
 }
 
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-wss.on("connection", (ws, req) => {
+wss.on("connection", (ws) => {
   console.log("\u{1F4DE} New WebSocket connection");
 
   let callSid = null;

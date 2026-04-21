@@ -71,7 +71,7 @@ const server = http.createServer((req, res) => {
 // from HTTP routes like /twiml and /call on the same server.
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-wss.on("connection", (ws, req) => {
+wss.on("connection", (ws) => {
   console.log("📞 New WebSocket connection");
 
   ws.on("message", (data) => {
@@ -129,9 +129,9 @@ server.listen(PORT, () => {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      startLine: 16,
+      startLine: 17,
       highlight: ["4-6", "11-20"],
-      code: `wss.on("connection", (ws, req) => {
+      code: `wss.on("connection", (ws) => {
   console.log("📞 New WebSocket connection");
 
   // Per-call state
@@ -199,7 +199,7 @@ const server = http.createServer((req, res) => {
 
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-wss.on("connection", (ws, req) => {
+wss.on("connection", (ws) => {
   console.log("📞 New WebSocket connection");
 
   let callSid = null;

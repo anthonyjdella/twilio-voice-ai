@@ -2,7 +2,8 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "section", title: "DTMF Detection" },
+    { type: "section", title: "DTMF Detection", audience: "builder" },
+    { type: "section", title: "The Keypad Still Matters", audience: "explorer" },
 
     {
       type: "concept-card",
@@ -86,20 +87,11 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      highlight: ["5-12", "14-16", "29-58"],
+      highlight: ["5-8", "21-48"],
       code: `function handleMessage(ws, data) {
   const msg = JSON.parse(data);
 
   switch (msg.type) {
-    case "setup":
-      // The TwiML welcomeGreeting already said hello. This menu plays
-      // right after it, giving the caller DTMF options. Pass last=true
-      // so Twilio starts TTS immediately.
-      sendText(ws, "Press 1 to check your order status, " +
-        "press 2 to speak with a representative, " +
-        "or just tell me what you need.", true);
-      break;
-
     case "dtmf":
       console.log("DTMF received:", msg.digit);
       handleDtmfInput(ws, msg.digit);
@@ -115,6 +107,11 @@ export default {
   }
 }
 
+// DTMF is an always-available shortcut, not a spoken IVR. The TwiML
+// welcomeGreeting introduces the agent; mention the keypad options in
+// your system prompt or demo script if you want callers to know about
+// them ("press 1 for order status, 2 for a representative, 0 to hear
+// the menu again").
 function handleDtmfInput(ws, digit) {
   switch (digit) {
     case "1":
@@ -241,7 +238,7 @@ sendDigits(ws, "3");  // Press 3 for billing`,
       file: "server.js",
       language: "javascript",
       explanation:
-        "Builds on step 1 by adding handleDtmfInput with a menu system, a sendDigits helper for outbound tones, and updating handleMessage so the setup case sends the DTMF menu and the dtmf case routes to handleDtmfInput.",
+        "Builds on step 1 by adding handleDtmfInput with a menu system, a sendDigits helper for outbound tones, and routing the dtmf message type to handleDtmfInput. DTMF is an always-available shortcut -- the welcomeGreeting already greeted the caller, so we do not auto-play a spoken menu on setup.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
@@ -273,10 +270,6 @@ let activeStream = null;
 
 function sendText(ws, token, last = false) {
   ws.send(JSON.stringify({ type: "text", token, last }));
-}
-
-function sendDigits(ws, digits) {
-  ws.send(JSON.stringify({ type: "sendDigits", digits }));
 }
 
 async function streamResponse(ws) {
@@ -362,9 +355,6 @@ function handleMessage(ws, data) {
   switch (msg.type) {
     case "setup":
       console.log("Call started:", msg.callSid);
-      sendText(ws, "Press 1 to check your order status, " +
-        "press 2 to speak with a representative, " +
-        "or just tell me what you need.", true);
       break;
 
     case "prompt":

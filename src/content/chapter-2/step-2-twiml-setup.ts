@@ -16,6 +16,13 @@ export default {
 
     {
       type: "prose",
+      audience: "explorer",
+      content:
+        "Before the phone rings, the server has to tell Twilio what kind of call this is -- not just a regular call, but one that should hand every turn over to the AI. That short instruction is what turns an ordinary phone call into an AI-powered one.",
+    },
+
+    {
+      type: "prose",
       audience: "builder",
       content:
         "Your server needs two things: a way to trigger an outbound call, and instructions that tell Twilio what to do when someone answers. Twilio calls these instructions TwiML -- a short XML response that says \"connect this call to my AI agent via ConversationRelay.\"",
@@ -49,7 +56,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      startLine: 7,
+      startLine: 8,
       highlight: ["2-17"],
       code: `const server = http.createServer((req, res) => {
   if (req.url === "/twiml" && req.method === "POST") {
@@ -272,7 +279,7 @@ const server = http.createServer(async (req, res) => {
 
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-wss.on("connection", (ws, req) => {
+wss.on("connection", (ws) => {
   console.log("📞 New WebSocket connection");
 
   let callSid = null;

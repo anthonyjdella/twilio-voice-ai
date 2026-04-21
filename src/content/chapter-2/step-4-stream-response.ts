@@ -16,6 +16,13 @@ export default {
 
     {
       type: "prose",
+      audience: "explorer",
+      content:
+        "This is a big part of why the agent feels natural. Older phone bots pause after every question and play a pre-recorded response, which makes them sound like they are reading from a script. Streaming the reply word by word means the AI starts answering the moment it has something to say, not after it finishes thinking.",
+    },
+
+    {
+      type: "prose",
       audience: "builder",
       content:
         "Send the caller's words to OpenAI, stream the response token by token, and forward each token to Twilio. The caller hears speech within milliseconds instead of waiting seconds for the full reply.",
@@ -120,7 +127,7 @@ const openai = new OpenAI({
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      startLine: 40,
+      startLine: 60,
       highlight: ["1-40"],
       code: `function sendText(ws, token, last = false) {
   ws.send(JSON.stringify({ type: "text", token, last }));
@@ -159,7 +166,11 @@ async function streamLLMResponse(ws, conversationHistory) {
 
   } catch (error) {
     console.error("❌ LLM error:", error);
-    sendText(ws, "I'm sorry, I encountered an error. Could you repeat that?", true);
+    const apology = "I'm sorry, I encountered an error. Could you repeat that?";
+    sendText(ws, apology, true);
+    // Keep history aligned: add a matching assistant turn so subsequent
+    // calls do not see two user turns in a row.
+    conversationHistory.push({ role: "assistant", content: apology });
   }
 }`,
     },
@@ -176,7 +187,7 @@ async function streamLLMResponse(ws, conversationHistory) {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      startLine: 34,
+      startLine: 121,
       highlight: [11],
       code: `      case "prompt":
         if (!message.last) break;
@@ -198,7 +209,7 @@ async function streamLLMResponse(ws, conversationHistory) {
       audience: "builder",
       variant: "tip",
       content:
-        "No `await` -- the function streams in the background so your server can handle other events (like the caller interrupting) while the response is still generating.",
+        "No `await` -- the function streams in the background so your server can keep handling incoming messages (new prompts, setup events) while tokens are still streaming.",
     },
 
     {
@@ -312,13 +323,15 @@ async function streamLLMResponse(ws, conversationHistory) {
 
   } catch (error) {
     console.error("❌ LLM error:", error);
-    sendText(ws, "I'm sorry, I encountered an error. Could you repeat that?", true);
+    const apology = "I'm sorry, I encountered an error. Could you repeat that?";
+    sendText(ws, apology, true);
+    conversationHistory.push({ role: "assistant", content: apology });
   }
 }
 
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-wss.on("connection", (ws, req) => {
+wss.on("connection", (ws) => {
   console.log("📞 New WebSocket connection");
 
   let callSid = null;

@@ -16,10 +16,12 @@ import { VisualStep } from "./VisualStep";
 import { ConceptCard } from "./ConceptCard";
 import { CallMe } from "@/components/CallMe";
 import { AgentConfig } from "./AgentConfig";
+import { AgentSummary } from "./AgentSummary";
 import { VoicePicker } from "./VoicePicker";
 import { LanguagePicker } from "./LanguagePicker";
 import { ToolPicker } from "./ToolPicker";
 import { HandoffToggle } from "./HandoffToggle";
+import { DemoScript } from "./DemoScript";
 import { BuilderOnly } from "./BuilderOnly";
 
 interface StepRendererProps {
@@ -173,6 +175,9 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
     case "agent-config":
       return <AgentConfig />;
 
+    case "agent-summary":
+      return <AgentSummary />;
+
     case "voice-picker":
       return <VoicePicker />;
 
@@ -184,6 +189,9 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
 
     case "handoff-toggle":
       return <HandoffToggle />;
+
+    case "demo-script":
+      return <DemoScript />;
 
     case "builder-only":
       return <BuilderOnly context={block.context} />;

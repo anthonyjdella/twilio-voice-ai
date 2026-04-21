@@ -28,7 +28,13 @@ export default {
         "No AI agent can handle every situation. Sometimes the caller needs a human -- for complex complaints, sensitive account changes, or when the AI cannot solve the problem. A smooth handoff from AI to a live agent is essential for production voice systems.",
     },
 
-    { type: "handoff-toggle", audience: "explorer" },
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Handoff is different from your other tools.** `check_weather` and `lookup_order` from Step 2 *continue* the conversation -- the AI gets data back and keeps talking. Handoff *ends* the AI session. Once the `end` message is sent, Twilio closes the WebSocket and the AI is out of the call entirely; the human picks up from there. You'll wire it into the same `tools` array for convenience, but mentally it belongs in its own category: a control-flow primitive, not a data lookup.",
+    },
 
     { type: "page-break" },
 
@@ -62,6 +68,8 @@ export default {
       content:
         "For the caller, a good handoff feels seamless: the AI says \"Let me connect you with someone who can help,\" there is a brief hold, and the human agent already knows what the conversation was about. No repeating yourself.",
     },
+
+    { type: "handoff-toggle", audience: "explorer" },
 
     { type: "page-break" },
 
@@ -142,6 +150,14 @@ export default {
     },
 
     {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "The handoff TwiML below dials a `<Queue>support</Queue>` as a placeholder. If your Twilio account does not have a queue by that name, the `<Dial>` verb will fail and the call will hang up -- which is exactly what you want for workshop testing. In production, swap `<Queue>support</Queue>` for a real destination: a `<Number>+1...</Number>` of an agent, a SIP endpoint, or a TaskRouter `<Enqueue workflowSid=\"...\">` for skills-based routing.",
+    },
+
+    {
       type: "code",
       audience: "builder",
       language: "javascript",
@@ -162,6 +178,11 @@ if (req.url === "/call-ended" && req.method === "POST") {
       console.log("Handoff requested:", data.reason);
       console.log("Summary:", data.summary);
 
+      // Swap this Dial target for your own: a phone number, a SIP
+      // endpoint, a TaskRouter workflow, or a <Queue> you've set up.
+      // "support" is used here as a placeholder — in a Twilio account
+      // with no queue of that name, the Dial will fail and the call
+      // will simply hang up, which is fine for workshop testing.
       twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say>Please hold while I transfer you to a representative.</Say>
@@ -208,8 +229,11 @@ if (req.url === "/call-ended" && req.method === "POST") {
   function: {
     name: "transfer_to_agent",
     description: "Transfer the caller to a live human agent. " +
-      "Use this when the caller explicitly requests a human, " +
-      "or when you cannot resolve their issue.",
+      "Call this tool IMMEDIATELY when the caller asks for a human, " +
+      "person, representative, agent, or someone else -- do not ask " +
+      "follow-up questions first. Also call it when the caller's issue " +
+      "involves billing disputes, account changes, or anything you " +
+      "cannot resolve after one attempt.",
     parameters: {
       type: "object",
       properties: {
@@ -258,6 +282,14 @@ transfer_to_agent: async ({ reason, department, summary }, ws) => {
 
   return { status: "transferring" };
 }`,
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "The 2-second `setTimeout` before sending `end` is a rough estimate of how long the farewell sentence takes to speak. If Twilio's TTS runs long, the `end` message lands mid-sentence and the caller hears a clipped goodbye. If TTS finishes early, the caller sits in silence for the remainder. For a workshop demo this is fine; for production, listen for an `info` message with `name: \"TTS_DONE\"` (or similar) from Twilio and send `end` on that event instead of on a timer.",
     },
 
     {

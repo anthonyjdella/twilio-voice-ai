@@ -33,7 +33,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**2.** Your `.env` has `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `MY_PHONE_NUMBER`, and `OPENAI_API_KEY`.",
+        "**2.** `MY_PHONE_NUMBER` is set in `workshop/.env` (the Twilio and OpenAI keys are pre-configured in your Codespace).",
     },
 
     {
@@ -70,7 +70,7 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "Try interrupting the AI while it is talking -- just start speaking. It will stop and respond to what you said instead.",
+        "Try speaking while the AI is talking -- it will pause. In Chapter 4, you will see how the agent handles interruptions cleanly.",
     },
 
     {
@@ -107,7 +107,8 @@ export default {
       troubleshooting: [
         "Watch your terminal while you call -- you should see logs for `📞 New WebSocket connection`, `✅ Call started`, and `🗣️ Caller: ...`",
         "No WebSocket connection logged? Port 8080 is probably not Public in the Codespace Ports tab",
-        "Call connects but silence on the line? Your server may not be reaching OpenAI -- check `OPENAI_API_KEY` is set and the terminal for LLM errors",
+        "Call connects but greeting plays then silence? The server probably isn't receiving `prompt` messages -- check port 8080 is Public and the terminal shows `🗣️ Caller: ...` logs",
+        "Hearing the fallback apology message? That's the OpenAI catch block -- check `OPENAI_API_KEY` and the terminal for LLM errors",
         "Call never rings? Check the `/call` response in the terminal and verify `TWILIO_PHONE_NUMBER` is a voice-capable number you own",
         "Number format must be E.164 (`+15551234567`) in both `MY_PHONE_NUMBER` and the Call Me input",
         "Trial accounts can only call verified numbers -- verify `MY_PHONE_NUMBER` in the Twilio Console if you're on a trial",
@@ -131,13 +132,13 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "About 40 lines of code and Twilio handles all the audio. Your server only deals with text.",
+        "Twilio handles all the audio. Your server only deals with text.",
     },
 
     {
       type: "prose",
       content:
-        "Right now the agent is a blank slate. In the next chapter, we give it a name, a personality, and a voice.",
+        "Next chapter: the agent gets its name, its personality, and its voice.",
     },
   ],
 } satisfies StepDefinition;

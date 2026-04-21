@@ -35,18 +35,10 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "Your agent comes with two ready-made tools. Turn them on or off below, then listen to how the agent behaves on your next test call. With a tool turned off, the agent has to admit it cannot help with that kind of question.",
+        "Your agent comes with three ready-made tools. Turn them on or off below, then listen to how the agent behaves on your next test call. With a tool turned off, the agent has to admit it cannot help with that kind of question.",
     },
 
     { type: "tool-picker", audience: "explorer" },
-
-    {
-      type: "callout",
-      audience: "explorer",
-      variant: "tip",
-      content:
-        "Try it both ways. With **Check Weather** on, ask \"What's the weather in Tokyo?\" With it off, ask the same thing — the agent will explain it can't look that up. That's tool selection in action.",
-    },
 
     {
       type: "prose",
@@ -196,6 +188,9 @@ export default {
 // Every handler accepts (args, ws). Most only use args; transfer_to_agent
 // in step 4 also uses ws to send an "end" message mid-call.
 const toolHandlers = {
+  // The schema also declares a "unit" parameter (fahrenheit|celsius);
+  // this teaching version ignores it for clarity. The solution at the
+  // bottom of the step wires unit conversion in.
   check_weather: async ({ city }, _ws) => {
     // In production: call a real weather API
     const mockWeather = {
@@ -415,10 +410,6 @@ function sendText(ws, token, last = false) {
   ws.send(JSON.stringify({ type: "text", token, last }));
 }
 
-function sendDigits(ws, digits) {
-  ws.send(JSON.stringify({ type: "sendDigits", digits }));
-}
-
 function processLLMResponse(ws, text) {
   const match = text.match(LANG_MARKER_REGEX);
 
@@ -439,8 +430,10 @@ function processLLMResponse(ws, text) {
     text = text.replace(LANG_MARKER_REGEX, "").trim();
   }
 
+  // streamResponse calls this per sentence and emits the terminating
+  // last=true marker once the full LLM response completes.
   if (text) {
-    sendText(ws, text, true);
+    sendText(ws, text);
   }
 }
 
@@ -560,9 +553,6 @@ function handleMessage(ws, data) {
     case "setup":
       console.log("Call started:", msg.callSid);
       resetSilenceTimer(ws);
-      sendText(ws, "Press 1 to check your order status, " +
-        "press 2 to speak with a representative, " +
-        "or just tell me what you need.", true);
       break;
 
     case "prompt":

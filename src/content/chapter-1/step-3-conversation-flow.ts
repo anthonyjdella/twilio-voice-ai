@@ -99,7 +99,8 @@ export default {
 
     { type: "page-break" },
 
-    { type: "section", title: "Why WebSockets?" },
+    { type: "section", title: "Why WebSockets?", audience: "builder" },
+    { type: "section", title: "Why It Feels Instant", audience: "explorer" },
 
     {
       type: "image",

@@ -7,40 +7,16 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "Persona = Tone + Rules + Knowledge",
+      title: "Now Pick the Character",
       content:
-        "Think of the persona as the difference between a sticky-note that says \"answer the phone\" and a full job description. It combines a name and tone (warm vs. efficient), concrete rules (what the agent can and cannot do), and specific knowledge (menu, hours, policies). Good personas feel like one consistent character across every call.",
+        "Step 1 showed what a system prompt does. This step is where you decide who your agent actually is -- a friendly assistant, a polished concierge, a casual helper, or something you write yourself. Same mechanics, completely different experience on the call.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "A great voice agent is more than a system prompt. It's a **persona** \u2014 a consistent character with a name, tone, and set of behaviors that callers can relate to. Before writing any code, think through these four dimensions:",
-    },
-
-    {
-      type: "prose",
-      content:
-        '**Name and role.** Give the agent a name and a clear job title. "Hi, I\'m Ava, your Acme Corp concierge" instantly sets expectations. The caller knows who they\'re talking to and what kind of help to expect.',
-    },
-
-    {
-      type: "prose",
-      content:
-        "**Tone.** Is the agent formal or casual? Warm or efficient? A healthcare appointment scheduler should sound professional and calm. A pizza ordering bot can afford to be upbeat and playful.",
-    },
-
-    {
-      type: "prose",
-      content:
-        '**Boundaries.** Define what the agent can and cannot do. This prevents it from making up capabilities it does not have. For example: "You cannot process payments" or "You can only answer questions about our menu."',
-    },
-
-    {
-      type: "prose",
-      content:
-        "**Fallback behavior.** Every persona needs a graceful way to say \"I don't know.\" The agent might offer to transfer to a human, suggest calling back, or simply acknowledge the limitation.",
+        "Step 1 covered the mechanics -- what a system prompt is, how to write one for voice, and how to wire it into `conversationHistory`. This step is where you pick a persona and commit. Below are three presets that apply the Step 1 rules (short, conversational, no markdown), each with a different character and scope.",
     },
 
     { type: "page-break" },
@@ -51,7 +27,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Here are three different persona styles to show how the same structure produces very different experiences. Notice how each one stays voice-friendly with short, natural sentences. **Pick one of these or write your own, then replace the `SYSTEM_PROMPT` constant from Step 1** with your chosen persona text.",
+        "Each preset below is a complete `SYSTEM_PROMPT` you can drop in. Pick the one that matches the agent you want to build, or use them as a starting point for your own. **Replace the `SYSTEM_PROMPT` constant from Step 1** with your chosen text.",
     },
 
     {

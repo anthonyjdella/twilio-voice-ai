@@ -20,10 +20,12 @@ export type ContentBlock =
   | SpacerBlock
   | CallMeBlock
   | AgentConfigBlock
+  | AgentSummaryBlock
   | VoicePickerBlock
   | LanguagePickerBlock
   | ToolPickerBlock
   | HandoffToggleBlock
+  | DemoScriptBlock
   | BuilderOnlyBlock
   | PageBreakBlock;
 
@@ -181,6 +183,11 @@ export interface AgentConfigBlock extends BaseBlock {
   type: "agent-config";
 }
 
+/** Read-only summary card — shows the agent's name, tone, voice, language, greeting */
+export interface AgentSummaryBlock extends BaseBlock {
+  type: "agent-summary";
+}
+
 /** Interactive voice selector — provider + voice */
 export interface VoicePickerBlock extends BaseBlock {
   type: "voice-picker";
@@ -199,6 +206,11 @@ export interface ToolPickerBlock extends BaseBlock {
 /** Interactive single switch — allow the AI to hand off to a human on the next test call */
 export interface HandoffToggleBlock extends BaseBlock {
   type: "handoff-toggle";
+}
+
+/** Adaptive demo script — builds a call-walkthrough from enabled tools + handoff state */
+export interface DemoScriptBlock extends BaseBlock {
+  type: "demo-script";
 }
 
 /** Placeholder shown to Explorers on Builder-only steps */

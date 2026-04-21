@@ -31,6 +31,42 @@ export default {
         "A Node.js WebSocket server that connects to Twilio's phone network through ConversationRelay. Your server receives the caller's words as text, sends them to an LLM, and streams the reply back -- Twilio handles all the audio. By the end, your agent will have a custom personality, real-time tool calling, and live handoff to a human.",
     },
 
+    { type: "section", title: "Open Your Codespace Now", audience: "builder" },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "You will be writing code in a few minutes. Open your Codespace in a new tab now so it can warm up in the background while you read the rest of this chapter.",
+    },
+
+    {
+      type: "visual-step",
+      audience: "builder",
+      steps: [
+        {
+          icon: "/images/icons/globe.svg",
+          title: "Open your Codespace",
+          description:
+            "Click this link in a new tab: [codespaces.new/anthonyjdella/twilio-voice-ai](https://codespaces.new/anthonyjdella/twilio-voice-ai)",
+        },
+        {
+          icon: "/images/icons/settings.svg",
+          title: "Leave it loading in the background",
+          description:
+            "GitHub spins up a cloud VS Code with everything pre-installed. Come back to this tab and keep reading -- your Codespace will be ready by the time you need it.",
+        },
+      ],
+    },
+
+    {
+      type: "callout",
+      variant: "info",
+      audience: "builder",
+      content:
+        "**All you need is a free GitHub account.** If you do not have one, create it at [github.com](https://github.com).",
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "How It Works" },

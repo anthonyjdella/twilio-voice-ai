@@ -20,34 +20,39 @@ export default {
         "The AI's text replies are converted into spoken audio automatically. The voice the caller hears can range from warm and conversational to crisp and professional, and different providers offer different strengths.",
     },
 
-    { type: "section", title: "Voice Providers" },
+    { type: "section", title: "Voice Providers", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "ConversationRelay supports three voice providers, each with different strengths:",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**ElevenLabs (default).** Known for the most natural, human-like voices. Supports a wide range of emotions and speaking styles. This is the default provider.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**Google Cloud TTS.** Offers reliable, clear voices with excellent multilingual support. A solid choice for a wide variety of languages.",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**Amazon Polly.** Provides standard and neural voices at competitive pricing. Neural voices from Polly are quite natural, and it is a good option for high-volume workloads.",
     },
 
     {
       type: "callout",
+      audience: "builder",
       variant: "info",
       content:
         "ElevenLabs is the default voice provider. It produces the most natural-sounding voices out of the box.",
@@ -111,12 +116,16 @@ export default {
       file: "TwiML Response",
       highlight: [6, 7],
       code: `<!-- Using ElevenLabs (default provider) -->
+<!-- Keep welcomeGreeting and dtmfDetection from Chapter 2; only the voice
+     and ttsProvider attributes are new in this step. -->
 <Response>
   <Connect>
     <ConversationRelay
       url="wss://your-codespace-8080.app.github.dev/ws"
       voice="Rachel"
       ttsProvider="ElevenLabs"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -135,6 +144,8 @@ export default {
       url="wss://your-codespace-8080.app.github.dev/ws"
       voice="en-US-Neural2-C"
       ttsProvider="Google"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -153,7 +164,8 @@ export default {
       language: "javascript",
       file: "server.js",
       highlight: [8, 9],
-      code: `// Inside your http.createServer handler:
+      code: `// Inside your http.createServer handler. Keep welcomeGreeting
+// and dtmfDetection from Chapter 2 \u2014 only voice and ttsProvider are new.
 if (req.url === "/twiml" && req.method === "POST") {
   const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -162,6 +174,8 @@ if (req.url === "/twiml" && req.method === "POST") {
       url="wss://\${req.headers.host}/ws"
       voice="Rachel"
       ttsProvider="ElevenLabs"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -184,6 +198,14 @@ if (req.url === "/twiml" && req.method === "POST") {
       title: "Voice Latency Considerations",
       content:
         "Different TTS providers have different latency profiles. ElevenLabs voices are extremely natural but may add a few extra milliseconds of processing time compared to Amazon Polly. For most use cases, the difference is negligible because ConversationRelay streams audio incrementally. However, if you are building a latency-critical application and notice delays, experiment with providers to find the best balance between voice quality and response speed.",
+    },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "tip",
+      content:
+        "**Want to hear each voice first?** Open the [ElevenLabs Voice Tester](https://elevenlabs-voice-tester-5339-dev.twil.io/index.html) in a new tab, listen to a few samples, then come back here and tap the voice you liked.",
     },
 
     {
@@ -314,13 +336,15 @@ async function streamLLMResponse(ws, conversationHistory) {
 
   } catch (error) {
     console.error("\u274C LLM error:", error);
-    sendText(ws, "I'm sorry, I encountered an error. Could you repeat that?", true);
+    const apology = "I'm sorry, I encountered an error. Could you repeat that?";
+    sendText(ws, apology, true);
+    conversationHistory.push({ role: "assistant", content: apology });
   }
 }
 
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-wss.on("connection", (ws, req) => {
+wss.on("connection", (ws) => {
   console.log("\u{1F4DE} New WebSocket connection");
 
   let callSid = null;

@@ -16,7 +16,7 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "The agent can also be tuned for how sensitive it is to background noise. In a quiet room, even a soft \"um\" should register. In a noisy environment, the threshold goes up so random sounds don't trigger false interrupts.",
+        "The agent also adjusts how sensitive it is to background noise. In a quiet room, even a soft \"um\" will register as speech. In a noisier environment, it expects louder, clearer sound so random noises don't accidentally cut the agent off.",
     },
 
     {
@@ -66,6 +66,9 @@ function resetSilenceTimer(ws) {
 }
 
 function handleSilence(ws) {
+  // Bail if the caller hung up between the timer firing and now.
+  if (ws.readyState !== ws.OPEN) return;
+
   silencePromptCount++;
 
   if (silencePromptCount >= MAX_SILENCE_PROMPTS) {
@@ -135,8 +138,8 @@ function handleSilence(ws) {
   }
 }
 
-// Inside wss.on("connection", (ws, req) => { ... })
-wss.on("connection", (ws, req) => {
+// Inside wss.on("connection", (ws) => { ... })
+wss.on("connection", (ws) => {
   // ...existing ws.on("message", ...) handler stays here...
 
   ws.on("close", () => {
@@ -151,7 +154,7 @@ wss.on("connection", (ws, req) => {
       audience: "builder",
       variant: "warning",
       content:
-        "Be careful with the silence timeout value. Too short (under 5 seconds) and you will interrupt callers who are thinking. Too long (over 15 seconds) and the experience feels unresponsive. Start with 8-10 seconds and adjust based on your use case.",
+        "Be careful with the silence timeout value. Too short (under 5 seconds) and you will interrupt callers who are thinking. Too long (over 15 seconds) and the experience feels unresponsive. Start with 8-10 seconds and adjust based on your use case.\n\nAlso remember that the total dead-air budget is `SILENCE_TIMEOUT_MS × MAX_SILENCE_PROMPTS`. With the defaults (8s × 2) the caller sits in silence for up to 16 seconds before the call ends, so tune both numbers together.",
     },
 
     { type: "page-break" },
@@ -242,10 +245,6 @@ function sendText(ws, token, last = false) {
   ws.send(JSON.stringify({ type: "text", token, last }));
 }
 
-function sendDigits(ws, digits) {
-  ws.send(JSON.stringify({ type: "sendDigits", digits }));
-}
-
 function resetSilenceTimer(ws) {
   clearTimeout(silenceTimer);
   silencePromptCount = 0;
@@ -256,6 +255,8 @@ function resetSilenceTimer(ws) {
 }
 
 function handleSilence(ws) {
+  if (ws.readyState !== ws.OPEN) return;
+
   silencePromptCount++;
 
   if (silencePromptCount >= MAX_SILENCE_PROMPTS) {
@@ -361,9 +362,6 @@ function handleMessage(ws, data) {
     case "setup":
       console.log("Call started:", msg.callSid);
       resetSilenceTimer(ws);
-      sendText(ws, "Press 1 to check your order status, " +
-        "press 2 to speak with a representative, " +
-        "or just tell me what you need.", true);
       break;
 
     case "prompt":

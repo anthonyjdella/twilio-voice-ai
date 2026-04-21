@@ -21,6 +21,22 @@ export default {
     },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Polish in Practice",
+      content:
+        "Polish is almost never a flashy feature -- it's the small behaviors you only notice when they're missing. A polished agent says \"give me a moment to check that for you\" before a slow lookup; a rough agent goes silent and the caller assumes the line dropped. A polished agent admits when it doesn't know something and offers to connect a human; a rough agent guesses and gives the wrong answer. A polished agent ends cleanly when the caller hangs up; a rough agent leaves timers running in the background. None of these land in a demo -- they only matter when the caller is real.",
+    },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "info",
+      content:
+        "You've already done most of your polish work -- you chose the name, the tone, the voice, the language, and the tools the agent can reach. This step is a chance to look back at those choices with fresh eyes now that you've heard the agent in action. Does the name still fit? Is the voice the right match for the tone? Is anything missing that came up when you tested?",
+    },
+
+    {
       type: "prose",
       audience: "builder",
       content:
@@ -333,30 +349,26 @@ function sendText(ws, token, last = false) {
   ws.send(JSON.stringify({ type: "text", token, last }));
 }
 
-function sendDigits(ws, digits) {
-  ws.send(JSON.stringify({ type: "sendDigits", digits }));
-}
-
 // --- LLM streaming with tool-call support ---
 
 const MAX_TOOL_ITERATIONS = 5;
 const SLOW_TOOLS = ["lookup_order"];
 
 async function streamResponse(ws, iteration = 0) {
+  activeStream = new AbortController();
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.4-nano",
+    messages: conversationHistory,
+    tools: tools,
+    stream: true,
+  }, { signal: activeStream.signal });
+
+  let textBuffer = "";
+  let fullAssistantText = "";
+  let toolCalls = [];
+
   try {
-    activeStream = new AbortController();
-
-    const stream = await openai.chat.completions.create({
-      model: "gpt-5.4-nano",
-      messages: conversationHistory,
-      tools: tools,
-      stream: true,
-    }, { signal: activeStream.signal });
-
-    let textBuffer = "";
-    let fullAssistantText = "";
-    let toolCalls = [];
-
     for await (const chunk of stream) {
       const delta = chunk.choices[0]?.delta;
       const finishReason = chunk.choices[0]?.finish_reason;
@@ -400,13 +412,14 @@ async function streamResponse(ws, iteration = 0) {
           textBuffer = "";
         }
         sendText(ws, "", true);
+        if (fullAssistantText.trim()) {
+          conversationHistory.push({
+            role: "assistant",
+            content: fullAssistantText.trim(),
+          });
+        }
       }
     }
-
-    if (fullAssistantText.trim()) {
-      conversationHistory.push({ role: "assistant", content: fullAssistantText.trim() });
-    }
-    activeStream = null;
   } catch (err) {
     if (err.name === "AbortError") return;
 
@@ -414,6 +427,10 @@ async function streamResponse(ws, iteration = 0) {
     sendText(ws, "I'm sorry, I'm having a technical issue. " +
       "Could you repeat that, or would you like me to " +
       "transfer you to a team member?", true);
+  } finally {
+    // Only null activeStream on the outermost call; the tool-call branch
+    // already nulled it before recursing into the next stream.
+    if (iteration === 0) activeStream = null;
   }
 }
 
@@ -464,11 +481,6 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
 }
 
 // --- Conversation handlers ---
-
-function handlePrompt(ws, msg) {
-  conversationHistory.push({ role: "user", content: msg.voicePrompt });
-  streamResponse(ws);
-}
 
 function handleInterrupt(msg) {
   console.log("Caller interrupted. Heard:", msg.utteranceUntilInterrupt);
@@ -606,6 +618,9 @@ function handleMessage(ws, data) {
         true,
       );
       break;
+
+    default:
+      console.log("Unhandled message type:", msg.type);
   }
 }
 
@@ -704,7 +719,7 @@ const server = http.createServer(async (req, res) => {
 
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-wss.on("connection", (ws, req) => {
+wss.on("connection", (ws) => {
   console.log("New WebSocket connection");
 
   ws.on("message", (data) => handleMessage(ws, data));

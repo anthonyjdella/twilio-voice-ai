@@ -45,7 +45,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**voicePrompt** is the transcribed text. **last** indicates whether this is the final transcript -- Twilio may send partial results while the caller is still speaking. Only process messages where `last` is `true`.",
+        "**voicePrompt** is the transcribed text. **last** is `true` when Twilio has the final transcript for this utterance. The `if (!message.last) break;` guard below is a defensive check in case partial results are ever enabled.",
     },
 
     {
@@ -53,7 +53,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      startLine: 26,
+      startLine: 65,
       highlight: ["7-21"],
       code: `    switch (message.type) {
       case "setup":
@@ -160,7 +160,7 @@ const server = http.createServer(async (req, res) => {
 
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-wss.on("connection", (ws, req) => {
+wss.on("connection", (ws) => {
   console.log("📞 New WebSocket connection");
 
   let callSid = null;

@@ -2,7 +2,8 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
     blocks: [
-        { type: "section", title: "Speech-to-Text Configuration" },
+        { type: "section", title: "Speech-to-Text Configuration", audience: "builder" },
+        { type: "section", title: "How the Agent Understands You", audience: "explorer" },
 
         {
             type: "concept-card",
@@ -59,7 +60,9 @@ export default {
             language: "xml",
             file: "TwiML Response",
             highlight: [7, 8, 9],
-            code: `<Response>
+            code: `<!-- Keep welcomeGreeting and dtmfDetection from Chapter 2;
+     language, transcriptionProvider, and speechModel are new in this step. -->
+<Response>
   <Connect>
     <ConversationRelay
       url="wss://your-codespace-8080.app.github.dev/ws"
@@ -68,6 +71,8 @@ export default {
       language="en-US"
       transcriptionProvider="Deepgram"
       speechModel="nova-3-general"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -95,6 +100,8 @@ export default {
       language="es-ES"
       transcriptionProvider="Google"
       speechModel="telephony"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -147,7 +154,9 @@ export default {
             language: "javascript",
             file: "server.js",
             highlight: [10, 11, 12],
-            code: `// Inside your http.createServer handler:
+            code: `// Inside your http.createServer handler. Keep welcomeGreeting and
+// dtmfDetection from Chapter 2 \u2014 language, transcriptionProvider,
+// and speechModel are new in this step.
 if (req.url === "/twiml" && req.method === "POST") {
   const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -159,6 +168,8 @@ if (req.url === "/twiml" && req.method === "POST") {
       language="en-US"
       transcriptionProvider="Deepgram"
       speechModel="nova-3-general"
+      welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -173,7 +184,7 @@ if (req.url === "/twiml" && req.method === "POST") {
             audience: "builder",
             title: "Transcription Accuracy Considerations",
             content:
-                "STT accuracy is affected by several factors beyond provider choice. Background noise, accents, speaking speed, and domain-specific vocabulary all play a role.\n\n**Phone audio is lower quality.** Phone calls typically use 8kHz narrowband audio. STT engines trained on telephony data (like Deepgram's `nova-2-general` or Google's `telephony` model) handle this better than general-purpose models.\n\n**Domain vocabulary matters.** If your agent handles medical, legal, or technical conversations, the transcriber may struggle with jargon. Have your LLM ask for clarification when it encounters ambiguous terms.\n\n**Latency vs. accuracy trade-off.** Some models prioritize speed while others prioritize accuracy by waiting for more audio context. For real-time conversations, lower latency is usually preferred.\n\n**Provider strengths.** Deepgram excels at real-time English transcription with very low latency. Google Cloud Speech-to-Text shines for multilingual support and is a good choice if you need non-English languages or already use Google Cloud TTS.",
+                "STT accuracy is affected by several factors beyond provider choice. Background noise, accents, speaking speed, and domain-specific vocabulary all play a role.\n\n**Phone audio is lower quality.** Phone calls typically use 8kHz narrowband audio. ConversationRelay defaults to Deepgram's `nova-3-general` (or `nova-2-general` for languages that don't support Nova 3) and Google's `telephony` model — both tuned for real-time conversational audio.\n\n**Domain vocabulary matters.** If your agent handles medical, legal, or technical conversations, the transcriber may struggle with jargon. Have your LLM ask for clarification when it encounters ambiguous terms.\n\n**Latency vs. accuracy trade-off.** Some models prioritize speed while others prioritize accuracy by waiting for more audio context. For real-time conversations, lower latency is usually preferred.\n\n**Provider strengths.** Deepgram excels at real-time English transcription with very low latency. Google Cloud Speech-to-Text shines for multilingual support and is a good choice if you need non-English languages or already use Google Cloud TTS.",
         },
 
         {
@@ -308,13 +319,15 @@ async function streamLLMResponse(ws, conversationHistory) {
 
   } catch (error) {
     console.error("\u274C LLM error:", error);
-    sendText(ws, "I'm sorry, I encountered an error. Could you repeat that?", true);
+    const apology = "I'm sorry, I encountered an error. Could you repeat that?";
+    sendText(ws, apology, true);
+    conversationHistory.push({ role: "assistant", content: apology });
   }
 }
 
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-wss.on("connection", (ws, req) => {
+wss.on("connection", (ws) => {
   console.log("\u{1F4DE} New WebSocket connection");
 
   let callSid = null;

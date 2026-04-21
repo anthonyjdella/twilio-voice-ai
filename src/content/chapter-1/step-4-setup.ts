@@ -2,13 +2,13 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "section", title: "Open Your Development Environment", audience: "builder" },
+    { type: "section", title: "Back to Your Codespace", audience: "builder" },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "We use **GitHub Codespaces** for this workshop -- a cloud-based dev environment that starts in seconds with everything pre-installed.",
+        "You opened your Codespace back in Step 1. It should be ready now -- if the terminal is showing a prompt, you're good. If it is still loading, give it another minute.",
     },
 
     {
@@ -19,38 +19,15 @@ export default {
         "GitHub Codespaces gives every attendee an identical workspace in the cloud -- like opening a fully set-up laptop that already has everything installed. No downloads, no configuration headaches. You just click a button and start building.",
     },
 
-    { type: "section", title: "Launch Your Codespace", audience: "builder" },
-
-    {
-      type: "visual-step",
-      audience: "builder",
-      steps: [
-        {
-          icon: "/images/icons/globe.svg",
-          title: "Open your Codespace",
-          description:
-            "Click this link to create your Codespace: [codespaces.new/anthonyjdella/twilio-voice-ai](https://codespaces.new/anthonyjdella/twilio-voice-ai)",
-        },
-        {
-          icon: "/images/icons/settings.svg",
-          title: "Wait for the environment to initialize",
-          description:
-            "GitHub will spin up a cloud VS Code with everything pre-installed. The terminal will show dependencies being installed automatically. When you see the prompt, you're ready to go.",
-        },
-      ],
-    },
-
     {
       type: "callout",
-      variant: "info",
+      variant: "tip",
       audience: "builder",
       content:
-        "**All you need is a free GitHub account.** If you don't have a GitHub account, create one at [github.com](https://github.com)",
+        "**Didn't open it yet?** Launch it now at [codespaces.new/anthonyjdella/twilio-voice-ai](https://codespaces.new/anthonyjdella/twilio-voice-ai) and let it finish initializing before moving on.",
     },
 
-    { type: "builder-only", audience: "explorer", context: "Builders are setting up their cloud coding environment. You'll skip ahead automatically." },
-
-    { type: "page-break" },
+    { type: "builder-only", audience: "explorer", context: "Builders are checking on their cloud coding environment. You'll skip ahead automatically." },
 
     { type: "section", title: "Set Your Phone Number", audience: "builder" },
 

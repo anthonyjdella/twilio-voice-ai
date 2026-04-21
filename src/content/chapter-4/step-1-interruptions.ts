@@ -21,6 +21,14 @@ export default {
         "Real conversations are messy. People interrupt, change their minds mid-sentence, and talk over each other. A great voice agent handles all of this gracefully. ConversationRelay has built-in **barge-in** support -- when a caller speaks while the AI is still talking, Twilio detects it, stops the AI mid-sentence, and sends a WebSocket message describing what happened.",
     },
 
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "**Heads up -- this step is a refactor, not an add.** Before you paste the code further down, do these three things:\n\n- **Delete** `const conversationHistory = [...]` from inside `wss.on(\"connection\", ...)`.\n- **Delete** the entire `streamLLMResponse` function from Chapter 2.\n- **Paste** the new module-scope code at the **top of `server.js`**, outside any handler.\n\nIf you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and the interrupt handler -- plus Chapter 5's tool loop -- will write to the wrong array.",
+    },
+
     { type: "section", title: "How Barge-In Works", audience: "builder" },
 
     {
@@ -75,15 +83,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "When the caller interrupts, the server needs to stop the AI from continuing its reply and update the conversation history so the AI knows what the caller actually heard.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "warning",
-      content:
-        "**Scope change -- this is a move, not an add.** Up through Chapter 3, `conversationHistory` was declared *inside* `wss.on(\"connection\", ...)` as per-call state. Starting in this chapter, move it to module scope so `handlePrompt`, the interrupt handler, and the tool loop in Chapter 5 can all share it.\n\n**Refactoring checklist:**\n\n1. Find `const conversationHistory = [...]` inside `wss.on(\"connection\", ...)` -- **delete that line.**\n2. Find `async function streamLLMResponse(ws, conversationHistory)` from Chapter 2 -- **delete the entire function.**\n3. Paste the module-scope code block below at the **top of `server.js`**, outside any handler.\n4. Verify `model` is set to `\"gpt-5.4-nano\"`.\n\nThe new `streamResponse` replaces `streamLLMResponse` -- same streaming idea, but it reads `conversationHistory` from module scope and adds `AbortController` support. If you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and interrupt/tool-call handlers will write to the wrong array.",
+        "When the caller interrupts, the server needs to stop the AI from continuing its reply and update the conversation history so the AI knows what the caller actually heard. Remember the refactor from the warning at the top of this step -- `conversationHistory` and `streamResponse` now live at module scope.",
     },
 
     {

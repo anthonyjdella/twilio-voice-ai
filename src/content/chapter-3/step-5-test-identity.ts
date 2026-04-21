@@ -4,6 +4,8 @@ export default {
   blocks: [
     { type: "section", title: "Time to Test" },
 
+    { type: "agent-summary", audience: "explorer" },
+
     {
       type: "concept-card",
       audience: "explorer",
@@ -84,6 +86,7 @@ export default {
 
     {
       type: "verify",
+      audience: "builder",
       question:
         "Does your agent respond with the right personality and voice?",
       troubleshooting: [
@@ -94,18 +97,33 @@ export default {
       ],
     },
 
+    {
+      type: "verify",
+      audience: "explorer",
+      question:
+        "Does your agent respond with the right personality and voice?",
+      troubleshooting: [
+        "Voice sounds wrong? Revisit the voice picker — your choice takes effect on the next call, not the current one",
+        "Agent tone feels off? Go back to Step 2 and try a different persona preset (or adjust the custom fields)",
+        "Responses feel too long? Try the Professional Concierge preset — it tends to be briefer",
+        "Agent breaks character on off-topic questions? The presets have built-in boundaries, and the agent picks up changes on the next call, not the current one",
+      ],
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "Iterating on the Persona" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Getting the persona right is an iterative process. A few common adjustments:",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**Responses too long?** Add explicit length constraints to the system prompt. **Voice feels off?** Try a different voice from the same provider. **Breaking character?** Strengthen the boundaries -- be very explicit about what the agent should never do.",
     },
