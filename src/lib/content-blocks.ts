@@ -23,6 +23,7 @@ export type ContentBlock =
   | VoicePickerBlock
   | LanguagePickerBlock
   | ToolPickerBlock
+  | HandoffToggleBlock
   | BuilderOnlyBlock
   | PageBreakBlock;
 
@@ -193,6 +194,11 @@ export interface LanguagePickerBlock extends BaseBlock {
 /** Interactive tool toggle — pick which tools the AI can call on the next test call */
 export interface ToolPickerBlock extends BaseBlock {
   type: "tool-picker";
+}
+
+/** Interactive single switch — allow the AI to hand off to a human on the next test call */
+export interface HandoffToggleBlock extends BaseBlock {
+  type: "handoff-toggle";
 }
 
 /** Placeholder shown to Explorers on Builder-only steps */

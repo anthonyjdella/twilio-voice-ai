@@ -15,11 +15,13 @@ export async function POST(request: NextRequest) {
   const agentName = url.searchParams.get("agentName") || "";
   const personality = url.searchParams.get("personality") || "";
   const enabledTools = url.searchParams.get("enabledTools") || "";
+  const handoffEnabled = url.searchParams.get("handoffEnabled") || "";
 
   const paramElements = [
     agentName && `<Parameter name="agentName" value="${escapeXml(agentName)}"/>`,
     personality && `<Parameter name="personality" value="${escapeXml(personality)}"/>`,
     enabledTools && `<Parameter name="enabledTools" value="${escapeXml(enabledTools)}"/>`,
+    handoffEnabled && `<Parameter name="handoffEnabled" value="${escapeXml(handoffEnabled)}"/>`,
   ]
     .filter(Boolean)
     .join("\n      ");

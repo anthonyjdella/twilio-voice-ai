@@ -19,6 +19,7 @@ import { AgentConfig } from "./AgentConfig";
 import { VoicePicker } from "./VoicePicker";
 import { LanguagePicker } from "./LanguagePicker";
 import { ToolPicker } from "./ToolPicker";
+import { HandoffToggle } from "./HandoffToggle";
 import { BuilderOnly } from "./BuilderOnly";
 
 interface StepRendererProps {
@@ -118,10 +119,21 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
             : block.size === "lg"
               ? "max-w-xl"
               : "w-full";
+      // Cap height proportionally so tall portrait illustrations (e.g. torch
+      // at 1:2.5) don't stretch down the page. `object-contain` keeps the
+      // aspect ratio intact when the image's natural height exceeds the cap.
+      const heightCap =
+        block.size === "sm"
+          ? "max-h-64"
+          : block.size === "md"
+            ? "max-h-80"
+            : block.size === "lg"
+              ? "max-h-[28rem]"
+              : "";
       return (
         <figure className={`mb-6 ${block.size && block.size !== "full" ? "mx-auto " + sizeClass : ""}`}>
           <div className="rounded-xl overflow-hidden border border-navy-border">
-            <img src={block.src} alt={block.alt} className="w-full h-auto" />
+            <img src={block.src} alt={block.alt} className={`w-full h-auto ${heightCap} object-contain`} />
           </div>
           {block.caption && (
             <figcaption className="text-xs text-text-muted mt-2 text-center">
@@ -169,6 +181,9 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
 
     case "tool-picker":
       return <ToolPicker />;
+
+    case "handoff-toggle":
+      return <HandoffToggle />;
 
     case "builder-only":
       return <BuilderOnly context={block.context} />;

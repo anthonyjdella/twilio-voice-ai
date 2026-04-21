@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
       personality?: string;
       welcomeGreeting?: string;
       enabledTools?: string;
+      handoffEnabled?: string;
     };
   };
 
@@ -68,6 +69,8 @@ export async function POST(request: NextRequest) {
     twimlParams.set("welcomeGreeting", body.agentConfig.welcomeGreeting);
   if (body.agentConfig?.enabledTools)
     twimlParams.set("enabledTools", body.agentConfig.enabledTools);
+  if (body.agentConfig?.handoffEnabled)
+    twimlParams.set("handoffEnabled", body.agentConfig.handoffEnabled);
 
   const twimlUrl = `${twimlBaseUrl}?${twimlParams.toString()}`;
 

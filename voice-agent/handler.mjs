@@ -13,6 +13,7 @@ export function handleConversationRelayConnection(ws) {
   let callSid = "";
   let config = {};
   let activeTools = toolDefinitions;
+  let handoffAllowed = true;
   let isProcessing = false;
   let silenceTimer = null;
   let silenceCount = 0;
@@ -61,9 +62,11 @@ export function handleConversationRelayConnection(ws) {
     switch (message.type) {
       case "setup":
         callSid = message.callSid;
+        handoffAllowed = message.customParameters?.handoffEnabled !== "false";
         config = {
           agentName: message.customParameters?.agentName,
           personality: message.customParameters?.personality,
+          handoffEnabled: handoffAllowed,
         };
         activeTools = filterTools(message.customParameters?.enabledTools);
         conversationHistory = [
@@ -92,7 +95,7 @@ export function handleConversationRelayConnection(ws) {
           content: message.voicePrompt,
         });
         try {
-          await streamLLMResponse(openai, conversationHistory, ws, callSid, activeTools);
+          await streamLLMResponse(openai, conversationHistory, ws, callSid, activeTools, handoffAllowed);
         } catch (err) {
           console.error(`[voice-agent] [${callSid}] LLM error:`, err.message);
           sendToken(ws, "I'm sorry, I encountered a technical issue. Please try again.", true);
@@ -126,7 +129,7 @@ export function handleConversationRelayConnection(ws) {
           content: `[The caller pressed ${message.digit} on their phone keypad]`,
         });
         try {
-          await streamLLMResponse(openai, conversationHistory, ws, callSid, activeTools);
+          await streamLLMResponse(openai, conversationHistory, ws, callSid, activeTools, handoffAllowed);
         } catch (err) {
           console.error(`[voice-agent] [${callSid}] LLM error:`, err.message);
           sendToken(ws, "I'm sorry, I encountered a technical issue. Please try again.", true);
@@ -160,7 +163,7 @@ export function handleConversationRelayConnection(ws) {
 const LANG_MARKER_RE = /\[LANG:([a-z]{2}-[A-Z]{2})\]/g;
 const HANDOFF_MARKER = "[HANDOFF]";
 
-async function streamLLMResponse(openai, history, ws, callSid, tools = toolDefinitions) {
+async function streamLLMResponse(openai, history, ws, callSid, tools = toolDefinitions, handoffAllowed = true) {
   let iterations = 0;
 
   while (iterations < MAX_TOOL_ITERATIONS) {
@@ -223,21 +226,30 @@ async function streamLLMResponse(openai, history, ws, callSid, tools = toolDefin
         // Check for complete handoff marker
         if (pendingSend.includes(HANDOFF_MARKER)) {
           pendingSend = pendingSend.replace(HANDOFF_MARKER, "");
-          if (pendingSend.trim()) {
-            sendToken(ws, pendingSend, true);
-          }
-          console.log(`[voice-agent] [${callSid}] Handoff triggered`);
-          recordEvent(callSid, "handoff_triggered", { callSid });
-          fullResponse = fullResponse.replace(HANDOFF_MARKER, "").replace(LANG_MARKER_RE, "");
-          history.push({ role: "assistant", content: fullResponse });
 
-          setTimeout(() => {
-            sendEnd(ws, JSON.stringify({
-              reasonCode: "live-agent-handoff",
-              reason: "The caller requested to speak with a human agent",
-            }));
-          }, 1500);
-          return;
+          if (!handoffAllowed) {
+            // Safety net: handoff is disabled for this call. Strip the marker
+            // from the stream so the caller never hears "[HANDOFF]", but keep
+            // the call going. The model was prompted not to emit this, so
+            // arriving here means it ignored the instruction.
+            console.log(`[voice-agent] [${callSid}] Suppressed HANDOFF marker (disabled)`);
+          } else {
+            if (pendingSend.trim()) {
+              sendToken(ws, pendingSend, true);
+            }
+            console.log(`[voice-agent] [${callSid}] Handoff triggered`);
+            recordEvent(callSid, "handoff_triggered", { callSid });
+            fullResponse = fullResponse.replace(HANDOFF_MARKER, "").replace(LANG_MARKER_RE, "");
+            history.push({ role: "assistant", content: fullResponse });
+
+            setTimeout(() => {
+              sendEnd(ws, JSON.stringify({
+                reasonCode: "live-agent-handoff",
+                reason: "The caller requested to speak with a human agent",
+              }));
+            }, 1500);
+            return;
+          }
         }
 
         if (pendingSend) {

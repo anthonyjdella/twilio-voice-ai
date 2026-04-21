@@ -5,6 +5,13 @@ export default {
     { type: "section", title: "Test Superpowers" },
 
     {
+      type: "image",
+      src: "/images/illustrations/superhero.svg",
+      alt: "A superhero in flight — your agent's new powers, ready to be put to the test.",
+      size: "md",
+    },
+
+    {
       type: "concept-card",
       audience: "explorer",
       title: "What a Great Test Call Looks Like",
@@ -127,7 +134,34 @@ Server listening on port 8080`,
 
     { type: "section", title: "Checkpoint" },
 
-    { type: "verify", question: "Did your tool respond with the correct data?" },
+    {
+      type: "verify",
+      audience: "builder",
+      question:
+        "Did all four tests pass — weather lookup, order lookup, multi-tool call, and handoff?",
+      troubleshooting: [
+        "Agent made up weather instead of calling the tool? Confirm you're passing `tools: tools` to `openai.chat.completions.create()` in `streamResponse`",
+        "Order lookup returned nothing? Check the terminal for `Tool call: lookup_order` — if missing, the LLM isn't picking the tool. Tighten the tool description",
+        "Multi-tool call only answered half the question? Make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again",
+        "Handoff didn't trigger? Verify the `transfer_to_agent` tool is in your `tools` array and its handler is sending the `end` message with `handoffData`",
+        "Agent said the answer but kept hallucinating after? You may be missing the `role: \"tool\"` response with `tool_call_id` — OpenAI needs that back or it loses the thread",
+        "Nothing happening at all? Restart your server and confirm port 8080 is Public in the Codespace Ports tab",
+      ],
+    },
+
+    {
+      type: "verify",
+      audience: "explorer",
+      question:
+        "Did the agent use its tools and hand off when asked — weather, order, multi-question, and live handoff?",
+      troubleshooting: [
+        "Weather answer sounded made up? The agent ignored its tool. Head back to Pick Your Tools on Step 2 and confirm Check Weather is toggled on",
+        "Order lookup didn't return the real shipping info? Same thing — check that Look Up Order is on, and try the exact order number ORD-12345",
+        "Agent only answered half of a two-part question? That's normal on the first try — phone it again and say both parts in one sentence",
+        "Asked for a human and nothing happened? Handoff is off by default. Open Live Agent Handoff on Step 4 and flip the toggle on",
+        "Call never connected? Re-enter your phone number in the Call Me box and try again",
+      ],
+    },
 
     {
       type: "prose",

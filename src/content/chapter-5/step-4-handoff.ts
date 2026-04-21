@@ -28,9 +28,18 @@ export default {
         "No AI agent can handle every situation. Sometimes the caller needs a human -- for complex complaints, sensitive account changes, or when the AI cannot solve the problem. A smooth handoff from AI to a live agent is essential for production voice systems.",
     },
 
+    { type: "handoff-toggle", audience: "explorer" },
+
     { type: "page-break" },
 
     { type: "section", title: "How Handoff Works" },
+
+    {
+      type: "image",
+      src: "/images/illustrations/directional-sign.svg",
+      alt: "A directional signpost — the agent deciding which path the call should take when a human is needed.",
+      size: "md",
+    },
 
     {
       type: "prose",

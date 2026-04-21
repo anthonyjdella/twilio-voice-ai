@@ -58,6 +58,7 @@ export function CallMe() {
         personality: progress.workshopState.personality || undefined,
         welcomeGreeting: progress.workshopState.welcomeGreeting || undefined,
         enabledTools: progress.workshopState.enabledTools || undefined,
+        handoffEnabled: progress.workshopState.handoffEnabled || undefined,
       },
     };
 
