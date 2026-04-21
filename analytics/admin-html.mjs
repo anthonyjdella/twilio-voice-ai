@@ -1,11 +1,16 @@
 export function renderAdminPage(data) {
-  const { overview, funnel, chapters, audience, calls, agentConfig, pacing, timePerChapter, hourlyActivity, skipAhead, engagement, recent } = data;
+  const { overview, funnel, chapters, audience, calls, agentConfig, pacing, timePerChapter, hourlyActivity, skipAhead, engagement, shares, recent } = data;
   const completionRate = overview.totalSessions > 0
     ? Math.round((overview.totalCompleted / overview.totalSessions) * 100) : 0;
   const callRate = overview.totalSessions > 0
     ? Math.round((calls.sessionsWithCalls / overview.totalSessions) * 100) : 0;
   const configRate = overview.totalSessions > 0
     ? Math.round((engagement.sessionsWithConfig / overview.totalSessions) * 100) : 0;
+  // Share buttons only appear on the completion screen, so use completed
+  // sessions as the denominator -- otherwise the percentage looks artificially
+  // low just because most sessions haven't reached the sharing surface yet.
+  const shareRate = overview.totalCompleted > 0
+    ? Math.round((shares.sessionsShared / overview.totalCompleted) * 100) : 0;
 
   const hourlyMax = Math.max(1, ...hourlyActivity.map(h => h.events));
   const hourlyBars = Array.from({ length: 24 }, (_, i) => {
@@ -183,6 +188,11 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); }
     <div class="stat-value">${configRate}%</div>
     <div class="stat-sub">${engagement.sessionsWithConfig} users configured</div>
   </div>
+  <div class="stat-card">
+    <div class="stat-label">Shares</div>
+    <div class="stat-value">${shares.totalShares}</div>
+    <div class="stat-sub">${shares.sessionsShared} users${overview.totalCompleted > 0 ? ` · ${shareRate}% of finishers` : ''}</div>
+  </div>
 </div>
 
 <div class="section">
@@ -341,6 +351,41 @@ ${hourlyActivity.length > 0 ? `<div class="section">
   </div>
 </div>
 
+<div class="two-col section">
+  <div>
+    <div class="section-title">Social Shares</div>
+    <div class="panel">
+      <ul class="kv-list">
+        <li class="kv-row"><span class="label">Total share clicks</span><span class="value">${shares.totalShares}</span></li>
+        <li class="kv-row"><span class="label">Users who shared</span><span class="value">${shares.sessionsShared}</span></li>
+        ${overview.totalCompleted > 0 ? `<li class="kv-row"><span class="label">Share rate (of finishers)</span><span class="value">${shareRate}%</span></li>` : ''}
+      </ul>
+      ${shares.byPlatform.length > 0 ? `<div class="sub-label">By platform</div>${
+        shares.byPlatform.map(p => {
+          const max = shares.byPlatform[0].clicks || 1;
+          const pct = Math.round((p.clicks / max) * 100);
+          return `<div class="bar-row">
+            <span class="bar-label">${esc(platformLabel(p.platform))}</span>
+            <div class="bar-track"><div class="bar-fill gold" style="width:${pct}%"></div></div>
+            <span class="bar-count">${p.clicks}</span>
+          </div>`;
+        }).join('')
+      }` : '<p class="empty">No shares yet</p>'}
+    </div>
+  </div>
+  <div>
+    <div class="section-title">Shares by Audience</div>
+    <div class="panel">
+      ${shares.byAudience.length === 0 ? '<p class="empty">No shares yet</p>' : `<ul class="kv-list">${
+        shares.byAudience.map(r => `<li class="kv-row">
+          <span class="label"><span class="tag tag-${cssClass(r.audience)}">${esc(r.audience)}</span> ${esc(platformLabel(r.platform))}</span>
+          <span class="value">${r.clicks}</span>
+        </li>`).join('')
+      }</ul>`}
+    </div>
+  </div>
+</div>
+
 <div class="section">
   <div class="section-title">Recent Activity</div>
   <div class="panel scroll-table" style="overflow-x:auto">
@@ -444,6 +489,12 @@ function cssClass(str) {
   return String(str || '').replace(/[^a-zA-Z0-9-]/g, '');
 }
 
+function platformLabel(p) {
+  if (p === 'x') return 'X';
+  if (p === 'linkedin') return 'LinkedIn';
+  return p || '(unknown)';
+}
+
 function tryParse(s) {
   try { return JSON.parse(s); } catch { return null; }
 }
@@ -461,6 +512,7 @@ function summarize(type, p) {
     case 'tool_used': return p.toolName;
     case 'call_connected': return p.callSid?.slice(0, 10) || '';
     case 'call_ended': return p.durationMs ? `${Math.round(p.durationMs / 1000)}s` : '';
+    case 'share_clicked': return platformLabel(p.platform);
     default: return '';
   }
 }

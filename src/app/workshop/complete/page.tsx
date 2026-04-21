@@ -8,6 +8,7 @@ import confetti from "canvas-confetti";
 import workshopConfig from "@/workshop.config";
 import { useProgressContext } from "@/components/layout/ProgressContext";
 import { ConfirmModal } from "@/components/layout/ConfirmModal";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { countValidCompleted, totalStepCount } from "@/lib/progress-math";
 import { RESET_COPY } from "@/lib/workshop-copy";
 import { Home, RotateCcw } from "lucide-react";
@@ -39,6 +40,7 @@ export default function WorkshopComplete() {
   const { progress, loaded, resetProgress } = useProgressContext();
   const [showReset, setShowReset] = useState(false);
   const router = useRouter();
+  const { emit } = useAnalytics();
 
   const totalSteps = useMemo(
     () => totalStepCount(workshopConfig.chapters),
@@ -153,6 +155,7 @@ export default function WorkshopComplete() {
                   href={xUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => emit("share_clicked", { platform: "x" })}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-2 border border-navy-border hover:bg-surface-3 transition-all duration-200 group"
                 >
                   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current text-text-secondary group-hover:text-text-primary transition-colors" aria-hidden="true">
@@ -168,6 +171,7 @@ export default function WorkshopComplete() {
                   href={liUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => emit("share_clicked", { platform: "linkedin" })}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-2 border border-navy-border hover:bg-surface-3 transition-all duration-200 group"
                 >
                   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current text-text-secondary group-hover:text-[#0A66C2] transition-colors" aria-hidden="true">

@@ -13,8 +13,14 @@ const BORDER = "#2A3050";
 
 const FONT_DIR = join(process.cwd(), "public", "fonts");
 
+function platformLabel(p) {
+  if (p === "x") return "X";
+  if (p === "linkedin") return "LinkedIn";
+  return p || "(unknown)";
+}
+
 export function generateReport(data) {
-  const { overview, funnel, chapters, audience, calls, agentConfig, pacing, timePerChapter, hourlyActivity, skipAhead, engagement } = data;
+  const { overview, funnel, chapters, audience, calls, agentConfig, pacing, timePerChapter, hourlyActivity, skipAhead, engagement, shares } = data;
   const completionRate = overview.totalSessions > 0
     ? Math.round((overview.totalCompleted / overview.totalSessions) * 100) : 0;
   const callRate = overview.totalSessions > 0
@@ -255,6 +261,28 @@ export function generateReport(data) {
   if (skipAhead.totalSkips > 0) {
     statRow("Skip-aheads", skipAhead.totalSkips);
     statRow("Users who skipped", skipAhead.sessionsSkipped);
+  }
+
+  // --- Social Shares ---
+  sectionTitle("Social Shares");
+  const shareRate = overview.totalCompleted > 0
+    ? Math.round((shares.sessionsShared / overview.totalCompleted) * 100) : 0;
+  statRow("Total share clicks", shares.totalShares);
+  statRow("Users who shared", shares.sessionsShared);
+  if (overview.totalCompleted > 0) {
+    statRow("Share rate (of finishers)", `${shareRate}%`);
+  }
+  if (shares.byPlatform.length > 0) {
+    subLabel("By platform:");
+    for (const p of shares.byPlatform) {
+      statRow(`  ${platformLabel(p.platform)}`, `${p.clicks} (${p.sessions} users)`);
+    }
+  }
+  if (shares.byAudience.length > 0) {
+    subLabel("By audience:");
+    for (const r of shares.byAudience) {
+      statRow(`  ${r.audience} · ${platformLabel(r.platform)}`, r.clicks);
+    }
   }
 
   // --- Hourly Activity ---

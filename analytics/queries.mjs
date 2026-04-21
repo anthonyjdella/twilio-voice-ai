@@ -272,6 +272,36 @@ export function getRecentActivity() {
   `).all();
 }
 
+export function getShareStats() {
+  const totalShares = stmt(`SELECT COUNT(*) AS c FROM events WHERE event_type = 'share_clicked'`).get().c;
+  const sessionsShared = stmt(`SELECT COUNT(DISTINCT session_id) AS c FROM events WHERE event_type = 'share_clicked'`).get().c;
+
+  const byPlatform = stmt(`
+    SELECT json_extract(payload, '$.platform') AS platform,
+           COUNT(*) AS clicks,
+           COUNT(DISTINCT session_id) AS sessions
+    FROM events
+    WHERE event_type = 'share_clicked'
+    GROUP BY platform
+    ORDER BY clicks DESC
+  `).all();
+
+  const byAudience = stmt(`
+    ${CURRENT_AUDIENCE_SQL}
+    SELECT sa.audience,
+           json_extract(e2.payload, '$.platform') AS platform,
+           COUNT(*) AS clicks,
+           COUNT(DISTINCT e2.session_id) AS sessions
+    FROM session_audience sa
+    JOIN events e2 ON sa.session_id = e2.session_id AND e2.event_type = 'share_clicked'
+    WHERE sa.audience IS NOT NULL
+    GROUP BY sa.audience, platform
+    ORDER BY sa.audience, clicks DESC
+  `).all();
+
+  return { totalShares, sessionsShared, byPlatform, byAudience };
+}
+
 export function getEngagementStats() {
   const eventsPerSession = stmt(`
     SELECT session_id, COUNT(*) AS events
@@ -308,6 +338,7 @@ export function getAllMetrics() {
     dropOff: getDropOffPoints(),
     skipAhead: getSkipAheadStats(),
     engagement: getEngagementStats(),
+    shares: getShareStats(),
     recent: getRecentActivity(),
   };
 }
