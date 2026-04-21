@@ -141,8 +141,10 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); }
       <span><span class="dot"></span> Live</span>
       <span id="lastUpdate"></span>
     </div>
+    <a href="/" class="btn btn-outline" title="Back to workshop home">Home</a>
     <button id="resetProgressBtn" class="btn btn-outline" title="Clears this browser's workshop progress (localStorage). Does not affect other attendees or server analytics.">Reset My Progress</button>
     <button id="resetAllBtn" class="btn btn-outline" style="border-color:rgba(239,34,58,0.5);color:#ff8a9a" title="DESTRUCTIVE: wipes every analytics event from the server. Use this before a workshop to start with a clean dashboard.">Reset All Sessions</button>
+    <a href="/slides" class="btn btn-outline" title="Open the workshop slide deck. Visiting /admin also enables the presenter-only backslash (\\) shortcut for toggling slides ⇄ workshop anywhere in the app.">View Slides</a>
     <a href="/admin/report" class="btn btn-red">Download PDF Report</a>
   </div>
 </div>
@@ -416,6 +418,13 @@ ${hourlyActivity.length > 0 ? `<div class="section">
 <script>
 document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
 setInterval(() => location.reload(), 30000);
+
+// Opt this browser into presenter mode. SlidesHost reads this flag to enable
+// the global "S" shortcut that toggles between /slides and the last workshop
+// page. Attendees never visit /admin, so their browsers never get the flag
+// and pressing S does nothing. Scoped to this browser only -- clearing
+// localStorage (or using a different browser) resets it.
+try { localStorage.setItem("workshop-presenter-mode", "1"); } catch (e) {}
 
 // Reset workshop progress for the current browser. This clears the
 // localStorage keys the workshop app writes (progress + session-scoped

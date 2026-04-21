@@ -19,6 +19,8 @@ properties:
             value: gpt-5.4-nano
           - name: DATA_MOUNT
             value: /app/appdata
+          - name: WORKSHOP_SLIDES_EMBED_URL
+            secretRef: workshop-slides-embed-url
           - name: TWILIO_ACCOUNT_SID
             secretRef: twilio-account-sid
           - name: TWILIO_AUTH_TOKEN
