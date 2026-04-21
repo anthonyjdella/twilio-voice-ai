@@ -13,6 +13,14 @@ export default {
     },
 
     {
+      type: "image",
+      audience: "explorer",
+      src: "/images/illustrations/technical-overview.svg",
+      alt: "A technical overview diagram — the moving pieces that keep a voice agent running in production.",
+      size: "md",
+    },
+
+    {
       type: "prose",
       audience: "builder",
       content:

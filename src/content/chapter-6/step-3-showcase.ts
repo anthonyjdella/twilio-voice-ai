@@ -20,6 +20,14 @@ export default {
     },
 
     {
+      type: "image",
+      audience: "explorer",
+      src: "/images/illustrations/target.png",
+      alt: "A target with an arrow in the bullseye — the focused, on-point demo that makes the agent land.",
+      size: "md",
+    },
+
+    {
       type: "prose",
       audience: "builder",
       content:
@@ -71,6 +79,14 @@ export default {
     { type: "page-break" },
 
     { type: "section", title: "What Makes a Great Demo" },
+
+    {
+      type: "image",
+      audience: "explorer",
+      src: "/images/illustrations/torch.svg",
+      alt: "A lit torch — the spark of curiosity that carries a great demo from scripted reveal to real conversation.",
+      size: "sm",
+    },
 
     {
       type: "prose",

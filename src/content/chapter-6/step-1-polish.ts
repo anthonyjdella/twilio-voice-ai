@@ -13,6 +13,14 @@ export default {
     },
 
     {
+      type: "image",
+      audience: "explorer",
+      src: "/images/illustrations/growth.png",
+      alt: "A growing plant — the agent maturing from working prototype into a dependable product through small, steady refinements.",
+      size: "md",
+    },
+
+    {
       type: "prose",
       audience: "builder",
       content:

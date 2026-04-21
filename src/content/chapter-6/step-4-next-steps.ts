@@ -79,6 +79,13 @@ ws.send(JSON.stringify({
         "An agent can greet callers in their own language, switch mid-call if asked, and adapt its tone to match cultural norms -- all from the same server.",
     },
 
+    {
+      type: "image",
+      src: "/images/illustrations/hugging-earth.svg",
+      alt: "A person hugging the Earth — the agent meeting callers in their own language, wherever they call from.",
+      size: "md",
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "Twilio Conversational Intelligence" },
@@ -87,6 +94,13 @@ ws.send(JSON.stringify({
       type: "prose",
       content:
         "Twilio offers a **Conversational Intelligence** service that automatically analyzes voice AI calls after they happen:",
+    },
+
+    {
+      type: "image",
+      src: "/images/illustrations/conversational-intelligence-transcript.png",
+      alt: "A Conversational Intelligence transcript view — a written record of the call with sentiment, topics, and sensitive info surfaced automatically.",
+      size: "md",
     },
 
     {
@@ -148,6 +162,14 @@ ws.send(JSON.stringify({
     { type: "page-break" },
 
     { type: "section", title: "Resources" },
+
+    {
+      type: "image",
+      audience: "explorer",
+      src: "/images/illustrations/folder.png",
+      alt: "A folder of reference material — the collection of docs, guides, and examples to keep exploring after the workshop.",
+      size: "md",
+    },
 
     {
       type: "prose",
