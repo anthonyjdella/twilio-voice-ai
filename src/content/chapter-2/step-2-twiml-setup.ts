@@ -289,6 +289,7 @@ wss.on("connection", (ws) => {
   console.log("📞 New WebSocket connection");
 
   let callSid = null;
+  const conversationHistory = [];
 
   ws.on("message", (data) => {
     const message = JSON.parse(data);

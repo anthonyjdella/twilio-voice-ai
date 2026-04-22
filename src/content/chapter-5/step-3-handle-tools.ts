@@ -96,7 +96,7 @@ export default {
           icon: "/images/icons/wrench.svg",
           title: "Tool runs and returns an answer",
           description:
-            'Your server runs the tool and gets back: _"Shipped. Arriving April 22. Tracking 1Z999AA10123456784."_',
+            'The workshop\'s back-end runs the tool and gets back: _"Shipped. Arriving April 22. Tracking 1Z999AA10123456784."_',
         },
         {
           icon: "/images/icons/arrow-cycle.svg",

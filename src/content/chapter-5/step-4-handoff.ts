@@ -212,6 +212,14 @@ if (req.url === "/call-ended" && req.method === "POST") {
     { type: "section", title: "Triggering Handoff from a Tool Call", audience: "builder" },
 
     {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**A note on the Live Handoff toggle.** The Call Me widget passes a `handoffEnabled` value from the workshop UI (set by the toggle above, which Explorers see) into your `/call` payload as a `customParameter`. The workshop's voice-agent reads that parameter and chooses whether to expose `transfer_to_agent` to the LLM for that call. If your hand-coded tool never fires during testing, check that the Live Handoff toggle is on -- the toggle gates whether the tool is offered to the model, independent of whether you wrote the handler correctly.",
+    },
+
+    {
       type: "prose",
       audience: "builder",
       content:

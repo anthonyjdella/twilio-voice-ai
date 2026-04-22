@@ -45,7 +45,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**voicePrompt** is the transcribed text. **last** is `true` when Twilio has the final transcript for this utterance. The `if (!message.last) break;` guard below is a defensive check in case partial results are ever enabled.",
+        "**voicePrompt** is the transcribed text. **last** is `true` when Twilio has the final transcript for this utterance. The `if (!message.last) break;` guard below is a defensive check in case partial results are ever enabled. The patch below pushes into `conversationHistory`, which was declared back in Step 1 alongside `callSid` -- it should already exist in your connection handler.",
     },
 
     {
