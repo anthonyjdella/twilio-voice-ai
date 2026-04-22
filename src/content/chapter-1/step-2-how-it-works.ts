@@ -125,6 +125,14 @@ export default {
     { type: "section", title: "Architecture Overview" },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What “Server” Means Here",
+      content:
+        "A server is just a program running in the cloud. When the workshop says “the server” it means the program the Builder is wiring together during the workshop — the piece that sits between the phone call and the AI. You do not need to write or run any server code; you just need to know that “the server” is the connector that makes the whole thing work.",
+    },
+
+    {
       type: "prose",
       content:
         "Before going further, let's make sure you have a clear mental model of how all the pieces fit together. The architecture is a straight line with the server at the center, connecting the caller on one side to the AI on the other.",
