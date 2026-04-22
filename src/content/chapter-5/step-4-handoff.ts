@@ -137,6 +137,7 @@ export default {
       welcomeGreeting="Hi, I'm your assistant. How can I help?"
       dtmfDetection="true"
       interruptible="any"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>`,

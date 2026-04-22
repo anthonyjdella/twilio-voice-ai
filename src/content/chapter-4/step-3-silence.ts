@@ -180,6 +180,7 @@ wss.on("connection", (ws) => {
       url="wss://your-codespace-8080.app.github.dev/ws"
       interruptible="any"
       interruptSensitivity="medium"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>`,
@@ -395,6 +396,7 @@ const server = http.createServer(async (req, res) => {
       welcomeGreeting="Hello! How can I help you today?"
       interruptible="any"
       dtmfDetection="true"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>\`;

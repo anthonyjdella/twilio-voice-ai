@@ -212,6 +212,7 @@ sendDigits(ws, "3");  // Press 3 for billing`,
       url="wss://your-codespace-8080.app.github.dev/ws"
       dtmfDetection="true"
       interruptible="any"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>`,
@@ -385,6 +386,7 @@ const server = http.createServer(async (req, res) => {
       welcomeGreeting="Hello! How can I help you today?"
       interruptible="any"
       dtmfDetection="true"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>\`;

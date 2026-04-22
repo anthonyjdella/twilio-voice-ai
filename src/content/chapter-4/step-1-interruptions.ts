@@ -198,6 +198,7 @@ function handleMessage(ws, data) {
       url="wss://your-codespace-8080.app.github.dev/ws"
       interruptible="speech"
       dtmfDetection="true"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>`,
@@ -207,7 +208,7 @@ function handleMessage(ws, data) {
       type: "prose",
       audience: "builder",
       content:
-        "The `interruptible` attribute accepts four values:\n\n**`\"any\"`** (the default) -- both voice and DTMF keypresses interrupt. **`\"speech\"`** -- only voice interrupts, keypresses are silently collected. **`\"dtmf\"`** -- only keypresses interrupt. **`\"none\"`** -- the AI always finishes speaking before accepting new input (useful for legal disclaimers or important announcements).",
+        "The `interruptible` attribute accepts four values:\n\n**`\"any\"`** (the default) -- both voice and DTMF keypresses interrupt. **`\"speech\"`** -- only voice interrupts, keypresses are silently collected. **`\"dtmf\"`** -- only keypresses interrupt. **`\"none\"`** -- the AI always finishes speaking before accepting new input (useful for legal disclaimers or important announcements).\n\n`reportInputDuringAgentSpeech=\"any\"` tells Twilio to forward speech and keypresses to your server even while the agent is talking. Without it, the default (`\"none\"` as of May 2025) silently drops mid-speech input, so your interrupt and DTMF handlers never fire.",
     },
 
     {
@@ -346,6 +347,7 @@ const server = http.createServer(async (req, res) => {
       welcomeGreeting="Hello! How can I help you today?"
       interruptible="any"
       dtmfDetection="true"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>\`;
