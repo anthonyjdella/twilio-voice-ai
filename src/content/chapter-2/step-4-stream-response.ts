@@ -55,14 +55,19 @@ export default {
       language: "javascript",
       file: "server.js",
       startLine: 1,
-      highlight: [4, "8-10"],
+      highlight: [5, "13-15"],
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
+const twilio = require("twilio");
 const OpenAI = require("openai");
 
 const PORT = 8080;
 
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });`,

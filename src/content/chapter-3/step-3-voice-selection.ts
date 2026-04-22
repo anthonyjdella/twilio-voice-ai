@@ -88,7 +88,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**Google Cloud TTS:** `en-US-Neural2-C` (female), `en-US-Neural2-D` (male), `en-US-Studio-O` (female, studio quality), `en-US-Studio-Q` (male, studio quality). Google also offers newer **Chirp3 HD** voices with names like `en-US-Chirp3-HD-Achernar`. The naming pattern is `language-Model-Quality-VoiceName`.",
+        "**Google Cloud TTS:** `en-US-Neural2-C` (female), `en-US-Neural2-D` (male), `en-US-Studio-O` (female, studio quality), `en-US-Studio-Q` (male, studio quality). Google also offers newer **Chirp3 HD** voices: `en-US-Chirp3-HD-Aoede` (female), `en-US-Chirp3-HD-Charon` (male), `en-US-Chirp3-HD-Kore` (female), and six more. The naming pattern is `language-Model-Quality-VoiceName`.",
     },
 
     {

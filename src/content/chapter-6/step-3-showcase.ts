@@ -50,8 +50,16 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Hand the phone to someone who has not heard the agent yet. Every voice agent sounds different the first time someone unfamiliar calls it -- they will ask questions you never thought to test, and that is where you find out what the agent actually feels like. Two builders starting from the same workshop code but different personas and tool choices will produce strikingly different agents. That is the point.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "This is the moment the Builder hands the phone to someone new. The first unfamiliar caller always surfaces things nobody thought to test -- an odd question, a regional accent, a long pause. Two builders starting from the same workshop code with different personas and tool picks produce strikingly different agents on that first call. That is the point.",
     },
 
     { type: "page-break" },

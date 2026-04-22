@@ -144,7 +144,7 @@ Server listening on port 8080`,
       type: "prose",
       audience: "builder",
       content:
-        'Ask the agent: "Tell me a joke." The workshop\'s reference agent ships a `tell_joke` tool (no parameters, returns a random one-liner) that the Step 2 picker exposes. You didn\'t write a handler for it in this chapter -- the reference covers it -- but if you want the pattern, it\'s one of the simplest tools you\'ll ever define: a `function` with an empty `parameters` object and a handler that picks a random string.',
+        'Ask the agent: "Tell me a joke." The agent should call your `tell_joke` handler and come back with one of the strings you defined in Step 2. It is the simplest tool shape in the chapter -- a `function` with an empty `parameters` object and a handler that picks a random string -- so if it fires correctly, tool dispatch is wired end-to-end.',
     },
 
     { type: "section", title: "Test 5: Handoff" },

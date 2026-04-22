@@ -115,7 +115,7 @@ VOICE GUIDELINES:
       audience: "builder",
       variant: "info",
       content:
-        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** -- don't paste it as a second route. You already have a TwiML response with `dtmfDetection`, `interruptible`, and `reportInputDuringAgentSpeech` from Chapter 4; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`.",
+        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** -- don't paste it as a second route. You already have a TwiML response with `dtmfDetection`, `interruptible`, and `reportInputDuringAgentSpeech` from Chapter 4, plus `language`, `transcriptionProvider`, and `speechModel` from Chapter 3 Step 4; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`.",
     },
 
     {
@@ -128,8 +128,11 @@ VOICE GUIDELINES:
   <Connect action="/call-ended">
     <ConversationRelay
       url="wss://<your-server-host>/ws"
-      voice="en-US-Chirp3-HD-Achernar"
+      voice="en-US-Chirp3-HD-Aoede"
       ttsProvider="Google"
+      language="en-US"
+      transcriptionProvider="Deepgram"
+      speechModel="nova-3-general"
       dtmfDetection="true"
       interruptible="any"
       interruptSensitivity="medium"
@@ -641,8 +644,11 @@ const server = http.createServer(async (req, res) => {
   <Connect action="/call-ended">
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
-      voice="en-US-Chirp3-HD-Achernar"
+      voice="en-US-Chirp3-HD-Aoede"
       ttsProvider="Google"
+      language="en-US"
+      transcriptionProvider="Deepgram"
+      speechModel="nova-3-general"
       dtmfDetection="true"
       interruptible="any"
       interruptSensitivity="medium"

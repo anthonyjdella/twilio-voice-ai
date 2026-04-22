@@ -132,7 +132,7 @@ export default {
   <Connect action="/call-ended">
     <ConversationRelay
       url="wss://<your-server-host>/ws"
-      voice="en-US-Chirp3-HD-Achernar"
+      voice="en-US-Chirp3-HD-Aoede"
       ttsProvider="Google"
       welcomeGreeting="Hi, I'm your assistant. How can I help?"
       dtmfDetection="true"
