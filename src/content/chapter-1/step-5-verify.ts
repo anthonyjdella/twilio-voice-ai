@@ -7,7 +7,7 @@ export default {
       audience: "explorer",
       title: "Opening the Door for Twilio",
       content:
-        "Before Builders can make their first call, they have to open a kind of door on their server so Twilio can reach it. Without that door open, when a caller dials the phone number, the message has nowhere to go -- the call just fails quietly. Once the door is open, Twilio knows where to deliver every call, and the agent can finally answer.",
+        "Before the first call can go through, a kind of door has to be opened on the server so Twilio can reach it. Without that door open, when a caller dials the phone number, the message has nowhere to go -- the call just fails quietly. Once the door is open, Twilio knows where to deliver every call, and the agent can finally answer.",
     },
 
     {
@@ -17,7 +17,7 @@ export default {
         "This step is a short one for you -- the setup is all behind the scenes. The next chapter is where the agent comes alive and your phone starts ringing.",
     },
 
-    { type: "builder-only", audience: "explorer", context: "Builders are configuring their server and verifying their setup. Everything is already configured for you." },
+    { type: "builder-only", audience: "explorer", context: "The server is being configured and checked behind the scenes. Everything the agent needs on your side is already handled." },
 
     { type: "section", title: "Expose Your Server", audience: "builder" },
 
