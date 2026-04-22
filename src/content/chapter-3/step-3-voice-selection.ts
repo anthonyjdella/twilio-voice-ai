@@ -201,14 +201,6 @@ if (req.url === "/twiml" && req.method === "POST") {
     },
 
     {
-      type: "callout",
-      audience: "explorer",
-      variant: "tip",
-      content:
-        "**Want to hear each voice first?** Open the [ElevenLabs Voice Tester](https://elevenlabs-voice-tester-5339-dev.twil.io/index.html) in a new tab, listen to a few samples, then come back here and tap the voice you liked.",
-    },
-
-    {
       type: "voice-picker",
       audience: "explorer",
     },

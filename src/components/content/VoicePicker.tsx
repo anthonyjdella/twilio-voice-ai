@@ -122,6 +122,19 @@ export function VoicePicker() {
           </span>
         </div>
       )}
+
+      <p className="mt-3 text-xs text-text-muted">
+        Want more samples?{" "}
+        <a
+          href="https://elevenlabs-voice-tester-5339-dev.twil.io/index.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-twilio-red hover:underline focus:outline-none focus:ring-2 focus:ring-twilio-red/50 rounded"
+        >
+          Preview the full ElevenLabs catalog
+        </a>{" "}
+        in a new tab.
+      </p>
     </div>
   );
 }
