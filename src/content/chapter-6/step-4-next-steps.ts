@@ -32,7 +32,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**SSML support depends on the voice provider.** Tags like `<say-as>`, `<break>`, and `<prosody>` work with **Google** and **Amazon** voices. The default provider (**ElevenLabs**) only supports `<phoneme>`, and only in English. For full SSML, switch to Google (`ttsProvider=\"Google\"`).",
+        "**SSML support depends on the voice provider.** Tags like `<say-as>`, `<break>`, and `<prosody>` work with **Google** and **Amazon** voices. The default provider (**ElevenLabs**) only supports `<phoneme>`, and only when the language is `en-us` (other English locales like `en-GB` will not render phonemes). For full SSML, switch to Google (`ttsProvider=\"Google\"`).",
     },
 
     {

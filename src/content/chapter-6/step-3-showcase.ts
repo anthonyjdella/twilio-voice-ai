@@ -61,7 +61,7 @@ export default {
     {
       type: "prose",
       content:
-        "Everything the workshop has covered maps to four qualities worth aiming for in any voice AI agent you build after this:\n\n- **Personality.** The agent knows who it is and stays consistent across every turn.\n- **Responsiveness.** The caller is never left waiting for a full sentence to finish before they can speak. Interrupts, silence handling, and fast streaming are what buy this.\n- **Capability.** The agent can actually *do* things -- look something up, place an order, check a status -- not just talk about them.\n- **Self-awareness.** The agent knows when it is the wrong tool for the job and hands off cleanly instead of guessing.\n\nMissing any one of these and callers will feel it, even if they cannot name it.",
+        "Everything the workshop has covered maps to four qualities worth aiming for in any voice AI agent you build after this:\n\n- **Personality.** The agent knows who it is and stays consistent across every turn.\n- **Responsiveness.** The caller is never left waiting for a full sentence to finish before they can speak. Interrupts, silence handling, and responding as it thinks are what buy this.\n- **Capability.** The agent can actually *do* things -- look something up, place an order, check a status -- not just talk about them.\n- **Self-awareness.** The agent knows when it is the wrong tool for the job and hands off cleanly instead of guessing.\n\nMissing any one of these and callers will feel it, even if they cannot name it.",
     },
 
     { type: "section", audience: "builder", title: "Checkpoint" },

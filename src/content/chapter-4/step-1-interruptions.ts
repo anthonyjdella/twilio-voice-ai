@@ -9,14 +9,6 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "Why This Chapter Has Four Steps",
-      content:
-        "The next four steps each cover one of the small reflexes that separate a polished voice agent from a phone tree: handling interruptions, responding to keypad presses, noticing when the caller has gone silent, and switching languages mid-call. Each reflex is short on its own, but together they are what make the agent feel like something you can have a conversation with rather than something you have to steer.",
-    },
-
-    {
-      type: "concept-card",
-      audience: "explorer",
       title: "Why Barge-In Matters",
       content:
         "Real conversations aren't turn-based. People cut each other off, change their mind mid-sentence, and repeat themselves when they feel unheard. If a voice agent insists on finishing every sentence before listening, it feels robotic fast. Barge-in is the feature that lets the caller interrupt at any moment -- without it, the agent feels robotic even if everything else is right.",
