@@ -14,7 +14,15 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "This step is a short one for you -- the setup is all behind the scenes. The next chapter is where the agent comes alive and your phone starts ringing.",
+        "The hands-on setup is all behind the scenes from here. While that finishes, here is what to expect when the phone rings in the next chapter.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What the First Call Will Sound Like",
+      content:
+        "In Chapter 2 the agent rings your phone and a few things happen in roughly two seconds. A voice greets you -- that is the agent reading its opening line. It pauses. It listens for what you say. Then it streams a reply back in real time, which is why you hear the first words before the full sentence is even written. That streaming is what makes the agent feel fast. You can also interrupt it mid-sentence and it will stop and listen, the same way a person would.",
     },
 
     { type: "builder-only", audience: "explorer", context: "The server is being configured and checked behind the scenes. Everything the agent needs on your side is already handled." },
