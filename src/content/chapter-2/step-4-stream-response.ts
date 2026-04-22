@@ -187,7 +187,7 @@ async function streamLLMResponse(ws, conversationHistory) {
       type: "prose",
       audience: "builder",
       content:
-        "Replace the `TODO` in your prompt handler:",
+        "Find the `case \"prompt\":` block in your `wss.on(\"message\", ...)` handler (look for the `// TODO: Send to LLM` comment from Step 3) and replace the whole block with this -- the highlighted line is the new call to your streaming function:",
     },
 
     {
@@ -195,7 +195,6 @@ async function streamLLMResponse(ws, conversationHistory) {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      startLine: 121,
       highlight: [11],
       code: `      case "prompt":
         if (!message.last) break;
