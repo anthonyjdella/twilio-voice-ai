@@ -27,7 +27,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Each preset below is a complete `SYSTEM_PROMPT` you can drop in. Pick the one that matches the agent you want to build, or use them as a starting point for your own. **Replace the `SYSTEM_PROMPT` constant from Step 1** with your chosen text.",
+        "Each preset below is a complete `SYSTEM_PROMPT` you can drop in — three variants of the same shape, different persona text inside. Pick the one that matches the agent you want to build (or use them as a starting point for your own) and skip past the other two. **Replace the `SYSTEM_PROMPT` constant from Step 1** with your chosen text.",
     },
 
     {
