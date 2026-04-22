@@ -17,7 +17,7 @@ export default {
       audience: "explorer",
       variant: "info",
       content:
-        "Imagine a caller starts in English and mid-sentence switches to Spanish. Within seconds, the agent is listening in Spanish *and* responding in Spanish -- no transfer, no menu, no \"press 2 for espanol.\" That is a much more human experience.",
+        "Imagine a caller starts in English and mid-sentence switches to Spanish. The agent detects the change, keeps listening in Spanish, and continues the conversation in Spanish -- without transferring the call or offering a separate menu for each language.",
     },
 
     {
@@ -276,7 +276,7 @@ function processLLMResponse(ws, text) {
       audience: "builder",
       title: "Multi-language system prompt strategy",
       content:
-        "For truly multilingual agents, write the system prompt in English (since most LLMs perform best with English instructions) but explicitly state that the agent should respond in the caller's language. The LLM will follow instructions in English while generating responses in the target language.\n\nSome teams maintain separate system prompts per language for cultural nuance, but for most use cases, a single English prompt with multilingual instructions works well. The key is testing -- have native speakers call the agent and verify the experience feels natural.",
+        "For agents that handle multiple languages, write the system prompt in English (since most LLMs perform best with English instructions) but explicitly state that the agent should respond in the caller's language. The LLM will follow instructions in English while generating responses in the target language.\n\nSome teams maintain separate system prompts per language for cultural nuance, but for most use cases, a single English prompt with multilingual instructions works well. The key is testing -- have native speakers call the agent and verify the experience feels natural.",
     },
 
     {

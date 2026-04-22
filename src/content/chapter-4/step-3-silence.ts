@@ -138,14 +138,13 @@ function handleSilence(ws) {
   }
 }
 
-// Inside wss.on("connection", (ws) => { ... })
-wss.on("connection", (ws) => {
-  // ...existing ws.on("message", ...) handler stays here...
-
-  ws.on("close", () => {
-    clearTimeout(silenceTimer);
-    console.log("Call ended, timers cleared.");
-  });
+// Add this inside your EXISTING wss.on("connection", (ws) => { ... })
+// callback from Chapter 2 -- do not paste a second wss.on("connection")
+// handler. The ws.on("message", ...) you already have stays as-is;
+// only the ws.on("close", ...) block below is new.
+ws.on("close", () => {
+  clearTimeout(silenceTimer);
+  console.log("Call ended, timers cleared.");
 });`,
     },
 

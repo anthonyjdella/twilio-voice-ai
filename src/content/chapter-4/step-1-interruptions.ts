@@ -9,6 +9,14 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
+      title: "Why This Chapter Has Four Steps",
+      content:
+        "The next four steps each cover one of the small reflexes that separate a polished voice agent from a phone tree: handling interruptions, responding to keypad presses, noticing when the caller has gone silent, and switching languages mid-call. Each reflex is short on its own, but together they are what make the agent feel like something you can have a conversation with rather than something you have to steer.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
       title: "Why Barge-In Matters",
       content:
         "Real conversations aren't turn-based. People cut each other off, change their mind mid-sentence, and repeat themselves when they feel unheard. If a voice agent insists on finishing every sentence before listening, it feels robotic fast. Barge-in is the feature that lets the caller interrupt at any moment, and it's half the reason a ConversationRelay agent feels alive.",
@@ -224,6 +232,14 @@ function handleMessage(ws, data) {
       title: "Why utteranceUntilInterrupt matters",
       content:
         "If you do not trim the assistant message in your conversation history, the LLM will think the caller heard the entire response. This leads to confusing exchanges where the AI references information it never actually delivered. By replacing the assistant message content with `utteranceUntilInterrupt`, you give the LLM an accurate picture of the conversation so far.\n\nSome advanced implementations also add a system note like \"[caller interrupted here]\" to help the LLM understand the context shift.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Keep your persona.** The solution below uses a generic `SYSTEM_PROMPT` (\"helpful voice assistant for Acme Corp\") as the default. If you picked a specific persona in Chapter 3 Step 2 (Sam, Ms. Chen, or Jake), paste *your* `SYSTEM_PROMPT` from that step here instead -- the rest of the code does not change.",
     },
 
     {

@@ -289,7 +289,7 @@ transfer_to_agent: async ({ reason, department, summary }, ws) => {
       audience: "builder",
       variant: "warning",
       content:
-        "The 2-second `setTimeout` before sending `end` is a rough estimate of how long the farewell sentence takes to speak. If Twilio's TTS runs long, the `end` message lands mid-sentence and the caller hears a clipped goodbye. If TTS finishes early, the caller sits in silence for the remainder. For a workshop demo this is fine; for production, listen for an `info` message with `name: \"TTS_DONE\"` (or similar) from Twilio and send `end` on that event instead of on a timer.",
+        "The 2-second `setTimeout` before sending `end` is a rough estimate of how long the farewell sentence takes to speak. If Twilio's TTS runs long, the `end` message lands mid-sentence and the caller hears a clipped goodbye. If TTS finishes early, the caller sits in silence for the remainder. For a workshop demo this is fine; for production, set `debug=\"speaker-events tokens-played\"` on your `<ConversationRelay>` and send `end` when you receive the matching `tokens-played` debug message for the last token (or the `agentSpeaking=false` speaker event) instead of using a timer.",
     },
 
     {

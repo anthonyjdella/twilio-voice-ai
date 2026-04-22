@@ -49,10 +49,18 @@ Server listening on port 8080`,
 
     { type: "page-break" },
 
-    { type: "section", title: "Test 1: Interruption" },
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "You can test all four reflexes on a **single** call. When the phone rings, answer it and try each in turn: (1) ask a long question, then cut the agent off mid-reply; (2) press **1** on the keypad while the agent is speaking; (3) stay completely silent for about ten seconds; (4) say a short Spanish phrase like \"puedes hablar en espanol?\" You're listening for liveliness, not perfection -- if any feels stiff, that is the one to talk through with the Builder afterward.",
+    },
+
+    { type: "section", title: "Test 1: Interruption", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         'When the phone rings, answer and ask a question that will produce a long response -- something like "Can you tell me everything you know about yourself?" or "What can you help me with, in detail?" While the agent is speaking, interrupt it by saying "Actually, never mind."',
     },
@@ -72,7 +80,7 @@ Server listening on port 8080`,
         'If the agent keeps talking after you interrupt, check that `interruptible` is set to `"any"` or `"speech"` in the ConversationRelay TwiML, and that the interrupt handler is aborting the active stream.',
     },
 
-    { type: "section", title: "Test 2: DTMF" },
+    { type: "section", title: "Test 2: DTMF", audience: "builder" },
 
     {
       type: "prose",
@@ -89,18 +97,20 @@ Server listening on port 8080`,
     },
 
     {
-      type: "prose",
+      type: "callout",
       audience: "explorer",
+      variant: "info",
       content:
-        "Trigger another call and try pressing **1**, **2**, or **0** on the keypad while the agent is speaking or after it finishes. The keypad shortcuts are wired to fixed responses regardless of your persona -- **1** asks about an order, **2** offers a transfer, **0** reads the options back -- so don't worry if the topic doesn't match the personality you picked. You're testing that the keypress is heard and acted on, not what the agent actually says.",
+        "**About the keypad test:** the shortcuts are wired to fixed responses regardless of your persona -- **1** asks about an order, **2** offers a transfer, **0** reads the options back -- so do not worry if the topic does not match the personality you picked. You are testing that the keypress is heard and acted on, not what the agent actually says.",
     },
 
     { type: "page-break" },
 
-    { type: "section", title: "Test 3: Silence" },
+    { type: "section", title: "Test 3: Silence", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Trigger another call and let the agent greet you. Then stay completely silent. After a few seconds, the agent should nudge you with a gentle prompt. Stay silent again and verify the second prompt arrives, followed by a graceful call ending.",
     },
@@ -113,10 +123,11 @@ Server listening on port 8080`,
         "If silence detection is not triggering, make sure the silence timer starts after the `setup` message and resets on each `prompt` message. Also check that the timer is not being cleared without being restarted.",
     },
 
-    { type: "section", title: "Test 4: Language Switch" },
+    { type: "section", title: "Test 4: Language Switch", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         'Trigger another call. Start speaking in English, then say something in Spanish like "Puedes hablar en espanol?" The agent should respond in Spanish with a natural-sounding Spanish voice.',
     },

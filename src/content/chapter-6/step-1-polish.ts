@@ -9,7 +9,7 @@ export default {
       audience: "explorer",
       title: "The Line Between Demo and Product",
       content:
-        "A demo works once, on command, with a friendly audience. A product works on a bad phone line, when the caller is frustrated, at 3am. Polish is the set of small choices -- tone, error messages, logging, graceful fallbacks -- that turn a working prototype into something you'd trust in front of real customers.",
+        "A working prototype handles the expected path: a clear caller, a good line, a question the agent is ready for. A polished agent handles the rest -- poor audio, a frustrated caller, off-hours traffic. Polish is the set of small choices (tone, error messages, logging, graceful fallbacks) that close the gap between the two.",
     },
 
     {
@@ -57,6 +57,14 @@ export default {
       audience: "builder",
       content:
         "**Identity** -- Does the prompt clearly define who the agent is, what company it works for, and its role?\n**Boundaries** -- Does it specify what the agent should NOT do (e.g., make promises, share internal information)?\n**Tone** -- Is the tone appropriate for your use case? Customer support should be warm and helpful; a scheduling bot can be more concise.\n**Edge cases** -- Does it handle off-topic questions, profanity, or requests for competitors?\n**Conciseness** -- Voice responses should be shorter than text chat. Tell the AI to keep answers brief and conversational.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Apply this to your persona.** The \"Ava\" example below is one worked version of the checklist -- use it as a reference pattern, not a replacement for the persona you picked in Chapter 3. Keep your agent's name and company, then layer on the missing pieces (capabilities, boundaries, tone specifics) using this as the template.",
     },
 
     {

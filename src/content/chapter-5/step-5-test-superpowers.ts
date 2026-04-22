@@ -98,6 +98,12 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
+        "The workshop pre-loaded a few sample orders you can ask about (`ORD-12345`, `ORD-67890`, `ORD-11111`). Any of them work — they are fake orders built into the workshop's tool so every attendee gets a live lookup without needing a real database behind the agent.",
+    },
+
+    {
+      type: "prose",
+      content:
         'Try: "Can you check the status of order ORD-12345?"',
     },
 
@@ -122,7 +128,7 @@ Server listening on port 8080`,
       type: "prose",
       audience: "explorer",
       content:
-        'Ask a question that needs two lookups in one breath: "What is the weather in Tokyo, and can you check order ORD-12345?" The agent should answer both parts in a single reply. If you turned one of those tools off back in Step 2, re-enable it before this test -- otherwise the agent can only answer the half it still has a tool for.',
+        'Try a question that needs two lookups in one breath: "What is the weather in Tokyo, and can you check order ORD-12345?" The agent should answer both parts in a single reply. Note: this test only works when both tools are on in the Step 2 picker -- if one is off, the agent can only answer the half it still has a tool for.',
     },
 
     { type: "section", title: "Test 4: Handoff" },
@@ -175,7 +181,7 @@ Server listening on port 8080`,
         "Weather answer sounded made up? The agent ignored its tool. Head back to Pick Your Tools on Step 2 and confirm Check Weather is toggled on",
         "Order lookup didn't return the real shipping info? Same thing — check that Look Up Order is on, and try the exact order number ORD-12345",
         "Agent only answered half of a two-part question? That's normal on the first try — phone it again and say both parts in one sentence",
-        "Asked for a human and nothing happened? Handoff is off by default. Open Live Agent Handoff on Step 4 and flip the toggle on",
+        "Asked for a human and nothing happened? Handoff is off by default -- the toggle on Step 4 controls it",
         "Call never connected? Re-enter your phone number in the Call Me box and try again",
       ],
     },
@@ -184,14 +190,14 @@ Server listening on port 8080`,
       type: "prose",
       audience: "explorer",
       content:
-        "With tool calling and handoff working, the agent is no longer just a chatbot. It can take real actions, look up real data, and hand off to humans when needed.",
+        "With tool calling and handoff working, the agent can now do three kinds of work: look up information through tools, take actions based on what it looks up, and pass the call to a human when the situation calls for one.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "With tool calling and handoff working, your agent is no longer just a chatbot. It can take real actions, look up real data, and seamlessly hand off to humans when needed.",
+        "With tool calling and handoff working, your agent can now look up information, take actions based on it, and hand off to a human agent when the caller asks for one or the AI determines it is the right call.",
     },
   ],
 } satisfies StepDefinition;

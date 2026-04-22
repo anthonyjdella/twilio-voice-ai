@@ -36,6 +36,13 @@ export default {
         "Trigger a test call using the Call Me button below:",
     },
 
+    {
+      type: "callout",
+      variant: "info",
+      content:
+        "**Heads up.** Your persona and voice picks apply to the **next** call you trigger, not a call already in progress. To hear a new voice or persona, end the current call and press Call Me again.",
+    },
+
     { type: "call-me" },
 
     {

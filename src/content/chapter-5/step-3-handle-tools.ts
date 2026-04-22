@@ -9,7 +9,15 @@ export default {
       audience: "explorer",
       title: "The Tool Loop in Plain English",
       content:
-        "When the AI decides it needs a tool, it pauses and says \"please look this up for me.\" The tool runs, the answer comes back, and then the AI speaks to the caller. This back-and-forth loop is what lets a voice agent actually do things, not just talk about them.",
+        "Think of it like a cashier pausing to scan a barcode before telling you the price. When the AI decides it needs a tool, it stops and says \"please look this up for me.\" The tool runs, the answer comes back, and then the AI speaks to the caller. This back-and-forth loop is what lets a voice agent actually do things, not just talk about them.",
+    },
+
+    {
+      type: "image",
+      audience: "explorer",
+      src: "/images/illustrations/gears.svg",
+      alt: "Two interlocking gears — the tool loop turning: AI requests, tool runs, answer flows back.",
+      size: "md",
     },
 
     {
@@ -21,6 +29,7 @@ export default {
 
     {
       type: "image",
+      audience: "builder",
       src: "/images/illustrations/gears.svg",
       alt: "Two interlocking gears — the tool loop turning: AI requests, tool runs, answer flows back.",
       size: "md",

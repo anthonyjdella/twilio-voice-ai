@@ -188,7 +188,7 @@ if (req.url === "/twiml" && req.method === "POST") {
       type: "callout",
       variant: "tip",
       content:
-        "Match the voice to the persona. If the agent is \"Ms. Chen, a professional concierge,\" pick a polished, clear voice. If it is \"Jake from Pete's Pizza,\" pick something warmer and more casual.",
+        "Match the voice to the persona you picked in Step 2. **Professional Concierge** pairs with a polished, clear voice. **Casual Helper** sounds best with something warmer and more relaxed. **Friendly Assistant** sits in between -- any of the defaults will land well.",
     },
 
     {
