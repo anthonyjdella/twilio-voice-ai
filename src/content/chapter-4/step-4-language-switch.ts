@@ -105,6 +105,14 @@ LANGUAGE DETECTION:
     },
 
     {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**This is a new function.** Add `processLLMResponse` to your `server.js`; it does not replace anything from Step 1.",
+    },
+
+    {
       type: "code",
       audience: "builder",
       language: "javascript",
@@ -161,7 +169,15 @@ function processLLMResponse(ws, text) {
       type: "prose",
       audience: "builder",
       content:
-        "Right now, `streamResponse` sends every token to Twilio the moment it arrives. That's a problem: the `[LANG:xx-XX]` marker would be spoken out loud before the helper had a chance to strip it. The fix is to buffer tokens until a sentence ends, then run each full sentence through `processLLMResponse` before speaking it.",
+        "**Replace your Step 1 `streamResponse` with this version.** The old one sent every token to Twilio the moment it arrived, which would speak the `[LANG:xx-XX]` marker out loud before the helper had a chance to strip it. The fix is to buffer tokens until a sentence ends, then run each full sentence through `processLLMResponse` before speaking it.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "**This is a full replacement.** If you paste it next to your Step 1 `streamResponse` without deleting the old one, both functions will run and the caller will hear duplicated or overlapping audio.",
     },
 
     {
