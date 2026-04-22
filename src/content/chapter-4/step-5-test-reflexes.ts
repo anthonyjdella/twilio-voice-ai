@@ -37,13 +37,14 @@ Server listening on port 8080`,
     {
       type: "prose",
       audience: "builder",
-      content: "Or run this from the Codespace terminal:",
+      content:
+        "Or run this from the Codespace terminal. Your Codespace's forwarded URL is in the **Ports** tab -- it looks like `https://<codespace-name>-8080.app.github.dev` (note the `-8080` infix, which maps to the forwarded port):",
     },
 
     {
       type: "terminal",
       audience: "builder",
-      commands: `$ curl -X POST https://<your-codespace-url>/call`,
+      commands: `$ curl -X POST https://<codespace-name>-8080.app.github.dev/call`,
     },
 
     { type: "page-break" },
