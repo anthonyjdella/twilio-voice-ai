@@ -28,6 +28,14 @@ export default {
     },
 
     {
+      type: "callout",
+      variant: "info",
+      audience: "builder",
+      content:
+        "**About the two folders.** The Codespace has both `workshop/` and `voice-agent/` at the repo root. `workshop/` is where you'll paste every code snippet in this workshop -- treat it as your own. `voice-agent/` is the finished reference implementation that powers the workshop's Call Me widget; peek at it if you get stuck, but don't edit it.",
+    },
+
+    {
       type: "concept-card",
       audience: "explorer",
       title: "The Quick Setup Behind the Curtain",

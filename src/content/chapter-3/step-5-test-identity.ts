@@ -18,7 +18,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "You have crafted a system prompt, designed a persona, selected a voice, and configured the language settings. Restart your server to pick up the changes:",
+        "You have crafted a system prompt, designed a persona, selected a voice, and configured the language settings. Stop the running server with **Ctrl+C**, then start it again to pick up the changes:",
     },
 
     { type: "terminal", audience: "builder", commands: "$ node server.js" },

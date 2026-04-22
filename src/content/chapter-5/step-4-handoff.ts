@@ -88,7 +88,7 @@ export default {
       messageType: "end",
       code: `{
   "type": "end",
-  "handoffData": "{\\"reason\\":\\"billing_dispute\\",\\"summary\\":\\"Caller wants to dispute a charge of $49.99 on order ORD-12345. AI was unable to process the refund.\\",\\"callerId\\":\\"+15551234567\\"}"
+  "handoffData": "{\\"reasonCode\\":\\"live-agent-handoff\\",\\"reason\\":\\"billing_dispute\\",\\"summary\\":\\"Caller wants to dispute a charge of $49.99 on order ORD-12345. AI was unable to process the refund.\\",\\"callerId\\":\\"+15551234567\\"}"
 }`,
     },
 
@@ -96,7 +96,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "The `handoffData` field carries context about the conversation so the human agent knows what happened. Include the reason for the transfer, a summary, caller information, and any relevant order or account numbers.",
+        "The `handoffData` field carries context about the conversation so the human agent knows what happened. The `reasonCode` is Twilio's convention for marking this as a live-agent handoff (other end scenarios use different codes); `reason`, `summary`, `callerId`, and any order/account numbers go in the same JSON object.",
     },
 
     { type: "page-break" },
@@ -173,9 +173,13 @@ if (req.url === "/call-ended" && req.method === "POST") {
     const handoffData = params.get("HandoffData");
 
     let twiml;
+    let data = null;
     if (handoffData) {
+      try { data = JSON.parse(handoffData); } catch {}
+    }
+
+    if (data?.reasonCode === "live-agent-handoff") {
       // AI requested a handoff -- transfer the call
-      const data = JSON.parse(handoffData);
       console.log("Handoff requested:", data.reason);
       console.log("Summary:", data.summary);
 
@@ -192,7 +196,7 @@ if (req.url === "/call-ended" && req.method === "POST") {
   </Dial>
 </Response>\`;
     } else {
-      // Normal call end -- no handoff
+      // Normal call end (or unrecognized reasonCode) -- just hang up
       twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say>Thank you for calling. Goodbye!</Say>
@@ -281,6 +285,7 @@ transfer_to_agent: async ({ reason, department, summary }, ws) => {
     ws.send(JSON.stringify({
       type: "end",
       handoffData: JSON.stringify({
+        reasonCode: "live-agent-handoff",
         reason,
         department: department || "general",
         summary,
@@ -437,6 +442,7 @@ const toolHandlers = {
       ws.send(JSON.stringify({
         type: "end",
         handoffData: JSON.stringify({
+          reasonCode: "live-agent-handoff",
           reason,
           department: department || "general",
           summary,

@@ -81,7 +81,7 @@ export default {
             type: "prose",
             audience: "builder",
             content:
-                "Here is the same configuration using Google as the speech recognition provider, with Spanish as the language:",
+                "Here is the same configuration using Google as the speech recognition provider, with Spanish as the language. Notice that `voice` and `ttsProvider` also switch to Google here -- ElevenLabs' Spanish voice coverage is narrower than Google's, so for non-English you often pair Google STT with a Google TTS voice. If you are staying in English, keep your ElevenLabs voice from Step 3.",
         },
 
         {

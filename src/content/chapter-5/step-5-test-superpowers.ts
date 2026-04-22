@@ -131,7 +131,23 @@ Server listening on port 8080`,
         'Try a question that needs two lookups in one breath: "What is the weather in Tokyo, and can you check order ORD-12345?" The agent should answer both parts in a single reply. Note: this test only works when both tools are on in the Step 2 picker -- if one is off, the agent can only answer the half it still has a tool for.',
     },
 
-    { type: "section", title: "Test 4: Handoff" },
+    { type: "section", title: "Test 4: Joke Tool" },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        'Ask the agent: "Tell me a joke." The agent should call the `tell_joke` tool and come back with a short one-liner. This test only works when **Tell a Joke** is on in the Step 2 picker -- if it\'s off, the agent will either make one up or explain it can\'t.',
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        'Ask the agent: "Tell me a joke." The workshop\'s reference agent ships a `tell_joke` tool (no parameters, returns a random one-liner) that the Step 2 picker exposes. You didn\'t write a handler for it in this chapter -- the reference covers it -- but if you want the pattern, it\'s one of the simplest tools you\'ll ever define: a `function` with an empty `parameters` object and a handler that picks a random string.',
+    },
+
+    { type: "section", title: "Test 5: Handoff" },
 
     {
       type: "prose",
@@ -161,11 +177,12 @@ Server listening on port 8080`,
       type: "verify",
       audience: "builder",
       question:
-        "Did all four tests pass — weather lookup, order lookup, multi-tool call, and handoff?",
+        "Did all five tests pass — weather lookup, order lookup, multi-tool call, joke, and handoff?",
       troubleshooting: [
         "Agent made up weather instead of calling the tool? Confirm you're passing `tools: tools` to `openai.chat.completions.create()` in `streamResponse`",
         "Order lookup returned nothing? Check the terminal for `Tool call: lookup_order` — if missing, the LLM isn't picking the tool. Tighten the tool description",
         "Multi-tool call only answered half the question? Make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again",
+        "No joke? Confirm `tell_joke` is on in the Step 2 picker and that the tool handler returns a string — the agent falls back to improvising if it's missing",
         "Handoff didn't trigger? Verify the `transfer_to_agent` tool is in your `tools` array and its handler is sending the `end` message with `handoffData`",
         "Second turn crashes with an OpenAI 400 error about missing tool responses? You're skipping the `role: \"tool\"` message with `tool_call_id` — OpenAI requires exactly one per tool call before the next request",
         "Nothing happening at all? Restart your server and confirm port 8080 is Public in the Codespace Ports tab",
@@ -176,7 +193,7 @@ Server listening on port 8080`,
       type: "verify",
       audience: "explorer",
       question:
-        "Did the agent use its tools and hand off when asked — weather, order, multi-question, and live handoff?",
+        "Did the agent use its tools and hand off when asked — weather, order, multi-question, joke, and live handoff?",
       troubleshooting: [
         "Weather answer sounded made up? The agent ignored its tool. Head back to Pick Your Tools on Step 2 and confirm Check Weather is toggled on",
         "Order lookup didn't return the real shipping info? Same thing — check that Look Up Order is on, and try the exact order number ORD-12345",
