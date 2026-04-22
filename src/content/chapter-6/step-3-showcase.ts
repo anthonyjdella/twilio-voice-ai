@@ -2,97 +2,66 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "section", title: "Showcase" },
+    { type: "section", title: "What Makes a Great Voice AI Agent" },
 
     {
       type: "concept-card",
       audience: "explorer",
-      title: "Show the Story, Not the Code",
+      title: "What a Great Voice Agent Feels Like",
       content:
-        "When demoing a voice agent, let the call speak for itself. Walk through a short, believable scenario -- a real customer with a real problem -- and let the audience hear the agent handle it. Save the code walkthrough for afterwards.",
+        "A great voice agent sounds like a person who happens to be helpful, not a bot following a script. It has a clear personality you can sense within a sentence or two. It responds quickly. It handles interruptions without losing its place. It knows what it can and cannot do, and when it should hand off to a human. Everything you have seen in this workshop -- the persona, the reflexes, the tools, the handoff -- is what adds up to that feeling.",
     },
 
     {
       type: "prose",
-      audience: "explorer",
+      audience: "builder",
       content:
-        "Everything the agent can do -- conversations, tool calls, interruptions, handoffs -- comes together in a single live call.",
+        "The agent is complete. Every part you have built contributes to a single feeling on the other end of the call: *this thing is actually helpful.* The persona from Chapter 3 sets the tone. The reflexes from Chapter 4 -- interrupts, DTMF, silence, language switches -- are what keep it from feeling robotic. The tools and handoff from Chapter 5 are what let it do real work instead of just chatting. Together those four pieces are what distinguish a voice AI agent that feels good from one that feels like a phone tree.",
     },
 
     {
       type: "image",
-      audience: "explorer",
       src: "/images/illustrations/target.png",
-      alt: "A target with an arrow in the bullseye — the focused, on-point demo that makes the agent land.",
+      alt: "A target with an arrow in the bullseye — the four qualities that make a voice agent land on its feet.",
       size: "md",
     },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "The agent is complete. Time to show it off.",
-    },
-
-    { type: "section", audience: "builder", title: "Demo Your Agent" },
+    { type: "section", audience: "builder", title: "Try Your Agent" },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "The best demo is a live call. The script below matches the tools and handoff setting you picked earlier -- if you turned something off in Chapter 5, it will not show up here:",
+        "Before moving on, take your agent through a few representative calls. The sample prompts below match the tools and handoff setting you picked earlier -- anything you turned off in Chapter 5 will not show up here.",
     },
 
     { type: "demo-script", audience: "builder" },
 
-    { type: "page-break" },
-
-    { type: "section", audience: "builder", title: "Share Your Creation" },
-
     {
       type: "prose",
-      audience: "builder",
-      content:
-        "At a workshop or hackathon, pair up and call each other's agents. You'll be surprised how different two agents on the same stack can feel, just from differences in the system prompt and tool design.",
-    },
-
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "**Share your phone number** -- Others can call the agent directly.\n**Screen share your terminal** -- Show messages flowing in real time while someone calls.\n**Record a call** -- Use Twilio's call recording feature to capture a demo you can replay.",
-    },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "tip",
-      content:
-        'Keep your terminal visible during the demo so the audience can see tool lookups, interruptions, and messages in real time. That view is often more impressive than the audio alone.',
-    },
-
-    { type: "page-break" },
-
-    { type: "section", title: "What Makes a Great Demo" },
-
-    {
-      type: "image",
       audience: "explorer",
-      src: "/images/illustrations/torch.svg",
-      alt: "A lit torch — the spark of curiosity that carries a great demo from scripted reveal to real conversation.",
-      size: "sm",
+      content:
+        "The Builder is running a few live calls to exercise what the agent can do. Each one tests a different capability -- a simple question, a tool-driven answer, an interrupt, a handoff request. You can listen along if you are near the phone.",
     },
+
+    { type: "page-break" },
+
+    { type: "section", title: "Let Others Try It" },
 
     {
       type: "prose",
       content:
-        "The most impressive demos are the ones where something unexpected happens and the agent handles it well. Let the conversation flow naturally rather than scripting every word. If something breaks, that is a learning moment, not a failure.",
+        "Hand the phone to someone who has not heard the agent yet. Every voice agent sounds different the first time someone unfamiliar calls it -- they will ask questions you never thought to test, and that is where you find out what the agent actually feels like. Two builders starting from the same workshop code but different personas and tool choices will produce strikingly different agents. That is the point.",
     },
+
+    { type: "page-break" },
+
+    { type: "section", title: "The Four Qualities" },
 
     {
       type: "prose",
       content:
-        'Focus the demo on the **experience**, not the implementation. Talk about what the agent does, not how it does it. The audience should think "I want one of these" -- not "that was a complicated code walkthrough."',
+        "Everything the workshop has covered maps to four qualities worth aiming for in any voice AI agent you build after this:\n\n- **Personality.** The agent knows who it is and stays consistent across every turn.\n- **Responsiveness.** The caller is never left waiting for a full sentence to finish before they can speak. Interrupts, silence handling, and fast streaming are what buy this.\n- **Capability.** The agent can actually *do* things -- look something up, place an order, check a status -- not just talk about them.\n- **Self-awareness.** The agent knows when it is the wrong tool for the job and hands off cleanly instead of guessing.\n\nMissing any one of these and callers will feel it, even if they cannot name it.",
     },
 
     { type: "section", audience: "builder", title: "Checkpoint" },
@@ -101,13 +70,13 @@ export default {
       type: "verify",
       audience: "builder",
       question:
-        "Have you successfully demoed your agent to at least one other person?",
+        "Have you tried your agent end-to-end with at least one test call?",
     },
 
     {
       type: "prose",
       content:
-        "Whether the demo was for a room full of people or just one more test call, the core workshop is complete. One more step to go.",
+        "That is the capstone. One more step to close out the workshop.",
     },
   ],
 } satisfies StepDefinition;
