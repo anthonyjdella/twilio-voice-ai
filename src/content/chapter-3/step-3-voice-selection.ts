@@ -73,7 +73,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**ElevenLabs:** `Rachel` (warm, female), `Drew` (confident, male), `Bella` (soft, female), `Antoni` (friendly, male), `Elli` (youthful, female).",
+        "**ElevenLabs** (use the voice ID, not the display name): Rachel `21m00Tcm4TlvDq8ikWAM` (warm, female), Drew `29vD33N1CtxCmqQRPOHJ` (confident, male), Bella `EXAVITQu4vr4xnSDxMAC` (soft, female), Antoni `ErXwobaYiN019PkySvjV` (friendly, male), Elli `MF3mGyEYCl7XYWbV9V6O` (youthful, female).",
     },
 
     {
@@ -81,7 +81,7 @@ export default {
       audience: "builder",
       variant: "tip",
       content:
-        "**Preview ElevenLabs voices before you pick.** Try different voices side-by-side in the [ElevenLabs Voice Tester](https://elevenlabs-voice-tester-5339-dev.twil.io/index.html) and copy the name of the one you like.",
+        "**Preview ElevenLabs voices before you pick.** Try different voices side-by-side in the [ElevenLabs Voice Tester](https://elevenlabs-voice-tester-5339-dev.twil.io/index.html), then copy the **voice ID** of the one you like (Twilio's `voice` attribute requires the ID, not the display name).",
     },
 
     {
@@ -106,7 +106,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "To set a specific voice, update the ConversationRelay settings in your server. Add the `voice` attribute with the voice name, and the `ttsProvider` attribute to select the provider:",
+        "To set a specific voice, update the ConversationRelay settings in your server. Add the `voice` attribute with the voice ID (or voice name for Google and Amazon), and the `ttsProvider` attribute to select the provider:",
     },
 
     {
@@ -122,7 +122,7 @@ export default {
   <Connect>
     <ConversationRelay
       url="wss://your-codespace-8080.app.github.dev/ws"
-      voice="Rachel"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       welcomeGreeting="Hello! How can I help you today?"
       dtmfDetection="true"
@@ -172,7 +172,7 @@ if (req.url === "/twiml" && req.method === "POST") {
   <Connect>
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
-      voice="Rachel"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       welcomeGreeting="Hello! How can I help you today?"
       dtmfDetection="true"
@@ -226,7 +226,7 @@ if (req.url === "/twiml" && req.method === "POST") {
       file: "server.js",
       language: "javascript",
       explanation:
-        "The complete `server.js` at the end of this step. The only change from Chapter 3 Step 1 is inside the `/twiml` handler: the `ConversationRelay` element now declares `voice=\"Rachel\"` and `ttsProvider=\"ElevenLabs\"` so Twilio uses that voice for the whole call. Swap in any voice/provider combo from the tables above.",
+        "The complete `server.js` at the end of this step. The only change from Chapter 3 Step 1 is inside the `/twiml` handler: the `ConversationRelay` element now declares `voice=\"21m00Tcm4TlvDq8ikWAM\"` (Rachel's ElevenLabs voice ID) and `ttsProvider=\"ElevenLabs\"` so Twilio uses that voice for the whole call. Swap in any voice/provider combo from the tables above.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
@@ -268,7 +268,7 @@ const server = http.createServer(async (req, res) => {
   <Connect>
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
-      voice="Rachel"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       welcomeGreeting="Hello! How can I help you today?"
       dtmfDetection="true"

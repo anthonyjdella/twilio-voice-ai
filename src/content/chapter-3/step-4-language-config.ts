@@ -66,7 +66,7 @@ export default {
   <Connect>
     <ConversationRelay
       url="wss://your-codespace-8080.app.github.dev/ws"
-      voice="Rachel"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       language="en-US"
       transcriptionProvider="Deepgram"
@@ -163,7 +163,7 @@ if (req.url === "/twiml" && req.method === "POST") {
   <Connect>
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
-      voice="Rachel"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       language="en-US"
       transcriptionProvider="Deepgram"
@@ -248,7 +248,7 @@ const server = http.createServer(async (req, res) => {
   <Connect>
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
-      voice="Rachel"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       language="en-US"
       transcriptionProvider="Deepgram"
