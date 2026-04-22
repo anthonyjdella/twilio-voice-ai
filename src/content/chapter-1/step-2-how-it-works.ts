@@ -193,7 +193,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**ConversationRelay (STT + TTS)** — The bridge between voice and text. It uses **Deepgram** for speech-to-text (transcribing what the caller says) and **ElevenLabs** for text-to-speech (turning your text into natural-sounding audio) by default. It also detects interruptions mid-utterance. You can swap these providers later — Google and Amazon are also supported.",
+        "**ConversationRelay (STT + TTS)** — The bridge between voice and text. It uses **Deepgram** for speech-to-text (transcribing what the caller says) and **ElevenLabs** for text-to-speech (turning your text into natural-sounding audio) by default. It also detects interruptions mid-utterance. You can swap providers later — other options include Google (STT and TTS) and Amazon (TTS only).",
     },
 
     {
