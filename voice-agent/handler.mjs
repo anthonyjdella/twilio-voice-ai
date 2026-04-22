@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { buildSystemPrompt } from "./system-prompt.mjs";
-import { toolDefinitions, executeTool } from "./tools.mjs";
+import { toolDefinitions, executeTool, HANDOFF_TOOL_NAME } from "./tools.mjs";
 import { recordEvent } from "../analytics/db.mjs";
 
 const MAX_TOOL_ITERATIONS = 5;
@@ -161,7 +161,6 @@ export function handleConversationRelayConnection(ws) {
 }
 
 const LANG_MARKER_RE = /\[LANG:([a-z]{2}-[A-Z]{2})\]/g;
-const HANDOFF_MARKER = "[HANDOFF]";
 
 async function streamLLMResponse(openai, history, ws, callSid, tools = toolDefinitions, handoffAllowed = true) {
   let iterations = 0;
@@ -207,8 +206,8 @@ async function streamLLMResponse(openai, history, ws, callSid, tools = toolDefin
         fullResponse += delta.content;
         pendingSend += delta.content;
 
-        // Buffer text when we see a potential partial marker starting
-        if (/\[(?:LANG|HANDOFF)[^\]]*$/.test(pendingSend)) {
+        // Buffer text when we see a potential partial language marker starting
+        if (/\[LANG[^\]]*$/.test(pendingSend)) {
           continue;
         }
 
@@ -223,35 +222,6 @@ async function streamLLMResponse(openai, history, ws, callSid, tools = toolDefin
           sendLanguage(ws, langCode);
         }
 
-        // Check for complete handoff marker
-        if (pendingSend.includes(HANDOFF_MARKER)) {
-          pendingSend = pendingSend.replace(HANDOFF_MARKER, "");
-
-          if (!handoffAllowed) {
-            // Safety net: handoff is disabled for this call. Strip the marker
-            // from the stream so the caller never hears "[HANDOFF]", but keep
-            // the call going. The model was prompted not to emit this, so
-            // arriving here means it ignored the instruction.
-            console.log(`[voice-agent] [${callSid}] Suppressed HANDOFF marker (disabled)`);
-          } else {
-            if (pendingSend.trim()) {
-              sendToken(ws, pendingSend, true);
-            }
-            console.log(`[voice-agent] [${callSid}] Handoff triggered`);
-            recordEvent(callSid, "handoff_triggered", { callSid });
-            fullResponse = fullResponse.replace(HANDOFF_MARKER, "").replace(LANG_MARKER_RE, "");
-            history.push({ role: "assistant", content: fullResponse });
-
-            setTimeout(() => {
-              sendEnd(ws, JSON.stringify({
-                reasonCode: "live-agent-handoff",
-                reason: "The caller requested to speak with a human agent",
-              }));
-            }, 1500);
-            return;
-          }
-        }
-
         if (pendingSend) {
           sendToken(ws, pendingSend, false);
         }
@@ -261,24 +231,74 @@ async function streamLLMResponse(openai, history, ws, callSid, tools = toolDefin
 
     // Flush any remaining buffered text (e.g. partial marker that never completed)
     if (pendingSend) {
-      const cleaned = pendingSend.replace(LANG_MARKER_RE, "").replace(HANDOFF_MARKER, "");
+      const cleaned = pendingSend.replace(LANG_MARKER_RE, "");
       if (cleaned) {
         sendToken(ws, cleaned, false);
       }
     }
 
     if (hasToolCalls) {
+      const validToolCalls = currentToolCalls.filter(Boolean);
+
+      // Intercept transfer_to_agent: send `end` with handoffData instead of
+      // continuing the tool loop. Twilio will POST HandoffData to the
+      // <Connect action> URL, and a human agent picks up from there.
+      const handoffCall = validToolCalls.find((tc) => tc.name === HANDOFF_TOOL_NAME);
+      if (handoffCall) {
+        if (!handoffAllowed) {
+          console.log(`[voice-agent] [${callSid}] Suppressed transfer_to_agent (disabled)`);
+          history.push({
+            role: "assistant",
+            content: null,
+            tool_calls: [{
+              id: handoffCall.id,
+              type: "function",
+              function: { name: handoffCall.name, arguments: handoffCall.arguments },
+            }],
+          });
+          history.push({
+            role: "tool",
+            tool_call_id: handoffCall.id,
+            content: JSON.stringify({ error: "Handoff is disabled for this call." }),
+          });
+          continue;
+        }
+
+        let args = {};
+        try {
+          args = JSON.parse(handoffCall.arguments);
+        } catch {
+          args = {};
+        }
+        console.log(`[voice-agent] [${callSid}] Handoff triggered: ${args.reason || ""}`);
+        recordEvent(callSid, "handoff_triggered", { callSid, reason: args.reason });
+
+        const cleanFarewell = fullResponse.replace(LANG_MARKER_RE, "");
+        if (cleanFarewell.trim()) {
+          history.push({ role: "assistant", content: cleanFarewell });
+        }
+
+        setTimeout(() => {
+          sendEnd(ws, JSON.stringify({
+            reasonCode: "live-agent-handoff",
+            reason: args.reason || "caller_requested_human",
+            summary: args.summary || "",
+          }));
+        }, 1500);
+        return;
+      }
+
       history.push({
         role: "assistant",
         content: null,
-        tool_calls: currentToolCalls.filter(Boolean).map((tc) => ({
+        tool_calls: validToolCalls.map((tc) => ({
           id: tc.id,
           type: "function",
           function: { name: tc.name, arguments: tc.arguments },
         })),
       });
 
-      for (const tc of currentToolCalls.filter(Boolean)) {
+      for (const tc of validToolCalls) {
         let args = {};
         try {
           args = JSON.parse(tc.arguments);
@@ -295,7 +315,7 @@ async function streamLLMResponse(openai, history, ws, callSid, tools = toolDefin
       continue;
     }
 
-    const cleanResponse = fullResponse.replace(LANG_MARKER_RE, "").replace(HANDOFF_MARKER, "");
+    const cleanResponse = fullResponse.replace(LANG_MARKER_RE, "");
     if (cleanResponse) {
       history.push({ role: "assistant", content: cleanResponse });
       console.log(

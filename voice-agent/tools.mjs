@@ -47,7 +47,31 @@ export const toolDefinitions = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "transfer_to_agent",
+      description:
+        "Transfer the caller to a human agent. Use only when the caller explicitly asks to speak with a real person, a manager, or a human agent, or when the situation clearly needs human judgment.",
+      parameters: {
+        type: "object",
+        properties: {
+          reason: {
+            type: "string",
+            description: "Short machine-friendly reason, e.g. 'billing_dispute' or 'caller_requested_human'",
+          },
+          summary: {
+            type: "string",
+            description: "One- to two-sentence summary of the conversation so the human agent doesn't have to start from zero.",
+          },
+        },
+        required: ["reason", "summary"],
+      },
+    },
+  },
 ];
+
+export const HANDOFF_TOOL_NAME = "transfer_to_agent";
 
 const JOKES = [
   "Why don't scientists trust atoms? Because they make up everything.",

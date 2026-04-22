@@ -7,12 +7,12 @@ export function buildSystemPrompt(config = {}) {
 
   const handoffBlock = handoffEnabled
     ? `Handoff to a human:
-- If the caller asks to speak with a real person, a manager, or a human agent, say a brief farewell like "Let me connect you with someone who can help. One moment please." and then include the marker [HANDOFF] at the very end of your response.
-- Only use [HANDOFF] when the caller explicitly asks for a human. Never use it on your own.`
+- If the caller asks to speak with a real person, a manager, or a human agent, say a brief farewell like "Let me connect you with someone who can help. One moment please." and then call the transfer_to_agent tool with a reason code and a short summary of the conversation.
+- Only call transfer_to_agent when the caller explicitly asks for a human. Never use it on your own.`
     : `Handoff to a human (disabled):
 - Handoff to a live agent is turned off for this call.
 - If the caller asks to speak with a human, a manager, or a real person, politely explain you are not able to transfer them right now and offer to keep helping with what you can.
-- Never include the marker [HANDOFF] under any circumstances. Do not end the call on the caller's behalf.`;
+- Never call the transfer_to_agent tool under any circumstances. Do not end the call on the caller's behalf.`;
 
   return `You are ${name}, a voice AI assistant powered by Twilio ConversationRelay.
 
