@@ -93,6 +93,14 @@ export default {
     },
 
     {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Env vars used below.** The code references four environment variables, all pre-loaded in your Codespace:\n\n- `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` -- identify your Twilio account when placing outbound calls\n- `TWILIO_PHONE_NUMBER` -- the number calls originate from\n- `MY_PHONE_NUMBER` -- your personal number (set in Ch1 Step 4) that Twilio calls during testing\n\nUsing your own Twilio account later? Grab the SID/token from [console.twilio.com](https://console.twilio.com) and a voice-capable number from Phone Numbers.",
+    },
+
+    {
       type: "code",
       audience: "builder",
       language: "javascript",
