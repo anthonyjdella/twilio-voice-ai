@@ -127,7 +127,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "tool-handlers.js",
-      highlight: ["19-39"],
+      highlight: ["19-53"],
       code: `const tools = [
   {
     type: "function",
@@ -162,6 +162,19 @@ export default {
           }
         },
         required: ["order_id"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "tell_joke",
+      description: "Tell the caller a short, friendly joke. " +
+        "Use when the caller asks for a joke, wants to laugh, " +
+        "or asks you to be funny.",
+      parameters: {
+        type: "object",
+        properties: {}
       }
     }
   }
@@ -231,6 +244,18 @@ const toolHandlers = {
       return { error: "Order not found: " + order_id };
     }
     return { order_id, ...order };
+  },
+
+  // Simplest possible tool: no parameters, returns a random string.
+  // Good template for any zero-input action (random fact, quote of the day, etc).
+  tell_joke: async (_args, _ws) => {
+    const jokes = [
+      "Why don't scientists trust atoms? Because they make up everything.",
+      "I told my computer I needed a break, and it said: no problem, I'll go to sleep.",
+      "Why did the developer go broke? Because they used up all their cache.",
+      "Parallel lines have so much in common. It's a shame they'll never meet."
+    ];
+    return { joke: jokes[Math.floor(Math.random() * jokes.length)] };
   }
 };
 
@@ -272,7 +297,7 @@ module.exports = { tools, toolHandlers };`,
       type: "solution",
       audience: "builder",
       explanation:
-        "`tool-handlers.js` holds the `tools` schema plus the `toolHandlers` dispatch map and exports both. `server.js` requires that module and passes the `tools` array into every `openai.chat.completions.create` call. Switch between the two files with the tabs above the code.",
+        "`tool-handlers.js` holds the `tools` schema plus the `toolHandlers` dispatch map and exports both. `server.js` requires that module and passes the `tools` array into every `openai.chat.completions.create` call. Switch between the two files with the tabs above the code.\n\nHeads-up on the `streamResponse` function in this solution: it is the baseline for Step 2 only. Step 3 replaces it with a tool-aware version that handles tool calls and recursion. Do not invest time polishing the Step 2 version -- you will overwrite it next step.",
       files: [
         {
           file: "tool-handlers.js",
@@ -319,6 +344,15 @@ module.exports = { tools, toolHandlers };`,
         required: ["order_id"]
       }
     }
+  },
+  {
+    type: "function",
+    function: {
+      name: "tell_joke",
+      description: "Tell the caller a short, friendly joke. " +
+        "Use when the caller asks for a joke, wants to laugh, or asks you to be funny.",
+      parameters: { type: "object", properties: {} }
+    }
   }
 ];
 
@@ -353,6 +387,16 @@ const toolHandlers = {
       return { error: "Order not found: " + order_id };
     }
     return { order_id, ...order };
+  },
+
+  tell_joke: async (_args, _ws) => {
+    const jokes = [
+      "Why don't scientists trust atoms? Because they make up everything.",
+      "I told my computer I needed a break, and it said: no problem, I'll go to sleep.",
+      "Why did the developer go broke? Because they used up all their cache.",
+      "Parallel lines have so much in common. It's a shame they'll never meet."
+    ];
+    return { joke: jokes[Math.floor(Math.random() * jokes.length)] };
   }
 };
 
@@ -584,8 +628,9 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      interruptible="any"
       dtmfDetection="true"
+      interruptible="any"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>\`;

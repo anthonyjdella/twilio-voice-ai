@@ -46,7 +46,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Create `server.js` with this skeleton. It sets up an HTTP server, attaches a WebSocket server, and listens for connections:",
+        "Create `server.js` inside the `workshop/` folder that opens in your Codespace (the terminal is already cwd'd there). It sets up an HTTP server, attaches a WebSocket server, and listens for connections:",
     },
 
     {
@@ -232,6 +232,14 @@ wss.on("connection", (ws) => {
 server.listen(PORT, () => {
   console.log(\`🚀 Server listening on port \${PORT}\`);
 });`,
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What Just Went Up",
+      content:
+        "A server is now running in the Codespace and listening for Twilio to knock on two different doors. One door takes regular web requests -- that is how Twilio asks, \"a call came in, what do I do?\". The other door is a WebSocket -- a two-way line that stays open for the whole call so speech and replies can flow in real time. Nothing intelligent has happened yet. The server is just standing by, ready for the first call to land.",
     },
   ],
 } satisfies StepDefinition;

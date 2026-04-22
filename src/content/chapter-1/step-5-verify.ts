@@ -7,17 +7,40 @@ export default {
       audience: "explorer",
       title: "Opening the Door for Twilio",
       content:
-        "Before Builders can make their first call, they have to open a kind of door on their server so Twilio can reach it. Without that door open, when a caller dials the phone number, the message has nowhere to go -- the call just fails quietly. Once the door is open, Twilio knows where to deliver every call, and the agent can finally answer.",
+        "Before the first call can go through, a kind of door has to be opened on the server so Twilio can reach it. Without that door open, when a caller dials the phone number, the message has nowhere to go -- the call just fails quietly. Once the door is open, Twilio knows where to deliver every call, and the agent can finally answer.",
     },
 
     {
       type: "prose",
       audience: "explorer",
       content:
-        "This step is a short one for you -- the setup is all behind the scenes. The next chapter is where the agent comes alive and your phone starts ringing.",
+        "The hands-on setup is all behind the scenes from here. While that finishes, here is what to expect when the phone rings in the next chapter.",
     },
 
-    { type: "builder-only", audience: "explorer", context: "Builders are configuring their server and verifying their setup. Everything is already configured for you." },
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What the First Call Will Sound Like",
+      content:
+        "In Chapter 2 the agent rings your phone and a few things happen in roughly two seconds. A voice greets you -- that is the agent reading its opening line. It pauses. It listens for what you say. Then it streams a reply back in real time, which is why you hear the first words before the full sentence is even written. That streaming is what makes the agent feel fast. You can also interrupt it mid-sentence and it will stop and listen, the same way a person would.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What Chapter 1 Covered",
+      content:
+        "A voice AI agent is really four moving parts talking to each other: the phone network, the speech-to-text converter, the AI model that decides what to say, and the text-to-speech voice that speaks the reply. Chapter 1 walked through the map -- what each piece does and how a call flows from a caller's phone to the agent and back. Nothing has been built yet, but the picture is now in place.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "From here, the Builder next to you starts assembling those pieces in code. You will see the first call come to life in the next chapter.",
+    },
+
+    { type: "builder-only", audience: "explorer", context: "The server is being configured and checked behind the scenes. Everything the agent needs on your side is already handled." },
 
     { type: "section", title: "Expose Your Server", audience: "builder" },
 
@@ -25,7 +48,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Twilio needs to reach your server over the internet to send and receive messages during a call. In Codespaces, this is built in -- you just need to make your port public.",
+        "Twilio needs to reach your server over the internet to send and receive messages during a call. Your server will listen on **port 8080** (you'll start it in Chapter 2). The Codespace is pre-configured to forward that port and mark it Public automatically, so the setup below is a quick visual check that it landed correctly.",
     },
 
     {
@@ -36,7 +59,7 @@ export default {
         "Your server runs inside a Codespace in the cloud, but Twilio's servers need to reach it over the internet. Codespaces has built-in port forwarding that creates a public URL pointing to your server -- no extra tools needed.",
     },
 
-    { type: "section", title: "Make Your Port Public", audience: "builder" },
+    { type: "section", title: "Confirm Port 8080 Is Public", audience: "builder" },
 
     {
       type: "visual-step",
@@ -46,7 +69,7 @@ export default {
           icon: "/images/icons/connectivity.svg",
           title: "Open the Ports tab",
           description:
-            "In your Codespace, click the **Ports** tab at the bottom panel (next to Terminal). You should see port 8080 listed.",
+            "In your Codespace, click the **Ports** tab at the bottom panel (next to Terminal). You should see port 8080 listed with the label \"Workshop Server.\"",
         },
       ],
     },
@@ -65,9 +88,9 @@ export default {
       steps: [
         {
           icon: "/images/icons/globe.svg",
-          title: "Set visibility to Public",
+          title: "Check that Visibility is Public",
           description:
-            "Right-click port 8080 → **Port Visibility** → **Public**. This is critical -- Twilio cannot authenticate with GitHub, so the port must be publicly accessible.",
+            "The Visibility column for port 8080 should already say **Public**. If it says **Private**, right-click port 8080 → **Port Visibility** → **Public** to change it. Twilio cannot authenticate with GitHub, so the port has to be publicly accessible.",
         },
       ],
     },
@@ -76,8 +99,8 @@ export default {
       type: "image",
       audience: "builder",
       src: "/images/codespace-port-public.png",
-      alt: "Setting port 8080 visibility to Public in Codespace",
-      caption: "Right-click the port and set visibility to Public.",
+      alt: "Port 8080 shown with Public visibility in Codespace",
+      caption: "Port 8080 with Public visibility — what you should see.",
     },
 
     {
@@ -85,14 +108,14 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**The port must be set to Public, not Private.** Private ports require GitHub authentication, which Twilio cannot provide. If you skip this step, Twilio will get a 401 error and the call will fail silently.",
+        "**Port must be Public, not Private.** The Codespace sets this automatically, but if you ever see **Private** in the Visibility column (e.g., on a repo fork that overrode devcontainer settings), change it -- private ports require GitHub authentication, which Twilio cannot provide, and the call will fail silently with a 401.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "Your Codespace URL becomes two things: an `https://` URL for TwiML webhooks and a `wss://` URL for WebSocket connections. The WebSocket URL is derived by replacing `https://` with `wss://` and appending your WebSocket path (e.g., `/ws`).",
+        "Your Codespace URL becomes two things: an `https://` URL for TwiML webhooks and a `wss://` URL for WebSocket connections. The WebSocket URL is derived by replacing `https://` with `wss://` and appending your WebSocket path (e.g., `/ws` -- you will build the handler for this path in Chapter 2).",
     },
 
     {
@@ -115,11 +138,11 @@ export default {
       type: "verify",
       audience: "builder",
       question:
-        "Is your port 8080 set to Public?",
+        "Does the Ports tab show port 8080 as Public?",
       troubleshooting: [
-        "In the Ports tab, right-click port 8080 and select Port Visibility → Public",
-        "If port 8080 is not listed, it will appear once you start a server later",
-        "Try refreshing the Ports tab if it looks empty",
+        "If the Visibility column says Private, right-click port 8080 and select Port Visibility → Public",
+        "If port 8080 isn't listed at all, try refreshing the Ports tab or reloading the Codespace",
+        "If the port is listed with a different label (not 'Workshop Server'), the devcontainer didn't apply — fine to ignore as long as it's forwarded and Public",
       ],
     },
 
@@ -161,7 +184,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**4. Port 8080** -- When you start your server in Chapter 2, you will need to make port 8080 **Public** in the Codespace Ports tab (covered in the Expose Your Server step).",
+        "**4. Port 8080 is Public** -- The Codespace configures this automatically and you confirmed it in the Ports tab above. When you start your server in Chapter 2, Twilio will be able to reach it.",
     },
 
     {

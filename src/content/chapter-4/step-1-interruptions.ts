@@ -11,7 +11,7 @@ export default {
       audience: "explorer",
       title: "Why Barge-In Matters",
       content:
-        "Real conversations aren't turn-based. People cut each other off, change their mind mid-sentence, and repeat themselves when they feel unheard. If a voice agent insists on finishing every sentence before listening, it feels robotic fast. Barge-in is the feature that lets the caller interrupt at any moment, and it's half the reason a ConversationRelay agent feels alive.",
+        "Real conversations aren't turn-based. People cut each other off, change their mind mid-sentence, and repeat themselves when they feel unheard. If a voice agent insists on finishing every sentence before listening, it feels robotic fast. Barge-in is the feature that lets the caller interrupt at any moment -- without it, the agent feels robotic even if everything else is right.",
     },
 
     {
@@ -26,7 +26,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**Heads up -- this step is a refactor, not an add.** Before you paste the code further down, do these three things:\n\n- **Delete** `const conversationHistory = [...]` from inside `wss.on(\"connection\", ...)`.\n- **Delete** the entire `streamLLMResponse` function from Chapter 2.\n- **Paste** the new module-scope code at the **top of `server.js`**, outside any handler.\n\nIf you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and the interrupt handler -- plus Chapter 5's tool loop -- will write to the wrong array.",
+        "**Heads up -- this step is a refactor, not an add.** Before you paste the code further down, do these three things:\n\n- **Delete** `const conversationHistory = [...]` from inside `wss.on(\"connection\", ...)`.\n- **Delete** the entire `streamLLMResponse` function from Chapter 2.\n- **Keep** the `sendText(ws, token, last = false)` helper from Chapter 2 -- the new code uses it as-is (double-check the signature matches if you modified it).\n- **Paste** the new module-scope code at the **top of `server.js`**, outside any handler.\n\nIf you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and the interrupt handler -- plus Chapter 5's tool loop -- will write to the wrong array.",
     },
 
     { type: "section", title: "How Barge-In Works", audience: "builder" },
@@ -195,9 +195,9 @@ function handleMessage(ws, data) {
       code: `<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
-      interruptible="speech"
-      dtmfDetection="true"
+      url="wss://<your-server-host>/ws"
+      interruptible="any"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>`,
@@ -207,7 +207,7 @@ function handleMessage(ws, data) {
       type: "prose",
       audience: "builder",
       content:
-        "The `interruptible` attribute accepts four values:\n\n**`\"any\"`** (the default) -- both voice and DTMF keypresses interrupt. **`\"speech\"`** -- only voice interrupts, keypresses are silently collected. **`\"dtmf\"`** -- only keypresses interrupt. **`\"none\"`** -- the AI always finishes speaking before accepting new input (useful for legal disclaimers or important announcements).",
+        "The `interruptible` attribute accepts four values:\n\n**`\"any\"`** (the default) -- both voice and DTMF keypresses interrupt. **`\"speech\"`** -- only voice interrupts, keypresses are silently collected. **`\"dtmf\"`** -- only keypresses interrupt. **`\"none\"`** -- the AI always finishes speaking before accepting new input (useful for legal disclaimers or important announcements).\n\n`reportInputDuringAgentSpeech=\"any\"` tells Twilio to forward speech and keypresses to your server even while the agent is talking. Without it, the default (`\"none\"` as of May 2025) silently drops mid-speech input, so your interrupt and DTMF handlers never fire.",
     },
 
     {
@@ -224,6 +224,14 @@ function handleMessage(ws, data) {
       title: "Why utteranceUntilInterrupt matters",
       content:
         "If you do not trim the assistant message in your conversation history, the LLM will think the caller heard the entire response. This leads to confusing exchanges where the AI references information it never actually delivered. By replacing the assistant message content with `utteranceUntilInterrupt`, you give the LLM an accurate picture of the conversation so far.\n\nSome advanced implementations also add a system note like \"[caller interrupted here]\" to help the LLM understand the context shift.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Keep your persona.** The solution below uses a generic `SYSTEM_PROMPT` (\"helpful voice assistant for Acme Corp\") as the default. If you picked a specific persona in Chapter 3 Step 2 (Sam, Ms. Chen, or Jake), paste *your* `SYSTEM_PROMPT` from that step here instead -- the rest of the code does not change.",
     },
 
     {
@@ -345,7 +353,7 @@ const server = http.createServer(async (req, res) => {
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
       interruptible="any"
-      dtmfDetection="true"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>\`;

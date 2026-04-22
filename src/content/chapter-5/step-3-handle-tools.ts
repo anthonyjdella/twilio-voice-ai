@@ -9,7 +9,15 @@ export default {
       audience: "explorer",
       title: "The Tool Loop in Plain English",
       content:
-        "When the AI decides it needs a tool, it pauses and says \"please look this up for me.\" The tool runs, the answer comes back, and then the AI speaks to the caller. This back-and-forth loop is what lets a voice agent actually do things, not just talk about them.",
+        "Think of it like a cashier pausing to scan a barcode before telling you the price. When the AI decides it needs a tool, it stops and says \"please look this up for me.\" The tool runs, the answer comes back, and then the AI speaks to the caller. This back-and-forth loop is what lets a voice agent actually do things, not just talk about them.",
+    },
+
+    {
+      type: "image",
+      audience: "explorer",
+      src: "/images/illustrations/gears.svg",
+      alt: "Two interlocking gears — the tool loop turning: AI requests, tool runs, answer flows back.",
+      size: "md",
     },
 
     {
@@ -21,6 +29,7 @@ export default {
 
     {
       type: "image",
+      audience: "builder",
       src: "/images/illustrations/gears.svg",
       alt: "Two interlocking gears — the tool loop turning: AI requests, tool runs, answer flows back.",
       size: "md",
@@ -35,7 +44,7 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "**Before you paste the code below, make these four changes to `server.js`:**\n\n- [ ] **Add** `const { tools, toolHandlers } = require(\"./tool-handlers.js\");` near the top with your other `require` statements\n- [ ] **Delete** the `handlePrompt` function (added in Chapter 4)\n- [ ] **Delete** the `streamLLMResponse` function (from Chapter 2, if it's still there)\n- [ ] **Update** the `prompt` case inside `handleMessage` to call `streamResponse(ws)` directly -- see the diff below\n\nThe warnings below explain *why* each change matters. If anything behaves unexpectedly during Step 5 testing, come back to this checklist first.",
+        "**Before you paste the code below, make these four changes to `server.js`:**\n\n- [ ] **Add** `const { tools, toolHandlers } = require(\"./tool-handlers.js\");` near the top with your other `require` statements\n- [ ] **Delete** the `handlePrompt` function (added in Chapter 4)\n- [ ] **Delete** your current `streamResponse` function (renamed from Chapter 2's `streamLLMResponse` back in Ch4 Step 1) -- the new `streamResponse` below replaces it\n- [ ] **Update** the `prompt` case inside `handleMessage` to call `streamResponse(ws)` directly -- see the diff below\n\nThe warnings below explain *why* each change matters. If anything behaves unexpectedly during Step 5 testing, come back to this checklist first.",
     },
 
     {
@@ -43,7 +52,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**Replace, don't append.** The `streamResponse(ws)` function below **replaces two things** from earlier chapters:\n\n1. **Delete `handlePrompt`** (from Chapter 4). The prompt case now pushes the user turn inline and calls `streamResponse(ws)` directly -- see the diff below.\n2. **Delete `streamLLMResponse`** (from Chapter 2, if it still exists). `streamResponse` is its successor -- same streaming idea, but with `AbortController` support, module-scope `conversationHistory`, and tool-call handling.\n\nIf you leave either old function in place alongside `streamResponse`, you'll have two `for await` loops fighting over the same `conversationHistory` and `activeStream` -- the tool-call branch will never fire because the old function gets the prompt first. `conversationHistory` and `activeStream` stay at module scope (set up in Chapter 4); only the stream loop itself is swapped.",
+        "**Replace, don't append.** The `streamResponse(ws)` function below **replaces two things** from earlier chapters:\n\n1. **Delete `handlePrompt`** (from Chapter 4). The prompt case now pushes the user turn inline and calls `streamResponse(ws)` directly -- see the diff below.\n2. **Delete your current `streamResponse`** (renamed from Chapter 2's `streamLLMResponse` in Ch4 Step 1). The new `streamResponse` below is its successor -- same streaming idea, but with tool-call handling on top of what Ch4 built.\n\nIf you leave either old function in place alongside the new `streamResponse`, you'll have two `for await` loops fighting over the same `conversationHistory` and `activeStream` -- the tool-call branch will never fire because the old function gets the prompt first. `conversationHistory` and `activeStream` stay at module scope (set up in Chapter 4); only the stream loop itself is swapped.",
     },
 
     {
@@ -87,7 +96,7 @@ export default {
           icon: "/images/icons/wrench.svg",
           title: "Tool runs and returns an answer",
           description:
-            'Your server runs the tool and gets back: _"Shipped. Arriving April 22. Tracking 1Z999AA10123456784."_',
+            'The workshop\'s back-end runs the tool and gets back: _"Shipped. Arriving April 22. Tracking 1Z999AA10123456784."_',
         },
         {
           icon: "/images/icons/arrow-cycle.svg",
@@ -124,9 +133,9 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      highlight: ["1-2", 10, "13-14", "22-27", "30-50", "52-61"],
-      code: `// At the top of server.js — import from Step 2
-const { tools, toolHandlers } = require("./tool-handlers.js");
+      highlight: [7, "10-11", "19-24", "27-47", "49-58"],
+      code: `// The require("./tool-handlers.js") import was added to the top of server.js
+// via the checklist above — this block shows the streamResponse body only.
 
 async function streamResponse(ws, iteration = 0) {
   activeStream = new AbortController();
@@ -154,12 +163,16 @@ async function streamResponse(ws, iteration = 0) {
 
         // Flush whole sentences through processLLMResponse so any
         // [LANG:xx-XX] marker is stripped and the language switch
-        // message reaches Twilio before the text is spoken.
-        const sentenceEnd = textBuffer.search(/[.!?]\\s/);
-        if (sentenceEnd !== -1) {
-          const sentence = textBuffer.slice(0, sentenceEnd + 1);
+        // message reaches Twilio before the text is spoken. If you
+        // skipped Ch4 Step 4 (language switching), processLLMResponse
+        // is still defined there -- either port the function over or
+        // simplify this branch to just sendText(ws, delta.content).
+        const match = textBuffer.match(/[.!?](\\s|$)/);
+        if (match) {
+          const sentenceEnd = match.index + 1;
+          const sentence = textBuffer.slice(0, sentenceEnd);
           processLLMResponse(ws, sentence);
-          textBuffer = textBuffer.slice(sentenceEnd + 2);
+          textBuffer = textBuffer.slice(sentenceEnd + (match[1] ? match[1].length : 0));
         }
       }
 
@@ -211,6 +224,7 @@ async function streamResponse(ws, iteration = 0) {
             content: fullAssistantText.trim(),
           });
         }
+        return;
       }
     }
   } catch (err) {
@@ -477,11 +491,12 @@ async function streamResponse(ws, iteration = 0) {
         // Flush whole sentences through processLLMResponse so any
         // [LANG:xx-XX] marker is stripped and the language switch
         // message reaches Twilio before the text is spoken.
-        const sentenceEnd = textBuffer.search(/[.!?]\\s/);
-        if (sentenceEnd !== -1) {
-          const sentence = textBuffer.slice(0, sentenceEnd + 1);
+        const match = textBuffer.match(/[.!?](\\s|$)/);
+        if (match) {
+          const sentenceEnd = match.index + 1;
+          const sentence = textBuffer.slice(0, sentenceEnd);
           processLLMResponse(ws, sentence);
-          textBuffer = textBuffer.slice(sentenceEnd + 2);
+          textBuffer = textBuffer.slice(sentenceEnd + (match[1] ? match[1].length : 0));
         }
       }
 
@@ -526,6 +541,7 @@ async function streamResponse(ws, iteration = 0) {
             content: fullAssistantText.trim(),
           });
         }
+        return;
       }
     }
   } catch (err) {
@@ -667,8 +683,9 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      interruptible="any"
       dtmfDetection="true"
+      interruptible="any"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>\`;

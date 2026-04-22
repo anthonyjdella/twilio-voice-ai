@@ -37,21 +37,32 @@ Server listening on port 8080`,
     {
       type: "prose",
       audience: "builder",
-      content: "Or run this from the Codespace terminal:",
+      content:
+        "Or run this from the Codespace terminal. `$CODESPACE_NAME` is an environment variable GitHub sets for you, so the command works as-is (the forwarded URL looks like `https://<codespace-name>-8080.app.github.dev`, which you can also see in the **Ports** tab):",
     },
 
     {
       type: "terminal",
       audience: "builder",
-      commands: `$ curl -X POST https://<your-codespace-url>/call`,
+      commands: `$ echo $CODESPACE_NAME    # should print something like "fluffy-octopus-abc123"
+$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
+# If the echo was blank, you're not in a Codespace terminal -- grab the URL from the Ports tab instead.`,
     },
 
     { type: "page-break" },
 
-    { type: "section", title: "Test 1: Interruption" },
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "You can test all four reflexes on a **single** call. When the phone rings, answer it and try each in turn: (1) ask a long question, then cut the agent off mid-reply; (2) press **1** on the keypad while the agent is speaking; (3) stay completely silent for about ten seconds; (4) say a short Spanish phrase like \"puedes hablar en espanol?\" You're listening for liveliness, not perfection -- if any feels stiff, that is the one to talk through with the Builder afterward.",
+    },
+
+    { type: "section", title: "Test 1: Interruption", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         'When the phone rings, answer and ask a question that will produce a long response -- something like "Can you tell me everything you know about yourself?" or "What can you help me with, in detail?" While the agent is speaking, interrupt it by saying "Actually, never mind."',
     },
@@ -71,7 +82,7 @@ Server listening on port 8080`,
         'If the agent keeps talking after you interrupt, check that `interruptible` is set to `"any"` or `"speech"` in the ConversationRelay TwiML, and that the interrupt handler is aborting the active stream.',
     },
 
-    { type: "section", title: "Test 2: DTMF" },
+    { type: "section", title: "Test 2: DTMF", audience: "builder" },
 
     {
       type: "prose",
@@ -88,18 +99,20 @@ Server listening on port 8080`,
     },
 
     {
-      type: "prose",
+      type: "callout",
       audience: "explorer",
+      variant: "info",
       content:
-        "Trigger another call and try pressing **1**, **2**, or **0** on the keypad while the agent is speaking or after it finishes. The keypad shortcuts are wired to fixed responses regardless of your persona -- **1** asks about an order, **2** offers a transfer, **0** reads the options back -- so don't worry if the topic doesn't match the personality you picked. You're testing that the keypress is heard and acted on, not what the agent actually says.",
+        "**About the keypad test:** the shortcuts are wired to fixed responses regardless of your persona -- **1** asks about an order, **2** offers a transfer, **0** reads the options back -- so do not worry if the topic does not match the personality you picked. You are testing that the keypress is heard and acted on, not what the agent actually says.",
     },
 
     { type: "page-break" },
 
-    { type: "section", title: "Test 3: Silence" },
+    { type: "section", title: "Test 3: Silence", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Trigger another call and let the agent greet you. Then stay completely silent. After a few seconds, the agent should nudge you with a gentle prompt. Stay silent again and verify the second prompt arrives, followed by a graceful call ending.",
     },
@@ -112,10 +125,11 @@ Server listening on port 8080`,
         "If silence detection is not triggering, make sure the silence timer starts after the `setup` message and resets on each `prompt` message. Also check that the timer is not being cleared without being restarted.",
     },
 
-    { type: "section", title: "Test 4: Language Switch" },
+    { type: "section", title: "Test 4: Language Switch", audience: "builder" },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         'Trigger another call. Start speaking in English, then say something in Spanish like "Puedes hablar en espanol?" The agent should respond in Spanish with a natural-sounding Spanish voice.',
     },
@@ -152,7 +166,7 @@ Server listening on port 8080`,
       question: "Did all four reflexes work — interruption, keypad, silence, and language switch?",
       troubleshooting: [
         "Agent kept talking after you interrupted? Check that interruptible=\"any\" in your TwiML and that your interrupt handler aborts the active LLM stream",
-        "No response to keypad presses? Confirm dtmfDetection=\"true\" in TwiML and that your server handles the dtmf WebSocket message",
+        "No response to keypad presses? Confirm `dtmfDetection=\"true\"`, `interruptible=\"any\"`, and `reportInputDuringAgentSpeech=\"any\"` are all on your `<ConversationRelay>`, and that your server handles the `dtmf` WebSocket message",
         "Silence didn't trigger a prompt? Make sure the silence timer starts after setup and resets on every prompt/interrupt/dtmf message",
         "Didn't switch to Spanish? Language switching is optional — check that the LLM produced a [LANG:es-ES] marker and your server sent a language WebSocket message",
         "Nothing happening at all? Make sure your server is running (node server.js) and port 8080 is set to Public in the Codespace Ports tab",

@@ -73,7 +73,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**ElevenLabs:** `Rachel` (warm, female), `Drew` (confident, male), `Bella` (soft, female), `Antoni` (friendly, male), `Elli` (youthful, female).",
+        "**ElevenLabs** (use the voice ID, not the display name): Rachel `21m00Tcm4TlvDq8ikWAM` (warm, female), Drew `29vD33N1CtxCmqQRPOHJ` (confident, male), Bella `EXAVITQu4vr4xnSDxMAC` (soft, female), Antoni `ErXwobaYiN019PkySvjV` (friendly, male), Elli `MF3mGyEYCl7XYWbV9V6O` (youthful, female).",
     },
 
     {
@@ -81,21 +81,21 @@ export default {
       audience: "builder",
       variant: "tip",
       content:
-        "**Preview ElevenLabs voices before you pick.** Try different voices side-by-side in the [ElevenLabs Voice Tester](https://elevenlabs-voice-tester-5339-dev.twil.io/index.html) and copy the name of the one you like.",
+        "**Preview ElevenLabs voices before you pick.** Try different voices side-by-side in the [ElevenLabs Voice Tester](https://elevenlabs-voice-tester-5339-dev.twil.io/index.html), then copy the **voice ID** of the one you like (Twilio's `voice` attribute requires the ID, not the display name).",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "**Google Cloud TTS:** `en-US-Neural2-C` (female), `en-US-Neural2-D` (male), `en-US-Studio-O` (female, studio quality), `en-US-Studio-Q` (male, studio quality). Google also offers newer **Chirp3 HD** voices with names like `en-US-Chirp3-HD-Achernar`. The naming pattern is `language-Model-Quality-VoiceName`.",
+        "**Google Cloud TTS:** `en-US-Neural2-C` (female), `en-US-Neural2-D` (male), `en-US-Studio-O` (female, studio quality), `en-US-Studio-Q` (male, studio quality). Google also offers newer **Chirp3 HD** voices: `en-US-Chirp3-HD-Aoede` (female), `en-US-Chirp3-HD-Charon` (male), `en-US-Chirp3-HD-Kore` (female), and six more. The naming pattern is `language-Model-Quality-VoiceName`.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "**Amazon Polly:** `Joanna` (female, neural), `Matthew` (male, neural), `Lupe` (female, neural, bilingual en/es), `Amy` (female, British English).",
+        "**Amazon Polly** (neural voices require the `-Neural` suffix): `Joanna-Neural` (female), `Matthew-Neural` (male), `Lupe-Neural` (female, bilingual en/es), `Amy-Neural` (female, British English).",
     },
 
     { type: "page-break" },
@@ -106,7 +106,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "To set a specific voice, update the ConversationRelay settings in your server. Add the `voice` attribute with the voice name, and the `ttsProvider` attribute to select the provider:",
+        "To set a specific voice, update the ConversationRelay settings in your server. Add the `voice` attribute with the voice ID (or voice name for Google and Amazon), and the `ttsProvider` attribute to select the provider:",
     },
 
     {
@@ -116,16 +116,17 @@ export default {
       file: "TwiML Response",
       highlight: [6, 7],
       code: `<!-- Using ElevenLabs (default provider) -->
-<!-- Keep welcomeGreeting and dtmfDetection from Chapter 2; only the voice
-     and ttsProvider attributes are new in this step. -->
+<!-- Keep welcomeGreeting from Chapter 2; only the voice and ttsProvider
+     attributes are new in this step.
+     The url is filled in dynamically by your /twiml handler using
+     req.headers.host — you don't hardcode the hostname. -->
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
-      voice="Rachel"
+      url="wss://<your-server-host>/ws"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -141,11 +142,10 @@ export default {
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       voice="en-US-Neural2-C"
       ttsProvider="Google"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -165,17 +165,16 @@ export default {
       file: "server.js",
       highlight: [8, 9],
       code: `// Inside your http.createServer handler. Keep welcomeGreeting
-// and dtmfDetection from Chapter 2 \u2014 only voice and ttsProvider are new.
+// from Chapter 2 \u2014 only voice and ttsProvider are new.
 if (req.url === "/twiml" && req.method === "POST") {
   const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Connect>
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
-      voice="Rachel"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -189,7 +188,7 @@ if (req.url === "/twiml" && req.method === "POST") {
       type: "callout",
       variant: "tip",
       content:
-        "Match the voice to the persona. If the agent is \"Ms. Chen, a professional concierge,\" pick a polished, clear voice. If it is \"Jake from Pete's Pizza,\" pick something warmer and more casual.",
+        "Match the voice to the persona you picked in Step 2. **Professional Concierge** pairs with a polished, clear voice. **Casual Helper** sounds best with something warmer and more relaxed. **Friendly Assistant** sits in between -- any of the defaults will land well.",
     },
 
     {
@@ -198,14 +197,6 @@ if (req.url === "/twiml" && req.method === "POST") {
       title: "Voice Latency Considerations",
       content:
         "Different TTS providers have different latency profiles. ElevenLabs voices are extremely natural but may add a few extra milliseconds of processing time compared to Amazon Polly. For most use cases, the difference is negligible because ConversationRelay streams audio incrementally. However, if you are building a latency-critical application and notice delays, experiment with providers to find the best balance between voice quality and response speed.",
-    },
-
-    {
-      type: "callout",
-      audience: "explorer",
-      variant: "tip",
-      content:
-        "**Want to hear each voice first?** Open the [ElevenLabs Voice Tester](https://elevenlabs-voice-tester-5339-dev.twil.io/index.html) in a new tab, listen to a few samples, then come back here and tap the voice you liked.",
     },
 
     {
@@ -226,7 +217,7 @@ if (req.url === "/twiml" && req.method === "POST") {
       file: "server.js",
       language: "javascript",
       explanation:
-        "The complete `server.js` at the end of this step. The only change from Chapter 3 Step 1 is inside the `/twiml` handler: the `ConversationRelay` element now declares `voice=\"Rachel\"` and `ttsProvider=\"ElevenLabs\"` so Twilio uses that voice for the whole call. Swap in any voice/provider combo from the tables above.",
+        "The complete `server.js` at the end of this step. The only change from Chapter 3 Step 1 is inside the `/twiml` handler: the `ConversationRelay` element now declares `voice=\"21m00Tcm4TlvDq8ikWAM\"` (Rachel's ElevenLabs voice ID) and `ttsProvider=\"ElevenLabs\"` so Twilio uses that voice for the whole call. Swap in any voice/provider combo from the tables above.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
@@ -268,10 +259,9 @@ const server = http.createServer(async (req, res) => {
   <Connect>
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
-      voice="Rachel"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;

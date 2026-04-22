@@ -100,7 +100,22 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**Code change ahead.** In Chapter 2, the system prompt was hardcoded inside `streamLLMResponse`. Starting now, the prompt lives in `conversationHistory` instead. After pasting the code below, open `streamLLMResponse`, find the `{ role: \"system\", content: \"...\" }` object at the top of the `messages` array, and delete it along with the `...conversationHistory,` spread that follows -- the whole array becomes just `messages: conversationHistory`. If you leave the old system message in place, the AI receives duplicate system prompts and may behave unpredictably.",
+        "**Before you paste the code below,** delete the hardcoded system message from Ch2's `streamLLMResponse`. Starting now, the prompt lives in `conversationHistory`, so the whole `messages` array collapses to one line. If you leave the old system message in place, the AI receives duplicate system prompts and may behave unpredictably.",
+    },
+
+    {
+      type: "code",
+      audience: "builder",
+      language: "javascript",
+      file: "server.js",
+      code: `// Change this (from Ch2's streamLLMResponse):
+messages: [
+  { role: "system", content: "You are a helpful phone assistant..." },
+  ...conversationHistory,
+],
+
+// To this:
+messages: conversationHistory,`,
     },
 
     {
@@ -230,7 +245,6 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;

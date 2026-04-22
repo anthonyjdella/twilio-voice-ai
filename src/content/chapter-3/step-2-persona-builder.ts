@@ -27,7 +27,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Each preset below is a complete `SYSTEM_PROMPT` you can drop in. Pick the one that matches the agent you want to build, or use them as a starting point for your own. **Replace the `SYSTEM_PROMPT` constant from Step 1** with your chosen text.",
+        "Each preset below is a complete `SYSTEM_PROMPT` you can drop in — three variants of the same shape, different persona text inside. Pick the one that matches the agent you want to build (or use them as a starting point for your own) and skip past the other two. **Replace the `SYSTEM_PROMPT` constant from Step 1** with your chosen text.",
     },
 
     {
@@ -47,7 +47,10 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js (Friendly Assistant persona)",
-      code: `// Friendly Assistant \u2014 warm, casual, helpful
+      code: `// Pick ONE of the three blocks below -- paste its SYSTEM_PROMPT into
+// server.js and skip past the other two.
+
+// Friendly Assistant \u2014 warm, casual, helpful
 const SYSTEM_PROMPT = \`You are Sam, a friendly assistant at Sunny
 Day Travel Agency. You help callers plan vacations, find deals,
 and answer travel questions.
@@ -88,6 +91,14 @@ Talk like a real person \u2014 keep it chill and fun. Short answers
 only. No fancy formatting. If someone asks about something that
 isn't pizza-related, joke about it briefly and steer things back
 to the menu.\`;`,
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "tip",
+      content:
+        "**Also update the welcomeGreeting.** The TwiML's `welcomeGreeting` attribute (currently `\"Hello! How can I help you today?\"`) is what Twilio speaks before your agent takes over. Swap it to match your persona -- something like `\"Hey, this is Jake from Pete's Pizza. What can I get started for you?\"` -- so the first voice the caller hears is in character.",
     },
 
     { type: "page-break", audience: "builder" },

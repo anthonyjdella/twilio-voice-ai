@@ -178,9 +178,9 @@ export function CallMe() {
 
         {status === "connected" && (
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-success/10 border border-success/20">
-            <Phone className="w-4 h-4 text-success" />
+            <Phone className="w-4 h-4 text-success animate-pulse" />
             <span className="text-xs text-success">
-              Call initiated — check your phone
+              Your phone is ringing — pick up and say hi
             </span>
           </div>
         )}

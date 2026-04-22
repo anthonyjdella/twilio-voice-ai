@@ -32,7 +32,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**SSML support depends on the voice provider.** Tags like `<say-as>`, `<break>`, and `<prosody>` work with **Google** and **Amazon** voices. The default provider (**ElevenLabs**) only supports `<phoneme>`, and only in English. For full SSML, switch to Google (`ttsProvider=\"Google\"`).",
+        "**SSML support depends on the voice provider.** Tags like `<say-as>`, `<break>`, and `<prosody>` work with **Google** and **Amazon** voices. The default provider (**ElevenLabs**) only supports `<phoneme>`, and only when the language is `en-US` (other English locales like `en-GB` will not render phonemes). For full SSML, switch to Google (`ttsProvider=\"Google\"`).",
     },
 
     {
@@ -173,12 +173,14 @@ ws.send(JSON.stringify({
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Continue learning with these resources:",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**Twilio ConversationRelay docs** -- [twilio.com/docs/voice/conversationrelay](https://www.twilio.com/docs/voice/conversationrelay)\n**OpenAI API reference** -- [platform.openai.com/docs/api-reference](https://platform.openai.com/docs/api-reference)\n**Twilio Voice TwiML** -- [twilio.com/docs/voice/twiml](https://www.twilio.com/docs/voice/twiml)\n**Twilio Conversational Intelligence** -- [twilio.com/docs/conversational-intelligence](https://www.twilio.com/docs/conversational-intelligence)",
     },
@@ -204,6 +206,14 @@ ws.send(JSON.stringify({
       audience: "builder",
       content:
         "This workshop started with a blank server and a Twilio phone number. Now the agent holds real conversations, looks things up, and hands off to humans. Whether the goal is a customer service agent, an appointment scheduler, or something entirely new, the foundation is in place.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What You Can Build Next",
+      content:
+        "The five topics above each unlock a different kind of voice agent. **SSML** is for agents that need precise pronunciation (medical terms, product names, phone numbers spoken back digit by digit). **Multi-language** is for customer bases that span languages without knowing which one is on the line. **Conversational Intelligence** is for teams that want to mine insights from every call without listening to thousands of recordings. **Audio playback** is for regulated industries that need exact wording on hold music or legal disclaimers. **Advanced tool patterns** is how voice agents graduate from lookup to actually completing transactions (booking, payment, account changes). Most production agents grow into a few of these at once.",
     },
 
     {

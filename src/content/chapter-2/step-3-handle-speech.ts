@@ -25,7 +25,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "When the caller finishes speaking, Twilio sends a `prompt` message with the transcribed text. Add a handler that saves it to the conversation history:",
+        "When the caller finishes speaking, Twilio sends a `prompt` message with the transcribed text. **Replace your entire `switch (message.type)` block** with the version below -- it keeps the existing `setup` case and adds a new `case \"prompt\"` that saves the transcript to the conversation history:",
     },
 
     {
@@ -45,7 +45,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**voicePrompt** is the transcribed text. **last** is `true` when Twilio has the final transcript for this utterance. The `if (!message.last) break;` guard below is a defensive check in case partial results are ever enabled.",
+        "**voicePrompt** is the transcribed text. **last** is `true` when Twilio has the final transcript for this utterance. The `if (!message.last) break;` guard below is a defensive check in case partial results are ever enabled. The patch below pushes into `conversationHistory`, which was declared back in Step 1 alongside `callSid` -- it should already exist in your connection handler.",
     },
 
     {
@@ -59,6 +59,7 @@ export default {
       case "setup":
         callSid = message.callSid;
         console.log(\`✅ Call started: \${callSid}\`);
+        console.log(\`👤 From: \${message.from}\`);
         break;
 
       case "prompt":
@@ -124,7 +125,6 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -207,6 +207,14 @@ wss.on("connection", (ws) => {
 server.listen(PORT, () => {
   console.log(\`🚀 Server listening on port \${PORT}\`);
 });`,
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What Just Happened",
+      content:
+        "The server can now hear the caller. Whenever the caller stops speaking, Twilio hands over the transcript, and the server writes it into the conversation history -- a running list of who said what. There is still no AI in the loop. The agent is catching every word but cannot reply yet. That comes in the next step, where the transcript gets passed to the language model and the first spoken response gets streamed back.",
     },
   ],
 } satisfies StepDefinition;

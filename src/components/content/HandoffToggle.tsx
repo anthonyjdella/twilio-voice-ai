@@ -38,7 +38,8 @@ export function HandoffToggle() {
 
       <p className="text-sm text-text-muted mb-4">
         When the caller asks for a human, should the agent hand off the call?
-        This setting applies to your next test call.
+        This setting applies to your next test call. Off by default — flip it on
+        to test handoff.
       </p>
 
       <button

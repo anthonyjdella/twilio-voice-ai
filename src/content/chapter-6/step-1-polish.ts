@@ -9,7 +9,7 @@ export default {
       audience: "explorer",
       title: "The Line Between Demo and Product",
       content:
-        "A demo works once, on command, with a friendly audience. A product works on a bad phone line, when the caller is frustrated, at 3am. Polish is the set of small choices -- tone, error messages, logging, graceful fallbacks -- that turn a working prototype into something you'd trust in front of real customers.",
+        "A working prototype handles the expected path: a clear caller, a good line, a question the agent is ready for. A polished agent handles the rest -- poor audio, a frustrated caller, off-hours traffic. Polish is the set of small choices (tone, error messages, logging, graceful fallbacks) that close the gap between the two.",
     },
 
     {
@@ -60,6 +60,14 @@ export default {
     },
 
     {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Apply this to your persona.** The \"Ava\" example below is one worked version of the checklist -- use it as a reference pattern, not a replacement for the persona you picked in Chapter 3. Keep your agent's name and company, then layer on the missing pieces (capabilities, boundaries, tone specifics) using this as the template.",
+    },
+
+    {
       type: "code",
       audience: "builder",
       language: "javascript",
@@ -107,7 +115,7 @@ VOICE GUIDELINES:
       audience: "builder",
       variant: "info",
       content:
-        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** -- don't paste it as a second route. You already have a TwiML response from Chapter 2; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `reportInputDuringAgentSpeech`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`.",
+        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** -- don't paste it as a second route. You already have a TwiML response with `dtmfDetection`, `interruptible`, and `reportInputDuringAgentSpeech` from Chapter 4, plus `language`, `transcriptionProvider`, and `speechModel` from Chapter 3 Step 4; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`.",
     },
 
     {
@@ -119,9 +127,12 @@ VOICE GUIDELINES:
       code: `<Response>
   <Connect action="/call-ended">
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
-      voice="en-US-Chirp3-HD-Achernar"
+      url="wss://<your-server-host>/ws"
+      voice="en-US-Chirp3-HD-Aoede"
       ttsProvider="Google"
+      language="en-US"
+      transcriptionProvider="Deepgram"
+      speechModel="nova-3-general"
       dtmfDetection="true"
       interruptible="any"
       interruptSensitivity="medium"
@@ -138,7 +149,7 @@ VOICE GUIDELINES:
       type: "prose",
       audience: "builder",
       content:
-        "**`welcomeGreetingInterruptible`** -- same values as `interruptible` (`none`, `dtmf`, `speech`, `any`), but applies only to the welcome greeting. `\"speech\"` is a good default: callers can interject without accidentally triggering on a DTMF tone.\n\n**`reportInputDuringAgentSpeech`** -- controls whether Twilio forwards speech or DTMF that arrives *while* the agent is talking, without interrupting. Default is `\"none\"`. Setting it to `\"dtmf\"` is handy for IVR-style \"press 0 for an operator\" flows.\n\n**`hints`** -- comma-separated phrases the transcriber should bias toward. If the agent deals with proper nouns, product SKUs, or acronyms, listing them here improves recognition accuracy.\n\n**`debug`** -- a space-separated list of `debugging`, `speaker-events`, `tokens-played`. Turn this on during development; turn it off before you ship.",
+        "**`welcomeGreetingInterruptible`** -- same values as `interruptible` (`none`, `dtmf`, `speech`, `any`); applies only to the welcome greeting. Platform default is `\"any\"`; `\"speech\"` is a good explicit choice because callers can interject without accidentally triggering on a DTMF tone.\n\n**`reportInputDuringAgentSpeech`** -- controls whether Twilio forwards speech or DTMF that arrives *while* the agent is talking, without interrupting. Default is `\"none\"`. Setting it to `\"dtmf\"` is handy for IVR-style \"press 0 for an operator\" flows.\n\n**`hints`** -- comma-separated phrases the transcriber should bias toward. If the agent deals with proper nouns, product SKUs, or acronyms, listing them here improves recognition accuracy.\n\n**`debug`** -- a space-separated list of `debugging`, `speaker-events`, `tokens-played`. Turn this on during development; turn it off before you ship.",
     },
 
     { type: "page-break" },
@@ -291,41 +302,13 @@ const twilioClient = twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 
-// --- System prompt (polished "Ava" version) ---
+// --- System prompt ---
+// Paste your Chapter 3 persona's SYSTEM_PROMPT here, layered with the
+// PERSONALITY / CAPABILITIES / BOUNDARIES / VOICE GUIDELINES / LANGUAGE
+// DETECTION structure shown in the Ava example above. Don't overwrite
+// your Ch3 persona with the example verbatim.
 
-const SYSTEM_PROMPT = \`You are Ava, a customer service agent for Acme Corp.
-
-PERSONALITY:
-- Warm, professional, and concise
-- Use natural conversational language (contractions, simple words)
-- Keep responses under 2-3 sentences when possible
-- Never say "As an AI" or reference being a language model
-
-CAPABILITIES:
-- Check order status (use lookup_order tool)
-- Provide weather information (use check_weather tool)
-- Transfer to human agents when needed (use transfer_to_agent tool)
-
-BOUNDARIES:
-- Never make promises about refunds or policy exceptions
-- Do not share internal pricing or systems information
-- If asked about competitors, politely redirect to Acme services
-- For account changes (password, email, billing), always transfer to a human
-
-VOICE GUIDELINES:
-- Speak in short, clear sentences
-- Avoid lists longer than 3 items (offer to go one by one)
-- Confirm important details by repeating them back
-- Use filler phrases naturally: "Let me check that for you"
-
-LANGUAGE DETECTION:
-- You can speak English and Spanish fluently.
-- If the caller switches to a different language, respond in that language.
-- When you detect a language switch, include the marker [LANG:xx-XX]
-  at the very beginning of your response, where xx-XX is the BCP-47
-  language code (e.g., [LANG:es-ES] for Spanish, [LANG:en-US] for English).
-- Only include the marker when the language CHANGES, not on every message.
-\`;
+const SYSTEM_PROMPT = \`<-- paste your Chapter 3 SYSTEM_PROMPT here -->\`;
 
 // --- Module-scope state (single-caller workshop server) ---
 
@@ -633,8 +616,11 @@ const server = http.createServer(async (req, res) => {
   <Connect action="/call-ended">
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
-      voice="en-US-Chirp3-HD-Achernar"
+      voice="en-US-Chirp3-HD-Aoede"
       ttsProvider="Google"
+      language="en-US"
+      transcriptionProvider="Deepgram"
+      speechModel="nova-3-general"
       dtmfDetection="true"
       interruptible="any"
       interruptSensitivity="medium"

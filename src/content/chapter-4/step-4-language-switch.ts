@@ -17,7 +17,7 @@ export default {
       audience: "explorer",
       variant: "info",
       content:
-        "Imagine a caller starts in English and mid-sentence switches to Spanish. Within seconds, the agent is listening in Spanish *and* responding in Spanish -- no transfer, no menu, no \"press 2 for espanol.\" That is a much more human experience.",
+        "Imagine a caller starts in English and mid-sentence switches to Spanish. The agent detects the change, keeps listening in Spanish, and continues the conversation in Spanish -- without transferring the call or offering a separate menu for each language.",
     },
 
     {
@@ -105,6 +105,14 @@ LANGUAGE DETECTION:
     },
 
     {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**This is a new function.** Add `processLLMResponse` to your `server.js`; it does not replace anything from Step 1.",
+    },
+
+    {
       type: "code",
       audience: "builder",
       language: "javascript",
@@ -161,7 +169,15 @@ function processLLMResponse(ws, text) {
       type: "prose",
       audience: "builder",
       content:
-        "Right now, `streamResponse` sends every token to Twilio the moment it arrives. That's a problem: the `[LANG:xx-XX]` marker would be spoken out loud before the helper had a chance to strip it. The fix is to buffer tokens until a sentence ends, then run each full sentence through `processLLMResponse` before speaking it.",
+        "**Replace your Step 1 `streamResponse` with this version.** The old one sent every token to Twilio the moment it arrived, which would speak the `[LANG:xx-XX]` marker out loud before the helper had a chance to strip it. The fix is to buffer tokens until a sentence ends, then run each full sentence through `processLLMResponse` before speaking it.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "**This is a full replacement.** If you paste it next to your Step 1 `streamResponse` without deleting the old one, both functions will run and the caller will hear duplicated or overlapping audio.",
     },
 
     {
@@ -195,12 +211,16 @@ function processLLMResponse(ws, text) {
 
       // Flush whole sentences through processLLMResponse so the
       // [LANG:xx-XX] marker (if any) is stripped and the language
-      // message reaches Twilio before any text is spoken.
-      const sentenceEnd = textBuffer.search(/[.!?]\\s/);
-      if (sentenceEnd !== -1) {
-        const sentence = textBuffer.slice(0, sentenceEnd + 1);
+      // message reaches Twilio before any text is spoken. The
+      // (\\s|$) alternation also flushes when the stream ends on
+      // punctuation with no trailing whitespace (short replies
+      // like "Hola!" would otherwise only flush at end-of-stream).
+      const match = textBuffer.match(/[.!?](\\s|$)/);
+      if (match) {
+        const sentenceEnd = match.index + 1;
+        const sentence = textBuffer.slice(0, sentenceEnd);
         processLLMResponse(ws, sentence);
-        textBuffer = textBuffer.slice(sentenceEnd + 2);
+        textBuffer = textBuffer.slice(sentenceEnd + (match[1] ? match[1].length : 0));
       }
     }
 
@@ -223,7 +243,7 @@ function processLLMResponse(ws, text) {
       audience: "builder",
       variant: "tip",
       content:
-        "Why sentence buffering, not word buffering? A marker like `[LANG:es-ES]` can arrive split across tokens (`[LANG`, `:es-`, `ES]`). Waiting for a sentence boundary guarantees the full marker is present before the regex runs, and it keeps perceived latency low because callers hear the agent speak one sentence at a time anyway.\n\nThe simple `/[.!?]\\s/` split will mis-flush on abbreviations like `Mr. Smith` or `e.g.,` and on numbers like `3.14`. For a workshop agent that is fine -- the marker only needs to be intact at the *start* of the first sentence. For a production agent you would swap in a proper sentence tokenizer (such as `compromise` or `sbd`).",
+        "Why sentence buffering, not word buffering? A marker like `[LANG:es-ES]` can arrive split across tokens (`[LANG`, `:es-`, `ES]`). Waiting for a sentence boundary guarantees the full marker is present before the regex runs, and it keeps perceived latency low because callers hear the agent speak one sentence at a time anyway.\n\nThe split pattern `/[.!?](\\s|$)/` will mis-flush on abbreviations like `Mr. Smith` or `e.g.,` and on numbers like `3.14`. For a workshop agent that is fine -- the marker only needs to be intact at the *start* of the first sentence. For a production agent you would swap in a proper sentence tokenizer (such as `compromise` or `sbd`).",
     },
 
     { type: "section", title: "Supported Languages", audience: "builder" },
@@ -260,7 +280,7 @@ function processLLMResponse(ws, text) {
       audience: "builder",
       title: "Multi-language system prompt strategy",
       content:
-        "For truly multilingual agents, write the system prompt in English (since most LLMs perform best with English instructions) but explicitly state that the agent should respond in the caller's language. The LLM will follow instructions in English while generating responses in the target language.\n\nSome teams maintain separate system prompts per language for cultural nuance, but for most use cases, a single English prompt with multilingual instructions works well. The key is testing -- have native speakers call the agent and verify the experience feels natural.",
+        "For agents that handle multiple languages, write the system prompt in English (since most LLMs perform best with English instructions) but explicitly state that the agent should respond in the caller's language. The LLM will follow instructions in English while generating responses in the target language.\n\nSome teams maintain separate system prompts per language for cultural nuance, but for most use cases, a single English prompt with multilingual instructions works well. The key is testing -- have native speakers call the agent and verify the experience feels natural.",
     },
 
     {
@@ -355,6 +375,8 @@ function resetSilenceTimer(ws) {
 }
 
 function handleSilence(ws) {
+  if (ws.readyState !== ws.OPEN) return;
+
   silencePromptCount++;
 
   if (silencePromptCount >= MAX_SILENCE_PROMPTS) {
@@ -401,12 +423,16 @@ async function streamResponse(ws) {
 
       // Flush whole sentences through processLLMResponse so the
       // [LANG:xx-XX] marker (if any) is stripped and the language
-      // message reaches Twilio before any text is spoken.
-      const sentenceEnd = textBuffer.search(/[.!?]\\s/);
-      if (sentenceEnd !== -1) {
-        const sentence = textBuffer.slice(0, sentenceEnd + 1);
+      // message reaches Twilio before any text is spoken. The
+      // (\\s|$) alternation also flushes when the stream ends on
+      // punctuation with no trailing whitespace (short replies
+      // like "Hola!" would otherwise only flush at end-of-stream).
+      const match = textBuffer.match(/[.!?](\\s|$)/);
+      if (match) {
+        const sentenceEnd = match.index + 1;
+        const sentence = textBuffer.slice(0, sentenceEnd);
         processLLMResponse(ws, sentence);
-        textBuffer = textBuffer.slice(sentenceEnd + 2);
+        textBuffer = textBuffer.slice(sentenceEnd + (match[1] ? match[1].length : 0));
       }
     }
 
@@ -508,8 +534,10 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      interruptible="any"
       dtmfDetection="true"
+      interruptible="any"
+      interruptSensitivity="medium"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>\`;
@@ -563,6 +591,14 @@ wss.on("connection", (ws) => {
 server.listen(PORT, () => {
   console.log(\`Server listening on port \${PORT}\`);
 });`,
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What It Sounds Like to the Caller",
+      content:
+        "On the test call coming up next, try starting in English and then switching to Spanish mid-sentence. The agent keeps the same voice and tone, but it flips to a Spanish voice that sounds natural in that language. There is no menu, no \"press 2 for Spanish\" prompt -- the change happens the moment the agent hears the shift. If the caller switches back to English, the voice flips again. The conversation just keeps going.",
     },
   ],
 } satisfies StepDefinition;

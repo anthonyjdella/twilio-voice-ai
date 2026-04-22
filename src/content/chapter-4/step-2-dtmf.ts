@@ -17,7 +17,7 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "When a caller presses keys on their phone, Twilio detects the tone and tells the AI which key was pressed. This means the agent can offer menu options like \"press 1 for support\" alongside normal conversation.",
+        "**Heads up: the keypad shortcuts are fixed in this workshop** -- **1** = check order, **2** = transfer, **0** = repeat menu. They stay the same regardless of which persona you picked in Ch3, so don't expect the topic to match your agent's flavor. When a caller presses keys on their phone, Twilio detects the tone and tells the AI which key was pressed -- that's what lets the agent offer menu options like \"press 1 for support\" alongside normal conversation.",
     },
 
     {
@@ -151,6 +151,14 @@ function handleDtmfInput(ws, digit) {
         "A good pattern is to translate keypad inputs into natural language messages and add them to the conversation history. The AI handles the actual response while the keypad provides a shortcut for common actions.",
     },
 
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Adapting the menu to your persona.** The example uses \"check my order status\" because that is a common support flow. If you picked a different persona back in Chapter 3, swap the synthetic prompt so the keypad shortcut fits your agent:\n\n- **Sam (Sunny Day Travel)** -- `\"Can you give me an update on my trip?\"`\n- **Ms. Chen (Hotel Concierge)** -- `\"What's the status of my reservation?\"`\n- **Jake (Pete's Pizza)** -- `\"Where is my pizza order?\"`\n\nOption 2 (speak to a human) and option 0 (main menu) stay the same across personas.",
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "Sending DTMF Tones Outbound", audience: "builder" },
@@ -198,7 +206,7 @@ sendDigits(ws, "3");  // Press 3 for billing`,
       type: "prose",
       audience: "builder",
       content:
-        "DTMF detection is controlled by the `dtmfDetection` attribute in the ConversationRelay TwiML. Make sure it is set to `true`:",
+        "DTMF events only arrive on the WebSocket when you opt in. Three attributes matter: (a) `dtmfDetection=\"true\"` -- this is what tells Twilio to forward `dtmf` messages at all; without it, your handler never fires; (b) `interruptible` includes `dtmf` (or `any`), so a keypress can also stop the agent mid-sentence; (c) `reportInputDuringAgentSpeech=\"any\"` so keypresses that arrive while the agent is talking are delivered, not silently dropped. Your TwiML should look like this:",
     },
 
     {
@@ -206,12 +214,18 @@ sendDigits(ws, "3");  // Press 3 for billing`,
       audience: "builder",
       language: "xml",
       file: "twiml-response",
-      code: `<Response>
+      code: `<!-- Keep welcomeGreeting from Chapter 2 and voice/language from Chapter 3;
+     dtmfDetection, interruptible, and reportInputDuringAgentSpeech are
+     the only new attributes in this step.
+     The url is filled in dynamically by your /twiml handler using
+     req.headers.host — you don't hardcode the hostname. -->
+<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       dtmfDetection="true"
       interruptible="any"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>`,
@@ -383,8 +397,9 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      interruptible="any"
       dtmfDetection="true"
+      interruptible="any"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>\`;

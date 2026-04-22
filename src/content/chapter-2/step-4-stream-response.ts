@@ -55,14 +55,19 @@ export default {
       language: "javascript",
       file: "server.js",
       startLine: 1,
-      highlight: [4, "8-10"],
+      highlight: [5, "13-15"],
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
+const twilio = require("twilio");
 const OpenAI = require("openai");
 
 const PORT = 8080;
 
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });`,
@@ -76,7 +81,7 @@ const openai = new OpenAI({
       type: "prose",
       audience: "builder",
       content:
-        "Your server sends text back to Twilio as JSON messages. Each carries a piece of the reply. Mark the final piece with `last: true` so Twilio knows the response is complete:",
+        "Your server sends text back to Twilio as JSON messages. Each carries a piece of the reply with `last: false`. When the full response is done, send one final message with an empty `token` and `last: true` to signal completion:",
     },
 
     {
@@ -95,10 +100,10 @@ const openai = new OpenAI({
       type: "json-message",
       audience: "builder",
       direction: "outbound",
-      messageType: "text (final token)",
+      messageType: "text (end-of-response marker)",
       code: `{
   "type": "text",
-  "token": "help you with your account.",
+  "token": "",
   "last": true
 }`,
     },
@@ -114,6 +119,14 @@ const openai = new OpenAI({
     { type: "page-break" },
 
     { type: "section", title: "Streaming Implementation", audience: "builder" },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Heads up — this function will evolve.** You'll build `streamLLMResponse` here as the simplest possible version: take a prompt, stream a reply. Over the next three chapters it gets refactored (Ch4 Step 1 moves it to module scope and renames it `streamResponse`) and replaced twice (Ch4 Step 4 for language switching, Ch5 Step 3 for tool calling). That's expected — every refactor is signposted where it happens. Start with the small version here.",
+    },
 
     {
       type: "prose",
@@ -179,7 +192,7 @@ async function streamLLMResponse(ws, conversationHistory) {
       type: "prose",
       audience: "builder",
       content:
-        "Replace the `TODO` in your prompt handler:",
+        "Find the `case \"prompt\":` block in your `wss.on(\"message\", ...)` handler (look for the `// TODO: Send to LLM and stream response back` comment from Step 3) and replace the whole block with this -- the highlighted line is the new call to your streaming function:",
     },
 
     {
@@ -187,7 +200,6 @@ async function streamLLMResponse(ws, conversationHistory) {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      startLine: 121,
       highlight: [11],
       code: `      case "prompt":
         if (!message.last) break;
@@ -252,7 +264,6 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;

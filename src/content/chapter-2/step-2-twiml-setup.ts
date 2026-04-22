@@ -9,6 +9,14 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
+      title: "What “ConversationRelay” Means Here",
+      content:
+        "ConversationRelay is the Twilio feature at the center of this workshop. Think of it as a live translator sitting between the phone call and the AI -- it listens to the caller, turns their speech into text, hands the text to the AI, turns the AI's reply back into a natural-sounding voice, and plays it to the caller. Everything the workshop wires up in the next few steps is just telling ConversationRelay when to do that, and where to send the text.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
       title: "How the Call Gets Started",
       content:
         "The server tells Twilio to dial your phone. When you pick up, Twilio connects the call to the AI agent and plays a welcome greeting so there is no awkward silence.",
@@ -66,7 +74,6 @@ export default {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -90,6 +97,14 @@ export default {
       audience: "builder",
       content:
         "Add a `/call` endpoint that dials your phone and points Twilio at the TwiML route:",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Env vars used below.** The code references four environment variables, all pre-loaded in your Codespace:\n\n- `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` -- identify your Twilio account when placing outbound calls\n- `TWILIO_PHONE_NUMBER` -- the number calls originate from\n- `MY_PHONE_NUMBER` -- your personal number (set in Ch1 Step 4) that Twilio calls during testing\n\nUsing your own Twilio account later? Grab the SID/token from [console.twilio.com](https://console.twilio.com) and a voice-capable number from Phone Numbers.",
     },
 
     {
@@ -119,7 +134,6 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -183,13 +197,6 @@ const server = http.createServer(async (req, res) => {
       type: "prose",
       audience: "builder",
       content:
-        "**dtmfDetection** -- When `true`, Twilio detects keypad presses and sends them to your server.",
-    },
-
-    {
-      type: "prose",
-      audience: "builder",
-      content:
         "**ttsProvider / transcriptionProvider** -- Defaults to **ElevenLabs** (text-to-speech) and **Deepgram** (speech-to-text). We leave these as defaults for now.",
     },
 
@@ -197,7 +204,7 @@ const server = http.createServer(async (req, res) => {
       type: "prose",
       audience: "builder",
       content:
-        '**interruptible** -- Controls what can interrupt AI speech. Defaults to `"any"` (voice and keypad).',
+        '**interruptible** -- Controls what can interrupt AI speech. Defaults to `"any"` (voice and keypad).\n\n**welcomeGreetingInterruptible** -- Same values (`none`/`dtmf`/`speech`/`any`), but governs only the welcome greeting. Defaults to `"any"` -- set it separately if you want the greeting to play through uninterrupted while still allowing interruptions during the rest of the call.',
     },
 
     {
@@ -211,9 +218,9 @@ const server = http.createServer(async (req, res) => {
     {
       type: "deep-dive",
       audience: "builder",
-      title: "How ConversationRelay works under the hood",
+      title: "Why your server only sees text",
       content:
-        "When the call connects, Twilio's media servers handle all the audio processing. The caller's speech is converted to text using a speech-to-text engine (Deepgram by default), and that text is sent to your server as a JSON message over the WebSocket. When your server sends text back, Twilio's text-to-speech engine (ElevenLabs by default) converts it to audio and plays it to the caller. Your server never touches raw audio -- it only works with text, which makes the integration dramatically simpler than using Media Streams directly.",
+        "Ch1 covered the high-level call flow. The Builder-level takeaway: your server never touches raw audio. Twilio's media servers handle STT and TTS on either side of the WebSocket, so you avoid dealing with audio codecs, voice activity detection, or echo cancellation -- which you *would* have to handle with the Media Streams API. Your server only works with JSON text messages.",
     },
 
     {
@@ -243,7 +250,6 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -283,6 +289,7 @@ wss.on("connection", (ws) => {
   console.log("📞 New WebSocket connection");
 
   let callSid = null;
+  const conversationHistory = [];
 
   ws.on("message", (data) => {
     const message = JSON.parse(data);

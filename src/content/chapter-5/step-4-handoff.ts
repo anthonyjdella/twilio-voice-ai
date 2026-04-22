@@ -88,7 +88,7 @@ export default {
       messageType: "end",
       code: `{
   "type": "end",
-  "handoffData": "{\\"reason\\":\\"billing_dispute\\",\\"summary\\":\\"Caller wants to dispute a charge of $49.99 on order ORD-12345. AI was unable to process the refund.\\",\\"callerId\\":\\"+15551234567\\"}"
+  "handoffData": "{\\"reasonCode\\":\\"live-agent-handoff\\",\\"reason\\":\\"billing_dispute\\",\\"summary\\":\\"Caller wants to dispute a charge of $49.99 on order ORD-12345. AI was unable to process the refund.\\",\\"callerId\\":\\"+15551234567\\"}"
 }`,
     },
 
@@ -96,7 +96,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "The `handoffData` field carries context about the conversation so the human agent knows what happened. Include the reason for the transfer, a summary, caller information, and any relevant order or account numbers.",
+        "The `handoffData` field carries context about the conversation so the human agent knows what happened. `reasonCode: \"live-agent-handoff\"` is Twilio's documented convention for marking this as a handoff; any other fields inside `handoffData` (`reason`, `summary`, `callerId`, order/account numbers) are yours to define -- Twilio passes them through verbatim.",
     },
 
     { type: "page-break" },
@@ -127,16 +127,19 @@ export default {
       code: `<!-- The only change vs. your existing TwiML is the new action="/call-ended"
      on <Connect>. Keep every other attribute you already have — voice,
      ttsProvider, welcomeGreeting, language, interruptible, etc. — untouched;
-     the snippet below just shows where the new attribute goes. -->
+     the snippet below just shows where the new attribute goes. The
+     Chirp3 / Google values are example placeholders only — do NOT swap
+     your Chapter 3 voice and ttsProvider picks for these. -->
 <Response>
   <Connect action="/call-ended">
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
-      voice="en-US-Chirp3-HD-Achernar"
+      url="wss://<your-server-host>/ws"
+      voice="en-US-Chirp3-HD-Aoede"
       ttsProvider="Google"
       welcomeGreeting="Hi, I'm your assistant. How can I help?"
       dtmfDetection="true"
       interruptible="any"
+      reportInputDuringAgentSpeech="any"
     />
   </Connect>
 </Response>`,
@@ -172,9 +175,13 @@ if (req.url === "/call-ended" && req.method === "POST") {
     const handoffData = params.get("HandoffData");
 
     let twiml;
+    let data = null;
     if (handoffData) {
+      try { data = JSON.parse(handoffData); } catch {}
+    }
+
+    if (data?.reasonCode === "live-agent-handoff") {
       // AI requested a handoff -- transfer the call
-      const data = JSON.parse(handoffData);
       console.log("Handoff requested:", data.reason);
       console.log("Summary:", data.summary);
 
@@ -191,7 +198,7 @@ if (req.url === "/call-ended" && req.method === "POST") {
   </Dial>
 </Response>\`;
     } else {
-      // Normal call end -- no handoff
+      // Normal call end (or unrecognized reasonCode) -- just hang up
       twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say>Thank you for calling. Goodbye!</Say>
@@ -209,6 +216,14 @@ if (req.url === "/call-ended" && req.method === "POST") {
     { type: "page-break" },
 
     { type: "section", title: "Triggering Handoff from a Tool Call", audience: "builder" },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**A note on the Live Handoff toggle.** The Call Me widget passes a `handoffEnabled` value from the workshop UI (set by the toggle above, which Explorers see) into your `/call` payload as a `customParameter`. The workshop's voice-agent reads that parameter and chooses whether to expose `transfer_to_agent` to the LLM for that call. If your hand-coded tool never fires during testing, check that the Live Handoff toggle is on -- the toggle gates whether the tool is offered to the model, independent of whether you wrote the handler correctly.",
+    },
 
     {
       type: "prose",
@@ -272,6 +287,7 @@ transfer_to_agent: async ({ reason, department, summary }, ws) => {
     ws.send(JSON.stringify({
       type: "end",
       handoffData: JSON.stringify({
+        reasonCode: "live-agent-handoff",
         reason,
         department: department || "general",
         summary,
@@ -289,7 +305,7 @@ transfer_to_agent: async ({ reason, department, summary }, ws) => {
       audience: "builder",
       variant: "warning",
       content:
-        "The 2-second `setTimeout` before sending `end` is a rough estimate of how long the farewell sentence takes to speak. If Twilio's TTS runs long, the `end` message lands mid-sentence and the caller hears a clipped goodbye. If TTS finishes early, the caller sits in silence for the remainder. For a workshop demo this is fine; for production, listen for an `info` message with `name: \"TTS_DONE\"` (or similar) from Twilio and send `end` on that event instead of on a timer.",
+        "The 2-second `setTimeout` before sending `end` is a rough estimate of how long the farewell sentence takes to speak. If Twilio's TTS runs long, the `end` message lands mid-sentence and the caller hears a clipped goodbye. If TTS finishes early, the caller sits in silence for the remainder. For a workshop demo this is fine; for production, set `debug=\"speaker-events tokens-played\"` on your `<ConversationRelay>` and send `end` when you receive the matching `tokens-played` debug message for the last token (or the `agentSpeaking=false` speaker event) instead of using a timer.",
     },
 
     {
@@ -428,6 +444,7 @@ const toolHandlers = {
       ws.send(JSON.stringify({
         type: "end",
         handoffData: JSON.stringify({
+          reasonCode: "live-agent-handoff",
           reason,
           department: department || "general",
           summary,

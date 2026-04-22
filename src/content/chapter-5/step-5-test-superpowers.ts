@@ -52,13 +52,16 @@ Server listening on port 8080`,
     {
       type: "prose",
       audience: "builder",
-      content: "Or run this from your Codespace terminal:",
+      content:
+        "Or run this from your Codespace terminal. `$CODESPACE_NAME` is an environment variable GitHub sets for you, so the command works as-is (the forwarded URL looks like `https://<codespace-name>-8080.app.github.dev`, which you can also see in the **Ports** tab):",
     },
 
     {
       type: "terminal",
       audience: "builder",
-      commands: `$ curl -X POST https://<your-codespace-url>/call`,
+      commands: `$ echo $CODESPACE_NAME    # should print something like "fluffy-octopus-abc123"
+$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
+# If the echo was blank, you're not in a Codespace terminal -- grab the URL from the Ports tab instead.`,
     },
 
     { type: "page-break" },
@@ -97,6 +100,12 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
+        "The workshop pre-loaded a few sample orders you can ask about (`ORD-12345`, `ORD-67890`, `ORD-11111`). Any of them work — they are fake orders built into the workshop's tool so every attendee gets a live lookup without needing a real database behind the agent.",
+    },
+
+    {
+      type: "prose",
+      content:
         'Try: "Can you check the status of order ORD-12345?"',
     },
 
@@ -108,23 +117,39 @@ Server listening on port 8080`,
 
     { type: "page-break" },
 
-    { type: "section", title: "Test 3: Multi-Tool Call" },
-
     {
-      type: "prose",
+      type: "deep-dive",
       audience: "builder",
+      title: "Optional Test: Multi-Tool Call",
       content:
-        'Ask a question that needs multiple lookups at once: "What is the weather in Seattle, and can you check order ORD-67890?" The agent should answer both questions in one response.',
+        'Ask a question that needs multiple lookups at once: "What is the weather in Seattle, and can you check order ORD-67890?" The agent should answer both questions in one response. If it only answers half, make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again.',
     },
 
     {
-      type: "prose",
+      type: "deep-dive",
       audience: "explorer",
+      title: "Optional Test: Multi-Tool Call",
       content:
-        'Ask a question that needs two lookups in one breath: "What is the weather in Tokyo, and can you check order ORD-12345?" The agent should answer both parts in a single reply. If you turned one of those tools off back in Step 2, re-enable it before this test -- otherwise the agent can only answer the half it still has a tool for.',
+        'Try a question that needs two lookups in one breath: "What is the weather in Seattle, and can you check order ORD-12345?" The agent should answer both parts in a single reply. This test only works when both tools are on in the Step 2 picker -- if one is off, the agent can only answer the half it still has a tool for.',
     },
 
-    { type: "section", title: "Test 4: Handoff" },
+    {
+      type: "deep-dive",
+      audience: "builder",
+      title: "Optional Test: Joke Tool",
+      content:
+        'Ask the agent: "Tell me a joke." The agent should call your `tell_joke` handler and come back with one of the strings you defined in Step 2. It is the simplest tool shape in the chapter -- a `function` with an empty `parameters` object and a handler that picks a random string -- so if it fires correctly, tool dispatch is wired end-to-end.',
+    },
+
+    {
+      type: "deep-dive",
+      audience: "explorer",
+      title: "Optional Test: Joke Tool",
+      content:
+        'Ask the agent: "Tell me a joke." The agent should use its **Tell a Joke** tool and come back with a short one-liner. This test only works when Tell a Joke is on in the Step 2 picker -- if it is off, the agent will either make one up or explain it can not.',
+    },
+
+    { type: "section", title: "Test 3: Handoff" },
 
     {
       type: "prose",
@@ -154,14 +179,14 @@ Server listening on port 8080`,
       type: "verify",
       audience: "builder",
       question:
-        "Did all four tests pass — weather lookup, order lookup, multi-tool call, and handoff?",
+        "Did the three core tests pass — weather lookup, order lookup, and handoff?",
       troubleshooting: [
         "Agent made up weather instead of calling the tool? Confirm you're passing `tools: tools` to `openai.chat.completions.create()` in `streamResponse`",
         "Order lookup returned nothing? Check the terminal for `Tool call: lookup_order` — if missing, the LLM isn't picking the tool. Tighten the tool description",
-        "Multi-tool call only answered half the question? Make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again",
         "Handoff didn't trigger? Verify the `transfer_to_agent` tool is in your `tools` array and its handler is sending the `end` message with `handoffData`",
         "Second turn crashes with an OpenAI 400 error about missing tool responses? You're skipping the `role: \"tool\"` message with `tool_call_id` — OpenAI requires exactly one per tool call before the next request",
         "Nothing happening at all? Restart your server and confirm port 8080 is Public in the Codespace Ports tab",
+        "Tried the optional multi-tool test and only got half an answer? Make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again",
       ],
     },
 
@@ -169,12 +194,12 @@ Server listening on port 8080`,
       type: "verify",
       audience: "explorer",
       question:
-        "Did the agent use its tools and hand off when asked — weather, order, multi-question, and live handoff?",
+        "Did the agent use its tools and hand off when asked — weather, order, and live handoff?",
       troubleshooting: [
         "Weather answer sounded made up? The agent ignored its tool. Head back to Pick Your Tools on Step 2 and confirm Check Weather is toggled on",
         "Order lookup didn't return the real shipping info? Same thing — check that Look Up Order is on, and try the exact order number ORD-12345",
         "Agent only answered half of a two-part question? That's normal on the first try — phone it again and say both parts in one sentence",
-        "Asked for a human and nothing happened? Handoff is off by default. Open Live Agent Handoff on Step 4 and flip the toggle on",
+        "Asked for a human and nothing happened? Handoff is off by default -- the toggle on Step 4 controls it",
         "Call never connected? Re-enter your phone number in the Call Me box and try again",
       ],
     },
@@ -183,14 +208,14 @@ Server listening on port 8080`,
       type: "prose",
       audience: "explorer",
       content:
-        "With tool calling and handoff working, the agent is no longer just a chatbot. It can take real actions, look up real data, and hand off to humans when needed.",
+        "With tool calling and handoff working, the agent can now do three kinds of work: look up information through tools, take actions based on what it looks up, and pass the call to a human when the situation calls for one.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "With tool calling and handoff working, your agent is no longer just a chatbot. It can take real actions, look up real data, and seamlessly hand off to humans when needed.",
+        "With tool calling and handoff working, your agent can now look up information, take actions based on it, and hand off to a human agent when the caller asks for one or the AI determines it is the right call.",
     },
   ],
 } satisfies StepDefinition;

@@ -54,6 +54,13 @@ export default {
 
     {
       type: "prose",
+      audience: "explorer",
+      content:
+        "The workshop pre-wired the phone system, so nothing on your side needs setup -- just type your number below and Twilio will ring you once. You can hang up at any time.",
+    },
+
+    {
+      type: "prose",
       content:
         "Enter your phone number (with country code, like +12065551234) and hit Call Me.",
     },

@@ -51,7 +51,7 @@ export default {
             type: "prose",
             audience: "builder",
             content:
-                "You configure speech recognition settings in your ConversationRelay instructions. The key settings are: **`language`** — the language code the caller will speak (e.g., `en-US` for English, `es-ES` for Spanish). **`transcriptionProvider`** — which service listens to the caller: `Deepgram` (default) or `Google`. **`speechModel`** — the specific recognition model, balancing speed vs. accuracy.",
+                "You configure speech recognition settings in your ConversationRelay instructions. The key settings are: **`language`** — the language code the caller will speak (e.g., `en-US` for English, `es-ES` for Spanish). **`transcriptionProvider`** — which service listens to the caller: `Deepgram` (default) or `Google`. **`speechModel`** — the specific recognition model, balancing speed vs. accuracy. `nova-3-general` is the Deepgram default for supported languages; for unsupported languages, Deepgram falls back to `nova-2-general` automatically.",
         },
 
         {
@@ -60,19 +60,20 @@ export default {
             language: "xml",
             file: "TwiML Response",
             highlight: [7, 8, 9],
-            code: `<!-- Keep welcomeGreeting and dtmfDetection from Chapter 2;
-     language, transcriptionProvider, and speechModel are new in this step. -->
+            code: `<!-- Keep welcomeGreeting from Chapter 2;
+     language, transcriptionProvider, and speechModel are new in this step.
+     The url is filled in dynamically by your /twiml handler using
+     req.headers.host — you don't hardcode the hostname. -->
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
-      voice="Rachel"
+      url="wss://<your-server-host>/ws"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       language="en-US"
       transcriptionProvider="Deepgram"
       speechModel="nova-3-general"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -82,7 +83,7 @@ export default {
             type: "prose",
             audience: "builder",
             content:
-                "Here is the same configuration using Google as the speech recognition provider, with Spanish as the language:",
+                "Here is the same configuration using Google as the speech recognition provider, with Spanish as the language. Notice that `voice` and `ttsProvider` also switch to Google here -- ElevenLabs' Spanish voice coverage is narrower than Google's, so for non-English you often pair Google STT with a Google TTS voice. If you are staying in English, keep your ElevenLabs voice from Step 3.",
         },
 
         {
@@ -91,17 +92,19 @@ export default {
             language: "xml",
             file: "TwiML Response",
             highlight: ["5-9"],
-            code: `<Response>
+            code: `<!-- Same setup, Google providers in Spanish.
+     The url is filled in dynamically by your /twiml handler — the placeholder
+     is only there so the example shows where it lives. -->
+<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       voice="es-US-Neural2-A"
       ttsProvider="Google"
       language="es-ES"
       transcriptionProvider="Google"
       speechModel="telephony"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -122,7 +125,7 @@ export default {
             type: "concept-card",
             title: "Supported Languages",
             content:
-                "English, Spanish, French, German, Portuguese, Japanese, Chinese, Korean, Italian, Hindi, and 20+ more languages are supported. Each language has regional variants (for example, US English vs. British English, or European Spanish vs. Mexican Spanish).",
+                "30+ languages are supported, each with regional variants so the agent can match how a caller actually speaks -- US English vs. British English, European Spanish vs. Mexican Spanish, and so on. That matters for tone as much as translation: a brand that wants to sound local in Sao Paulo can pick Brazilian Portuguese specifically, instead of a generic European Portuguese voice.",
         },
 
         {
@@ -154,8 +157,8 @@ export default {
             language: "javascript",
             file: "server.js",
             highlight: [10, 11, 12],
-            code: `// Inside your http.createServer handler. Keep welcomeGreeting and
-// dtmfDetection from Chapter 2 \u2014 language, transcriptionProvider,
+            code: `// Inside your http.createServer handler. Keep welcomeGreeting
+// from Chapter 2 \u2014 language, transcriptionProvider,
 // and speechModel are new in this step.
 if (req.url === "/twiml" && req.method === "POST") {
   const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
@@ -163,13 +166,12 @@ if (req.url === "/twiml" && req.method === "POST") {
   <Connect>
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
-      voice="Rachel"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       language="en-US"
       transcriptionProvider="Deepgram"
       speechModel="nova-3-general"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -248,13 +250,12 @@ const server = http.createServer(async (req, res) => {
   <Connect>
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
-      voice="Rachel"
+      voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       language="en-US"
       transcriptionProvider="Deepgram"
       speechModel="nova-3-general"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;

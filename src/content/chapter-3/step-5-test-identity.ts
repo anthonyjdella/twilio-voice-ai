@@ -18,7 +18,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "You have crafted a system prompt, designed a persona, selected a voice, and configured the language settings. Restart your server to pick up the changes:",
+        "You have crafted a system prompt, designed a persona, selected a voice, and configured the language settings. Stop the running server with **Ctrl+C**, then start it again to pick up the changes:",
     },
 
     { type: "terminal", audience: "builder", commands: "$ node server.js" },
@@ -32,8 +32,23 @@ export default {
 
     {
       type: "prose",
+      audience: "explorer",
+      content:
+        "The button below will ring **your** phone so you can hear your configured agent in action. Keep your phone handy.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
       content:
         "Trigger a test call using the Call Me button below:",
+    },
+
+    {
+      type: "callout",
+      variant: "info",
+      content:
+        "**Heads up.** Your persona and voice picks apply to the **next** call you trigger, not a call already in progress. To hear a new voice or persona, end the current call and press Call Me again.",
     },
 
     { type: "call-me" },
@@ -41,13 +56,16 @@ export default {
     {
       type: "prose",
       audience: "builder",
-      content: "Or run this from your Codespace terminal:",
+      content:
+        "Or run this from your Codespace terminal. `$CODESPACE_NAME` is an environment variable GitHub sets for you, so the command works as-is (the forwarded URL looks like `https://<codespace-name>-8080.app.github.dev`, which you can also see in the **Ports** tab):",
     },
 
     {
       type: "terminal",
       audience: "builder",
-      commands: `$ curl -X POST https://<your-codespace-url>/call`,
+      commands: `$ echo $CODESPACE_NAME    # should print something like "fluffy-octopus-abc123"
+$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
+# If the echo was blank, you're not in a Codespace terminal -- grab the URL from the Ports tab instead.`,
     },
 
     { type: "page-break" },
@@ -62,26 +80,16 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "**Greeting.** Does the agent introduce itself with the name and role from its persona?",
+        "**Greeting.** Does the agent introduce itself with the name and role from its persona?\n\n**Tone.** Does the agent sound like the personality that was configured? Is it formal when it should be formal, casual when it should be casual?\n\n**Boundaries.** Ask something off-topic. Does the agent stay in character and redirect the conversation?\n\n**Response length.** Are the responses short and natural, or is the agent rambling?",
     },
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "**Tone.** Does the agent sound like the personality that was configured? Is it formal when it should be formal, casual when it should be casual?",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**Boundaries.** Ask something off-topic. Does the agent stay in character and redirect the conversation?",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**Response length.** Are the responses short and natural, or is the agent rambling?",
+        "**Greeting.** Listen for the agent introducing itself with the name and role you picked.\n\n**Tone.** Notice whether the agent sounds like the personality you configured -- formal when it should be formal, casual when it should be casual.\n\n**Boundaries.** Try asking something off-topic. The agent should stay in character and steer back to what it can help with.\n\n**Response length.** Pay attention to how long the responses are. Short and natural is the target.",
     },
 
     {
