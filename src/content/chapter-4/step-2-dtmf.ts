@@ -217,7 +217,7 @@ sendDigits(ws, "3");  // Press 3 for billing`,
       code: `<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       dtmfDetection="true"
       interruptible="any"
       reportInputDuringAgentSpeech="any"

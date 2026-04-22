@@ -65,7 +65,7 @@ export default {
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       language="en-US"
@@ -94,7 +94,7 @@ export default {
             code: `<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       voice="es-US-Neural2-A"
       ttsProvider="Google"
       language="es-ES"

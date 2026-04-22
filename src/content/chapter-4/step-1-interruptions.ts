@@ -195,7 +195,7 @@ function handleMessage(ws, data) {
       code: `<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       interruptible="speech"
       dtmfDetection="true"
       reportInputDuringAgentSpeech="any"

@@ -117,11 +117,13 @@ export default {
       highlight: [6, 7],
       code: `<!-- Using ElevenLabs (default provider) -->
 <!-- Keep welcomeGreeting and dtmfDetection from Chapter 2; only the voice
-     and ttsProvider attributes are new in this step. -->
+     and ttsProvider attributes are new in this step.
+     The url is filled in dynamically by your /twiml handler using
+     req.headers.host — you don't hardcode the hostname. -->
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       welcomeGreeting="Hello! How can I help you today?"
@@ -141,7 +143,7 @@ export default {
 <Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       voice="en-US-Neural2-C"
       ttsProvider="Google"
       welcomeGreeting="Hello! How can I help you today?"

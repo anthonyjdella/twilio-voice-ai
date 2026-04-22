@@ -119,7 +119,7 @@ VOICE GUIDELINES:
       code: `<Response>
   <Connect action="/call-ended">
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       voice="en-US-Chirp3-HD-Achernar"
       ttsProvider="Google"
       dtmfDetection="true"

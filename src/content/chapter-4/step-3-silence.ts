@@ -177,7 +177,7 @@ wss.on("connection", (ws) => {
       code: `<Response>
   <Connect>
     <ConversationRelay
-      url="wss://your-codespace-8080.app.github.dev/ws"
+      url="wss://<your-server-host>/ws"
       interruptible="any"
       interruptSensitivity="medium"
       reportInputDuringAgentSpeech="any"
