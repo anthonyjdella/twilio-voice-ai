@@ -120,7 +120,7 @@ export default {
             type: "concept-card",
             title: "Supported Languages",
             content:
-                "English, Spanish, French, German, Portuguese, Japanese, Chinese, Korean, Italian, Hindi, and 20+ more languages are supported. Each language has regional variants (for example, US English vs. British English, or European Spanish vs. Mexican Spanish).",
+                "30+ languages are supported, each with regional variants so the agent can match how a caller actually speaks -- US English vs. British English, European Spanish vs. Mexican Spanish, and so on. That matters for tone as much as translation: a brand that wants to sound local in Sao Paulo can pick Brazilian Portuguese specifically, instead of a generic European Portuguese voice.",
         },
 
         {

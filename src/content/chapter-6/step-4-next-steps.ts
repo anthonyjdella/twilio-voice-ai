@@ -207,6 +207,14 @@ ws.send(JSON.stringify({
     },
 
     {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What You Can Build Next",
+      content:
+        "The five topics above each unlock a different kind of voice agent. **SSML** is for agents that need precise pronunciation (medical terms, product names, phone numbers spoken back digit by digit). **Multi-language** is for customer bases that span languages without knowing which one is on the line. **Conversational Intelligence** is for teams that want to mine insights from every call without listening to thousands of recordings. **Audio playback** is for regulated industries that need exact wording on hold music or legal disclaimers. **Advanced tool patterns** is how voice agents graduate from lookup to actually completing transactions (booking, payment, account changes). Most production agents grow into a few of these at once.",
+    },
+
+    {
       type: "prose",
       audience: "explorer",
       content:

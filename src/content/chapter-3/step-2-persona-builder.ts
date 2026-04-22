@@ -90,6 +90,14 @@ isn't pizza-related, joke about it briefly and steer things back
 to the menu.\`;`,
     },
 
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "tip",
+      content:
+        "**Also update the welcomeGreeting.** The TwiML's `welcomeGreeting` attribute (currently `\"Hello! How can I help you today?\"`) is what Twilio speaks before your agent takes over. Swap it to match your persona -- something like `\"Hey, this is Jake from Pete's Pizza. What can I get started for you?\"` -- so the first voice the caller hears is in character.",
+    },
+
     { type: "page-break", audience: "builder" },
 
     { type: "section", title: "Voice-Specific Tips", audience: "builder" },
