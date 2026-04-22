@@ -214,7 +214,12 @@ sendDigits(ws, "3");  // Press 3 for billing`,
       audience: "builder",
       language: "xml",
       file: "twiml-response",
-      code: `<Response>
+      code: `<!-- Keep welcomeGreeting from Chapter 2 and voice/language from Chapter 3;
+     dtmfDetection, interruptible, and reportInputDuringAgentSpeech are
+     the only new attributes in this step.
+     The url is filled in dynamically by your /twiml handler using
+     req.headers.host — you don't hardcode the hostname. -->
+<Response>
   <Connect>
     <ConversationRelay
       url="wss://<your-server-host>/ws"

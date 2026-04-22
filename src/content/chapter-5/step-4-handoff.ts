@@ -127,7 +127,9 @@ export default {
       code: `<!-- The only change vs. your existing TwiML is the new action="/call-ended"
      on <Connect>. Keep every other attribute you already have — voice,
      ttsProvider, welcomeGreeting, language, interruptible, etc. — untouched;
-     the snippet below just shows where the new attribute goes. -->
+     the snippet below just shows where the new attribute goes. The
+     Chirp3 / Google values are example placeholders only — do NOT swap
+     your Chapter 3 voice and ttsProvider picks for these. -->
 <Response>
   <Connect action="/call-ended">
     <ConversationRelay

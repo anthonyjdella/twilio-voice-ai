@@ -39,6 +39,7 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Trigger a test call using the Call Me button below:",
     },

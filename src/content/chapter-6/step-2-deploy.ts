@@ -220,6 +220,7 @@ $ docker run -p 8080:8080 --env-file .env voice-agent`,
 PORT=8080
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_AUTH_TOKEN=your_auth_token
+TWILIO_PHONE_NUMBER=+15551234567
 NODE_ENV=production`,
     },
 
@@ -244,7 +245,7 @@ NODE_ENV=production`,
       type: "prose",
       audience: "builder",
       content:
-        "Also update the WebSocket connection URL in the TwiML to use the production domain.",
+        "You do **not** need to edit the WebSocket URL inside your server code. The `/twiml` handler builds it dynamically from `req.headers.host`, so once the Twilio webhook points at the production domain, the `wss://` URL in the generated TwiML updates itself -- no code change required.",
     },
 
     {

@@ -61,7 +61,9 @@ export default {
             file: "TwiML Response",
             highlight: [7, 8, 9],
             code: `<!-- Keep welcomeGreeting from Chapter 2;
-     language, transcriptionProvider, and speechModel are new in this step. -->
+     language, transcriptionProvider, and speechModel are new in this step.
+     The url is filled in dynamically by your /twiml handler using
+     req.headers.host — you don't hardcode the hostname. -->
 <Response>
   <Connect>
     <ConversationRelay
@@ -90,7 +92,10 @@ export default {
             language: "xml",
             file: "TwiML Response",
             highlight: ["5-9"],
-            code: `<Response>
+            code: `<!-- Same setup, Google providers in Spanish.
+     The url is filled in dynamically by your /twiml handler — the placeholder
+     is only there so the example shows where it lives. -->
+<Response>
   <Connect>
     <ConversationRelay
       url="wss://<your-server-host>/ws"

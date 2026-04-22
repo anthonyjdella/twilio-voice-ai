@@ -212,7 +212,7 @@ function processLLMResponse(ws, text) {
       // Flush whole sentences through processLLMResponse so the
       // [LANG:xx-XX] marker (if any) is stripped and the language
       // message reaches Twilio before any text is spoken. The
-      // `(\\s|$)` alternation also flushes when the stream ends on
+      // (\\s|$) alternation also flushes when the stream ends on
       // punctuation with no trailing whitespace (short replies
       // like "Hola!" would otherwise only flush at end-of-stream).
       const match = textBuffer.match(/[.!?](\\s|$)/);
@@ -424,7 +424,7 @@ async function streamResponse(ws) {
       // Flush whole sentences through processLLMResponse so the
       // [LANG:xx-XX] marker (if any) is stripped and the language
       // message reaches Twilio before any text is spoken. The
-      // `(\\s|$)` alternation also flushes when the stream ends on
+      // (\\s|$) alternation also flushes when the stream ends on
       // punctuation with no trailing whitespace (short replies
       // like "Hola!" would otherwise only flush at end-of-stream).
       const match = textBuffer.match(/[.!?](\\s|$)/);
@@ -591,6 +591,14 @@ wss.on("connection", (ws) => {
 server.listen(PORT, () => {
   console.log(\`Server listening on port \${PORT}\`);
 });`,
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What It Sounds Like to the Caller",
+      content:
+        "On the test call coming up next, try starting in English and then switching to Spanish mid-sentence. The agent keeps the same voice and tone, but it flips to a Spanish voice that sounds natural in that language. There is no menu, no \"press 2 for Spanish\" prompt -- the change happens the moment the agent hears the shift. If the caller switches back to English, the voice flips again. The conversation just keeps going.",
     },
   ],
 } satisfies StepDefinition;

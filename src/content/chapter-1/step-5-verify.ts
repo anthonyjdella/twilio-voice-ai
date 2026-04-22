@@ -25,6 +25,21 @@ export default {
         "In Chapter 2 the agent rings your phone and a few things happen in roughly two seconds. A voice greets you -- that is the agent reading its opening line. It pauses. It listens for what you say. Then it streams a reply back in real time, which is why you hear the first words before the full sentence is even written. That streaming is what makes the agent feel fast. You can also interrupt it mid-sentence and it will stop and listen, the same way a person would.",
     },
 
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What Chapter 1 Covered",
+      content:
+        "A voice AI agent is really four moving parts talking to each other: the phone network, the speech-to-text converter, the AI model that decides what to say, and the text-to-speech voice that speaks the reply. Chapter 1 walked through the map -- what each piece does and how a call flows from a caller's phone to the agent and back. Nothing has been built yet, but the picture is now in place.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "From here, the Builder next to you starts assembling those pieces in code. You will see the first call come to life in the next chapter.",
+    },
+
     { type: "builder-only", audience: "explorer", context: "The server is being configured and checked behind the scenes. Everything the agent needs on your side is already handled." },
 
     { type: "section", title: "Expose Your Server", audience: "builder" },
@@ -100,7 +115,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Your Codespace URL becomes two things: an `https://` URL for TwiML webhooks and a `wss://` URL for WebSocket connections. The WebSocket URL is derived by replacing `https://` with `wss://` and appending your WebSocket path (e.g., `/ws`).",
+        "Your Codespace URL becomes two things: an `https://` URL for TwiML webhooks and a `wss://` URL for WebSocket connections. The WebSocket URL is derived by replacing `https://` with `wss://` and appending your WebSocket path (e.g., `/ws` -- you will build the handler for this path in Chapter 2).",
     },
 
     {

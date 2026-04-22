@@ -59,6 +59,7 @@ export default {
       case "setup":
         callSid = message.callSid;
         console.log(\`✅ Call started: \${callSid}\`);
+        console.log(\`👤 From: \${message.from}\`);
         break;
 
       case "prompt":
@@ -206,6 +207,14 @@ wss.on("connection", (ws) => {
 server.listen(PORT, () => {
   console.log(\`🚀 Server listening on port \${PORT}\`);
 });`,
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "What Just Happened",
+      content:
+        "The server can now hear the caller. Whenever the caller stops speaking, Twilio hands over the transcript, and the server writes it into the conversation history -- a running list of who said what. There is still no AI in the loop. The agent is catching every word but cannot reply yet. That comes in the next step, where the transcript gets passed to the language model and the first spoken response gets streamed back.",
     },
   ],
 } satisfies StepDefinition;

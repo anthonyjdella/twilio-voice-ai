@@ -410,6 +410,7 @@ const server = http.createServer(async (req, res) => {
       welcomeGreeting="Hello! How can I help you today?"
       dtmfDetection="true"
       interruptible="any"
+      interruptSensitivity="medium"
       reportInputDuringAgentSpeech="any"
     />
   </Connect>

@@ -134,7 +134,7 @@ export default {
       language: "javascript",
       file: "server.js",
       highlight: [7, "10-11", "19-24", "27-47", "49-58"],
-      code: `// The `require("./tool-handlers.js")` import was added to the top of server.js
+      code: `// The require("./tool-handlers.js") import was added to the top of server.js
 // via the checklist above — this block shows the streamResponse body only.
 
 async function streamResponse(ws, iteration = 0) {

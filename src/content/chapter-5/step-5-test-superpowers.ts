@@ -117,39 +117,39 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
 
     { type: "page-break" },
 
-    { type: "section", title: "Test 3: Multi-Tool Call" },
-
     {
-      type: "prose",
+      type: "deep-dive",
       audience: "builder",
+      title: "Optional Test: Multi-Tool Call",
       content:
-        'Ask a question that needs multiple lookups at once: "What is the weather in Seattle, and can you check order ORD-67890?" The agent should answer both questions in one response.',
+        'Ask a question that needs multiple lookups at once: "What is the weather in Seattle, and can you check order ORD-67890?" The agent should answer both questions in one response. If it only answers half, make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again.',
     },
 
     {
-      type: "prose",
+      type: "deep-dive",
       audience: "explorer",
+      title: "Optional Test: Multi-Tool Call",
       content:
-        'Try a question that needs two lookups in one breath: "What is the weather in Tokyo, and can you check order ORD-12345?" The agent should answer both parts in a single reply. Note: this test only works when both tools are on in the Step 2 picker -- if one is off, the agent can only answer the half it still has a tool for.',
-    },
-
-    { type: "section", title: "Test 4: Joke Tool" },
-
-    {
-      type: "prose",
-      audience: "explorer",
-      content:
-        'Ask the agent: "Tell me a joke." The agent should use its **Tell a Joke** tool and come back with a short one-liner. This test only works when Tell a Joke is on in the Step 2 picker -- if it is off, the agent will either make one up or explain it can not.',
+        'Try a question that needs two lookups in one breath: "What is the weather in Seattle, and can you check order ORD-12345?" The agent should answer both parts in a single reply. This test only works when both tools are on in the Step 2 picker -- if one is off, the agent can only answer the half it still has a tool for.',
     },
 
     {
-      type: "prose",
+      type: "deep-dive",
       audience: "builder",
+      title: "Optional Test: Joke Tool",
       content:
         'Ask the agent: "Tell me a joke." The agent should call your `tell_joke` handler and come back with one of the strings you defined in Step 2. It is the simplest tool shape in the chapter -- a `function` with an empty `parameters` object and a handler that picks a random string -- so if it fires correctly, tool dispatch is wired end-to-end.',
     },
 
-    { type: "section", title: "Test 5: Handoff" },
+    {
+      type: "deep-dive",
+      audience: "explorer",
+      title: "Optional Test: Joke Tool",
+      content:
+        'Ask the agent: "Tell me a joke." The agent should use its **Tell a Joke** tool and come back with a short one-liner. This test only works when Tell a Joke is on in the Step 2 picker -- if it is off, the agent will either make one up or explain it can not.',
+    },
+
+    { type: "section", title: "Test 3: Handoff" },
 
     {
       type: "prose",
@@ -179,15 +179,14 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
       type: "verify",
       audience: "builder",
       question:
-        "Did all five tests pass — weather lookup, order lookup, multi-tool call, joke, and handoff?",
+        "Did the three core tests pass — weather lookup, order lookup, and handoff?",
       troubleshooting: [
         "Agent made up weather instead of calling the tool? Confirm you're passing `tools: tools` to `openai.chat.completions.create()` in `streamResponse`",
         "Order lookup returned nothing? Check the terminal for `Tool call: lookup_order` — if missing, the LLM isn't picking the tool. Tighten the tool description",
-        "Multi-tool call only answered half the question? Make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again",
-        "No joke? Confirm `tell_joke` is on in the Step 2 picker and that the tool handler returns a string — the agent falls back to improvising if it's missing",
         "Handoff didn't trigger? Verify the `transfer_to_agent` tool is in your `tools` array and its handler is sending the `end` message with `handoffData`",
         "Second turn crashes with an OpenAI 400 error about missing tool responses? You're skipping the `role: \"tool\"` message with `tool_call_id` — OpenAI requires exactly one per tool call before the next request",
         "Nothing happening at all? Restart your server and confirm port 8080 is Public in the Codespace Ports tab",
+        "Tried the optional multi-tool test and only got half an answer? Make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again",
       ],
     },
 
@@ -195,7 +194,7 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
       type: "verify",
       audience: "explorer",
       question:
-        "Did the agent use its tools and hand off when asked — weather, order, multi-question, joke, and live handoff?",
+        "Did the agent use its tools and hand off when asked — weather, order, and live handoff?",
       troubleshooting: [
         "Weather answer sounded made up? The agent ignored its tool. Head back to Pick Your Tools on Step 2 and confirm Check Weather is toggled on",
         "Order lookup didn't return the real shipping info? Same thing — check that Look Up Order is on, and try the exact order number ORD-12345",

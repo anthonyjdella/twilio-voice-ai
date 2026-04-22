@@ -218,9 +218,9 @@ const server = http.createServer(async (req, res) => {
     {
       type: "deep-dive",
       audience: "builder",
-      title: "How ConversationRelay works under the hood",
+      title: "Why your server only sees text",
       content:
-        "When the call connects, Twilio's media servers handle all the audio processing. The caller's speech is converted to text using a speech-to-text engine (Deepgram by default), and that text is sent to your server as a JSON message over the WebSocket. When your server sends text back, Twilio's text-to-speech engine (ElevenLabs by default) converts it to audio and plays it to the caller. Your server never touches raw audio -- it only works with text, which avoids having to handle raw audio codecs and voice activity detection yourself as you would with Media Streams.",
+        "Ch1 covered the high-level call flow. The Builder-level takeaway: your server never touches raw audio. Twilio's media servers handle STT and TTS on either side of the WebSocket, so you avoid dealing with audio codecs, voice activity detection, or echo cancellation -- which you *would* have to handle with the Media Streams API. Your server only works with JSON text messages.",
     },
 
     {
