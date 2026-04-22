@@ -151,6 +151,14 @@ function handleDtmfInput(ws, digit) {
         "A good pattern is to translate keypad inputs into natural language messages and add them to the conversation history. The AI handles the actual response while the keypad provides a shortcut for common actions.",
     },
 
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "info",
+      content:
+        "**Adapting the menu to your persona.** The example uses \"check my order status\" because that is a common support flow. If you picked a different persona back in Chapter 3, swap the synthetic prompt so the keypad shortcut fits your agent:\n\n- **Sam (Sunny Day Travel)** -- `\"Can you give me an update on my trip?\"`\n- **Ms. Chen (Hotel Concierge)** -- `\"What's the status of my reservation?\"`\n- **Jake (Pete's Pizza)** -- `\"Where is my pizza order?\"`\n\nOption 2 (speak to a human) and option 0 (main menu) stay the same across personas.",
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "Sending DTMF Tones Outbound", audience: "builder" },
