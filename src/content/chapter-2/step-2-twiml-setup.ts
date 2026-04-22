@@ -197,7 +197,7 @@ const server = http.createServer(async (req, res) => {
       type: "prose",
       audience: "builder",
       content:
-        "**ttsProvider / transcriptionProvider** -- Defaults to **ElevenLabs** (text-to-speech) and **Deepgram** (speech-to-text). We leave these as defaults for now. If you are using your own Twilio account created before September 12, 2025, `transcriptionProvider` defaults to **Google** instead of Deepgram -- set `transcriptionProvider=\"Deepgram\"` explicitly on `<ConversationRelay>` to match this workshop.",
+        "**ttsProvider / transcriptionProvider** -- Defaults to **ElevenLabs** (text-to-speech) and **Deepgram** (speech-to-text). We leave these as defaults for now.",
     },
 
     {

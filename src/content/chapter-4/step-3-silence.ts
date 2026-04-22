@@ -102,7 +102,7 @@ function handleSilence(ws) {
       type: "prose",
       audience: "builder",
       content:
-        "Reset the silence timer every time the caller speaks or presses a key. Start it after the initial greeting, and clear it when the call ends:",
+        "Reset the silence timer every time the caller speaks or presses a key. First, update your `handleMessage` function to reset the timer on every event type:",
     },
 
     {
@@ -110,7 +110,7 @@ function handleSilence(ws) {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      highlight: [8, 12, 18, 23, "33-34"],
+      highlight: [8, 12, 18, 23],
       code: `function handleMessage(ws, data) {
   const msg = JSON.parse(data);
 
@@ -136,15 +136,29 @@ function handleSilence(ws) {
       handleDtmfInput(ws, msg.digit);
       break;
   }
-}
+}`,
+    },
 
-// Add this inside your EXISTING wss.on("connection", (ws) => { ... })
-// callback from Chapter 2 -- do not paste a second wss.on("connection")
-// handler. The ws.on("message", ...) you already have stays as-is;
-// only the ws.on("close", ...) block below is new.
-ws.on("close", () => {
-  clearTimeout(silenceTimer);
-  console.log("Call ended, timers cleared.");
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "Second, inside your **existing** `wss.on(\"connection\", ...)` callback from Chapter 2, add a `ws.on(\"close\", ...)` handler that clears the timer when the call ends. Don't paste a second `wss.on(\"connection\")` -- nest the new close handler alongside the `ws.on(\"message\", ...)` you already have:",
+    },
+
+    {
+      type: "code",
+      audience: "builder",
+      language: "javascript",
+      file: "server.js",
+      highlight: ["3-6"],
+      code: `wss.on("connection", (ws) => {
+  // ...your existing ws.on("message", (data) => handleMessage(ws, data))
+  // stays here; add the close handler below:
+  ws.on("close", () => {
+    clearTimeout(silenceTimer);
+    console.log("Call ended, timers cleared.");
+  });
 });`,
     },
 

@@ -34,7 +34,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**Heads up -- this step is a refactor, not an add.** Before you paste the code further down, do these three things:\n\n- **Delete** `const conversationHistory = [...]` from inside `wss.on(\"connection\", ...)`.\n- **Delete** the entire `streamLLMResponse` function from Chapter 2.\n- **Keep** the `sendText` helper from Chapter 2 -- the new code uses it as-is.\n- **Paste** the new module-scope code at the **top of `server.js`**, outside any handler.\n\nIf you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and the interrupt handler -- plus Chapter 5's tool loop -- will write to the wrong array.",
+        "**Heads up -- this step is a refactor, not an add.** Before you paste the code further down, do these three things:\n\n- **Delete** `const conversationHistory = [...]` from inside `wss.on(\"connection\", ...)`.\n- **Delete** the entire `streamLLMResponse` function from Chapter 2.\n- **Keep** the `sendText(ws, token, last = false)` helper from Chapter 2 -- the new code uses it as-is (double-check the signature matches if you modified it).\n- **Paste** the new module-scope code at the **top of `server.js`**, outside any handler.\n\nIf you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and the interrupt handler -- plus Chapter 5's tool loop -- will write to the wrong array.",
     },
 
     { type: "section", title: "How Barge-In Works", audience: "builder" },
@@ -204,7 +204,7 @@ function handleMessage(ws, data) {
   <Connect>
     <ConversationRelay
       url="wss://<your-server-host>/ws"
-      interruptible="speech"
+      interruptible="any"
       reportInputDuringAgentSpeech="any"
     />
   </Connect>

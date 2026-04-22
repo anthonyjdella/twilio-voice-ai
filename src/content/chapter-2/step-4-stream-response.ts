@@ -187,7 +187,7 @@ async function streamLLMResponse(ws, conversationHistory) {
       type: "prose",
       audience: "builder",
       content:
-        "Find the `case \"prompt\":` block in your `wss.on(\"message\", ...)` handler (look for the `// TODO: Send to LLM` comment from Step 3) and replace the whole block with this -- the highlighted line is the new call to your streaming function:",
+        "Find the `case \"prompt\":` block in your `wss.on(\"message\", ...)` handler (look for the `// TODO: Send to LLM and stream response back` comment from Step 3) and replace the whole block with this -- the highlighted line is the new call to your streaming function:",
     },
 
     {

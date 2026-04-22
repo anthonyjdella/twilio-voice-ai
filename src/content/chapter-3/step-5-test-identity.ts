@@ -49,13 +49,13 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Or run this from your Codespace terminal. Your Codespace's forwarded URL is in the **Ports** tab -- it looks like `https://<codespace-name>-8080.app.github.dev` (note the `-8080` infix, which maps to the forwarded port):",
+        "Or run this from your Codespace terminal. `$CODESPACE_NAME` is an environment variable GitHub sets for you, so the command works as-is (the forwarded URL looks like `https://<codespace-name>-8080.app.github.dev`, which you can also see in the **Ports** tab):",
     },
 
     {
       type: "terminal",
       audience: "builder",
-      commands: `$ curl -X POST https://<codespace-name>-8080.app.github.dev/call`,
+      commands: `$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"`,
     },
 
     { type: "page-break" },
