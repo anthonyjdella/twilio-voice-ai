@@ -169,7 +169,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**4. Port 8080** -- When you start your server in Chapter 2, you will need to make port 8080 **Public** in the Codespace Ports tab (covered in the Expose Your Server step).",
+        "**4. Port 8080 is Public** -- You set this above in the Expose Your Server section. When you start your server in Chapter 2, Twilio will be able to reach it.",
     },
 
     {
