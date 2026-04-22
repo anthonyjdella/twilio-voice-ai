@@ -23,9 +23,17 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
+      title: "Three Places a Voice Agent Can Live",
+      content:
+        "When teams pick a home for a voice agent, they usually pick one of three kinds of place:\n\n- **A managed platform** (like Railway or Render) -- easiest path; you hand over your code and the platform handles servers, TLS, and restarts for you.\n- **A container on any cloud** -- more flexible; you bundle the agent into a container and run it on AWS, Azure, or Google Cloud.\n- **A big cloud service directly** -- the most control, the most setup; teams usually only go here when they have a dedicated platform team.\n\nAll three keep the agent online around the clock. The difference is how much of the setup the team wants to own.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
       title: "Why a Workshop Environment Isn't Home",
       content:
-        "Workshop environments like Codespaces are temporary -- perfect for building and testing, but they pause when no one is using them. For a real launch, an agent needs a permanent home: a server that stays awake around the clock, keeps a live connection open for every call, and picks itself back up if anything goes wrong. Teams call that \"hosting,\" and the decision comes down to where the agent should live.",
+        "Workshop environments like Codespaces are the pop-up shop of software -- great for a weekend, not meant to stay open 24/7. They pause when no one is using them, which is perfect for building and testing but wrong for a real phone number people call. For a real launch, an agent needs a permanent home: a server that stays awake around the clock, keeps a live connection open for every call, and picks itself back up if anything goes wrong. Teams call that \"hosting.\"",
     },
 
     {
