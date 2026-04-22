@@ -17,7 +17,7 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "When a caller presses keys on their phone, Twilio detects the tone and tells the AI which key was pressed. This means the agent can offer menu options like \"press 1 for support\" alongside normal conversation. In this workshop the keypad shortcuts are fixed (**1** = check order, **2** = transfer, **0** = repeat menu) -- the keys stay the same regardless of which persona you picked, so don't expect the topic to match your agent's flavor.",
+        "**Heads up: the keypad shortcuts are fixed in this workshop** -- **1** = check order, **2** = transfer, **0** = repeat menu. They stay the same regardless of which persona you picked in Ch3, so don't expect the topic to match your agent's flavor. When a caller presses keys on their phone, Twilio detects the tone and tells the AI which key was pressed -- that's what lets the agent offer menu options like \"press 1 for support\" alongside normal conversation.",
     },
 
     {

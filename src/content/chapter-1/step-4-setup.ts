@@ -64,7 +64,28 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "The `workshop/` folder is at the repo root, and `workshop/.env` is generated for you on first boot of the Codespace (pre-filled with the shared Twilio and OpenAI keys). Open it from the file explorer on the left -- if you don't see `workshop/.env` yet, give the Codespace another minute to finish initializing. Update `MY_PHONE_NUMBER` with your real phone number in E.164 format (international format, e.g. `+12065551234`):",
+        "The `workshop/` folder is at the repo root, and `workshop/.env` is generated for you on first boot of the Codespace (pre-filled with the shared Twilio and OpenAI keys). Open it from the file explorer on the left -- if you don't see `workshop/.env` yet, give the Codespace another minute to finish initializing. You can also confirm the expected keys are set from your terminal:",
+    },
+
+    {
+      type: "terminal",
+      audience: "builder",
+      commands: `$ cat workshop/.env
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_PHONE_NUMBER=+1xxxxxxxxxx
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+OPENAI_MODEL=gpt-5.4-nano
+
+# Set this to your personal phone number in E.164 format
+MY_PHONE_NUMBER=+15551234567`,
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "Update `MY_PHONE_NUMBER` with your real phone number in E.164 format (international format, e.g. `+12065551234`):",
     },
 
     {

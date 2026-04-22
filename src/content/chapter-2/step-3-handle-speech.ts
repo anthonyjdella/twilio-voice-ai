@@ -25,7 +25,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "When the caller finishes speaking, Twilio sends a `prompt` message with the transcribed text. Add a handler that saves it to the conversation history:",
+        "When the caller finishes speaking, Twilio sends a `prompt` message with the transcribed text. **Replace your entire `switch (message.type)` block** with the version below -- it keeps the existing `setup` case and adds a new `case \"prompt\"` that saves the transcript to the conversation history:",
     },
 
     {

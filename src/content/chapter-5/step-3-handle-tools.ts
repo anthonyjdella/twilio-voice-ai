@@ -133,9 +133,9 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      highlight: ["1-2", 10, "13-14", "22-27", "30-50", "52-61"],
-      code: `// At the top of server.js — import from Step 2
-const { tools, toolHandlers } = require("./tool-handlers.js");
+      highlight: [7, "10-11", "19-24", "27-47", "49-58"],
+      code: `// The `require("./tool-handlers.js")` import was added to the top of server.js
+// via the checklist above — this block shows the streamResponse body only.
 
 async function streamResponse(ws, iteration = 0) {
   activeStream = new AbortController();
@@ -163,12 +163,16 @@ async function streamResponse(ws, iteration = 0) {
 
         // Flush whole sentences through processLLMResponse so any
         // [LANG:xx-XX] marker is stripped and the language switch
-        // message reaches Twilio before the text is spoken.
-        const sentenceEnd = textBuffer.search(/[.!?]\\s/);
-        if (sentenceEnd !== -1) {
-          const sentence = textBuffer.slice(0, sentenceEnd + 1);
+        // message reaches Twilio before the text is spoken. If you
+        // skipped Ch4 Step 4 (language switching), processLLMResponse
+        // is still defined there -- either port the function over or
+        // simplify this branch to just sendText(ws, delta.content).
+        const match = textBuffer.match(/[.!?](\\s|$)/);
+        if (match) {
+          const sentenceEnd = match.index + 1;
+          const sentence = textBuffer.slice(0, sentenceEnd);
           processLLMResponse(ws, sentence);
-          textBuffer = textBuffer.slice(sentenceEnd + 2);
+          textBuffer = textBuffer.slice(sentenceEnd + (match[1] ? match[1].length : 0));
         }
       }
 
@@ -220,6 +224,7 @@ async function streamResponse(ws, iteration = 0) {
             content: fullAssistantText.trim(),
           });
         }
+        return;
       }
     }
   } catch (err) {
@@ -486,11 +491,12 @@ async function streamResponse(ws, iteration = 0) {
         // Flush whole sentences through processLLMResponse so any
         // [LANG:xx-XX] marker is stripped and the language switch
         // message reaches Twilio before the text is spoken.
-        const sentenceEnd = textBuffer.search(/[.!?]\\s/);
-        if (sentenceEnd !== -1) {
-          const sentence = textBuffer.slice(0, sentenceEnd + 1);
+        const match = textBuffer.match(/[.!?](\\s|$)/);
+        if (match) {
+          const sentenceEnd = match.index + 1;
+          const sentence = textBuffer.slice(0, sentenceEnd);
           processLLMResponse(ws, sentence);
-          textBuffer = textBuffer.slice(sentenceEnd + 2);
+          textBuffer = textBuffer.slice(sentenceEnd + (match[1] ? match[1].length : 0));
         }
       }
 
@@ -535,6 +541,7 @@ async function streamResponse(ws, iteration = 0) {
             content: fullAssistantText.trim(),
           });
         }
+        return;
       }
     }
   } catch (err) {

@@ -47,7 +47,10 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js (Friendly Assistant persona)",
-      code: `// Friendly Assistant \u2014 warm, casual, helpful
+      code: `// Pick ONE of the three blocks below -- paste its SYSTEM_PROMPT into
+// server.js and skip past the other two.
+
+// Friendly Assistant \u2014 warm, casual, helpful
 const SYSTEM_PROMPT = \`You are Sam, a friendly assistant at Sunny
 Day Travel Agency. You help callers plan vacations, find deals,
 and answer travel questions.

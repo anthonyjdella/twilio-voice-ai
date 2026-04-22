@@ -32,6 +32,13 @@ export default {
 
     {
       type: "prose",
+      audience: "explorer",
+      content:
+        "The button below will ring **your** phone so you can hear your configured agent in action. Keep your phone handy.",
+    },
+
+    {
+      type: "prose",
       content:
         "Trigger a test call using the Call Me button below:",
     },
@@ -55,7 +62,9 @@ export default {
     {
       type: "terminal",
       audience: "builder",
-      commands: `$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"`,
+      commands: `$ echo $CODESPACE_NAME    # should print something like "fluffy-octopus-abc123"
+$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
+# If the echo was blank, you're not in a Codespace terminal -- grab the URL from the Ports tab instead.`,
     },
 
     { type: "page-break" },
@@ -70,26 +79,16 @@ export default {
 
     {
       type: "prose",
+      audience: "builder",
       content:
-        "**Greeting.** Does the agent introduce itself with the name and role from its persona?",
+        "**Greeting.** Does the agent introduce itself with the name and role from its persona?\n\n**Tone.** Does the agent sound like the personality that was configured? Is it formal when it should be formal, casual when it should be casual?\n\n**Boundaries.** Ask something off-topic. Does the agent stay in character and redirect the conversation?\n\n**Response length.** Are the responses short and natural, or is the agent rambling?",
     },
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "**Tone.** Does the agent sound like the personality that was configured? Is it formal when it should be formal, casual when it should be casual?",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**Boundaries.** Ask something off-topic. Does the agent stay in character and redirect the conversation?",
-    },
-
-    {
-      type: "prose",
-      content:
-        "**Response length.** Are the responses short and natural, or is the agent rambling?",
+        "**Greeting.** Listen for the agent introducing itself with the name and role you picked.\n\n**Tone.** Notice whether the agent sounds like the personality you configured -- formal when it should be formal, casual when it should be casual.\n\n**Boundaries.** Try asking something off-topic. The agent should stay in character and steer back to what it can help with.\n\n**Response length.** Pay attention to how long the responses are. Short and natural is the target.",
     },
 
     {

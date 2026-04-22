@@ -44,7 +44,9 @@ Server listening on port 8080`,
     {
       type: "terminal",
       audience: "builder",
-      commands: `$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"`,
+      commands: `$ echo $CODESPACE_NAME    # should print something like "fluffy-octopus-abc123"
+$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
+# If the echo was blank, you're not in a Codespace terminal -- grab the URL from the Ports tab instead.`,
     },
 
     { type: "page-break" },

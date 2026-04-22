@@ -32,7 +32,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**SSML support depends on the voice provider.** Tags like `<say-as>`, `<break>`, and `<prosody>` work with **Google** and **Amazon** voices. The default provider (**ElevenLabs**) only supports `<phoneme>`, and only when the language is `en-us` (other English locales like `en-GB` will not render phonemes). For full SSML, switch to Google (`ttsProvider=\"Google\"`).",
+        "**SSML support depends on the voice provider.** Tags like `<say-as>`, `<break>`, and `<prosody>` work with **Google** and **Amazon** voices. The default provider (**ElevenLabs**) only supports `<phoneme>`, and only when the language is `en-US` (other English locales like `en-GB` will not render phonemes). For full SSML, switch to Google (`ttsProvider=\"Google\"`).",
     },
 
     {
@@ -173,12 +173,14 @@ ws.send(JSON.stringify({
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "Continue learning with these resources:",
     },
 
     {
       type: "prose",
+      audience: "builder",
       content:
         "**Twilio ConversationRelay docs** -- [twilio.com/docs/voice/conversationrelay](https://www.twilio.com/docs/voice/conversationrelay)\n**OpenAI API reference** -- [platform.openai.com/docs/api-reference](https://platform.openai.com/docs/api-reference)\n**Twilio Voice TwiML** -- [twilio.com/docs/voice/twiml](https://www.twilio.com/docs/voice/twiml)\n**Twilio Conversational Intelligence** -- [twilio.com/docs/conversational-intelligence](https://www.twilio.com/docs/conversational-intelligence)",
     },

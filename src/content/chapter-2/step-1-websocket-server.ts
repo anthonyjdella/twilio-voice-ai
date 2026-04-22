@@ -46,7 +46,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Create `server.js` with this skeleton. It sets up an HTTP server, attaches a WebSocket server, and listens for connections:",
+        "Create `server.js` inside the `workshop/` folder that opens in your Codespace (the terminal is already cwd'd there). It sets up an HTTP server, attaches a WebSocket server, and listens for connections:",
     },
 
     {

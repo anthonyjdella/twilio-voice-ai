@@ -96,7 +96,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "The `handoffData` field carries context about the conversation so the human agent knows what happened. The `reasonCode` is Twilio's convention for marking this as a live-agent handoff (other end scenarios use different codes); `reason`, `summary`, `callerId`, and any order/account numbers go in the same JSON object.",
+        "The `handoffData` field carries context about the conversation so the human agent knows what happened. `reasonCode: \"live-agent-handoff\"` is Twilio's documented convention for marking this as a handoff; any other fields inside `handoffData` (`reason`, `summary`, `callerId`, order/account numbers) are yours to define -- Twilio passes them through verbatim.",
     },
 
     { type: "page-break" },

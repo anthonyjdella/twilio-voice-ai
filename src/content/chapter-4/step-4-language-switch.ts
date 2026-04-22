@@ -211,12 +211,16 @@ function processLLMResponse(ws, text) {
 
       // Flush whole sentences through processLLMResponse so the
       // [LANG:xx-XX] marker (if any) is stripped and the language
-      // message reaches Twilio before any text is spoken.
-      const sentenceEnd = textBuffer.search(/[.!?]\\s/);
-      if (sentenceEnd !== -1) {
-        const sentence = textBuffer.slice(0, sentenceEnd + 1);
+      // message reaches Twilio before any text is spoken. The
+      // `(\\s|$)` alternation also flushes when the stream ends on
+      // punctuation with no trailing whitespace (short replies
+      // like "Hola!" would otherwise only flush at end-of-stream).
+      const match = textBuffer.match(/[.!?](\\s|$)/);
+      if (match) {
+        const sentenceEnd = match.index + 1;
+        const sentence = textBuffer.slice(0, sentenceEnd);
         processLLMResponse(ws, sentence);
-        textBuffer = textBuffer.slice(sentenceEnd + 2);
+        textBuffer = textBuffer.slice(sentenceEnd + (match[1] ? match[1].length : 0));
       }
     }
 
@@ -239,7 +243,7 @@ function processLLMResponse(ws, text) {
       audience: "builder",
       variant: "tip",
       content:
-        "Why sentence buffering, not word buffering? A marker like `[LANG:es-ES]` can arrive split across tokens (`[LANG`, `:es-`, `ES]`). Waiting for a sentence boundary guarantees the full marker is present before the regex runs, and it keeps perceived latency low because callers hear the agent speak one sentence at a time anyway.\n\nThe simple `/[.!?]\\s/` split will mis-flush on abbreviations like `Mr. Smith` or `e.g.,` and on numbers like `3.14`. For a workshop agent that is fine -- the marker only needs to be intact at the *start* of the first sentence. For a production agent you would swap in a proper sentence tokenizer (such as `compromise` or `sbd`).",
+        "Why sentence buffering, not word buffering? A marker like `[LANG:es-ES]` can arrive split across tokens (`[LANG`, `:es-`, `ES]`). Waiting for a sentence boundary guarantees the full marker is present before the regex runs, and it keeps perceived latency low because callers hear the agent speak one sentence at a time anyway.\n\nThe split pattern `/[.!?](\\s|$)/` will mis-flush on abbreviations like `Mr. Smith` or `e.g.,` and on numbers like `3.14`. For a workshop agent that is fine -- the marker only needs to be intact at the *start* of the first sentence. For a production agent you would swap in a proper sentence tokenizer (such as `compromise` or `sbd`).",
     },
 
     { type: "section", title: "Supported Languages", audience: "builder" },
@@ -371,6 +375,8 @@ function resetSilenceTimer(ws) {
 }
 
 function handleSilence(ws) {
+  if (ws.readyState !== ws.OPEN) return;
+
   silencePromptCount++;
 
   if (silencePromptCount >= MAX_SILENCE_PROMPTS) {
@@ -417,12 +423,16 @@ async function streamResponse(ws) {
 
       // Flush whole sentences through processLLMResponse so the
       // [LANG:xx-XX] marker (if any) is stripped and the language
-      // message reaches Twilio before any text is spoken.
-      const sentenceEnd = textBuffer.search(/[.!?]\\s/);
-      if (sentenceEnd !== -1) {
-        const sentence = textBuffer.slice(0, sentenceEnd + 1);
+      // message reaches Twilio before any text is spoken. The
+      // `(\\s|$)` alternation also flushes when the stream ends on
+      // punctuation with no trailing whitespace (short replies
+      // like "Hola!" would otherwise only flush at end-of-stream).
+      const match = textBuffer.match(/[.!?](\\s|$)/);
+      if (match) {
+        const sentenceEnd = match.index + 1;
+        const sentence = textBuffer.slice(0, sentenceEnd);
         processLLMResponse(ws, sentence);
-        textBuffer = textBuffer.slice(sentenceEnd + 2);
+        textBuffer = textBuffer.slice(sentenceEnd + (match[1] ? match[1].length : 0));
       }
     }
 
@@ -526,6 +536,7 @@ const server = http.createServer(async (req, res) => {
       welcomeGreeting="Hello! How can I help you today?"
       dtmfDetection="true"
       interruptible="any"
+      interruptSensitivity="medium"
       reportInputDuringAgentSpeech="any"
     />
   </Connect>

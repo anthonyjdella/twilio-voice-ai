@@ -11,7 +11,7 @@ export default {
       audience: "explorer",
       title: "What “ConversationRelay” Means Here",
       content:
-        "ConversationRelay is the Twilio feature at the center of this workshop. Think of it as a live translator sitting between the phone call and the AI -- it listens to the caller, turns their speech into text, hands the text to the AI, turns the AI's reply back into a natural-sounding voice, and plays it to the caller. Everything the Builder is wiring up in the next few steps is just telling ConversationRelay when to do that, and where to send the text.",
+        "ConversationRelay is the Twilio feature at the center of this workshop. Think of it as a live translator sitting between the phone call and the AI -- it listens to the caller, turns their speech into text, hands the text to the AI, turns the AI's reply back into a natural-sounding voice, and plays it to the caller. Everything the workshop wires up in the next few steps is just telling ConversationRelay when to do that, and where to send the text.",
     },
 
     {
@@ -204,7 +204,7 @@ const server = http.createServer(async (req, res) => {
       type: "prose",
       audience: "builder",
       content:
-        '**interruptible** -- Controls what can interrupt AI speech. Defaults to `"any"` (voice and keypad).',
+        '**interruptible** -- Controls what can interrupt AI speech. Defaults to `"any"` (voice and keypad).\n\n**welcomeGreetingInterruptible** -- Same values (`none`/`dtmf`/`speech`/`any`), but governs only the welcome greeting. Defaults to `"any"` -- set it separately if you want the greeting to play through uninterrupted while still allowing interruptions during the rest of the call.',
     },
 
     {

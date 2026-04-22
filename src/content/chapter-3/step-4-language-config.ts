@@ -51,7 +51,7 @@ export default {
             type: "prose",
             audience: "builder",
             content:
-                "You configure speech recognition settings in your ConversationRelay instructions. The key settings are: **`language`** — the language code the caller will speak (e.g., `en-US` for English, `es-ES` for Spanish). **`transcriptionProvider`** — which service listens to the caller: `Deepgram` (default) or `Google`. **`speechModel`** — the specific recognition model, balancing speed vs. accuracy.",
+                "You configure speech recognition settings in your ConversationRelay instructions. The key settings are: **`language`** — the language code the caller will speak (e.g., `en-US` for English, `es-ES` for Spanish). **`transcriptionProvider`** — which service listens to the caller: `Deepgram` (default) or `Google`. **`speechModel`** — the specific recognition model, balancing speed vs. accuracy. `nova-3-general` is the Deepgram default for supported languages; for unsupported languages, Deepgram falls back to `nova-2-general` automatically.",
         },
 
         {

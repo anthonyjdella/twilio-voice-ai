@@ -59,7 +59,9 @@ Server listening on port 8080`,
     {
       type: "terminal",
       audience: "builder",
-      commands: `$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"`,
+      commands: `$ echo $CODESPACE_NAME    # should print something like "fluffy-octopus-abc123"
+$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
+# If the echo was blank, you're not in a Codespace terminal -- grab the URL from the Ports tab instead.`,
     },
 
     { type: "page-break" },
@@ -137,7 +139,7 @@ Server listening on port 8080`,
       type: "prose",
       audience: "explorer",
       content:
-        'Ask the agent: "Tell me a joke." The agent should call the `tell_joke` tool and come back with a short one-liner. This test only works when **Tell a Joke** is on in the Step 2 picker -- if it\'s off, the agent will either make one up or explain it can\'t.',
+        'Ask the agent: "Tell me a joke." The agent should use its **Tell a Joke** tool and come back with a short one-liner. This test only works when Tell a Joke is on in the Step 2 picker -- if it is off, the agent will either make one up or explain it can not.',
     },
 
     {
