@@ -177,6 +177,7 @@ ws.on("close", () => {
   <Connect>
     <ConversationRelay
       url="wss://<your-server-host>/ws"
+      dtmfDetection="true"
       interruptible="any"
       interruptSensitivity="medium"
       reportInputDuringAgentSpeech="any"
@@ -393,6 +394,7 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
       interruptible="any"
       reportInputDuringAgentSpeech="any"
     />

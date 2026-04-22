@@ -206,7 +206,7 @@ sendDigits(ws, "3");  // Press 3 for billing`,
       type: "prose",
       audience: "builder",
       content:
-        "DTMF messages arrive on the WebSocket automatically — there is no `dtmfDetection` attribute. What matters is (a) `interruptible` includes `dtmf` (or `any`), so a keypress can interrupt the agent's speech the same way voice does, and (b) `reportInputDuringAgentSpeech=\"any\"` so keypresses arriving while the agent is mid-sentence are forwarded to your server instead of being silently dropped. Your TwiML should look like this:",
+        "DTMF events only arrive on the WebSocket when you opt in. Three attributes matter: (a) `dtmfDetection=\"true\"` -- this is what tells Twilio to forward `dtmf` messages at all; without it, your handler never fires; (b) `interruptible` includes `dtmf` (or `any`), so a keypress can also stop the agent mid-sentence; (c) `reportInputDuringAgentSpeech=\"any\"` so keypresses that arrive while the agent is talking are delivered, not silently dropped. Your TwiML should look like this:",
     },
 
     {
@@ -218,6 +218,7 @@ sendDigits(ws, "3");  // Press 3 for billing`,
   <Connect>
     <ConversationRelay
       url="wss://<your-server-host>/ws"
+      dtmfDetection="true"
       interruptible="any"
       reportInputDuringAgentSpeech="any"
     />
@@ -391,6 +392,7 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
+      dtmfDetection="true"
       interruptible="any"
       reportInputDuringAgentSpeech="any"
     />

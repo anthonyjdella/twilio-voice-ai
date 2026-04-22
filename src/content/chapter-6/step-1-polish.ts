@@ -115,7 +115,7 @@ VOICE GUIDELINES:
       audience: "builder",
       variant: "info",
       content:
-        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** -- don't paste it as a second route. You already have a TwiML response from Chapter 2; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `reportInputDuringAgentSpeech`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`.",
+        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** -- don't paste it as a second route. You already have a TwiML response with `dtmfDetection`, `interruptible`, and `reportInputDuringAgentSpeech` from Chapter 4; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`.",
     },
 
     {
@@ -130,6 +130,7 @@ VOICE GUIDELINES:
       url="wss://<your-server-host>/ws"
       voice="en-US-Chirp3-HD-Achernar"
       ttsProvider="Google"
+      dtmfDetection="true"
       interruptible="any"
       interruptSensitivity="medium"
       welcomeGreeting="Hello! How can I help you today?"
@@ -642,6 +643,7 @@ const server = http.createServer(async (req, res) => {
       url="wss://\${req.headers.host}/ws"
       voice="en-US-Chirp3-HD-Achernar"
       ttsProvider="Google"
+      dtmfDetection="true"
       interruptible="any"
       interruptSensitivity="medium"
       welcomeGreeting="Hello! How can I help you today?"

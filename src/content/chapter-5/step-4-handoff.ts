@@ -135,6 +135,7 @@ export default {
       voice="en-US-Chirp3-HD-Achernar"
       ttsProvider="Google"
       welcomeGreeting="Hi, I'm your assistant. How can I help?"
+      dtmfDetection="true"
       interruptible="any"
       reportInputDuringAgentSpeech="any"
     />
