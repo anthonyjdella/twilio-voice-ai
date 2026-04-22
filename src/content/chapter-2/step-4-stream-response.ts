@@ -259,7 +259,6 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;

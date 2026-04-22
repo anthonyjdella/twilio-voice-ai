@@ -95,7 +95,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**Amazon Polly:** `Joanna` (female, neural), `Matthew` (male, neural), `Lupe` (female, neural, bilingual en/es), `Amy` (female, British English).",
+        "**Amazon Polly** (neural voices require the `-Neural` suffix): `Joanna-Neural` (female), `Matthew-Neural` (male), `Lupe-Neural` (female, bilingual en/es), `Amy-Neural` (female, British English).",
     },
 
     { type: "page-break" },
@@ -116,8 +116,8 @@ export default {
       file: "TwiML Response",
       highlight: [6, 7],
       code: `<!-- Using ElevenLabs (default provider) -->
-<!-- Keep welcomeGreeting and dtmfDetection from Chapter 2; only the voice
-     and ttsProvider attributes are new in this step.
+<!-- Keep welcomeGreeting from Chapter 2; only the voice and ttsProvider
+     attributes are new in this step.
      The url is filled in dynamically by your /twiml handler using
      req.headers.host — you don't hardcode the hostname. -->
 <Response>
@@ -127,7 +127,6 @@ export default {
       voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -147,7 +146,6 @@ export default {
       voice="en-US-Neural2-C"
       ttsProvider="Google"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -167,7 +165,7 @@ export default {
       file: "server.js",
       highlight: [8, 9],
       code: `// Inside your http.createServer handler. Keep welcomeGreeting
-// and dtmfDetection from Chapter 2 \u2014 only voice and ttsProvider are new.
+// from Chapter 2 \u2014 only voice and ttsProvider are new.
 if (req.url === "/twiml" && req.method === "POST") {
   const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -177,7 +175,6 @@ if (req.url === "/twiml" && req.method === "POST") {
       voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -265,7 +262,6 @@ const server = http.createServer(async (req, res) => {
       voice="21m00Tcm4TlvDq8ikWAM"
       ttsProvider="ElevenLabs"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;

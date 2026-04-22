@@ -395,7 +395,6 @@ const server = http.createServer(async (req, res) => {
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
       interruptible="any"
-      dtmfDetection="true"
       reportInputDuringAgentSpeech="any"
     />
   </Connect>

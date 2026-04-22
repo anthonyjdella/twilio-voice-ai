@@ -60,7 +60,7 @@ export default {
             language: "xml",
             file: "TwiML Response",
             highlight: [7, 8, 9],
-            code: `<!-- Keep welcomeGreeting and dtmfDetection from Chapter 2;
+            code: `<!-- Keep welcomeGreeting from Chapter 2;
      language, transcriptionProvider, and speechModel are new in this step. -->
 <Response>
   <Connect>
@@ -72,7 +72,6 @@ export default {
       transcriptionProvider="Deepgram"
       speechModel="nova-3-general"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -101,7 +100,6 @@ export default {
       transcriptionProvider="Google"
       speechModel="telephony"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>`,
@@ -154,8 +152,8 @@ export default {
             language: "javascript",
             file: "server.js",
             highlight: [10, 11, 12],
-            code: `// Inside your http.createServer handler. Keep welcomeGreeting and
-// dtmfDetection from Chapter 2 \u2014 language, transcriptionProvider,
+            code: `// Inside your http.createServer handler. Keep welcomeGreeting
+// from Chapter 2 \u2014 language, transcriptionProvider,
 // and speechModel are new in this step.
 if (req.url === "/twiml" && req.method === "POST") {
   const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
@@ -169,7 +167,6 @@ if (req.url === "/twiml" && req.method === "POST") {
       transcriptionProvider="Deepgram"
       speechModel="nova-3-general"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -254,7 +251,6 @@ const server = http.createServer(async (req, res) => {
       transcriptionProvider="Deepgram"
       speechModel="nova-3-general"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;

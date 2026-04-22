@@ -33,7 +33,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Twilio needs to reach your server over the internet to send and receive messages during a call. In Codespaces, this is built in -- you just need to make your port public.",
+        "Twilio needs to reach your server over the internet to send and receive messages during a call. Your server will listen on **port 8080** (you'll start it in Chapter 2), so that's the port we need to make public. In Codespaces, this is built in -- you just need to flip one setting.",
     },
 
     {

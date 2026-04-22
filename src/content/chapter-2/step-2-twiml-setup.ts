@@ -9,6 +9,14 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
+      title: "What “ConversationRelay” Means Here",
+      content:
+        "ConversationRelay is the Twilio feature at the center of this workshop. Think of it as a live translator sitting between the phone call and the AI -- it listens to the caller, turns their speech into text, hands the text to the AI, turns the AI's reply back into a natural-sounding voice, and plays it to the caller. Everything the Builder is wiring up in the next few steps is just telling ConversationRelay when to do that, and where to send the text.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
       title: "How the Call Gets Started",
       content:
         "The server tells Twilio to dial your phone. When you pick up, Twilio connects the call to the AI agent and plays a welcome greeting so there is no awkward silence.",
@@ -66,7 +74,6 @@ export default {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -127,7 +134,6 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
@@ -191,14 +197,7 @@ const server = http.createServer(async (req, res) => {
       type: "prose",
       audience: "builder",
       content:
-        "**dtmfDetection** -- When `true`, Twilio detects keypad presses and sends them to your server.",
-    },
-
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "**ttsProvider / transcriptionProvider** -- Defaults to **ElevenLabs** (text-to-speech) and **Deepgram** (speech-to-text). We leave these as defaults for now.",
+        "**ttsProvider / transcriptionProvider** -- Defaults to **ElevenLabs** (text-to-speech) and **Deepgram** (speech-to-text). We leave these as defaults for now. If you are using your own Twilio account created before September 12, 2025, `transcriptionProvider` defaults to **Google** instead of Deepgram -- set `transcriptionProvider=\"Deepgram\"` explicitly on `<ConversationRelay>` to match this workshop.",
     },
 
     {
@@ -221,7 +220,7 @@ const server = http.createServer(async (req, res) => {
       audience: "builder",
       title: "How ConversationRelay works under the hood",
       content:
-        "When the call connects, Twilio's media servers handle all the audio processing. The caller's speech is converted to text using a speech-to-text engine (Deepgram by default), and that text is sent to your server as a JSON message over the WebSocket. When your server sends text back, Twilio's text-to-speech engine (ElevenLabs by default) converts it to audio and plays it to the caller. Your server never touches raw audio -- it only works with text, which makes the integration dramatically simpler than using Media Streams directly.",
+        "When the call connects, Twilio's media servers handle all the audio processing. The caller's speech is converted to text using a speech-to-text engine (Deepgram by default), and that text is sent to your server as a JSON message over the WebSocket. When your server sends text back, Twilio's text-to-speech engine (ElevenLabs by default) converts it to audio and plays it to the caller. Your server never touches raw audio -- it only works with text, which avoids having to handle raw audio codecs and voice activity detection yourself as you would with Media Streams.",
     },
 
     {
@@ -251,7 +250,6 @@ const server = http.createServer(async (req, res) => {
     <ConversationRelay
       url="wss://\${req.headers.host}/ws"
       welcomeGreeting="Hello! How can I help you today?"
-      dtmfDetection="true"
     />
   </Connect>
 </Response>\`;
