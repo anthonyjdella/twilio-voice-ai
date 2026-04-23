@@ -135,39 +135,8 @@ export const VOICE_CATALOG: VoiceEntry[] = [
 
   // Google TTS — the language code prefix in the voice ID (e.g. en-US-...) is
   // the language that voice speaks. Twilio's TTS voices docs list Google
-  // voices as monolingual, so each entry carries exactly one language.
-  {
-    id: "en-US-Journey-O",
-    name: "Journey-O",
-    provider: "Google",
-    gender: "Female",
-    languages: [ENGLISH_ONLY_LANG_CODE],
-    type: "Conversational",
-  },
-  {
-    id: "en-US-Wavenet-D",
-    name: "Wavenet-D",
-    provider: "Google",
-    gender: "Male",
-    languages: [ENGLISH_ONLY_LANG_CODE],
-    type: "Standard",
-  },
-  {
-    id: "en-US-Studio-O",
-    name: "Studio-O",
-    provider: "Google",
-    gender: "Female",
-    languages: [ENGLISH_ONLY_LANG_CODE],
-    type: "Studio quality",
-  },
-  {
-    id: "en-US-Studio-Q",
-    name: "Studio-Q",
-    provider: "Google",
-    gender: "Male",
-    languages: [ENGLISH_ONLY_LANG_CODE],
-    type: "Studio quality",
-  },
+  // voices as monolingual, so each entry carries exactly one language. Just
+  // two voices here as a sample — Twilio supports many more.
   {
     id: "en-US-Chirp3-HD-Aoede",
     name: "Aoede",
