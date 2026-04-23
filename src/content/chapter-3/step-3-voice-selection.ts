@@ -11,7 +11,7 @@ export default {
       audience: "explorer",
       title: "Voice = The Agent's First Impression",
       content:
-        "The voice is the very first thing the caller hears -- before the greeting even finishes, they've already decided whether this feels trustworthy or robotic. ConversationRelay gives you a choice of providers (ElevenLabs, Google, Amazon) and dozens of voices within each, from warm and conversational to crisp and professional. Picking the right one shapes how the whole agent is perceived.",
+        "The voice is the very first thing the caller hears -- before the greeting even finishes, they've already decided whether this feels trustworthy or robotic. Conversation Relay gives you a choice of providers (ElevenLabs, Google, Amazon) and dozens of voices within each, from warm and conversational to crisp and professional. Picking the right one shapes how the whole agent is perceived.",
     },
 
     {
@@ -26,7 +26,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "ConversationRelay supports three voice providers, each with different strengths:",
+        "Conversation Relay supports three voice providers, each with different strengths:",
     },
 
     {
@@ -106,7 +106,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "To set a specific voice, update the ConversationRelay settings in your server. Add the `voice` attribute with the voice ID (or voice name for Google and Amazon), and the `ttsProvider` attribute to select the provider:",
+        "To set a specific voice, update the Conversation Relay settings in your server. Add the `voice` attribute with the voice ID (or voice name for Google and Amazon), and the `ttsProvider` attribute to select the provider:",
     },
 
     {
@@ -196,7 +196,7 @@ if (req.url === "/twiml" && req.method === "POST") {
       audience: "builder",
       title: "Voice Latency Considerations",
       content:
-        "Different TTS providers have different latency profiles. ElevenLabs voices are extremely natural but may add a few extra milliseconds of processing time compared to Amazon Polly. For most use cases, the difference is negligible because ConversationRelay streams audio incrementally. However, if you are building a latency-critical application and notice delays, experiment with providers to find the best balance between voice quality and response speed.",
+        "Different TTS providers have different latency profiles. ElevenLabs voices are extremely natural but may add a few extra milliseconds of processing time compared to Amazon Polly. For most use cases, the difference is negligible because Conversation Relay streams audio incrementally. However, if you are building a latency-critical application and notice delays, experiment with providers to find the best balance between voice quality and response speed.",
     },
 
     {

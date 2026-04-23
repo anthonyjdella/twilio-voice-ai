@@ -107,7 +107,7 @@ VOICE GUIDELINES:
       type: "prose",
       audience: "builder",
       content:
-        "Fine-tune the ConversationRelay voice settings for the best caller experience:",
+        "Fine-tune the Conversation Relay voice settings for the best caller experience:",
     },
 
     {
@@ -216,7 +216,7 @@ VOICE GUIDELINES:
       // Log the fault and fall back to a graceful spoken recovery.
       // Don't try to retry automatically -- a second failure in a row
       // would just burn time while the caller waits in silence.
-      console.error("⚠️ ConversationRelay error:", msg.description);
+      console.error("⚠️ Conversation Relay error:", msg.description);
       sendText(ws,
         "I'm having a brief technical issue. " +
         "Could you say that again?",
@@ -594,7 +594,7 @@ function handleMessage(ws, data) {
       break;
 
     case "error":
-      console.error("ConversationRelay error:", msg.description);
+      console.error("Conversation Relay error:", msg.description);
       sendText(ws,
         "I'm having a brief technical issue. " +
         "Could you say that again?",

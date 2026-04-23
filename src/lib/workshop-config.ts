@@ -27,7 +27,7 @@ export interface WorkshopConfig {
     tagline: string;
     /**
      * Optional word within the tagline to color with the accent. Default is
-     * "ConversationRelay"; set to `null` to disable accent highlighting, or
+     * "Conversation Relay"; set to `null` to disable accent highlighting, or
      * override with a word specific to your workshop.
      */
     taglineAccent?: string | null;

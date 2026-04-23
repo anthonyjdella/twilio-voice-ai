@@ -5,13 +5,13 @@ const workshopConfig: WorkshopConfig = {
   title: "Build a Voice AI Agent",
   shortTitle: "Voice AI Workshop",
   description:
-    "A guided workshop where you build a real conversational AI voice application using Twilio ConversationRelay",
+    "A guided workshop where you build a real conversational AI voice application using Twilio Conversation Relay",
   duration: "90 minutes",
 
   hero: {
     tagline:
-      "A guided workshop with ConversationRelay",
-    taglineAccent: "ConversationRelay",
+      "A guided workshop with Conversation Relay",
+    taglineAccent: "Conversation Relay",
     description:
       "By the end of this workshop, you\u2019ll have a working voice AI agent that calls your phone and talks to you \u2014 with a custom persona, realistic voice, tool calling, and more.",
     ctaText: "Start Workshop",
@@ -166,13 +166,13 @@ const workshopConfig: WorkshopConfig = {
         handle: "twilio",
         url: "https://x.com/twilio",
         message:
-          "Just built a conversational AI voice agent at {event}! Went from zero to a fully working voice bot with custom persona, tool calling, and live agent handoff using @twilio ConversationRelay.",
+          "Just built a conversational AI voice agent at {event}! Went from zero to a fully working voice bot with custom persona, tool calling, and live agent handoff using @twilio Conversation Relay.",
         hashtags: ["TwilioSIGNAL", "VoiceAI", "ConversationalAI"],
       },
       linkedin: {
         url: "https://www.linkedin.com/company/twilio-inc-",
         message:
-          "Excited to share that I just completed the \"{title}\" workshop at {event}! Built a fully functional conversational AI voice agent from scratch using Twilio ConversationRelay \u2014 complete with a custom persona, ElevenLabs voice synthesis, tool calling, and live agent handoff. Incredible hands-on session!",
+          "Excited to share that I just completed the \"{title}\" workshop at {event}! Built a fully functional conversational AI voice agent from scratch using Twilio Conversation Relay \u2014 complete with a custom persona, ElevenLabs voice synthesis, tool calling, and live agent handoff. Incredible hands-on session!",
       },
     },
   },

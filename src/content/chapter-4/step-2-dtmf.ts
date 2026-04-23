@@ -42,7 +42,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "When a caller presses a key, ConversationRelay sends a `dtmf` message:",
+        "When a caller presses a key, Conversation Relay sends a `dtmf` message:",
     },
 
     {

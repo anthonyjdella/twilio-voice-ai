@@ -7,7 +7,7 @@ export default {
     {
       type: "prose",
       content:
-        "Here is what happens during a call, from the caller's perspective:",
+        "Here is what happens during a call, from your (the caller's) perspective:",
     },
 
     {
@@ -17,7 +17,7 @@ export default {
           icon: "/images/icons/phone-call.svg",
           title: "The phone rings",
           description:
-            "You click \"Call Me\" in the workshop app, and your phone rings a moment later.",
+            "You click \"Call Me\" in this workshop app, and your phone rings a moment later.",
         },
         {
           icon: "/images/icons/voice-wave.svg",
@@ -79,7 +79,7 @@ export default {
       audience: "explorer",
       title: "The Three Main Pieces",
       content:
-        "When a call connects, Twilio activates ConversationRelay, which converts speech to text and text back to speech in real time. The server sits in the middle -- it takes the caller's words (now text), sends them to an AI model, and sends the AI's reply back through Twilio so the caller hears a natural voice response.",
+        "When a call connects, Twilio activates Conversation Relay, which converts speech to text and text back to speech in real time. The server sits in the middle -- it takes the caller's words (now text), sends them to an AI model, and sends the AI's reply back through Twilio so the caller hears a natural voice response.",
     },
 
     {
@@ -94,9 +94,9 @@ export default {
         },
         {
           icon: "/images/icons/connection.svg",
-          title: "Twilio + ConversationRelay",
+          title: "Twilio Voice + Conversation Relay",
           description:
-            "Twilio's phone network connects the call. ConversationRelay translates between voice and text in real time, including detecting when someone interrupts.",
+            "Twilio's phone network connects the call. Conversation Relay translates between voice and text in real time, including detecting when someone interrupts.",
         },
         {
           icon: "/images/icons/lightbulb-doc.svg",
@@ -118,14 +118,14 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**Twilio Voice** — Twilio's telephony platform receives the call, handles audio encoding and routing, and activates the STT/TTS engines when your webhook specifies ConversationRelay.",
+        "**Twilio Voice** — Twilio's telephony platform receives the call, handles audio encoding and routing, and activates the STT/TTS engines when your webhook specifies Conversation Relay.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "**ConversationRelay (STT + TTS)** — The bridge between voice and text. It uses **Deepgram** for speech-to-text (transcribing what the caller says) and **ElevenLabs** for text-to-speech (turning your text into natural-sounding audio) by default. It also detects interruptions mid-utterance. You can swap providers later — other options include Google (STT and TTS) and Amazon (TTS only).",
+        "**Conversation Relay (STT + TTS)** — The bridge between voice and text. It uses **Deepgram** for speech-to-text (transcribing what the caller says) and **ElevenLabs** for text-to-speech (turning your text into natural-sounding audio) by default. It also detects interruptions mid-utterance. You can swap providers later — other options include Google (STT and TTS) and Amazon (TTS only).",
     },
 
     {
@@ -133,7 +133,7 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "Twilio also offers **Media Streams**, which give you raw audio bytes. That's useful if you want to run your own STT/TTS pipeline, but it means managing audio codecs, buffering, voice activity detection, and barge-in yourself. ConversationRelay abstracts all of that — your server only deals with text over a WebSocket.",
+        "Twilio also offers **Media Streams**, which give you raw audio bytes. That's useful if you want to run your own STT/TTS pipeline, but it means managing audio codecs, buffering, voice activity detection, and barge-in yourself. Conversation Relay abstracts all of that — your server only deals with text over a WebSocket.",
     },
 
     {

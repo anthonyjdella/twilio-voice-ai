@@ -9,7 +9,7 @@ export default {
       audience: "explorer",
       title: "Switching Languages Mid-Call",
       content:
-        "Some callers start in one language and slide into another -- maybe they're more comfortable in Spanish, or they switch between English and Mandarin at home. ConversationRelay can flip both the listening and speaking language on the fly, without dropping the call. It's a small feature with a huge accessibility payoff.",
+        "Some callers start in one language and slide into another -- maybe they're more comfortable in Spanish, or they switch between English and Mandarin at home. Conversation Relay can flip both the listening and speaking language on the fly, without dropping the call. It's a small feature with a huge accessibility payoff.",
     },
 
     {
@@ -24,7 +24,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "ConversationRelay can switch languages **mid-call** -- both the speech-to-text side (understanding the caller) and the text-to-speech side (the voice the caller hears). If a caller switches from English to Spanish, the agent adapts instantly without dropping the call.",
+        "Conversation Relay can switch languages **mid-call** -- both the speech-to-text side (understanding the caller) and the text-to-speech side (the voice the caller hears). If a caller switches from English to Spanish, the agent adapts instantly without dropping the call.",
     },
 
     {
@@ -252,14 +252,14 @@ function processLLMResponse(ws, text) {
       type: "prose",
       audience: "builder",
       content:
-        "ConversationRelay supports a wide range of BCP-47 language codes. Some commonly used ones -- pass any of these values as the `ttsLanguage` or `transcriptionLanguage` in the `language` message:",
+        "Conversation Relay supports a wide range of BCP-47 language codes. Some commonly used ones -- pass any of these values as the `ttsLanguage` or `transcriptionLanguage` in the `language` message:",
     },
 
     {
       type: "code",
       audience: "builder",
       language: "javascript",
-      code: `// Reference: common BCP-47 codes for ConversationRelay
+      code: `// Reference: common BCP-47 codes for Conversation Relay
 // "en-US" -> English (US)
 // "en-GB" -> English (UK)
 // "es-ES" -> Spanish (Spain)

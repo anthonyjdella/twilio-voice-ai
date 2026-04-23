@@ -28,7 +28,7 @@ export default {
             audience: "builder",
             title: "What You'll Build",
             content:
-                "A Node.js WebSocket server that connects to Twilio's phone network through ConversationRelay. Your server receives the caller's words as text, sends them to an LLM, and streams the reply back -- Twilio handles all the audio. By the end, your agent will have a custom personality, real-time tool calling, and live handoff to a human.",
+                "A Node.js WebSocket server that connects to Twilio's phone network through Conversation Relay. Your server receives the caller's words as text, sends them to an LLM, and streams the reply back -- Twilio handles all the audio. By the end, your agent will have a custom personality, real-time tool calling, and live handoff to a human.",
         },
 
         {
@@ -73,25 +73,25 @@ export default {
 
         { type: "page-break" },
 
-        { type: "section", title: "What is ConversationRelay?" },
+        { type: "section", title: "What is Conversation Relay?" },
 
         {
             type: "image",
             src: "/images/illustrations/conversation-relay-how-works.png",
-            alt: "Diagram showing ConversationRelay bridging a phone call and an AI model",
+            alt: "Diagram showing Conversation Relay bridging a phone call and an AI model",
             size: "md",
         },
 
         {
             type: "prose",
             content:
-                "AI models read and write **text**, but phone calls are **audio**. Something has to translate between the two. That's what **ConversationRelay** does -- it sits between the server and a live phone call, converting speech to text on the way in and text to speech on the way out.",
+                "AI models read and write **text**, but phone calls are **audio**. Something has to translate between the two. That's what **Conversation Relay** does -- it sits between the server and a live phone call, converting speech to text on the way in and text to speech on the way out.",
         },
 
         {
             type: "concept-card",
             audience: "explorer",
-            title: "ConversationRelay",
+            title: "Conversation Relay",
             content:
                 "Twilio handles all the hard parts -- turning speech into text, turning text back into speech, and detecting when someone interrupts. The server just deals with plain text: the caller speaks, their words arrive as text; the AI sends text back, and the caller hears it as a natural voice.",
         },
@@ -107,9 +107,9 @@ export default {
         {
             type: "concept-card",
             audience: "builder",
-            title: "ConversationRelay",
+            title: "Conversation Relay",
             content:
-                "ConversationRelay opens a WebSocket to your server. When the caller speaks, you get a `prompt` message with the transcribed text. You send back `text` messages with the AI's reply, and Twilio synthesizes them into speech. Your server never touches audio -- just JSON over a WebSocket.",
+                "Conversation Relay opens a WebSocket to your server. When the caller speaks, you get a `prompt` message with the transcribed text. You send back `text` messages with the AI's reply, and Twilio synthesizes them into speech. Your server never touches audio -- just JSON over a WebSocket.",
         },
 
         { type: "page-break" },

@@ -18,7 +18,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Real conversations are messy. People interrupt, change their minds mid-sentence, and talk over each other. A great voice agent handles all of this gracefully. ConversationRelay has built-in **barge-in** support -- when a caller speaks while the AI is still talking, Twilio detects it, stops the AI mid-sentence, and sends a WebSocket message describing what happened.",
+        "Real conversations are messy. People interrupt, change their minds mid-sentence, and talk over each other. A great voice agent handles all of this gracefully. Conversation Relay has built-in **barge-in** support -- when a caller speaks while the AI is still talking, Twilio detects it, stops the AI mid-sentence, and sends a WebSocket message describing what happened.",
     },
 
     {
@@ -53,7 +53,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "When barge-in occurs, ConversationRelay sends this message over the WebSocket:",
+        "When barge-in occurs, Conversation Relay sends this message over the WebSocket:",
     },
 
     {
@@ -183,7 +183,7 @@ function handleMessage(ws, data) {
       type: "prose",
       audience: "builder",
       content:
-        "Interruption behavior is controlled through attributes on the ConversationRelay TwiML element, set when the call first connects:",
+        "Interruption behavior is controlled through attributes on the Conversation Relay TwiML element, set when the call first connects:",
     },
 
     {

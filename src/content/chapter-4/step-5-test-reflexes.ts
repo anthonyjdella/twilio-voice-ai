@@ -79,7 +79,7 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
       audience: "builder",
       variant: "info",
       content:
-        'If the agent keeps talking after you interrupt, check that `interruptible` is set to `"any"` or `"speech"` in the ConversationRelay TwiML, and that the interrupt handler is aborting the active stream.',
+        'If the agent keeps talking after you interrupt, check that `interruptible` is set to `"any"` or `"speech"` in the Conversation Relay TwiML, and that the interrupt handler is aborting the active stream.',
     },
 
     { type: "section", title: "Test 2: DTMF", audience: "builder" },

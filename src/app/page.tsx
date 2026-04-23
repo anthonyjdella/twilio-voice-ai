@@ -126,7 +126,7 @@ function HomeContent() {
           {(() => {
             const accent =
               hero.taglineAccent === undefined
-                ? "ConversationRelay"
+                ? "Conversation Relay"
                 : hero.taglineAccent;
             if (!accent || !hero.tagline.includes(accent)) {
               return hero.tagline;

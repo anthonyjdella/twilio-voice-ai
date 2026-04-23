@@ -41,7 +41,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "ConversationRelay does not send a dedicated \"silence\" message. Instead, the server watches the clock -- if the caller has not spoken for a set amount of time, it can nudge them or gracefully end the call.",
+        "Conversation Relay does not send a dedicated \"silence\" message. Instead, the server watches the clock -- if the caller has not spoken for a set amount of time, it can nudge them or gracefully end the call.",
     },
 
     {
@@ -178,7 +178,7 @@ function handleSilence(ws) {
       type: "prose",
       audience: "builder",
       content:
-        "ConversationRelay provides an `interruptSensitivity` attribute that controls how easily the caller's speech triggers an interrupt -- how Twilio distinguishes intentional speech from background noise:",
+        "Conversation Relay provides an `interruptSensitivity` attribute that controls how easily the caller's speech triggers an interrupt -- how Twilio distinguishes intentional speech from background noise:",
     },
 
     {

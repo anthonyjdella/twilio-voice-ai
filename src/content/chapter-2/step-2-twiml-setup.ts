@@ -9,9 +9,9 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "What “ConversationRelay” Means Here",
+      title: "What “Conversation Relay” Means Here",
       content:
-        "ConversationRelay is the Twilio feature at the center of this workshop. Think of it as a live translator sitting between the phone call and the AI -- it listens to the caller, turns their speech into text, hands the text to the AI, turns the AI's reply back into a natural-sounding voice, and plays it to the caller. Everything the workshop wires up in the next few steps is just telling ConversationRelay when to do that, and where to send the text.",
+        "Conversation Relay is the Twilio feature at the center of this workshop. Think of it as a live translator sitting between the phone call and the AI -- it listens to the caller, turns their speech into text, hands the text to the AI, turns the AI's reply back into a natural-sounding voice, and plays it to the caller. Everything the workshop wires up in the next few steps is just telling Conversation Relay when to do that, and where to send the text.",
     },
 
     {
@@ -33,7 +33,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Your server needs two things: a way to trigger an outbound call, and instructions that tell Twilio what to do when someone answers. Twilio calls these instructions TwiML -- a short XML response that says \"connect this call to my AI agent via ConversationRelay.\"",
+        "Your server needs two things: a way to trigger an outbound call, and instructions that tell Twilio what to do when someone answers. Twilio calls these instructions TwiML -- a short XML response that says \"connect this call to my AI agent via Conversation Relay.\"",
     },
 
     {
@@ -56,7 +56,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "When Twilio connects the call, it asks your server what to do. Add a `/twiml` route that tells Twilio to use ConversationRelay:",
+        "When Twilio connects the call, it asks your server what to do. Add a `/twiml` route that tells Twilio to use Conversation Relay:",
     },
 
     {
@@ -170,13 +170,13 @@ const server = http.createServer(async (req, res) => {
 
     { type: "page-break" },
 
-    { type: "section", title: "Key ConversationRelay Attributes", audience: "builder" },
+    { type: "section", title: "Key Conversation Relay Attributes", audience: "builder" },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "Your TwiML response included a few ConversationRelay attributes. Here is what each one does so you can tune them for your own agent later.",
+        "Your TwiML response included a few Conversation Relay attributes. Here is what each one does so you can tune them for your own agent later.",
     },
 
     {

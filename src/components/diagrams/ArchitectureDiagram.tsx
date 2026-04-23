@@ -302,7 +302,7 @@ export function ArchitectureDiagram({
         />
         <NodeBox
           x={TWILIO_X} y={ROW1_Y}
-          label="Twilio Voice" sublabel="ConversationRelay" Icon={PhoneCall}
+          label="Twilio Voice" sublabel="Conversation Relay" Icon={PhoneCall}
           active={isAll || highlight === "stt-tts" || highlight === "setup"}
           completed={isComplete}
           width={160}

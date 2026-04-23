@@ -16,7 +16,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "The agent listens, speaks, uses tools, handles interruptions, and hands off to humans -- all built with Twilio ConversationRelay. Here are directions to take it further.",
+        "The agent listens, speaks, uses tools, handles interruptions, and hands off to humans -- all built with Twilio Conversation Relay. Here are directions to take it further.",
     },
 
     { type: "section", title: "SSML for Fine-Grained Voice Control" },
@@ -182,7 +182,7 @@ ws.send(JSON.stringify({
       type: "prose",
       audience: "builder",
       content:
-        "**Twilio ConversationRelay docs** -- [twilio.com/docs/voice/conversationrelay](https://www.twilio.com/docs/voice/conversationrelay)\n**OpenAI API reference** -- [platform.openai.com/docs/api-reference](https://platform.openai.com/docs/api-reference)\n**Twilio Voice TwiML** -- [twilio.com/docs/voice/twiml](https://www.twilio.com/docs/voice/twiml)\n**Twilio Conversational Intelligence** -- [twilio.com/docs/conversational-intelligence](https://www.twilio.com/docs/conversational-intelligence)",
+        "**Twilio Conversation Relay docs** -- [twilio.com/docs/voice/conversationrelay](https://www.twilio.com/docs/voice/conversationrelay)\n**OpenAI API reference** -- [platform.openai.com/docs/api-reference](https://platform.openai.com/docs/api-reference)\n**Twilio Voice TwiML** -- [twilio.com/docs/voice/twiml](https://www.twilio.com/docs/voice/twiml)\n**Twilio Conversational Intelligence** -- [twilio.com/docs/conversational-intelligence](https://www.twilio.com/docs/conversational-intelligence)",
     },
 
     {
@@ -220,7 +220,7 @@ ws.send(JSON.stringify({
       type: "prose",
       audience: "explorer",
       content:
-        "That is the full picture -- from a phone call arriving at Twilio, through speech-to-text, an AI generating a response, and text-to-speech back to the caller. Every piece connects through ConversationRelay, and the result is a voice agent that can hold a real conversation.",
+        "That is the full picture -- from a phone call arriving at Twilio, through speech-to-text, an AI generating a response, and text-to-speech back to the caller. Every piece connects through Conversation Relay, and the result is a voice agent that can hold a real conversation.",
     },
   ],
 } satisfies StepDefinition;
