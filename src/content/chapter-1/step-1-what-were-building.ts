@@ -97,7 +97,7 @@ export default {
         },
 
         {
-            type: "concept-card",
+            type: "deep-dive",
             audience: "explorer",
             title: "What “Server” Means Here",
             content:
