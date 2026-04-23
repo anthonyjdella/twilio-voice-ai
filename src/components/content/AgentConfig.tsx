@@ -10,9 +10,11 @@ const PERSONA_PRESETS = [
     personality:
       "warm, upbeat, and casual. You chat like a helpful friend and keep things light.",
     greeting: "Hey there! I'm Sam. What can I help you with today?",
-    voice: "UgBBYS2sOqTuMpoF3BR0",
-    voiceLabel: "Mark",
+    voice: "s0XGIcqmceN2l7kjsqoZ",
+    voiceLabel: "Lucas",
     ttsProvider: "ElevenLabs",
+    // All persona presets use English-only voices, so language snaps to en-US.
+    language: "en-US",
   },
   {
     label: "Professional Concierge",
@@ -21,9 +23,10 @@ const PERSONA_PRESETS = [
       "polished, courteous, and efficient. You are professional and precise with your words.",
     greeting:
       "Good day. This is Ms. Chen. How may I assist you?",
-    voice: "jqcCZkN6Knx8BJ5TBdYR",
-    voiceLabel: "Zara",
+    voice: "uMM5TEnpKKgD758knVJO",
+    voiceLabel: "Liz",
     ttsProvider: "ElevenLabs",
+    language: "en-US",
   },
   {
     label: "Casual Helper",
@@ -31,9 +34,10 @@ const PERSONA_PRESETS = [
     personality:
       "relaxed, fun, and approachable. You talk like a real person and keep things chill.",
     greeting: "Yo, what's up! I'm Jake. What do you need?",
-    voice: "9Ft9sm9dzvprPILZmLJl",
-    voiceLabel: "Patrick",
+    voice: "4e32WqNVWRquDa1OcRYZ",
+    voiceLabel: "Ryan",
     ttsProvider: "ElevenLabs",
+    language: "en-US",
   },
 ];
 
@@ -60,6 +64,7 @@ export function AgentConfig() {
       voice: preset.voice,
       voiceLabel: preset.voiceLabel,
       ttsProvider: preset.ttsProvider,
+      language: preset.language,
     });
   }
 

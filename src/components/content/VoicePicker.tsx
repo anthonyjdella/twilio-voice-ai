@@ -1,21 +1,24 @@
 "use client";
 
 import { useProgressContext } from "@/components/layout/ProgressContext";
+import {
+  VOICE_CATALOG,
+  WORKSHOP_LANGUAGES,
+  ENGLISH_ONLY_LANG_CODE,
+  type VoiceEntry,
+  type VoiceProvider,
+} from "@/lib/voice-catalog";
 
-const VOICE_OPTIONS = [
-  {
-    provider: "ElevenLabs",
-    voices: [
-      { id: "UgBBYS2sOqTuMpoF3BR0", name: "Mark", desc: "Male, US English (default)" },
-      { id: "kPzsL2i3teMYv0FxEYQ6", name: "Brittney", desc: "Female, English" },
-      { id: "jqcCZkN6Knx8BJ5TBdYR", name: "Zara", desc: "Female, English" },
-      { id: "8DzKSPdgEQPaK5vKG0Rs", name: "Vanessa", desc: "Female, English" },
-      { id: "9Ft9sm9dzvprPILZmLJl", name: "Patrick", desc: "Male, Australian English" },
-      { id: "6xftrpatV0jGmFHxDjUv", name: "Martin", desc: "Male, Castilian Spanish" },
-      { id: "a5n9pJUnAhX4fn7lx3uo", name: "Martin", desc: "Male, French" },
-      { id: "FTNCalFNG5bRnkkaP5Ug", name: "Otto", desc: "Male, German" },
-    ],
-  },
+/**
+ * Static entries for providers not yet in the curated VOICE_CATALOG. Kept
+ * inline so the picker still renders Google and Amazon Polly voices; when
+ * those get curated into the catalog they can be removed from here and the
+ * render loop will pick them up automatically.
+ */
+const ADDITIONAL_VOICE_GROUPS: Array<{
+  provider: VoiceProvider;
+  voices: Array<{ id: string; name: string; desc: string }>;
+}> = [
   {
     provider: "Google",
     voices: [
@@ -35,23 +38,45 @@ const VOICE_OPTIONS = [
   },
 ];
 
+function languageSummary(voice: VoiceEntry): string {
+  if (voice.languages.length === 1 && voice.languages[0] === ENGLISH_ONLY_LANG_CODE) {
+    return "English only";
+  }
+  // Multilingual voices support all seven workshop languages — short-hand
+  // that by counting rather than listing every label.
+  return `${voice.languages.length} languages`;
+}
+
 export function VoicePicker() {
   const { progress, updateWorkshopState } = useProgressContext();
 
   const currentVoice = progress.workshopState.voice || "";
   const currentProvider = progress.workshopState.ttsProvider || "ElevenLabs";
+  const currentLanguage = progress.workshopState.language || "en-US";
 
   function selectVoice(
     voiceId: string,
     provider: string,
-    voiceName: string
+    voiceName: string,
+    isEnglishOnly: boolean
   ) {
-    updateWorkshopState({
+    // English-only voices force language back to en-US. The LanguagePicker
+    // also disables non-English tiles when an English-only voice is active,
+    // but snap the stored language here too so the state is always coherent.
+    const nextState: Record<string, string> = {
       voice: voiceId,
       ttsProvider: provider,
       voiceLabel: voiceName,
-    });
+    };
+    if (isEnglishOnly && currentLanguage !== ENGLISH_ONLY_LANG_CODE) {
+      nextState.language = ENGLISH_ONLY_LANG_CODE;
+    }
+    updateWorkshopState(nextState);
   }
+
+  const elevenLabsVoices = VOICE_CATALOG.filter(
+    (v) => v.provider === "ElevenLabs"
+  );
 
   return (
     <div className="rounded-xl border border-navy-border bg-surface-1 p-5 mb-6">
@@ -84,7 +109,54 @@ export function VoicePicker() {
       </p>
 
       <div className="space-y-4">
-        {VOICE_OPTIONS.map((group) => (
+        {elevenLabsVoices.length > 0 && (
+          <div>
+            <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2">
+              ElevenLabs
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {elevenLabsVoices.map((voice) => {
+                const isActive =
+                  currentVoice === voice.id &&
+                  currentProvider === voice.provider;
+                const isEnglishOnly =
+                  voice.languages.length === 1 &&
+                  voice.languages[0] === ENGLISH_ONLY_LANG_CODE;
+                return (
+                  <button
+                    key={voice.id}
+                    onClick={() =>
+                      selectVoice(voice.id, voice.provider, voice.name, isEnglishOnly)
+                    }
+                    className={`text-left p-3 rounded-lg border-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-twilio-red/50 ${
+                      isActive
+                        ? "border-twilio-red bg-twilio-red/15 shadow-[0_0_0_2px_rgba(239,34,58,0.25)]"
+                        : "border-text-muted/30 bg-surface-2 hover:border-twilio-red/60 hover:bg-twilio-red/5 hover:-translate-y-0.5 active:translate-y-0 active:bg-twilio-red/10"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <div className="text-sm font-medium text-text-primary">
+                        {voice.name}
+                      </div>
+                      {isEnglishOnly && (
+                        <span className="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-twilio-blue/10 text-twilio-blue border border-twilio-blue/30">
+                          EN only
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-text-muted leading-relaxed space-y-0.5">
+                      <div>{voice.gender}</div>
+                      <div>{languageSummary(voice)}</div>
+                      <div className="text-twilio-red/80">{voice.type}</div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {ADDITIONAL_VOICE_GROUPS.map((group) => (
           <div key={group.provider}>
             <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2">
               {group.provider}
@@ -98,7 +170,7 @@ export function VoicePicker() {
                   <button
                     key={voice.id}
                     onClick={() =>
-                      selectVoice(voice.id, group.provider, voice.name)
+                      selectVoice(voice.id, group.provider, voice.name, false)
                     }
                     className={`text-left p-3 rounded-lg border-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-twilio-red/50 ${
                       isActive

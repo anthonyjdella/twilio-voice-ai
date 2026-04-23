@@ -200,6 +200,14 @@ if (req.url === "/twiml" && req.method === "POST") {
     },
 
     {
+      type: "deep-dive",
+      audience: "builder",
+      title: "What model each TTS provider actually runs",
+      content:
+        "You pick a `ttsProvider` and a `voice` on `<ConversationRelay>`, but behind each provider is a specific base model that Twilio selects for you. There is no model attribute on `<ConversationRelay>` -- the choice is implicit in the provider (and, for Google, in the voice ID itself).\n\n**ElevenLabs** runs on ElevenLabs' **Flash 2.5** model by default, with Flash 2 as the predecessor. Flash 2.5 is ElevenLabs' low-latency real-time TTS model, tuned for streaming into a live phone call -- it is what makes voices like Mark and Zara feel conversational instead of robotic. You cannot pick a different ElevenLabs model through Conversation Relay TwiML; if you need, say, their higher-quality Multilingual v2 model, you would have to build your own TTS pipeline using Media Streams instead.\n\n**Google Cloud TTS** uses the model tier implicit in the voice ID. `Journey-O` and `Wavenet-D` use Google's WaveNet/Journey models (standard neural quality, lowest latency). `Studio-O` and `Studio-Q` use Google's Studio models (higher fidelity but slower). The newest **Chirp3 HD** voices (`Chirp3-HD-Aoede`, `Chirp3-HD-Charon`, etc.) use Google's third-generation Chirp model -- most expressive, cleanest prosody. The naming pattern is `language-Model-Quality-VoiceName`, so the voice ID tells you which model you are on.\n\n**Amazon Polly** ships two model tiers. Voice IDs ending in `-Neural` (`Joanna-Neural`, `Matthew-Neural`, `Amy-Neural`) use Amazon's Neural TTS (NTTS) engine -- higher quality, more natural prosody. Dropping the `-Neural` suffix falls back to Polly's older Standard TTS engine, which is cheaper and lower quality but still available if you need it. Stick with `-Neural` voices for production.",
+    },
+
+    {
       type: "voice-picker",
       audience: "explorer",
     },
