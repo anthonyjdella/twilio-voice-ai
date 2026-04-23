@@ -9,14 +9,6 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "What “Conversation Relay” Means Here",
-      content:
-        "Conversation Relay is the Twilio feature at the center of this workshop. Think of it as a live translator sitting between the phone call and the AI -- it listens to the caller, turns their speech into text, hands the text to the AI, turns the AI's reply back into a natural-sounding voice, and plays it to the caller. Everything the workshop wires up in the next few steps is just telling Conversation Relay when to do that, and where to send the text.",
-    },
-
-    {
-      type: "concept-card",
-      audience: "explorer",
       title: "How the Call Gets Started",
       content:
         "The server tells Twilio to dial your phone. When you pick up, Twilio connects the call to the AI agent and plays a welcome greeting so there is no awkward silence.",

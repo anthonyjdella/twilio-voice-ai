@@ -194,7 +194,7 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
       return <DemoScript />;
 
     case "builder-only":
-      return <BuilderOnly context={block.context} />;
+      return <BuilderOnly context={block.context} illustration={block.illustration} />;
 
     case "page-break":
       return null;

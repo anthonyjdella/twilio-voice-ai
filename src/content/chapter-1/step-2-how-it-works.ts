@@ -7,7 +7,7 @@ export default {
     {
       type: "prose",
       content:
-        "Here is what happens during a call, from your (the caller's) perspective:",
+        "The whole workshop is built around one thing -- a phone call with an AI on the other end. Here is what that call feels like from the caller's perspective, step by step:",
     },
 
     {
@@ -53,21 +53,22 @@ export default {
         "From the caller's perspective, it feels like talking to a person. Behind the scenes, every turn goes through speech-to-text, an AI model, and text-to-speech -- all in under two seconds.",
     },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "That's the zoomed-out view of the whole call. The next step zooms in on a **single conversational turn** -- the caller speaks, your server talks to the LLM, and the reply streams back -- including the JSON messages that flow through your WebSocket. Chapter 2 is where you build the server that handles those messages.",
-    },
-
     { type: "page-break" },
 
     { type: "section", title: "Architecture Overview" },
 
     {
       type: "prose",
+      audience: "explorer",
       content:
-        "Before going further, let's make sure you have a clear mental model of how all the pieces fit together. The architecture is a straight line with the server at the center, connecting the caller on one side to the AI on the other.",
+        "The whole call runs on three pieces working together -- the phone network on one side, the AI on the other, and a server in the middle passing words between them. Here is what each one is doing.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "The architecture is a straight line: server at the center, caller on one side, AI on the other. Here is what each component does.",
     },
 
     { type: "diagram", variant: "architecture", highlight: "all" },
@@ -147,7 +148,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**LLM (OpenAI)** — The language model powering your agent's intelligence. Your server sends it conversation history and a system prompt; it responds with streamed tokens to minimize latency.",
+        "**LLM** — The language model powering your agent's intelligence. Your server sends it conversation history and a system prompt; it responds with streamed tokens to minimize latency. The workshop uses OpenAI's API as the example, but the same flow works with any streaming chat-completion API -- Anthropic Claude, Google Gemini, a self-hosted model, whatever you prefer. You swap the client library and the endpoint; the rest of the server code is the same.",
     },
 
     {

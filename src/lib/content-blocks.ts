@@ -217,6 +217,10 @@ export interface DemoScriptBlock extends BaseBlock {
 export interface BuilderOnlyBlock extends BaseBlock {
   type: "builder-only";
   context?: string;
+  /** Optional illustration path, relative to /public (e.g.
+   *  "/images/illustrations/lego-building.svg"). Falls back to the
+   *  default "no-result.svg" if omitted. */
+  illustration?: string;
 }
 
 /** Sub-page boundary — splits a step's content into paginated slides */

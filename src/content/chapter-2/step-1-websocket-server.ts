@@ -237,9 +237,17 @@ server.listen(PORT, () => {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "What Just Went Up",
+      title: "The Server Is Ready and Waiting",
       content:
-        "A server is now running in the Codespace and listening for Twilio to knock on two different doors. One door takes regular web requests -- that is how Twilio asks, \"a call came in, what do I do?\". The other door is a WebSocket -- a two-way line that stays open for the whole call so speech and replies can flow in real time. Nothing intelligent has happened yet. The server is just standing by, ready for the first call to land.",
+        "A server is now running and listening for calls. Think of it as an empty answering machine that has just been plugged in and turned on -- the hardware works, the light is blinking, but there is no greeting recorded yet and no person on the other end to take messages.\n\nIt is not doing anything intelligent yet. No personality, no AI, no tools. If a call arrived right now, the server would pick up and then sit in awkward silence, because the pieces that make it speak and think are still to come.\n\nThat is what the rest of the chapter builds. Each step snaps another piece in: first the phone side (so Twilio actually routes calls here), then the AI side (so the server has something to say), then a voice (so the caller hears it as speech instead of text). By the end of the chapter, the answering machine becomes a conversation partner.",
+    },
+
+    {
+      type: "image",
+      audience: "explorer",
+      src: "/images/illustrations/binary-blurry.svg",
+      alt: "A blurred stream of ones and zeros — the raw pipes of the server are alive, but nothing intelligent has been shaped from them yet.",
+      size: "md",
     },
   ],
 } satisfies StepDefinition;
