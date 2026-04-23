@@ -9,7 +9,7 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "The last step covered what a call is like at the highest level. This step is about the three things that separate voice AI from a chatbot with a phone number -- the details that make the agent feel like a real person on the line, not a robot reading lines.",
+        "Three things make the agent feel like a real person on the line instead of a recording or a phone tree.",
     },
 
     {

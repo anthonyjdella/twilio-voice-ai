@@ -99,9 +99,9 @@ export default {
         {
             type: "deep-dive",
             audience: "explorer",
-            title: "What “Server” Means Here",
+            title: "Two Words You Will See a Lot",
             content:
-                "A server is just a program running in the cloud. When the workshop says “the server” it means the program the Builder is wiring together during the workshop — the piece that sits between the phone call and the AI. You do not need to write or run any server code; you just need to know that “the server” is the connector that makes the whole thing work.",
+                "**The Builder** is someone next to you who picked the technical track of this workshop. They are the one writing code; you are along for the ride. Whenever the workshop says \"the Builder\" it means that person.\n\n**The server** is just a program running in the cloud -- the piece the Builder is wiring together during the workshop, sitting between the phone call and the AI. You do not need to write or run any server code; just know that \"the server\" is the connector that makes the whole thing work.",
         },
 
         {

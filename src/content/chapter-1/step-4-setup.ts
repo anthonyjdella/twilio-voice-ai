@@ -40,14 +40,14 @@ export default {
       audience: "explorer",
       title: "The Quick Setup Behind the Curtain",
       content:
-        "Right now the Builder is telling the agent which phone number to call -- in this workshop, it is their own, so they can test by calling themselves. Every Codespace comes pre-loaded with shared Twilio and OpenAI credentials, so there is no account setup to watch. In the next chapter the agent takes its first call, and you will get to listen in.",
+        "Right now the Builder next to you is telling the agent which phone number to call -- in this workshop, it is their own, so they can test by calling themselves. Every Codespace comes pre-loaded with shared Twilio and OpenAI credentials, so there is no account setup to watch. In the next chapter the agent takes its first call, and you will get to listen in.",
     },
 
     {
       type: "image",
       audience: "explorer",
       src: "/images/illustrations/holding-phone.svg",
-      alt: "A hand holding a phone — the number the Builder is plugging in now becomes the phone that rings when the first call goes through in Chapter 2.",
+      alt: "A hand holding a phone — the number the Builder next to you is plugging in now becomes the phone that rings when the first call goes through in Chapter 2.",
       size: "sm",
     },
 
