@@ -69,7 +69,7 @@ export default {
 
     { type: "page-break" },
 
-    { type: "section", title: "How It Works" },
+    { type: "section", title: "What is ConversationRelay?" },
 
     {
       type: "image",
