@@ -237,9 +237,9 @@ server.listen(PORT, () => {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "The Server Is Ready and Waiting",
+      title: "The Server Knows How to Pick Up the Phone",
       content:
-        "A server is now running and listening for calls. Think of it as an empty answering machine that has just been plugged in and turned on -- the hardware works, the light is blinking, but there is no greeting recorded yet and no person on the other end to take messages.\n\nIt is not doing anything intelligent yet. No personality, no AI, no tools. If a call arrived right now, the server would pick up and then sit in awkward silence, because the pieces that make it speak and think are still to come.\n\nThat is what the rest of the chapter builds. Each step snaps another piece in: first the phone side (so Twilio actually routes calls here), then the AI side (so the server has something to say), then a voice (so the caller hears it as speech instead of text). By the end of the chapter, the answering machine becomes a conversation partner.",
+        "When a call comes in, the server now does the voice-AI equivalent of picking up the phone. Twilio hands it a short note with details about the call -- who is calling, which call it is -- and the server grabs a fresh blank notepad to start tracking everything this caller says and everything the agent says back.\n\nEach call gets its own notepad, kept separate from everyone else's, so two callers dialing at the same time cannot get their conversations mixed up. The notepad starts empty and fills in as the conversation goes.\n\nBut the server is still not doing anything intelligent yet. It picks up, it labels the notepad, and then it sits in silence -- because the pieces that make it *listen* to what the caller says and *reply* with something useful are still to come in the next steps.",
     },
 
     {

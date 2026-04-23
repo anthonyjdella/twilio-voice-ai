@@ -9,16 +9,9 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "How the Call Gets Started",
+      title: "The Server Is Calling You",
       content:
-        "The server tells Twilio to dial your phone. When you pick up, Twilio connects the call to the AI agent and plays a welcome greeting so there is no awkward silence.",
-    },
-
-    {
-      type: "prose",
-      audience: "explorer",
-      content:
-        "Before the phone rings, the server has to tell Twilio what kind of call this is -- not just a regular call, but one that should hand every turn over to the AI. That short instruction is what turns an ordinary phone call into an AI-powered one.",
+        "In this workshop the server dials your phone, not the other way around. That takes two separate instructions from the server to Twilio. The first instruction says \"please dial this phone number now\" -- that is what makes your phone actually ring. The second instruction, handed over the moment you pick up, says \"this is not a normal call; hand every turn to the AI agent.\" Both instructions have to be in place before the first call works.",
     },
 
     {
@@ -81,6 +74,22 @@ export default {
     },
 
     { type: "page-break" },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "The Welcome Greeting",
+      content:
+        "The very first thing you hear when you pick up is a welcome greeting. It is a single line of text that the Builder types into their code, and Twilio speaks it aloud the moment the call connects -- before the AI has said a word. That way there is no awkward silence while the AI is thinking about what to say first. For now the line is a generic \"Hello! How can I help you today?\".",
+    },
+
+    {
+      type: "image",
+      audience: "explorer",
+      src: "/images/illustrations/woman-looking-at-phone.svg",
+      alt: "A person holding a phone to their ear, listening -- the caller hearing the agent's welcome greeting for the first time.",
+      size: "md",
+    },
 
     { type: "section", title: "Initiate the Outbound Call", audience: "builder" },
 
@@ -161,6 +170,21 @@ const server = http.createServer(async (req, res) => {
     },
 
     { type: "page-break" },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "The Dials Already Turned",
+      content:
+        "The instruction Twilio receives also carries a few settings such as which voice the agent speaks with (default is ElevenLabs), which service listens to the caller (default is Deepgram), and whether the caller is allowed to interrupt the AI mid-sentence (default is yes, by either voice or keypad). Chapter 3 is where the voice and transcription choices open up, and Chapter 4 is where interruption gets a full workout.",
+    },
+
+    {
+      type: "prose",
+      audience: "explorer",
+      content:
+        "Throughout all of this, the server itself never touches any audio. Twilio's side handles turning the caller's speech into text on the way in, and turning the AI's text into speech on the way out. The Builder's server only ever works with plain text -- no microphones, no speakers, no audio files.",
+    },
 
     { type: "section", title: "Key Conversation Relay Attributes", audience: "builder" },
 
