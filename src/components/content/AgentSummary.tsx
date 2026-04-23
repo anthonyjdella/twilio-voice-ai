@@ -27,6 +27,9 @@ export function AgentSummary() {
   const greeting = s.welcomeGreeting?.trim();
   const voiceLabel = s.voiceLabel?.trim();
   const ttsProvider = s.ttsProvider?.trim();
+  const voiceId = s.voice?.trim();
+  const voiceDisplay =
+    [ttsProvider, voiceLabel, voiceId].filter(Boolean).join(", ") || null;
   const languageCode = s.language || "en-US";
   const languageLabel = LANGUAGE_LABELS[languageCode] || languageCode;
 
@@ -63,13 +66,7 @@ export function AgentSummary() {
         <SummaryRow label="Tone" value={tone} fallback="No personality set" />
         <SummaryRow
           label="Voice"
-          value={
-            voiceLabel
-              ? ttsProvider
-                ? `${voiceLabel} (${ttsProvider})`
-                : voiceLabel
-              : null
-          }
+          value={voiceDisplay}
           fallback="No voice selected"
         />
         <SummaryRow label="Language" value={languageLabel} />

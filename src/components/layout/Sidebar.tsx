@@ -303,6 +303,26 @@ export function Sidebar() {
                     val = `${BUILTIN_TOOL_COUNT} / ${BUILTIN_TOOL_COUNT}`;
                     isDefault = true;
                   }
+                } else if (field.key === "voiceLabel") {
+                  // Voice row shows "Name (Provider)" — matches the Builder
+                  // fallback format ("Rachel (ElevenLabs)") and disambiguates
+                  // from the agentName row above (which would be confusing if
+                  // the agent is named something like "Tony" and the voice is
+                  // "Mark").
+                  const label = progress.workshopState.voiceLabel?.trim();
+                  const provider = progress.workshopState.ttsProvider?.trim();
+                  if (label && provider) {
+                    val = `${label} (${provider})`;
+                    isDefault = false;
+                  } else if (label) {
+                    val = label;
+                    isDefault = false;
+                  } else if (isBuilder) {
+                    val = builderDefaults[field.key];
+                    isDefault = true;
+                  } else {
+                    val = undefined;
+                  }
                 } else {
                   val = userVal || (isBuilder ? builderDefaults[field.key] : undefined);
                   isDefault = !userVal && isBuilder && !!val;
