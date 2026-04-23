@@ -132,6 +132,83 @@ export const VOICE_CATALOG: VoiceEntry[] = [
     languages: ALL_WORKSHOP_LANG_CODES,
     type: "Narration",
   },
+
+  // Google TTS — the language code prefix in the voice ID (e.g. en-US-...) is
+  // the language that voice speaks. Twilio's TTS voices docs list Google
+  // voices as monolingual, so each entry carries exactly one language.
+  {
+    id: "en-US-Journey-O",
+    name: "Journey-O",
+    provider: "Google",
+    gender: "Female",
+    languages: [ENGLISH_ONLY_LANG_CODE],
+    type: "Conversational",
+  },
+  {
+    id: "en-US-Wavenet-D",
+    name: "Wavenet-D",
+    provider: "Google",
+    gender: "Male",
+    languages: [ENGLISH_ONLY_LANG_CODE],
+    type: "Standard",
+  },
+  {
+    id: "en-US-Studio-O",
+    name: "Studio-O",
+    provider: "Google",
+    gender: "Female",
+    languages: [ENGLISH_ONLY_LANG_CODE],
+    type: "Studio quality",
+  },
+  {
+    id: "en-US-Studio-Q",
+    name: "Studio-Q",
+    provider: "Google",
+    gender: "Male",
+    languages: [ENGLISH_ONLY_LANG_CODE],
+    type: "Studio quality",
+  },
+  {
+    id: "en-US-Chirp3-HD-Aoede",
+    name: "Aoede",
+    provider: "Google",
+    gender: "Female",
+    languages: [ENGLISH_ONLY_LANG_CODE],
+    type: "Generative",
+  },
+  {
+    id: "en-US-Chirp3-HD-Charon",
+    name: "Charon",
+    provider: "Google",
+    gender: "Male",
+    languages: [ENGLISH_ONLY_LANG_CODE],
+    type: "Generative",
+  },
+
+  // Amazon Polly — Twilio's TTS voices docs treat most Polly voices as
+  // monolingual. A few bilingual voices are marked with an asterisk on the
+  // TTS voices page; add those with a multi-entry languages list when
+  // curating them.
+  {
+    id: "Joanna-Neural",
+    name: "Joanna",
+    provider: "Amazon Polly",
+    gender: "Female",
+    languages: [ENGLISH_ONLY_LANG_CODE],
+    type: "Neural",
+  },
+  {
+    id: "Matthew-Neural",
+    name: "Matthew",
+    provider: "Amazon Polly",
+    gender: "Male",
+    languages: [ENGLISH_ONLY_LANG_CODE],
+    type: "Neural",
+  },
+  // Amy (en-GB) removed from the Explorer catalog: the LanguagePicker only
+  // offers en-US right now, so selecting an en-GB-only voice would leave the
+  // picker in a state with no valid language. Re-add when en-GB joins
+  // WORKSHOP_LANGUAGES.
 ];
 
 /**

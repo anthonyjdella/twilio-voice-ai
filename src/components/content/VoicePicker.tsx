@@ -3,48 +3,44 @@
 import { useProgressContext } from "@/components/layout/ProgressContext";
 import {
   VOICE_CATALOG,
-  WORKSHOP_LANGUAGES,
   ENGLISH_ONLY_LANG_CODE,
   type VoiceEntry,
   type VoiceProvider,
 } from "@/lib/voice-catalog";
 
-/**
- * Static entries for providers not yet in the curated VOICE_CATALOG. Kept
- * inline so the picker still renders Google and Amazon Polly voices; when
- * those get curated into the catalog they can be removed from here and the
- * render loop will pick them up automatically.
- */
-const ADDITIONAL_VOICE_GROUPS: Array<{
-  provider: VoiceProvider;
-  voices: Array<{ id: string; name: string; desc: string }>;
-}> = [
-  {
-    provider: "Google",
-    voices: [
-      { id: "en-US-Journey-O", name: "Journey-O", desc: "Female, conversational" },
-      { id: "en-US-Wavenet-D", name: "Wavenet-D", desc: "Male" },
-      { id: "en-US-Studio-O", name: "Studio-O", desc: "Female, studio quality" },
-      { id: "en-US-Studio-Q", name: "Studio-Q", desc: "Male, studio quality" },
-    ],
-  },
-  {
-    provider: "Amazon Polly",
-    voices: [
-      { id: "Joanna-Neural", name: "Joanna", desc: "Female, neural" },
-      { id: "Matthew-Neural", name: "Matthew", desc: "Male, neural" },
-      { id: "Amy-Neural", name: "Amy", desc: "Female, British" },
-    ],
-  },
-];
-
 function languageSummary(voice: VoiceEntry): string {
-  if (voice.languages.length === 1 && voice.languages[0] === ENGLISH_ONLY_LANG_CODE) {
+  if (
+    voice.languages.length === 1 &&
+    voice.languages[0] === ENGLISH_ONLY_LANG_CODE
+  ) {
     return "English only";
   }
-  // Multilingual voices support all seven workshop languages — short-hand
+  // Multilingual voices support the full workshop language set — short-hand
   // that by counting rather than listing every label.
   return `${voice.languages.length} languages`;
+}
+
+/**
+ * Groups the catalog by provider while preserving the catalog's in-order
+ * ranking (English-only persona voices first, then multilingual, then the
+ * other providers). A `Map` keeps insertion order, so the first provider
+ * encountered wins the first slot on screen.
+ */
+function groupVoicesByProvider(): Array<{
+  provider: VoiceProvider;
+  voices: VoiceEntry[];
+}> {
+  const map = new Map<VoiceProvider, VoiceEntry[]>();
+  for (const voice of VOICE_CATALOG) {
+    if (!map.has(voice.provider)) {
+      map.set(voice.provider, []);
+    }
+    map.get(voice.provider)!.push(voice);
+  }
+  return Array.from(map.entries()).map(([provider, voices]) => ({
+    provider,
+    voices,
+  }));
 }
 
 export function VoicePicker() {
@@ -54,29 +50,23 @@ export function VoicePicker() {
   const currentProvider = progress.workshopState.ttsProvider || "ElevenLabs";
   const currentLanguage = progress.workshopState.language || "en-US";
 
-  function selectVoice(
-    voiceId: string,
-    provider: string,
-    voiceName: string,
-    isEnglishOnly: boolean
-  ) {
-    // English-only voices force language back to en-US. The LanguagePicker
-    // also disables non-English tiles when an English-only voice is active,
-    // but snap the stored language here too so the state is always coherent.
+  function selectVoice(voice: VoiceEntry) {
+    // If the selected voice does not support the current language, snap the
+    // language to the first language the voice supports. This keeps the
+    // stored state coherent — LanguagePicker also disables unsupported tiles
+    // when the active voice restricts the choice.
     const nextState: Record<string, string> = {
-      voice: voiceId,
-      ttsProvider: provider,
-      voiceLabel: voiceName,
+      voice: voice.id,
+      ttsProvider: voice.provider,
+      voiceLabel: voice.name,
     };
-    if (isEnglishOnly && currentLanguage !== ENGLISH_ONLY_LANG_CODE) {
-      nextState.language = ENGLISH_ONLY_LANG_CODE;
+    if (!voice.languages.includes(currentLanguage)) {
+      nextState.language = voice.languages[0];
     }
     updateWorkshopState(nextState);
   }
 
-  const elevenLabsVoices = VOICE_CATALOG.filter(
-    (v) => v.provider === "ElevenLabs"
-  );
+  const groups = groupVoicesByProvider();
 
   return (
     <div className="rounded-xl border border-navy-border bg-surface-1 p-5 mb-6">
@@ -109,13 +99,13 @@ export function VoicePicker() {
       </p>
 
       <div className="space-y-4">
-        {elevenLabsVoices.length > 0 && (
-          <div>
+        {groups.map((group) => (
+          <div key={group.provider}>
             <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2">
-              ElevenLabs
+              {group.provider}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {elevenLabsVoices.map((voice) => {
+              {group.voices.map((voice) => {
                 const isActive =
                   currentVoice === voice.id &&
                   currentProvider === voice.provider;
@@ -125,9 +115,7 @@ export function VoicePicker() {
                 return (
                   <button
                     key={voice.id}
-                    onClick={() =>
-                      selectVoice(voice.id, voice.provider, voice.name, isEnglishOnly)
-                    }
+                    onClick={() => selectVoice(voice)}
                     className={`text-left p-3 rounded-lg border-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-twilio-red/50 ${
                       isActive
                         ? "border-twilio-red bg-twilio-red/15 shadow-[0_0_0_2px_rgba(239,34,58,0.25)]"
@@ -149,39 +137,6 @@ export function VoicePicker() {
                       <div>{languageSummary(voice)}</div>
                       <div className="text-twilio-red/80">{voice.type}</div>
                     </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {ADDITIONAL_VOICE_GROUPS.map((group) => (
-          <div key={group.provider}>
-            <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2">
-              {group.provider}
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {group.voices.map((voice) => {
-                const isActive =
-                  currentVoice === voice.id &&
-                  currentProvider === group.provider;
-                return (
-                  <button
-                    key={voice.id}
-                    onClick={() =>
-                      selectVoice(voice.id, group.provider, voice.name, false)
-                    }
-                    className={`text-left p-3 rounded-lg border-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-twilio-red/50 ${
-                      isActive
-                        ? "border-twilio-red bg-twilio-red/15 shadow-[0_0_0_2px_rgba(239,34,58,0.25)]"
-                        : "border-text-muted/30 bg-surface-2 hover:border-twilio-red/60 hover:bg-twilio-red/5 hover:-translate-y-0.5 active:translate-y-0 active:bg-twilio-red/10"
-                    }`}
-                  >
-                    <div className="text-sm font-medium text-text-primary">
-                      {voice.name}
-                    </div>
-                    <div className="text-xs text-text-muted">{voice.desc}</div>
                   </button>
                 );
               })}
