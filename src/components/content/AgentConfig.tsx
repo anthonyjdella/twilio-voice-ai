@@ -10,6 +10,9 @@ const PERSONA_PRESETS = [
     personality:
       "warm, upbeat, and casual. You chat like a helpful friend and keep things light.",
     greeting: "Hey there! I'm Sam. What can I help you with today?",
+    voice: "UgBBYS2sOqTuMpoF3BR0",
+    voiceLabel: "Mark",
+    ttsProvider: "ElevenLabs",
   },
   {
     label: "Professional Concierge",
@@ -18,6 +21,9 @@ const PERSONA_PRESETS = [
       "polished, courteous, and efficient. You are professional and precise with your words.",
     greeting:
       "Good day. This is Ms. Chen. How may I assist you?",
+    voice: "jqcCZkN6Knx8BJ5TBdYR",
+    voiceLabel: "Zara",
+    ttsProvider: "ElevenLabs",
   },
   {
     label: "Casual Helper",
@@ -25,6 +31,9 @@ const PERSONA_PRESETS = [
     personality:
       "relaxed, fun, and approachable. You talk like a real person and keep things chill.",
     greeting: "Yo, what's up! I'm Jake. What do you need?",
+    voice: "9Ft9sm9dzvprPILZmLJl",
+    voiceLabel: "Patrick",
+    ttsProvider: "ElevenLabs",
   },
 ];
 
@@ -48,6 +57,9 @@ export function AgentConfig() {
       agentName: preset.name,
       personality: preset.personality,
       welcomeGreeting: preset.greeting,
+      voice: preset.voice,
+      voiceLabel: preset.voiceLabel,
+      ttsProvider: preset.ttsProvider,
     });
   }
 
@@ -64,6 +76,23 @@ export function AgentConfig() {
       p.name === progress.workshopState.agentName &&
       p.personality === progress.workshopState.personality
   );
+
+  // "Custom" mode = the user has saved non-empty values that do not match any
+  // preset. The inputs drive workshopState on blur, so a mid-typing state
+  // where customName differs from the saved name also counts as editing-toward-
+  // custom and should show the indicator.
+  const hasSavedValues = Boolean(
+    progress.workshopState.agentName ||
+      progress.workshopState.personality ||
+      progress.workshopState.welcomeGreeting
+  );
+  const customDiffersFromPreset =
+    !!activePreset &&
+    (customName.trim() !== activePreset.name ||
+      customPersonality.trim() !== activePreset.personality ||
+      customGreeting.trim() !== activePreset.greeting);
+  const isCustom =
+    (hasSavedValues && !activePreset) || customDiffersFromPreset;
 
   return (
     <div className="rounded-xl border border-navy-border bg-surface-1 p-5 mb-6">
@@ -114,7 +143,13 @@ export function AgentConfig() {
         ))}
       </div>
 
-      <div className="space-y-3">
+      <div
+        className={`space-y-3 rounded-lg p-4 border-2 transition-colors ${
+          isCustom
+            ? "border-twilio-blue bg-twilio-blue/10"
+            : "border-transparent"
+        }`}
+      >
         <div>
           <label className="block text-xs text-text-muted mb-1">
             Agent Name

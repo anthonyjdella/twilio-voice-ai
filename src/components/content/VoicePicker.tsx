@@ -6,11 +6,14 @@ const VOICE_OPTIONS = [
   {
     provider: "ElevenLabs",
     voices: [
-      { id: "UgBBYS2sOqTuMpoF3BR0", name: "English (US)", desc: "Default, female" },
-      { id: "9Ft9sm9dzvprPILZmLJl", name: "English (AU)", desc: "Australian, female" },
-      { id: "6xftrpatV0jGmFHxDjUv", name: "Spanish (ES)", desc: "Castilian, female" },
-      { id: "a5n9pJUnAhX4fn7lx3uo", name: "French (FR)", desc: "French, female" },
-      { id: "FTNCalFNG5bRnkkaP5Ug", name: "German (DE)", desc: "German, female" },
+      { id: "UgBBYS2sOqTuMpoF3BR0", name: "Mark", desc: "Male, US English (default)" },
+      { id: "kPzsL2i3teMYv0FxEYQ6", name: "Brittney", desc: "Female, English" },
+      { id: "jqcCZkN6Knx8BJ5TBdYR", name: "Zara", desc: "Female, English" },
+      { id: "8DzKSPdgEQPaK5vKG0Rs", name: "Vanessa", desc: "Female, English" },
+      { id: "9Ft9sm9dzvprPILZmLJl", name: "Patrick", desc: "Male, Australian English" },
+      { id: "6xftrpatV0jGmFHxDjUv", name: "Martin", desc: "Male, Castilian Spanish" },
+      { id: "a5n9pJUnAhX4fn7lx3uo", name: "Martin", desc: "Male, French" },
+      { id: "FTNCalFNG5bRnkkaP5Ug", name: "Otto", desc: "Male, German" },
     ],
   },
   {
