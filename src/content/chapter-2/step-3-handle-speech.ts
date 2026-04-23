@@ -25,7 +25,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "When the caller finishes speaking, Twilio sends a `prompt` message with the transcribed text. **Replace your entire `switch (message.type)` block** with the version below -- it keeps the existing `setup` case and adds a new `case \"prompt\"` that saves the transcript to the conversation history:",
+        "When the caller finishes speaking, Twilio sends a `prompt` message with the transcribed text. Here is what the message looks like:",
     },
 
     {
@@ -45,7 +45,14 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**voicePrompt** is the transcribed text. **last** is `true` when Twilio has the final transcript for this utterance. The `if (!message.last) break;` guard below is a defensive check in case partial results are ever enabled. The patch below pushes into `conversationHistory`, which was declared back in Step 1 alongside `callSid` -- it should already exist in your connection handler.",
+        "**voicePrompt** is the transcribed text. **last** is `true` when Twilio has the final transcript for this utterance.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "**Add a new `case \"prompt\"`** to your existing `switch (message.type)` block -- drop it in between the `setup` case and the `default` case, matching the highlighted region below. The full switch is shown for context so you can see where the new case lands:",
     },
 
     {
@@ -81,6 +88,13 @@ export default {
       default:
         console.log("⚠️ Unhandled message type:", message.type);
     }`,
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "`conversationHistory` was declared back in Step 1 alongside `callSid`, so it already exists in your connection handler -- the new case just pushes into it. The `if (!message.last) break;` guard is a defensive check: Twilio currently only delivers final transcripts, but if partial results are ever enabled, this stops the handler from pushing half-sentences into history.",
     },
 
     {
