@@ -2,17 +2,50 @@ import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
   blocks: [
-    { type: "section", title: "The Conversation Flow" },
+    { type: "section", title: "What Makes It Feel Alive", audience: "explorer" },
+    { type: "section", title: "The Conversation Flow", audience: "builder" },
 
     {
       type: "prose",
+      audience: "explorer",
+      content:
+        "The last step covered what a call is like at the highest level. This step is about the three things that separate voice AI from a chatbot with a phone number -- the details that make the agent feel like a real person on the line, not a robot reading lines.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "Replies Stream Back Word by Word",
+      content:
+        "The agent does not wait to finish writing its full response before speaking. The moment the first few words are ready, they are already playing in your ear -- and more keep arriving while the earlier ones are still being spoken. It is the difference between a friend who pauses and thinks out loud versus one who stares at you silently for five seconds before answering.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "You Can Interrupt It",
+      content:
+        "If the agent starts going on about something you did not ask for, you can just talk over it -- exactly like you would with a person. The agent stops mid-sentence, listens to what you said, and continues from there. No button to press, no command to say. It just works.",
+    },
+
+    {
+      type: "concept-card",
+      audience: "explorer",
+      title: "The Whole Round Trip Takes Under Two Seconds",
+      content:
+        "From the moment you finish speaking to the moment you hear the agent's first word, it is usually under two seconds -- roughly the same pause you would get from a person on the other end of the line. Anything slower and it stops feeling like a conversation; it starts feeling like a voicemail system.",
+    },
+
+    {
+      type: "prose",
+      audience: "builder",
       content:
         "Let's trace a single conversational turn from start to finish. The caller says \"What's the weather like in San Francisco?\" and here is exactly what happens:",
     },
 
-    // Shared: visual-step for both modes
     {
       type: "visual-step",
+      audience: "builder",
       steps: [
         {
           icon: "/images/icons/phone-call.svg",
@@ -46,8 +79,6 @@ export default {
         },
       ],
     },
-
-    // Explorer: latency summary
 
     { type: "page-break" },
 
@@ -100,7 +131,7 @@ export default {
     { type: "page-break" },
 
     { type: "section", title: "Why WebSockets?", audience: "builder" },
-    { type: "section", title: "Why It Feels Instant", audience: "explorer" },
+    { type: "section", title: "The Line Stays Open", audience: "explorer" },
 
     {
       type: "image",
