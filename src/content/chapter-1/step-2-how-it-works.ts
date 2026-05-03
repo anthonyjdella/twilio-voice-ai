@@ -157,5 +157,12 @@ export default {
             content:
                 "**Tools (Functions)** — The LLM can request actions during a conversation — looking up an order, checking the weather, or querying a database. Your server defines the available tools, executes them when the LLM asks, and feeds the results back so the LLM can incorporate real data into its reply. The LLM never runs tools directly; your server is always in control of what gets executed.",
         },
+
+        {
+            type: "prose",
+            audience: "builder",
+            content:
+                "That's the map at the component level. The next step zooms into what **one conversational turn** actually looks like -- streaming, interruption, latency -- so you have a clear picture of the moving parts before you start writing the code in Chapter 2.",
+        },
     ],
 } satisfies StepDefinition;

@@ -81,7 +81,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**3. Ban markdown in the AI's responses.** Asterisks, headers, and bullet markers make no sense when spoken aloud -- the voice engine reads them literally (\"asterisk asterisk\"). Put an explicit rule in the prompt telling the AI not to use any formatting in what it says back.",
+        "**3. Ban markdown in the AI's responses.** Asterisks, headers, and bullet markers make no sense when spoken aloud -- the voice engine might read them literally (\"asterisk asterisk\"). Put an explicit rule in the prompt telling the AI not to use any formatting in what it says back.",
     },
 
     {
@@ -96,11 +96,10 @@ export default {
     { type: "section", title: "Adding the System Message", audience: "builder" },
 
     {
-      type: "callout",
+      type: "prose",
       audience: "builder",
-      variant: "warning",
       content:
-        "**Before you paste the code below,** delete the hardcoded system message from Ch2's `streamLLMResponse`. Starting now, the prompt lives in `conversationHistory`, so the whole `messages` array collapses to one line. If you leave the old system message in place, the AI receives duplicate system prompts and may behave unpredictably.",
+        "Update the `messages` array in your `streamLLMResponse` -- replace the two-line version with a single line that passes `conversationHistory` directly. The old hardcoded system message goes away; it'll live in conversation history instead (you'll wire that up in the next step).",
     },
 
     {

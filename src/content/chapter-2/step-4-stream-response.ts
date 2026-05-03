@@ -81,7 +81,7 @@ const openai = new OpenAI({
       type: "prose",
       audience: "builder",
       content:
-        "Your server sends text back to Twilio as JSON messages. Each carries a piece of the reply with `last: false`. When the full response is done, send one final message with an empty `token` and `last: true` to signal completion:",
+        "Your server sends text back to Twilio as JSON messages. Each carries a piece of the reply. Set `last: false` on every chunk except the final one -- `last: true` tells Twilio the response is complete.",
     },
 
     {
@@ -100,10 +100,10 @@ const openai = new OpenAI({
       type: "json-message",
       audience: "builder",
       direction: "outbound",
-      messageType: "text (end-of-response marker)",
+      messageType: "text (final token)",
       code: `{
   "type": "text",
-  "token": "",
+  "token": "help. What's going on?",
   "last": true
 }`,
     },
@@ -141,7 +141,7 @@ const openai = new OpenAI({
       language: "javascript",
       file: "server.js",
       startLine: 60,
-      highlight: ["1-40"],
+      highlight: ["1-44"],
       code: `function sendText(ws, token, last = false) {
   ws.send(JSON.stringify({ type: "text", token, last }));
 }

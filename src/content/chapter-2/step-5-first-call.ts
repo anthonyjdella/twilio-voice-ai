@@ -65,6 +65,13 @@ export default {
         "Enter your phone number (with country code, like +12065551234) and hit Call Me.",
     },
 
+    {
+      type: "prose",
+      audience: "builder",
+      content:
+        "**Finding Your WebSocket URL.** In your Codespace, open the **Ports** tab and copy the forwarded URL for port 8080 -- it looks like `https://fluffy-octopus-abc123-8080.app.github.dev/`. In the widget below, swap `https://` for `wss://` and append `/ws` at the end. Final format: `wss://fluffy-octopus-abc123-8080.app.github.dev/ws`. The `/ws` path is required -- that's the route your WebSocket server is listening on from Chapter 2 Step 1.",
+    },
+
     { type: "call-me" },
 
     {
@@ -135,17 +142,5 @@ export default {
       ],
     },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "Twilio handles all the audio. Your server only deals with text.",
-    },
-
-    {
-      type: "prose",
-      content:
-        "Next chapter: the agent gets its name, its personality, and its voice.",
-    },
   ],
 } satisfies StepDefinition;
