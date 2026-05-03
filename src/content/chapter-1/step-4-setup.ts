@@ -43,7 +43,7 @@ export default {
             type: "builder-only",
             audience: "explorer",
             context:
-                "**You can skip ahead to Chapter 2 whenever you are ready.** The Builder is busy for a few minutes on this step.\n\n**What they are doing:** Typing their phone number into a small config file the agent reads at startup, so when the call is triggered later, it rings the right phone. They are also confirming the workshop's pre-shared Twilio and OpenAI keys landed correctly -- normally you would spend 20-30 minutes signing up for both services, but the workshop handles that for everyone so the call works on the first try.\n\n**What comes next:** In Chapter 2 the agent takes its first call. That is where you will actually hear it.",
+                "**You can skip ahead whenever you're ready.** 'The Builder' is busy for a few minutes on this step.\n\n**What they are doing:** Typing their phone number into a small config file the agent reads at startup, so when the call is triggered later, it rings the right phone. They are also confirming the workshop's pre-shared Twilio and OpenAI keys landed correctly -- normally you would spend 20-30 minutes signing up for both services, but the workshop handles that for everyone so the call works on the first try.\n\n**What comes next:** In Chapter 2 the agent takes its first call. That is where you will actually hear it.",
         },
 
         { type: "page-break" },

@@ -15,16 +15,16 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "Replies Stream Back Word by Word",
+      title: "",
       content:
-        "The agent does not wait to finish writing its full response before speaking. The moment the first few words are ready, they are already playing in your ear -- and more keep arriving while the earlier ones are still being spoken. It is the difference between a friend who pauses and thinks out loud versus one who stares at you silently for five seconds before answering.",
+        "The agent does not wait to finish writing its full response before speaking. The moment the first few words are ready, they are already playing in your ear -- and more keep arriving while the earlier ones are still being spoken. It's the difference between a friend who pauses and thinks out loud versus one who stares at you silently for five seconds before answering.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "On the protocol side this is a streamed sequence of outbound `text` JSON messages -- your server fires each chunk across the WebSocket as the LLM generates it, rather than buffering the full reply and sending it at the end. Twilio's TTS engine speaks tokens as they arrive, which is what gives you perceived-first-word-latency well below full-response latency. You will send your first `text` JSON messages in **Chapter 2 Step 4**.",
+        "On the protocol side this is a streamed sequence of outbound `text` JSON messages -- your server fires each chunk across the WebSocket as the LLM generates it, rather than buffering the full reply and sending it at the end. Conversation Relay's TTS provider starts speaking as it has enough text to synthesize a phrase, which is what keeps time to first word well below the full-response latency. You will send your first `text` JSON messages later in **Chapter 2 Step 4**.",
     },
 
     { type: "section", title: "2. You Can Interrupt It" },
@@ -32,7 +32,7 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "You Can Interrupt It",
+      title: "",
       content:
         "If the agent starts going on about something you did not ask for, you can just talk over it -- exactly like you would with a person. The agent stops mid-sentence, listens to what you said, and continues from there. No button to press, no command to say. It just works.",
     },
@@ -41,7 +41,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "The caller can cut the agent off mid-sentence. When that happens, Twilio sends you a message saying how much of your reply actually made it out of the speaker -- usually less than what you streamed. Your server has to remember the shorter version, not what it sent, so the agent's next reply lines up with what the caller actually heard. The full handler is in **Chapter 4 Step 1**.",
+        "The caller can cut the agent off mid-sentence. When that happens, Twilio sends you an `interrupt` JSON message with an `utteranceUntilInterrupt` field -- a string containing the fragment of your reply the caller actually heard before cutting in. Less than the full reply you sent, since the rest never finished playing. Your server has to remember that shorter version, not what it streamed, so the agent's next reply lines up with what the caller actually heard. The full handler is in **Chapter 4 Step 1**.",
     },
 
     { type: "section", title: "3. The Whole Round Trip Takes Under Two Seconds" },
@@ -49,7 +49,7 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "The Whole Round Trip Takes Under Two Seconds",
+      title: "",
       content:
         "From the moment you finish speaking to the moment you hear the agent's first word, it is usually under two seconds -- roughly the same pause you would get from a person on the other end of the line. Anything slower and it stops feeling like a conversation; it starts feeling like a voicemail system.",
     },
@@ -58,7 +58,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Sub-2-second turn latency depends on Twilio and your server keeping a single **WebSocket** open for the entire call -- no fresh HTTP handshake per message, no reconnect delay between turns. The alternative, webhook-style HTTP polling, adds 50-200ms per message cycle and makes streaming impractical. You will open that WebSocket in **Chapter 2 Step 1**.",
+        "Sub-2-second turn latency depends on Twilio and your server keeping a single **WebSocket** open for the entire call -- no fresh HTTP handshake per message, no reconnect delay between turns. The alternative, traditional HTTP webhooks, adds network round-trips per message cycle and makes token streaming impractical. You will open that WebSocket in **Chapter 2 Step 1**.",
     },
   ],
 } satisfies StepDefinition;

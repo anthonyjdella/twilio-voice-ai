@@ -99,9 +99,9 @@ export default {
         {
             type: "deep-dive",
             audience: "explorer",
-            title: "Two Words You Will See a Lot",
+            title: "Note: Two Words You'll See in this Workshop",
             content:
-                "**The Builder** is someone next to you who picked the technical track of this workshop. They are the one writing code; you are along for the ride. Whenever the workshop says \"the Builder\" it means that person.\n\n**The server** is just a program running in the cloud -- the piece the Builder is wiring together during the workshop, sitting between the phone call and the AI. You do not need to write or run any server code; just know that \"the server\" is the connector that makes the whole thing work.",
+                "**The Builder** is someone next to you who picked the technical track of this workshop. They are the one writing code. Whenever the workshop says \"the Builder\" it means that person.\n\n**The server** is just a program running in the cloud -- the piece the Builder is wiring together during the workshop, sitting between the phone call and the AI. You do not need to write or run any server code; just know that \"the server\" is the connector that makes the whole thing work.",
         },
 
         {
@@ -211,7 +211,7 @@ export default {
             type: "callout",
             variant: "info",
             content:
-                "Each chapter takes about 10-20 minutes. You can complete the entire workshop in a single session or work through it chapter by chapter at your own pace. Every step builds on the previous one, so we recommend going in order.",
+                "Each chapter takes about 10-20 minutes. You can complete the entire workshop in a single session or work through it chapter by chapter at your own pace. Every step builds on the previous one, so **we recommend going in order.**",
         },
 
         {
