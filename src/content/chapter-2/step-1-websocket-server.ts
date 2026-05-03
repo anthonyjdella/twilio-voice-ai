@@ -9,23 +9,23 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "What the Server Does",
+      title: "",
       content:
-        "The server is the middleman between the phone call and the AI. It stays connected to Twilio for the entire call, passing the caller's words to the AI and the AI's replies back to the caller.",
+        "Conversation Relay gave you text on both sides -- the caller's words come in as text, and your replies go out as text. The server is the piece that decides **what those replies say**. It takes the caller's transcribed words, passes them to the AI, waits for the AI's answer, and sends it back to Conversation Relay to be spoken.",
     },
 
     {
       type: "prose",
       audience: "explorer",
       content:
-        "Think of it like a receptionist who picks up the phone, listens to the caller, and passes their words along to the right person. The connection stays open the whole time -- no hanging up and calling back between turns.",
+        "Think of Conversation Relay as the translator sitting at the phone booth, turning voice into text and back again. The server is the brain behind the booth -- reading the translated words, thinking up a reply, and handing it back for the translator to speak. The call stays open the whole time, so the translator and the brain keep talking to each other without hanging up.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "When a call connects, Twilio opens a persistent WebSocket to your server. The caller's words arrive as text messages, and your AI's replies go back as text messages. The connection stays open for the entire call.",
+        "When a call connects, Twilio opens a persistent WebSocket to your server. The caller's words arrive as `text` messages, and your AI's replies go back as `text` messages. The connection stays open for the entire call.",
     },
 
     {
@@ -46,7 +46,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Create `server.js` inside the `workshop/` folder that opens in your Codespace (the terminal is already cwd'd there). It sets up an HTTP server, attaches a WebSocket server, and listens for connections:",
+        "Create `server.js` inside the `workshop/` folder that opens in your Codespace (the terminal is already `cwd`'d there). It sets up an HTTP server, attaches a WebSocket server, and listens for connections:",
     },
 
     {
@@ -239,7 +239,7 @@ server.listen(PORT, () => {
       audience: "explorer",
       title: "The Server Knows How to Pick Up the Phone",
       content:
-        "When a call comes in, the server now does the voice-AI equivalent of picking up the phone. Twilio hands it a short note with details about the call -- who is calling, which call it is -- and the server grabs a fresh blank notepad to start tracking everything this caller says and everything the agent says back.\n\nEach call gets its own notepad, kept separate from everyone else's, so two callers dialing at the same time cannot get their conversations mixed up. The notepad starts empty and fills in as the conversation goes.\n\nBut the server is still not doing anything intelligent yet. It picks up, it labels the notepad, and then it sits in silence -- because the pieces that make it *listen* to what the caller says and *reply* with something useful are still to come in the next steps.",
+        "When a call comes in, the server does the voice-AI equivalent of picking up the phone. Twilio hands it a short note with details about the call -- who is calling, which call it is -- and the server grabs a fresh blank notepad to start tracking everything this caller says and everything the agent says back.\n\nEach call gets its own notepad, kept separate from everyone else's, so two callers dialing at the same time cannot get their conversations mixed up. The notepad starts empty and fills in as the conversation goes.\n\nBut the server is still not doing anything intelligent yet. It picks up, it labels the notepad, and then it sits in silence -- because the pieces that make it *listen* to what the caller says and *reply* with something useful are still to come in the next steps.",
     },
 
     {

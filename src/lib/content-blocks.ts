@@ -74,10 +74,12 @@ export interface TerminalBlock extends BaseBlock {
   commands: string;
 }
 
-/** Info/tip/warning/error callout box */
+/** Info/tip/warning/error/backup-plan callout box. `backup-plan` is the
+ *  "here's what to do if the primary path fails" variant (blue, life-buoy
+ *  icon) — distinct from `warning` which is "common mistake". */
 export interface CalloutBlock extends BaseBlock {
   type: "callout";
-  variant: "info" | "tip" | "warning" | "error";
+  variant: "info" | "tip" | "warning" | "error" | "backup-plan";
   content: string;
 }
 

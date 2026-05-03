@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Lightbulb, AlertTriangle, XCircle, Info } from "lucide-react";
+import { Lightbulb, AlertTriangle, XCircle, Info, LifeBuoy } from "lucide-react";
 
 // iconColor is the semantic accent (gold/red/blue) used for the icon and
 // left-border only — NOT for text. Gold text on light-mode tinted bg fails
@@ -33,6 +33,16 @@ const variants = {
     bg: "bg-surface-1",
     iconColor: "text-text-secondary",
     label: "Note",
+  },
+  // Used for "here's what to do if the primary path fails" callouts. Blue
+  // family so it reads as informational escape-hatch, not a warning or
+  // mistake. Reuse for similar cases (e.g., "Codespace won't open? Try X.").
+  "backup-plan": {
+    icon: LifeBuoy,
+    border: "border-twilio-blue/40",
+    bg: "bg-twilio-blue/5",
+    iconColor: "text-twilio-blue",
+    label: "Backup Plan",
   },
 };
 

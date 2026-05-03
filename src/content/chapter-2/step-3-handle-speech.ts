@@ -9,16 +9,16 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "How the Server Hears You",
+      title: "Turning Your Words Into Text",
       content:
-        "When you speak during a call, Twilio converts your voice into text and sends it to the server. The server never hears audio -- it just reads what you said, like a live transcript.",
+        "As soon as you finish saying something, Twilio turns it into a line of text and passes it along to the server. Not individual syllables or half-words -- complete sentences, punctuated and ready. The server reads each one as a live transcript of the conversation.",
     },
 
     {
       type: "prose",
       audience: "explorer",
       content:
-        "The server also keeps a log of the full conversation so the AI remembers what was said earlier. Without this, every reply would start from scratch.",
+        "Every transcript gets saved into a running log -- who said what, in order, for the whole call. This matters because the AI has no memory of its own. Without the log, if you said \"my order number is 12345\" and later asked \"when will it ship?\", the AI would have no idea what \"it\" meant. The log keeps the whole conversation available for the AI to reference.",
     },
 
     {
@@ -45,7 +45,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**voicePrompt** is the transcribed text. **last** is `true` when Twilio has the final transcript for this utterance.",
+        "**voicePrompt** is the transcribed text.\n**last** is `true` when Twilio has the final transcript for this utterance.",
     },
 
     {
@@ -223,12 +223,5 @@ server.listen(PORT, () => {
 });`,
     },
 
-    {
-      type: "concept-card",
-      audience: "explorer",
-      title: "The Server Can Hear You Now",
-      content:
-        "The server can now hear the caller. Whenever the caller stops speaking, Twilio hands over the transcript, and the server writes it into the conversation history -- a running list of who said what. There is still no AI in the loop. The agent is catching every word but cannot reply yet. That comes in the next step, where the transcript gets passed to the language model and the first spoken response gets streamed back.",
-    },
   ],
 } satisfies StepDefinition;

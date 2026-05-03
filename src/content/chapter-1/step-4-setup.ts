@@ -33,6 +33,14 @@ export default {
 
         {
             type: "callout",
+            variant: "backup-plan",
+            audience: "builder",
+            content:
+                "**Codespace won't open or your org has it disabled?** Two backup paths:\n\n**Option 1 — Run locally.** Clone [the repo](https://github.com/anthonyjdella/twilio-voice-ai), run `npm install` in the `workshop/` folder, and use [ngrok](https://ngrok.com) to expose port 8080 to Twilio. Full instructions are in Chapter 1 Step 5 under *Fallback: Local Dev + ngrok*. Requires Node.js 18+ installed on your laptop.\n\n**Option 2 (easier) — Switch to Explorer mode.** Explorer track is the observer path; you follow along with the concepts without writing code. Flip the track toggle at the top of the page and pair with a Builder next to you -- you'll still hear the agent and make test calls, just from the caller's side.",
+        },
+
+        {
+            type: "callout",
             variant: "info",
             audience: "builder",
             content:

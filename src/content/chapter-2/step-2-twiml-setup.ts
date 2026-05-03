@@ -1,57 +1,61 @@
 import type { StepDefinition } from "@/lib/content-blocks";
 
 export default {
-  blocks: [
-    { type: "diagram", variant: "architecture", highlight: "setup", showTools: true },
+    blocks: [
+        {
+            type: "diagram",
+            variant: "architecture",
+            highlight: "setup",
+            showTools: true,
+        },
 
-    { type: "section", title: "Starting the Call" },
+        { type: "section", title: "Starting the Call" },
 
-    {
-      type: "concept-card",
-      audience: "explorer",
-      title: "The Server Is Calling You",
-      content:
-        "In this workshop the server dials your phone, not the other way around. That takes two separate instructions from the server to Twilio. The first instruction says \"please dial this phone number now\" -- that is what makes your phone actually ring. The second instruction, handed over the moment you pick up, says \"this is not a normal call; hand every turn to the AI agent.\" Both instructions have to be in place before the first call works.",
-    },
+        {
+            type: "concept-card",
+            audience: "explorer",
+            title: "",
+            content:
+                'In this workshop the server dials your phone, not the other way around. That takes two separate instructions from the server to Twilio. The first instruction says "please dial this phone number now" -- that is what makes your phone actually ring. The second instruction, handed over the moment you pick up, says "this is not a normal call; hand every turn to the AI agent." Both instructions have to be in place before the first call works.',
+        },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "Your server needs two things: a way to trigger an outbound call, and instructions that tell Twilio what to do when someone answers. Twilio calls these instructions TwiML -- a short XML response that says \"connect this call to my AI agent via Conversation Relay.\"",
-    },
+        {
+            type: "prose",
+            audience: "builder",
+            content:
+                'Your server needs two things: a way to trigger an outbound call, and instructions that tell Twilio what to do when someone answers. Twilio calls these instructions TwiML -- a short XML response that says "connect this call to my AI agent via Conversation Relay."',
+        },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "Install the Twilio SDK:",
-    },
+        {
+            type: "prose",
+            audience: "builder",
+            content: "Install the Twilio SDK:",
+        },
 
-    {
-      type: "code",
-      audience: "builder",
-      language: "bash",
-      code: "npm install twilio",
-    },
+        {
+            type: "code",
+            audience: "builder",
+            language: "bash",
+            code: "npm install twilio",
+        },
 
-    { type: "section", title: "The TwiML Endpoint", audience: "builder" },
+        { type: "section", title: "The TwiML Endpoint", audience: "builder" },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "When Twilio connects the call, it asks your server what to do. Add a `/twiml` route that tells Twilio to use Conversation Relay:",
-    },
+        {
+            type: "prose",
+            audience: "builder",
+            content:
+                "When Twilio connects the call, it asks your server what to do. Add a `/twiml` route that tells Twilio to use Conversation Relay:",
+        },
 
-    {
-      type: "code",
-      audience: "builder",
-      language: "javascript",
-      file: "server.js",
-      startLine: 8,
-      highlight: ["2-17"],
-      code: `const server = http.createServer((req, res) => {
+        {
+            type: "code",
+            audience: "builder",
+            language: "javascript",
+            file: "server.js",
+            startLine: 8,
+            highlight: ["2-17"],
+            code: `const server = http.createServer((req, res) => {
   if (req.url === "/twiml" && req.method === "POST") {
     const twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -71,51 +75,55 @@ export default {
   res.writeHead(200, { "Content-Type": "text/plain" });
   res.end("WebSocket server is running");
 });`,
-    },
+        },
 
-    { type: "page-break" },
+        { type: "page-break" },
 
-    {
-      type: "concept-card",
-      audience: "explorer",
-      title: "The Welcome Greeting",
-      content:
-        "The very first thing you hear when you pick up is a welcome greeting. It is a single line of text that the Builder types into their code, and Twilio speaks it aloud the moment the call connects -- before the AI has said a word. That way there is no awkward silence while the AI is thinking about what to say first. For now the line is a generic \"Hello! How can I help you today?\".",
-    },
+        {
+            type: "concept-card",
+            audience: "explorer",
+            title: "The Welcome Greeting",
+            content:
+                'The very first thing you hear when you pick up is a welcome greeting. It is a single line of text, and Twilio speaks it aloud the moment the call connects -- before the AI has said a word. That way there is no awkward silence while the AI is thinking about what to say first. For now the line is a generic "Hello! How can I help you today?".',
+        },
 
-    {
-      type: "image",
-      audience: "explorer",
-      src: "/images/illustrations/woman-looking-at-phone.svg",
-      alt: "A person holding a phone to their ear, listening -- the caller hearing the agent's welcome greeting for the first time.",
-      size: "md",
-    },
+        {
+            type: "image",
+            audience: "explorer",
+            src: "/images/illustrations/woman-looking-at-phone.svg",
+            alt: "A person holding a phone to their ear, listening -- the caller hearing the agent's welcome greeting for the first time.",
+            size: "md",
+        },
 
-    { type: "section", title: "Initiate the Outbound Call", audience: "builder" },
+        {
+            type: "section",
+            title: "Initiate the Outbound Call",
+            audience: "builder",
+        },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "Add a `/call` endpoint that dials your phone and points Twilio at the TwiML route:",
-    },
+        {
+            type: "prose",
+            audience: "builder",
+            content:
+                "Add a `/call` endpoint that dials your phone and points Twilio at the TwiML route:",
+        },
 
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "info",
-      content:
-        "**Env vars used below.** The code references four environment variables, all pre-loaded in your Codespace:\n\n- `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` -- identify your Twilio account when placing outbound calls\n- `TWILIO_PHONE_NUMBER` -- the number calls originate from\n- `MY_PHONE_NUMBER` -- your personal number (set in Ch1 Step 4) that Twilio calls during testing\n\nUsing your own Twilio account later? Grab the SID/token from [console.twilio.com](https://console.twilio.com) and a voice-capable number from Phone Numbers.",
-    },
+        {
+            type: "callout",
+            audience: "builder",
+            variant: "info",
+            content:
+                "**Env vars used below.** The code references four environment variables, all pre-loaded in your Codespace:\n\n- `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` -- identify your Twilio account when placing outbound calls\n- `TWILIO_PHONE_NUMBER` -- the number calls originate from\n- `MY_PHONE_NUMBER` -- your personal number (set in Ch1 Step 4) that Twilio calls during testing\n\nUsing your own Twilio account later? Grab the SID/token from [console.twilio.com](https://console.twilio.com) and a voice-capable number from Phone Numbers.",
+        },
 
-    {
-      type: "code",
-      audience: "builder",
-      language: "javascript",
-      file: "server.js",
-      startLine: 1,
-      highlight: [4, "8-11", 13, "31-49"],
-      code: `require("dotenv").config();
+        {
+            type: "code",
+            audience: "builder",
+            language: "javascript",
+            file: "server.js",
+            startLine: 1,
+            highlight: [4, "8-11", 13, "30-48"],
+            code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
 const twilio = require("twilio");
@@ -167,86 +175,83 @@ const server = http.createServer(async (req, res) => {
   res.writeHead(200, { "Content-Type": "text/plain" });
   res.end("WebSocket server is running");
 });`,
-    },
+        },
 
-    { type: "page-break" },
+        { type: "page-break" },
 
-    {
-      type: "concept-card",
-      audience: "explorer",
-      title: "The Dials Already Turned",
-      content:
-        "The instruction Twilio receives also carries a few settings such as which voice the agent speaks with (default is ElevenLabs), which service listens to the caller (default is Deepgram), and whether the caller is allowed to interrupt the AI mid-sentence (default is yes, by either voice or keypad). Chapter 3 is where the voice and transcription choices open up, and Chapter 4 is where interruption gets a full workout.",
-    },
+        {
+            type: "concept-card",
+            audience: "explorer",
+            title: "The Dials Already Turned",
+            content:
+                "The instruction Twilio receives also carries a few settings such as which voice the agent speaks with (default is ElevenLabs), which service listens to the caller (default is Deepgram), and whether the caller is allowed to interrupt the AI mid-sentence (default is yes, by either voice or keypad). Chapter 3 is where the voice and transcription choices open up, and Chapter 4 is where interruption gets a full workout.",
+        },
 
-    {
-      type: "prose",
-      audience: "explorer",
-      content:
-        "Throughout all of this, the server itself never touches any audio. Twilio's side handles turning the caller's speech into text on the way in, and turning the AI's text into speech on the way out. The Builder's server only ever works with plain text -- no microphones, no speakers, no audio files.",
-    },
+        {
+            type: "prose",
+            audience: "explorer",
+            content:
+                "Throughout all of this, the server itself never touches any audio. Twilio's side handles turning the caller's speech into text on the way in, and turning the AI's text into speech on the way out. The Builder's server only ever works with plain text -- no microphones, no speakers, no audio files.",
+        },
 
-    { type: "section", title: "Key Conversation Relay Attributes", audience: "builder" },
+        {
+            type: "section",
+            title: "Key Conversation Relay Attributes",
+            audience: "builder",
+        },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "Your TwiML response included a few Conversation Relay attributes. Here is what each one does so you can tune them for your own agent later.",
-    },
+        {
+            type: "prose",
+            audience: "builder",
+            content:
+                "Your TwiML response included a few Conversation Relay attributes. Here is what each one does so you can tune them for your own agent later.",
+        },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "**url** -- Secure WebSocket address (`wss://`) where Twilio connects to your server. The code uses `req.headers.host` so it works automatically in Codespaces.",
-    },
+        {
+            type: "prose",
+            audience: "builder",
+            content:
+                "**url** -- Secure WebSocket address (`wss://`) where Twilio connects to your server. The code uses `req.headers.host` so it works automatically in Codespaces.",
+        },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "**welcomeGreeting** -- Twilio speaks this immediately when the call connects, before your server does anything. Avoids initial silence.",
-    },
+        {
+            type: "prose",
+            audience: "builder",
+            content:
+                "**welcomeGreeting** -- Twilio speaks this immediately when the call connects, before your server does anything. Avoids initial silence.",
+        },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "**ttsProvider / transcriptionProvider** -- Defaults to **ElevenLabs** (text-to-speech) and **Deepgram** (speech-to-text). We leave these as defaults for now.",
-    },
+        {
+            type: "prose",
+            audience: "builder",
+            content:
+                "**ttsProvider / transcriptionProvider** -- Defaults to **ElevenLabs** (text-to-speech) and **Deepgram** (speech-to-text) when omitted, which is why the TwiML above works without specifying them. You'll set these explicitly starting in Chapter 3 when you pick a voice and configure the language.",
+        },
 
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        '**interruptible** -- Controls what can interrupt AI speech. Defaults to `"any"` (voice and keypad).\n\n**welcomeGreetingInterruptible** -- Same values (`none`/`dtmf`/`speech`/`any`), but governs only the welcome greeting. Defaults to `"any"` -- set it separately if you want the greeting to play through uninterrupted while still allowing interruptions during the rest of the call.',
-    },
+        {
+            type: "callout",
+            audience: "builder",
+            variant: "warning",
+            content:
+                "The `url` must use `wss://`, not `ws://`. `wss://` is the encrypted version of WebSocket (same relationship as `https://` vs `http://`) -- a plain `ws://` connection sends JSON in the clear, so Twilio rejects it for compliance reasons. Codespace port forwarding terminates TLS for you, so your server can listen on plain HTTP internally while the outside world sees `wss://` automatically.",
+        },
 
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "warning",
-      content:
-        "The `url` must use `wss://`, not `ws://`. Twilio requires a secure connection. Codespace port forwarding handles this automatically.",
-    },
+        {
+            type: "deep-dive",
+            audience: "builder",
+            title: "Why your server only sees text",
+            content:
+                "Your server never touches raw audio. Twilio's media servers handle STT and TTS on either side of the WebSocket, so you avoid dealing with audio codecs, voice activity detection, or echo cancellation -- which you *would* have to handle with the [Media Streams](https://www.twilio.com/docs/voice/media-streams) API. Your server only works with JSON text messages.",
+        },
 
-    {
-      type: "deep-dive",
-      audience: "builder",
-      title: "Why your server only sees text",
-      content:
-        "Ch1 covered the high-level call flow. The Builder-level takeaway: your server never touches raw audio. Twilio's media servers handle STT and TTS on either side of the WebSocket, so you avoid dealing with audio codecs, voice activity detection, or echo cancellation -- which you *would* have to handle with the Media Streams API. Your server only works with JSON text messages.",
-    },
-
-    {
-      type: "solution",
-      audience: "builder",
-      file: "server.js",
-      language: "javascript",
-      explanation:
-        "The complete server after adding TwiML and the /call endpoint. The WebSocket handler is in place but does not yet send anything to an LLM.",
-      code: `require("dotenv").config();
+        {
+            type: "solution",
+            audience: "builder",
+            file: "server.js",
+            language: "javascript",
+            explanation:
+                "The complete server after adding TwiML and the /call endpoint. The WebSocket handler is in place but does not yet send anything to an LLM.",
+            code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
 const twilio = require("twilio");
@@ -334,6 +339,6 @@ wss.on("connection", (ws) => {
 server.listen(PORT, () => {
   console.log(\`🚀 Server listening on port \${PORT}\`);
 });`,
-    },
-  ],
+        },
+    ],
 } satisfies StepDefinition;
