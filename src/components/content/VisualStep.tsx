@@ -10,13 +10,16 @@ interface Step {
 
 interface VisualStepProps {
   steps: Step[];
+  /** First step number to display. Lets a sequence split across multiple
+   *  blocks stay numerically continuous. Defaults to 1. */
+  startFrom?: number;
 }
 
 function isIconPath(icon: string): boolean {
   return icon.startsWith("/");
 }
 
-export function VisualStep({ steps }: VisualStepProps) {
+export function VisualStep({ steps, startFrom = 1 }: VisualStepProps) {
   return (
     <div className="mb-6 space-y-3">
       {steps.map((step, i) => (
@@ -40,7 +43,7 @@ export function VisualStep({ steps }: VisualStepProps) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-mono text-twilio-red/70 uppercase tracking-wider">
-                Step {i + 1}
+                Step {startFrom + i}
               </span>
             </div>
             <h4 className="font-display font-extrabold text-sm text-text-primary mb-1">

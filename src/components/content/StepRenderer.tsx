@@ -147,7 +147,7 @@ function BlockRenderer({ block, onVerifySuccess }: { block: ContentBlock; onVeri
     }
 
     case "visual-step":
-      return <VisualStep steps={block.steps} />;
+      return <VisualStep steps={block.steps} startFrom={block.startFrom} />;
 
     case "concept-card":
       return (

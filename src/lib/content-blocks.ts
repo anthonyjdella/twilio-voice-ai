@@ -146,10 +146,15 @@ export interface ImageBlock extends BaseBlock {
   size?: "sm" | "md" | "lg" | "full";
 }
 
-/** Numbered visual steps — for non-technical "click here, then there" instructions */
+/** Numbered visual steps — for non-technical "click here, then there" instructions.
+ *  When a sequence of steps is split across multiple blocks (e.g. step → screenshot
+ *  → step → screenshot), set `startFrom` on the second block to continue numbering. */
 export interface VisualStepBlock extends BaseBlock {
   type: "visual-step";
   steps: { icon: string; title: string; description: string }[];
+  /** First step number to display. Defaults to 1. Use 2, 3, ... on follow-up
+   *  blocks that are a continuation of a visual-step sequence. */
+  startFrom?: number;
 }
 
 /** Concept card — visual explanation with optional illustration, no code */
