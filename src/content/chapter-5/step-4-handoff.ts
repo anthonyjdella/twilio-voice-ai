@@ -36,6 +36,14 @@ export default {
         "**Handoff is different from your other tools.** `check_weather` and `lookup_order` *continue* the conversation -- the AI gets data back and keeps talking. Handoff *ends* the AI session. Once the `end` message is sent, Twilio closes the WebSocket and the AI is out of the call entirely; the human picks up from there. You'll wire it into the same `tools` array for convenience, but mentally it belongs in its own category: a control-flow primitive, not a data lookup.",
     },
 
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "**Keep regulated data out of the LLM.** Card numbers (PCI), Social Security numbers, and Protected Health Information (PHI) should never land in your `conversationHistory`, your LLM provider's logs, or your stdout. Two Twilio patterns for handling this:\n\n- **Card data (PCI):** do not ask the LLM to capture it. Use Twilio's [`<Pay>` verb](https://www.twilio.com/docs/voice/tutorials/how-capture-your-first-payment-using-pay) or the [Payments API](https://www.twilio.com/docs/voice/api/payment-resource) -- both capture DTMF on a PCI-compliant path that bypasses your app entirely.\n- **Health data (HIPAA):** [Conversation Relay became HIPAA-eligible on March 17, 2025](https://www.twilio.com/en-us/changelog/conversationrelay-is-now-hipaa-eligible). Eligibility still requires a signed BAA with Twilio *and* that your LLM provider is covered under its own BAA before PHI touches your pipeline.\n\nPractical rule: instruct the system prompt to refuse card numbers and PHI and call `transfer_to_agent` instead.",
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "How Handoff Works" },
@@ -67,6 +75,14 @@ export default {
       variant: "info",
       content:
         "For the caller, a good handoff feels seamless: the AI says \"Let me connect you with someone who can help,\" there is a brief hold, and the human agent already knows what the conversation was about. No repeating yourself.",
+    },
+
+    {
+      type: "callout",
+      audience: "explorer",
+      variant: "warning",
+      content:
+        "**Some information should never reach the AI.** Credit card numbers (PCI) and medical details (HIPAA) have strict rules about where data can travel. A good voice AI recognizes those moments and hands off to a human or a specialized secure flow instead of asking the caller to read the numbers aloud. Conversation Relay itself is [HIPAA-eligible as of March 17, 2025](https://www.twilio.com/en-us/changelog/conversationrelay-is-now-hipaa-eligible), but your LLM and the rest of your stack also need to qualify before any real health data travels through them.",
     },
 
     { type: "handoff-toggle", audience: "explorer" },
@@ -216,14 +232,6 @@ if (req.url === "/call-ended" && req.method === "POST") {
     { type: "page-break" },
 
     { type: "section", title: "Triggering Handoff from a Tool Call", audience: "builder" },
-
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "info",
-      content:
-        "**A note on the Live Handoff toggle.** The Call Me widget passes a `handoffEnabled` value from the workshop UI (set by the toggle above, which Explorers see) into your `/call` payload as a `customParameter`. The workshop's voice-agent reads that parameter and chooses whether to expose `transfer_to_agent` to the LLM for that call. If your hand-coded tool never fires during testing, check that the Live Handoff toggle is on -- the toggle gates whether the tool is offered to the model, independent of whether you wrote the handler correctly.",
-    },
 
     {
       type: "prose",
