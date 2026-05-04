@@ -217,11 +217,11 @@ $ docker run -p 8080:8080 --env-file .env voice-agent`,
       language: "bash",
       file: ".env",
       code: `OPENAI_API_KEY=sk-...
-PORT=8080
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_AUTH_TOKEN=your_auth_token
 TWILIO_PHONE_NUMBER=+15551234567
-NODE_ENV=production`,
+MY_PHONE_NUMBER=+15557654321
+PORT=8080`,
     },
 
     {
