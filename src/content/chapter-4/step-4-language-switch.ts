@@ -13,14 +13,6 @@ export default {
     },
 
     {
-      type: "callout",
-      audience: "explorer",
-      variant: "info",
-      content:
-        "Imagine a caller starts in English and mid-sentence switches to Spanish. The agent detects the change, keeps listening in Spanish, and continues the conversation in Spanish -- without transferring the call or offering a separate menu for each language.",
-    },
-
-    {
       type: "prose",
       audience: "builder",
       content:
