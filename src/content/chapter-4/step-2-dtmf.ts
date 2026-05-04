@@ -75,14 +75,6 @@ export default {
     },
 
     {
-      type: "callout",
-      audience: "builder",
-      variant: "info",
-      content:
-        "**Why push a fake user turn?** The `case \"1\":` branch writes `\"I want to check my order status.\"` to `conversationHistory` as if the caller had said it, then calls `streamResponse(ws)`. This lets the LLM respond to a button press using the same conversational path it uses for speech -- no separate DTMF branch in the prompt.",
-    },
-
-    {
       type: "code",
       audience: "builder",
       language: "javascript",
