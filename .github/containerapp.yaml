@@ -29,6 +29,8 @@ properties:
             secretRef: twilio-phone-number
           - name: OPENAI_API_KEY
             secretRef: openai-api-key
+          - name: HANDOFF_PHONE_NUMBER
+            secretRef: handoff-phone-number
         volumeMounts:
           - volumeName: appdata
             mountPath: /app/appdata
