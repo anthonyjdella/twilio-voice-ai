@@ -40,7 +40,7 @@ export default {
           icon: "/images/icons/voice-wave.svg",
           title: "Caller speaks",
           description:
-            'The caller says something like "What is the weather in Austin?"',
+            'The caller says something like "What is the weather in San Francisco?"',
         },
         {
           icon: "/images/icons/robot.svg",
@@ -52,7 +52,7 @@ export default {
           icon: "/images/icons/wrench.svg",
           title: "AI picks a tool",
           description:
-            'Instead of answering right away, the AI says "I need to look up the weather in Austin."',
+            'Instead of answering right away, the AI says "I need to look up the weather in San Francisco."',
         },
         {
           icon: "/images/icons/arrow-cycle.svg",
@@ -64,7 +64,7 @@ export default {
           icon: "/images/icons/chat-bubble.svg",
           title: "AI responds with real info",
           description:
-            'The AI weaves the data into a natural reply: "It is currently 78 degrees and sunny in Austin."',
+            'The AI weaves the data into a natural reply: "It is currently 60 degrees and sunny in San Francisco."',
         },
       ],
     },
@@ -77,7 +77,7 @@ export default {
           icon: "/images/icons/voice-wave.svg",
           title: "Caller speaks",
           description:
-            'The caller says something like "What is the weather in Austin?"',
+            'The caller says something like "What is the weather in San Francisco?"',
         },
         {
           icon: "/images/icons/pencil.svg",
@@ -95,7 +95,7 @@ export default {
           icon: "/images/icons/wrench.svg",
           title: "AI picks a tool",
           description:
-            'Instead of answering right away, the AI says "I need to look up the weather in Austin" and asks your server to do it.',
+            'Instead of answering right away, the AI says "I need to look up the weather in San Francisco" and asks your server to do it.',
         },
         {
           icon: "/images/icons/code.svg",
@@ -113,7 +113,7 @@ export default {
           icon: "/images/icons/chat-bubble.svg",
           title: "AI responds with real info",
           description:
-            'The AI weaves the data into a natural reply: "It is currently 78 degrees and sunny in Austin."',
+            'The AI weaves the data into a natural reply: "It is currently 60 degrees and sunny in San Francisco."',
         },
         {
           icon: "/images/icons/sound-wave.svg",
@@ -148,7 +148,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        'Sometimes the LLM needs multiple tool calls to answer a single question -- for example, "What is the weather in Austin and what is my order status?" requires two separate calls. The LLM can request multiple tools in one response. Your server executes each one, appends the results to the conversation, and sends the updated conversation back to OpenAI. This repeats until the response is plain text with no more tool calls, at which point you send the final text to Twilio.',
+        'Sometimes the LLM needs multiple tool calls to answer a single question -- for example, "What is the weather in San Francisco and what is my order status?" requires two separate calls. The LLM can request multiple tools in one response. Your server executes each one, appends the results to the conversation, and sends the updated conversation back to OpenAI. This repeats until the response is plain text with no more tool calls, at which point you send the final text to Twilio.',
     },
 
     {

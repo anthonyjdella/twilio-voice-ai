@@ -5,7 +5,7 @@ import { useProgressContext } from "@/components/layout/ProgressContext";
 const TOOL_SCRIPT: Record<string, { label: string; line: string }> = {
   check_weather: {
     label: "Weather lookup",
-    line: '"What is the weather in Austin?"',
+    line: '"What is the weather in San Francisco?"',
   },
   lookup_order: {
     label: "Order lookup",

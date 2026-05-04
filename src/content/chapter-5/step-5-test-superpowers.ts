@@ -69,20 +69,20 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        'When the phone rings, answer and ask: "What is the weather in Austin?"',
+        'When the phone rings, answer and ask: "What is the weather in San Francisco?"',
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        'Watch your terminal. You should see:\n\n1. The `prompt` message with the transcribed speech.\n2. A log line showing `Tool call: check_weather { city: "Austin" }`.\n3. The tool result being added to the conversation.\n4. The LLM\'s natural language response being streamed to Twilio.',
+        'Watch your terminal. You should see:\n\n1. The `prompt` message with the transcribed speech.\n2. A log line showing `Tool call: check_weather { city: "San Francisco" }`.\n3. The tool result being added to the conversation.\n4. The LLM\'s natural language response being streamed to Twilio.',
     },
 
     {
       type: "prose",
       content:
-        'The agent should say something like: "It is currently 78 degrees and sunny in Austin."',
+        'The agent should say something like: "It is currently 60 degrees and sunny in San Francisco."',
     },
 
     {

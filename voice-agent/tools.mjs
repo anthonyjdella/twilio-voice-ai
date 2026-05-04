@@ -84,7 +84,7 @@ const JOKES = [
 ];
 
 const MOCK_WEATHER = {
-  "san francisco": { temp: 62, conditions: "Foggy", humidity: 78 },
+  "san francisco": { temp: 60, conditions: "Sunny", humidity: 78 },
   "new york": { temp: 75, conditions: "Partly Cloudy", humidity: 55 },
   london: { temp: 58, conditions: "Rainy", humidity: 85 },
   tokyo: { temp: 72, conditions: "Sunny", humidity: 60 },

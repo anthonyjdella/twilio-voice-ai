@@ -336,7 +336,7 @@ transfer_to_agent: async ({ reason, department, summary }, ws) => {
         properties: {
           city: {
             type: "string",
-            description: "The city name, e.g. 'Austin' or 'New York'"
+            description: "The city name, e.g. 'San Francisco' or 'New York'"
           },
           unit: {
             type: "string",

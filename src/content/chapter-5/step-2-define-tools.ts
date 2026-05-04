@@ -81,7 +81,7 @@ export default {
         properties: {
           city: {
             type: "string",
-            description: "The city name, e.g. 'Austin' or 'New York'"
+            description: "The city name, e.g. 'San Francisco' or 'New York'"
           },
           unit: {
             type: "string",
@@ -315,7 +315,7 @@ module.exports = { tools, toolHandlers };`,
         properties: {
           city: {
             type: "string",
-            description: "The city name, e.g. 'Austin' or 'New York'"
+            description: "The city name, e.g. 'San Francisco' or 'New York'"
           },
           unit: {
             type: "string",
