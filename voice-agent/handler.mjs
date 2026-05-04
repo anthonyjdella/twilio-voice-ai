@@ -4,8 +4,8 @@ import { toolDefinitions, executeTool, HANDOFF_TOOL_NAME } from "./tools.mjs";
 import { recordEvent } from "../analytics/db.mjs";
 
 const MAX_TOOL_ITERATIONS = 5;
-const SILENCE_FIRST_MS = 30000;
-const SILENCE_SECOND_MS = 20000;
+const SILENCE_FIRST_MS = 12000;
+const SILENCE_SECOND_MS = 10000;
 
 export function handleConversationRelayConnection(ws) {
   const openai = new OpenAI();
