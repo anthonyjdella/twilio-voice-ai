@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
       transcriptionProvider="${escapeXml(transcriptionProvider)}"
       welcomeGreeting="${escapeXml(welcomeGreeting)}"
       interruptible="any"
+      interruptSensitivity="low"
       dtmfDetection="true"
     >
       ${paramElements}
