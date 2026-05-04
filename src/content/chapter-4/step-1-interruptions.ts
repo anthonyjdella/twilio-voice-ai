@@ -231,7 +231,7 @@ function handleMessage(ws, data) {
       audience: "builder",
       variant: "info",
       content:
-        "**Keep your persona.** The solution below uses a generic `SYSTEM_PROMPT` (\"helpful voice assistant for Acme Corp\") as the default. If you picked a specific persona when you built the agent's identity (Sam, Ms. Chen, or Jake), paste *your* `SYSTEM_PROMPT` here instead -- the rest of the code does not change.",
+        "**Keep your persona.** The solution below uses a generic `SYSTEM_PROMPT` (\"helpful voice assistant for Twilio-Mart\") as the default. If you picked a specific persona when you built the agent's identity (Sam, Ms. Chen, or Jake), paste *your* `SYSTEM_PROMPT` here instead -- the rest of the code does not change.",
     },
 
     {
@@ -258,7 +258,7 @@ const twilioClient = twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 
-const SYSTEM_PROMPT = \`You are a helpful voice assistant for Acme Corp.
+const SYSTEM_PROMPT = \`You are a helpful voice assistant for Twilio-Mart.
 Keep your responses brief -- one to two sentences at most.
 Speak naturally and conversationally.
 Never use markdown, bullet points, or numbered lists.

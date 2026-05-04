@@ -72,7 +72,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      code: `const systemPrompt = \`You are Ava, a customer service agent for Acme Corp.
+      code: `const systemPrompt = \`You are Ava, a customer service agent for Twilio-Mart.
 
 PERSONALITY:
 - Warm, professional, and concise
@@ -88,7 +88,7 @@ CAPABILITIES:
 BOUNDARIES:
 - Never make promises about refunds or policy exceptions
 - Do not share internal pricing or systems information
-- If asked about competitors, politely redirect to Acme services
+- If asked about competitors, politely redirect to Twilio-Mart services
 - For account changes (password, email, billing), always transfer to a human
 
 VOICE GUIDELINES:
@@ -139,7 +139,7 @@ VOICE GUIDELINES:
       welcomeGreeting="Hello! How can I help you today?"
       welcomeGreetingInterruptible="speech"
       reportInputDuringAgentSpeech="dtmf"
-      hints="Acme, order status, transfer, refund"
+      hints="Twilio-Mart, order status, transfer, refund"
     />
   </Connect>
 </Response>`,
@@ -627,7 +627,7 @@ const server = http.createServer(async (req, res) => {
       welcomeGreeting="Hello! How can I help you today?"
       welcomeGreetingInterruptible="speech"
       reportInputDuringAgentSpeech="dtmf"
-      hints="Acme, order status, transfer, refund"
+      hints="Twilio-Mart, order status, transfer, refund"
     />
   </Connect>
 </Response>\`;

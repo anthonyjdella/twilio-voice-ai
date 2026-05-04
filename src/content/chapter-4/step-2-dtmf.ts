@@ -270,7 +270,7 @@ const twilioClient = twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 
-const SYSTEM_PROMPT = \`You are a helpful voice assistant for Acme Corp.
+const SYSTEM_PROMPT = \`You are a helpful voice assistant for Twilio-Mart.
 Keep your responses brief -- one to two sentences at most.
 Speak naturally and conversationally.
 Never use markdown, bullet points, or numbered lists.
