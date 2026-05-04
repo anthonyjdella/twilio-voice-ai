@@ -350,11 +350,116 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
     {
       type: "solution",
       audience: "builder",
-      file: "server.js",
-      language: "javascript",
       explanation:
-        "The complete `server.js` at the end of this step. Building on the language-switching step: `tool-handlers.js` is required at the top, `streamLLMResponse`/`handlePrompt` are gone, `streamResponse` passes `tools` to OpenAI and accumulates tool-call deltas, `handleToolCalls` dispatches each call through `toolHandlers`, and the `prompt` case in `handleMessage` now pushes the user turn and calls `streamResponse(ws)` directly. `MAX_TOOL_ITERATIONS` bounds recursion and `SLOW_TOOLS` triggers a filler message so the caller hears something during slow lookups.",
-      code: `require("dotenv").config();
+        "Both files at the end of this step. `tool-handlers.js` is unchanged from the previous step (included here so you have one tab to paste from if something diverged). `server.js` is where the work happened: `tool-handlers.js` is required at the top, `streamLLMResponse`/`handlePrompt` are gone, `streamResponse` passes `tools` to OpenAI and accumulates tool-call deltas, `handleToolCalls` dispatches each call through `toolHandlers`, and the `prompt` case in `handleMessage` now pushes the user turn and calls `streamResponse(ws)` directly. `MAX_TOOL_ITERATIONS` bounds recursion and `SLOW_TOOLS` triggers a filler message so the caller hears something during slow lookups.",
+      files: [
+        {
+          file: "tool-handlers.js",
+          language: "javascript",
+          code: `const tools = [
+  {
+    type: "function",
+    function: {
+      name: "check_weather",
+      description: "Get the current weather for a given city. " +
+        "Use when the caller asks about weather, temperature, " +
+        "or conditions in a specific location.",
+      parameters: {
+        type: "object",
+        properties: {
+          city: {
+            type: "string",
+            description: "The city name, e.g. 'San Francisco' or 'New York'"
+          },
+          unit: {
+            type: "string",
+            enum: ["fahrenheit", "celsius"],
+            description: "Temperature unit (defaults to fahrenheit)"
+          }
+        },
+        required: ["city"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "lookup_order",
+      description: "Look up the status of a customer order by order ID. " +
+        "Use when the caller asks about an order, shipment, or delivery.",
+      parameters: {
+        type: "object",
+        properties: {
+          order_id: {
+            type: "string",
+            description: "The order ID, e.g. '123'"
+          }
+        },
+        required: ["order_id"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "tell_joke",
+      description: "Tell the caller a short, friendly joke. " +
+        "Use when the caller asks for a joke, wants to laugh, or asks you to be funny.",
+      parameters: { type: "object", properties: {} }
+    }
+  }
+];
+
+const toolHandlers = {
+  check_weather: async ({ city, unit = "fahrenheit" }, _ws) => {
+    const mockWeather = {
+      "san francisco": { temp: 60, condition: "sunny", humidity: 45 },
+      "new york": { temp: 55, condition: "cloudy", humidity: 72 },
+      "seattle": { temp: 48, condition: "rainy", humidity: 88 },
+    };
+    const weather = mockWeather[city.toLowerCase()];
+    if (!weather) {
+      return { error: "Weather data not available for " + city };
+    }
+    const temp = unit === "celsius"
+      ? Math.round((weather.temp - 32) * 5 / 9)
+      : weather.temp;
+    return {
+      city, temperature: temp, unit,
+      condition: weather.condition,
+      humidity: weather.humidity + "%"
+    };
+  },
+
+  lookup_order: async ({ order_id }, _ws) => {
+    const mockOrders = {
+      "123": { status: "shipped", tracking: "1Z999AA10123456784", eta: "May 7, 2026" },
+      "456": { status: "processing", tracking: null, eta: "May 7, 2026" },
+    };
+    const order = mockOrders[order_id];
+    if (!order) {
+      return { error: \`"\${order_id}" is not in the workshop mock data. Supported order numbers: 123, 456, or 789.\` };
+    }
+    return { order_id, ...order };
+  },
+
+  tell_joke: async (_args, _ws) => {
+    const jokes = [
+      "Why did the phone break up with the WebSocket? It just could not handle the constant connection.",
+      "I asked Twilio how it handles rejection. It said, 'I just send another SMS.'",
+      "Why did the developer go broke? Because they used up all their cache.",
+      "A SQL query walks into a bar, goes up to two tables and asks: can I join you?"
+    ];
+    return { joke: jokes[Math.floor(Math.random() * jokes.length)] };
+  }
+};
+
+module.exports = { tools, toolHandlers };`,
+        },
+        {
+          file: "server.js",
+          language: "javascript",
+          code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
 const OpenAI = require("openai");
@@ -733,6 +838,8 @@ wss.on("connection", (ws) => {
 server.listen(PORT, () => {
   console.log(\`Server listening on port \${PORT}\`);
 });`,
+        },
+      ],
     },
 
     {

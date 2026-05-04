@@ -280,11 +280,149 @@ VOICE GUIDELINES:
     {
       type: "solution",
       audience: "builder",
-      file: "server.js",
-      language: "javascript",
       explanation:
-        "The complete polished server.js with everything from the workshop: tool calling, interruptions, DTMF, silence detection, language switching, handoff support, and error handling.",
-      code: `require("dotenv").config();
+        "Both files at the end of the workshop. `tool-handlers.js` is unchanged since the handoff step — included here so you have one tab to paste from if something diverged. `server.js` is the complete polished version with everything: tool calling, interruptions, DTMF, silence detection, language switching, handoff support, and error handling.",
+      files: [
+        {
+          file: "tool-handlers.js",
+          language: "javascript",
+          code: `const tools = [
+  {
+    type: "function",
+    function: {
+      name: "check_weather",
+      description: "Get the current weather for a given city. " +
+        "Use when the caller asks about weather, temperature, " +
+        "or conditions in a specific location.",
+      parameters: {
+        type: "object",
+        properties: {
+          city: {
+            type: "string",
+            description: "The city name, e.g. 'San Francisco' or 'New York'"
+          },
+          unit: {
+            type: "string",
+            enum: ["fahrenheit", "celsius"],
+            description: "Temperature unit (defaults to fahrenheit)"
+          }
+        },
+        required: ["city"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "lookup_order",
+      description: "Look up the status of a customer order by order ID. " +
+        "Use when the caller asks about an order, shipment, or delivery.",
+      parameters: {
+        type: "object",
+        properties: {
+          order_id: {
+            type: "string",
+            description: "The order ID, e.g. '123'"
+          }
+        },
+        required: ["order_id"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "transfer_to_agent",
+      description: "Transfer the caller to a live human agent. " +
+        "Use this when the caller explicitly requests a human, " +
+        "or when you cannot resolve their issue.",
+      parameters: {
+        type: "object",
+        properties: {
+          reason: {
+            type: "string",
+            description: "Brief reason for the transfer"
+          },
+          department: {
+            type: "string",
+            enum: ["billing", "technical", "general"],
+            description: "Department to route to"
+          },
+          summary: {
+            type: "string",
+            description: "Summary of the conversation so far"
+          }
+        },
+        required: ["reason", "summary"]
+      }
+    }
+  }
+];
+
+const toolHandlers = {
+  check_weather: async ({ city, unit = "fahrenheit" }, _ws) => {
+    const mockWeather = {
+      "san francisco": { temp: 60, condition: "sunny", humidity: 45 },
+      "new york": { temp: 55, condition: "cloudy", humidity: 72 },
+      "seattle": { temp: 48, condition: "rainy", humidity: 88 },
+    };
+    const weather = mockWeather[city.toLowerCase()];
+    if (!weather) {
+      return { error: "Weather data not available for " + city };
+    }
+    const temp = unit === "celsius"
+      ? Math.round((weather.temp - 32) * 5 / 9)
+      : weather.temp;
+    return {
+      city, temperature: temp, unit,
+      condition: weather.condition,
+      humidity: weather.humidity + "%"
+    };
+  },
+
+  lookup_order: async ({ order_id }, _ws) => {
+    const mockOrders = {
+      "123": { status: "shipped", tracking: "1Z999AA10123456784", eta: "May 7, 2026" },
+      "456": { status: "processing", tracking: null, eta: "May 7, 2026" },
+    };
+    const order = mockOrders[order_id];
+    if (!order) {
+      return { error: "Order not found: " + order_id };
+    }
+    return { order_id, ...order };
+  },
+
+  transfer_to_agent: async ({ reason, department, summary }, ws) => {
+    ws.send(JSON.stringify({
+      type: "text",
+      token: "I understand you need more help with this. " +
+        "Let me connect you with a team member who can assist.",
+      last: true
+    }));
+
+    setTimeout(() => {
+      ws.send(JSON.stringify({
+        type: "end",
+        handoffData: JSON.stringify({
+          reasonCode: "live-agent-handoff",
+          reason,
+          department: department || "general",
+          summary,
+          timestamp: new Date().toISOString()
+        })
+      }));
+    }, 2000);
+
+    return { status: "transferring" };
+  }
+};
+
+module.exports = { tools, toolHandlers };`,
+        },
+        {
+          file: "server.js",
+          language: "javascript",
+          code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
 const OpenAI = require("openai");
@@ -723,6 +861,8 @@ wss.on("connection", (ws) => {
 server.listen(PORT, () => {
   console.log(\`Server listening on port \${PORT}\`);
 });`,
+        },
+      ],
     },
   ],
 } satisfies StepDefinition;
