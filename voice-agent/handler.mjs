@@ -4,8 +4,8 @@ import { toolDefinitions, executeTool, HANDOFF_TOOL_NAME } from "./tools.mjs";
 import { recordEvent } from "../analytics/db.mjs";
 
 const MAX_TOOL_ITERATIONS = 5;
-const SILENCE_FIRST_MS = 8000;
-const SILENCE_SECOND_MS = 6000;
+const SILENCE_FIRST_MS = 30000;
+const SILENCE_SECOND_MS = 20000;
 
 export function handleConversationRelayConnection(ws) {
   const openai = new OpenAI();
@@ -106,6 +106,8 @@ export function handleConversationRelayConnection(ws) {
         break;
 
       case "interrupt":
+        silenceCount = 0;
+        clearSilenceTimer();
         console.log(
           `[voice-agent] [${callSid}] Interrupted after: "${message.utteranceUntilInterrupt}"`
         );
