@@ -96,7 +96,7 @@ export default {
           icon: "/images/icons/wrench.svg",
           title: "Tool runs and returns an answer",
           description:
-            'The workshop\'s back-end runs the tool and gets back: _"Shipped. Arriving April 22. Tracking 1Z999AA10123456784."_',
+            'The workshop\'s back-end runs the tool and gets back: _"Shipped. Arriving May 7. Tracking 1Z999AA10123456784."_',
         },
         {
           icon: "/images/icons/arrow-cycle.svg",
@@ -108,7 +108,7 @@ export default {
           icon: "/images/icons/chat-bubble.svg",
           title: "AI replies with natural words",
           description:
-            '**Agent:** "Your order shipped and should arrive April 22. I can text you the tracking number if you\'d like."',
+            '**Agent:** "Your order shipped and should arrive May 7. I can text you the tracking number if you\'d like."',
         },
       ],
     },

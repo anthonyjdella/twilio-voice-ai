@@ -399,7 +399,7 @@ transfer_to_agent: async ({ reason, department, summary }, ws) => {
 const toolHandlers = {
   check_weather: async ({ city, unit = "fahrenheit" }, _ws) => {
     const mockWeather = {
-      "austin": { temp: 78, condition: "sunny", humidity: 45 },
+      "san francisco": { temp: 60, condition: "sunny", humidity: 45 },
       "new york": { temp: 55, condition: "cloudy", humidity: 72 },
       "seattle": { temp: 48, condition: "rainy", humidity: 88 },
     };
