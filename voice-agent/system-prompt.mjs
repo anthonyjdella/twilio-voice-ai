@@ -30,10 +30,6 @@ Guidelines:
 Pronunciation:
 - Pronounce "Twilio" as TWILL-ee-oh (three syllables: TWILL, ee, oh). Do not spell it out letter by letter.
 
-Keypad input:
-- When the caller presses a key on their phone keypad, you will receive it as "[The caller pressed X on their phone keypad]".
-- Respond naturally. For example, if they press 1, acknowledge it and ask how you can help.
-
 ${handoffBlock}
 
 Language switching:

@@ -125,18 +125,29 @@ export function handleConversationRelayConnection(ws) {
           console.warn(`[voice-agent] [${callSid}] Dropping DTMF during processing`);
           break;
         }
-        isProcessing = true;
-        conversationHistory.push({
-          role: "user",
-          content: `[The caller pressed ${message.digit} on their phone keypad]`,
-        });
-        try {
-          await streamLLMResponse(openai, conversationHistory, ws, callSid, activeTools, handoffAllowed);
-        } catch (err) {
-          console.error(`[voice-agent] [${callSid}] LLM error:`, err.message);
-          sendToken(ws, "I'm sorry, I encountered a technical issue. Please try again.", true);
-        } finally {
-          isProcessing = false;
+        if (message.digit === "1") {
+          isProcessing = true;
+          conversationHistory.push({
+            role: "user",
+            content: "I want to check my order status.",
+          });
+          try {
+            await streamLLMResponse(openai, conversationHistory, ws, callSid, activeTools, handoffAllowed);
+          } catch (err) {
+            console.error(`[voice-agent] [${callSid}] LLM error:`, err.message);
+            sendToken(ws, "I'm sorry, I encountered a technical issue. Please try again.", true);
+          } finally {
+            isProcessing = false;
+            startSilenceTimer();
+          }
+        } else if (message.digit === "2") {
+          sendToken(ws, "Let me transfer you to a representative. Please hold for a moment.", true);
+          startSilenceTimer();
+        } else if (message.digit === "0") {
+          sendToken(ws, "Returning to the main menu. Press 1 for order status, 2 for a representative, or just tell me what you need.", true);
+          startSilenceTimer();
+        } else {
+          sendToken(ws, "I didn't recognize that option. Press 1 for order status, or 2 for a representative.", true);
           startSilenceTimer();
         }
         break;
