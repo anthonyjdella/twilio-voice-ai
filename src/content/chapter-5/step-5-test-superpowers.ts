@@ -53,15 +53,13 @@ Server listening on port 8080`,
       type: "prose",
       audience: "builder",
       content:
-        "Or run this from your Codespace terminal. `$CODESPACE_NAME` is an environment variable GitHub sets for you, so the command works as-is (the forwarded URL looks like `https://<codespace-name>-8080.app.github.dev`, which you can also see in the **Ports** tab):",
+        "Or run this from your Codespace terminal -- `$CODESPACE_NAME` is set automatically, so the command works as-is. If you're not in a Codespace, grab the forwarded URL from the **Ports** tab instead.",
     },
 
     {
       type: "terminal",
       audience: "builder",
-      commands: `$ echo $CODESPACE_NAME    # should print something like "fluffy-octopus-abc123"
-$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
-# If the echo was blank, you're not in a Codespace terminal -- grab the URL from the Ports tab instead.`,
+      commands: `$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"`,
     },
 
     { type: "page-break" },
