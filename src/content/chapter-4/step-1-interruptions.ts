@@ -21,14 +21,6 @@ export default {
         "Real conversations are messy. People interrupt, change their minds mid-sentence, and talk over each other. A great voice agent handles all of this gracefully. Conversation Relay has built-in **barge-in** support -- when a caller speaks while the AI is still talking, Twilio detects it, stops the AI mid-sentence, and sends a WebSocket message describing what happened.",
     },
 
-    {
-      type: "callout",
-      audience: "builder",
-      variant: "warning",
-      content:
-        "**Heads up -- this step is a refactor, not an add.** Before you paste the code further down, do these three things:\n\n- **Delete** `const conversationHistory = [...]` from inside `wss.on(\"connection\", ...)`.\n- **Delete** the entire `streamLLMResponse` function you wrote earlier.\n- **Keep** the `sendText(ws, token, last = false)` helper you already have -- the new code uses it as-is (double-check the signature matches if you modified it).\n- **Paste** the new module-scope code at the **top of `server.js`**, outside any handler.\n\nIf you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and the interrupt handler -- plus the tool loop coming later -- will write to the wrong array.",
-    },
-
     { type: "section", title: "How Barge-In Works", audience: "builder" },
 
     {
@@ -83,7 +75,15 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "When the caller interrupts, the server needs to stop the AI from continuing its reply and update the conversation history so the AI knows what the caller actually heard. Remember the refactor from the warning at the top of this step -- `conversationHistory` and `streamResponse` now live at module scope.",
+        "When the caller interrupts, the server needs to stop the AI from continuing its reply and update the conversation history so the AI knows what the caller actually heard. To make that possible, `conversationHistory` and `streamResponse` need to move to module scope.",
+    },
+
+    {
+      type: "callout",
+      audience: "builder",
+      variant: "warning",
+      content:
+        "**Heads up -- this step is a refactor, not an add.** Before you paste the code below, do these three things:\n\n- **Delete** `const conversationHistory = [...]` from inside `wss.on(\"connection\", ...)`.\n- **Delete** the entire `streamLLMResponse` function you wrote earlier.\n- **Keep** the `sendText(ws, token, last = false)` helper you already have -- the new code uses it as-is (double-check the signature matches if you modified it).\n- **Paste** the new module-scope code at the **top of `server.js`**, outside any handler.\n\nIf you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and the interrupt handler -- plus the tool loop coming later -- will write to the wrong array.",
     },
 
     {
