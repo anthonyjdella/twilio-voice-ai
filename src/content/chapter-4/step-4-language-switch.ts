@@ -590,7 +590,7 @@ server.listen(PORT, () => {
       audience: "explorer",
       title: "What It Sounds Like to the Caller",
       content:
-        "On the test call coming up next: if you speak Spanish, start in English and switch mid-sentence. If you don't, read this phrase out loud -- *\"¿Puedes hablar en español?\"* (roughly *\"pwe-des ah-blar en es-pan-yol\"*). Either way the agent keeps the same tone but flips to a Spanish voice that sounds natural in that language. No menu, no \"press 2 for Spanish\" -- the change happens the moment the agent hears the shift, and flips back when you return to English.",
+        "On the test call coming up next: if you speak Spanish, start in English and switch mid-sentence. If you don't, read this phrase out loud -- *\"Hola, ¿cómo estás?\"* (roughly *\"OH-lah, KOH-moh es-TAHS\"*). Either way the agent keeps the same tone but flips to a Spanish voice that sounds natural in that language. No menu, no \"press 2 for Spanish\" -- the change happens the moment the agent hears the shift, and flips back when you return to English.",
     },
   ],
 } satisfies StepDefinition;
