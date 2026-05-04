@@ -7,7 +7,7 @@ const TOOLS = [
     id: "check_weather",
     name: "Check Weather",
     desc: "Tells the caller the current weather in a city.",
-    tryThis: 'Say: "What is the weather in Tokyo?"',
+    tryThis: 'Say: "What is the weather in San Francisco?"',
   },
   {
     id: "lookup_order",
