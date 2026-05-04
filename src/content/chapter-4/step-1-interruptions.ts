@@ -67,6 +67,14 @@ export default {
         "`utteranceUntilInterrupt` tells you exactly how much of the AI's response the caller heard before they cut in. The AI needs this so it doesn't reference something it said but the caller never heard.",
     },
 
+    {
+      type: "deep-dive",
+      audience: "builder",
+      title: "Why utteranceUntilInterrupt matters",
+      content:
+        "If you do not trim the assistant message in your conversation history, the LLM will think the caller heard the entire response. This leads to confusing exchanges where the AI references information it never actually delivered. By replacing the assistant message content with `utteranceUntilInterrupt`, you give the LLM an accurate picture of the conversation so far.\n\nSome advanced implementations also add a system note like \"[caller interrupted here]\" to help the LLM understand the context shift.",
+    },
+
     { type: "page-break" },
 
     { type: "section", title: "Handling the Interrupt", audience: "builder" },
@@ -216,14 +224,6 @@ function handleMessage(ws, data) {
       variant: "tip",
       content:
         'Keep `interruptible` set to `"any"` (the default) for natural conversation flow. Use `"none"` only for specific messages where the caller must hear the full content.',
-    },
-
-    {
-      type: "deep-dive",
-      audience: "builder",
-      title: "Why utteranceUntilInterrupt matters",
-      content:
-        "If you do not trim the assistant message in your conversation history, the LLM will think the caller heard the entire response. This leads to confusing exchanges where the AI references information it never actually delivered. By replacing the assistant message content with `utteranceUntilInterrupt`, you give the LLM an accurate picture of the conversation so far.\n\nSome advanced implementations also add a system note like \"[caller interrupted here]\" to help the LLM understand the context shift.",
     },
 
     {
