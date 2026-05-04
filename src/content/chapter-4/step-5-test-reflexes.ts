@@ -51,7 +51,7 @@ Server listening on port 8080`,
       type: "prose",
       audience: "explorer",
       content:
-        "You can test all four reflexes on a **single** call. When the phone rings, answer it and try each in turn: (1) ask a long question, then cut the agent off mid-reply; (2) press **1** on the keypad while the agent is speaking; (3) stay completely silent for about ten seconds; (4) say a short Spanish phrase like \"Hola, cómo estás?\" You're listening for liveliness, not perfection -- if any feels stiff, that is the one to talk through with the Builder afterward.",
+        "You can test all four reflexes on a **single** call. When the phone rings, answer it and try each in turn: (1) ask a long question, then cut the agent off mid-reply; (2) press **1** on the keypad while the agent is speaking; (3) stay completely silent for about ten seconds; (4) say a short Spanish phrase like \"Hola, cómo estás?\" You're listening for liveliness, not perfection.",
     },
 
     { type: "section", title: "Test 1: Interruption", audience: "builder" },
@@ -91,7 +91,7 @@ Server listening on port 8080`,
       type: "prose",
       audience: "builder",
       content:
-        "The agent does not speak a menu -- DTMF is a silent shortcut wired up in `handleDtmfInput`. With the DTMF code in place you should see:\n\n- **1** -- the agent starts talking about your order status (a synthetic user turn is pushed into `conversationHistory` and sent to the LLM).\n- **2** -- the agent offers to transfer you to a representative.\n- **0** -- the agent reads out the keypad options.\n- any other digit -- the agent says it didn't recognize that option.",
+        "The agent does not speak a menu -- DTMF is a silent shortcut wired up in `handleDtmfInput`. With the DTMF code in place you should see:\n\n- **1** -- the agent starts talking about your order status (a synthetic user turn is pushed into `conversationHistory` and sent to the LLM).\n- **2** -- the agent offers to transfer you to a representative. *Note: the line is spoken but no real transfer happens yet -- Ch5 wires that up.*\n- **0** -- the agent reads out the keypad options.\n- any other digit -- the agent says it didn't recognize that option.",
     },
 
     {
@@ -99,7 +99,7 @@ Server listening on port 8080`,
       audience: "explorer",
       variant: "info",
       content:
-        "**About the keypad test:** the shortcuts are wired to fixed responses regardless of your persona -- **1** asks about an order, **2** offers a transfer, **0** reads the options back -- so do not worry if the topic does not match the personality you picked. You are testing that the keypress is heard and acted on, not what the agent actually says.",
+        "**About the keypad test:** the shortcuts are wired to fixed responses regardless of your persona -- **1** asks about an order, **2** offers a transfer (just the words for now -- the real transfer gets wired up in the next chapter), **0** reads the options back -- so do not worry if the topic does not match the personality you picked. You are testing that the keypress is heard and acted on, not what the agent actually says.",
     },
 
     { type: "page-break" },
@@ -143,13 +143,6 @@ Server listening on port 8080`,
       variant: "tip",
       content:
         "Language switching is the most optional feature in this chapter. If you skipped the language-switching step or the LLM does not reliably produce the language marker, that is OK -- the other three tests are the critical ones.",
-    },
-
-    {
-      type: "prose",
-      audience: "explorer",
-      content:
-        "Language switching is optional. If it does not work perfectly on this call, that is fine -- the other three tests (interruption, keypad, silence) are the important ones.",
     },
 
     { type: "section", title: "Checkpoint" },
