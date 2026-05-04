@@ -94,7 +94,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "`conversationHistory` was declared back in Step 1 alongside `callSid`, so it already exists in your connection handler -- the new case just pushes into it. The `if (!message.last) break;` guard is a defensive check: Twilio currently only delivers final transcripts, but if partial results are ever enabled, this stops the handler from pushing half-sentences into history.",
+        "`conversationHistory` was declared when you set up the WebSocket handler alongside `callSid`, so it already exists in your connection handler -- the new case just pushes into it. The `if (!message.last) break;` guard is a defensive check: Twilio currently only delivers final transcripts, but if partial results are ever enabled, this stops the handler from pushing half-sentences into history.",
     },
 
     {
@@ -109,7 +109,7 @@ export default {
       audience: "builder",
       title: "Interruption handling and prompt messages",
       content:
-        "When the caller interrupts the AI mid-sentence, Twilio sends an `interrupt` message to let your server know that playback was stopped. The next `prompt` message will contain the new thing the caller said. You do not need special handling for interruptions at this stage -- the prompt handler works the same regardless of whether an interruption occurred. We will explore advanced interruption handling in Chapter 4.",
+        "When the caller interrupts the AI mid-sentence, Twilio sends an `interrupt` message to let your server know that playback was stopped. The next `prompt` message will contain the new thing the caller said. You do not need special handling for interruptions at this stage -- the prompt handler works the same regardless of whether an interruption occurred. We'll explore advanced interruption handling later in the workshop.",
     },
 
     {

@@ -103,25 +103,41 @@ export default {
     },
 
     {
+      type: "prose",
+      audience: "builder",
+      content: "**Before** (your existing `streamLLMResponse`):",
+    },
+
+    {
       type: "code",
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      code: `// Change this (from Ch2's streamLLMResponse):
-messages: [
+      code: `messages: [
   { role: "system", content: "You are a helpful phone assistant..." },
   ...conversationHistory,
-],
+],`,
+    },
 
-// To this:
-messages: conversationHistory,`,
+    {
+      type: "prose",
+      audience: "builder",
+      content: "**After:**",
+    },
+
+    {
+      type: "code",
+      audience: "builder",
+      language: "javascript",
+      file: "server.js",
+      code: `messages: conversationHistory,`,
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "Chapter 3 shifts the system prompt into the conversation history itself -- it becomes the first thing the AI reads for every call. Two changes:",
+        "The system prompt shifts into the conversation history itself -- it becomes the first thing the AI reads for every call. Two changes:",
     },
 
     {
@@ -148,7 +164,7 @@ If you don't know something, say so honestly.\`;`,
       type: "prose",
       audience: "builder",
       content:
-        "**2.** Add the system message to the conversation history when the call connects, then remove the hardcoded system message from the streaming function:",
+        "**2.** Seed `conversationHistory` with the system message when each call connects -- the `messages: conversationHistory` change you just made above will then send it to the LLM automatically:",
     },
 
     {
@@ -156,7 +172,7 @@ If you don't know something, say so honestly.\`;`,
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      highlight: ["3-7", "12-16"],
+      highlight: ["3-7"],
       code: `wss.on("connection", (ws) => {
   let callSid = null;
   // Seed each call with the system prompt. Every LLM turn will include
@@ -165,14 +181,7 @@ If you don't know something, say so honestly.\`;`,
     { role: "system", content: SYSTEM_PROMPT },
   ];
 
-  // ...rest of the setup/prompt handlers from Chapter 2
-});
-
-// Inside streamLLMResponse, the messages array is now just the history:
-const stream = await openai.chat.completions.create({
-  model: "gpt-5.4-nano",
-  messages: conversationHistory,  // no more system message prepended here
-  stream: true,
+  // ...rest of the setup/prompt handlers you already have
 });`,
     },
 
@@ -183,8 +192,6 @@ const stream = await openai.chat.completions.create({
       content:
         "Read the AI's responses out loud. If they sound natural when spoken, the prompt is on the right track. If you hear formatting characters like asterisks or bullet markers, remove them from the instructions -- the caller hears raw text.",
     },
-
-    { type: "page-break" },
 
     { type: "section", title: "Your Turn", audience: "builder" },
 
@@ -201,7 +208,7 @@ const stream = await openai.chat.completions.create({
       language: "javascript",
       file: "server.js",
       explanation:
-        "The complete `server.js` at the end of this step. A module-scope `SYSTEM_PROMPT` constant holds the persona, `conversationHistory` is seeded with it on every new WebSocket connection, and `streamLLMResponse` passes the whole history to OpenAI (so the hardcoded system message from Chapter 2 is gone). Ava is a sample persona -- adapt the prompt to your own use case.",
+        "The complete `server.js` at the end of this step. A module-scope `SYSTEM_PROMPT` constant holds the persona, `conversationHistory` is seeded with it on every new WebSocket connection, and `streamLLMResponse` passes the whole history to OpenAI (so the hardcoded system message from before is gone). Ava is a sample persona -- adapt the prompt to your own use case.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");

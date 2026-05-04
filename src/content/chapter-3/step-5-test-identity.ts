@@ -112,7 +112,7 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
         "Does your agent respond with the right personality and voice?",
       troubleshooting: [
         "Voice sounds wrong? Revisit the voice picker — your choice takes effect on the next call, not the current one",
-        "Agent tone feels off? Go back to Step 2 and try a different persona preset (or adjust the custom fields)",
+        "Agent tone feels off? Go back to the persona picker and try a different preset (or adjust the custom fields)",
         "Responses feel too long? Try the Professional Concierge preset — it tends to be briefer",
         "Agent breaks character on off-topic questions? The presets have built-in boundaries, and the agent picks up changes on the next call, not the current one",
       ],

@@ -12,7 +12,7 @@ export default {
             type: "prose",
             audience: "builder",
             content:
-                "You opened your Codespace back in Step 1. It should be ready now -- if the terminal is showing a prompt, you're good. If it is still loading, give it another minute.",
+                "You opened your Codespace earlier. It should be ready now -- if the terminal is showing a prompt, you're good. If it is still loading, give it another minute.",
         },
 
         {
@@ -36,7 +36,7 @@ export default {
             variant: "backup-plan",
             audience: "builder",
             content:
-                "**Codespace won't open or your org has it disabled?** Two backup paths:\n\n**Option 1 — Run locally.** Clone [the repo](https://github.com/anthonyjdella/twilio-voice-ai), run `npm install` in the `workshop/` folder, and use [ngrok](https://ngrok.com) to expose port 8080 to Twilio. Full instructions are in Chapter 1 Step 5 under *Fallback: Local Dev + ngrok*. Requires Node.js 18+ installed on your laptop.\n\n**Option 2 (easier) — Switch to Explorer mode.** Explorer track is the observer path; you follow along with the concepts without writing code. Flip the track toggle at the top of the page and pair with a Builder next to you -- you'll still hear the agent and make test calls, just from the caller's side.",
+                "**Codespace won't open or your org has it disabled?** Two backup paths:\n\n**Option 1 — Run locally.** Clone [the repo](https://github.com/anthonyjdella/twilio-voice-ai), run `npm install` in the `workshop/` folder, and use [ngrok](https://ngrok.com) to expose port 8080 to Twilio. Full instructions for the ngrok fallback are coming up at the end of this chapter. Requires Node.js 18+ installed on your laptop.\n\n**Option 2 (easier) — Switch to Explorer mode.** Explorer track is the observer path; you follow along with the concepts without writing code. Flip the track toggle at the top of the page and pair with a Builder next to you -- you'll still hear the agent and make test calls, just from the caller's side.",
         },
 
         {
@@ -51,7 +51,7 @@ export default {
             type: "builder-only",
             audience: "explorer",
             context:
-                "**You can skip ahead whenever you're ready.** 'The Builder' is busy for a few minutes on this step.\n\n**What they are doing:** Typing their phone number into a small config file the agent reads at startup, so when the call is triggered later, it rings the right phone. They are also confirming the workshop's pre-shared Twilio and OpenAI keys landed correctly -- normally you would spend 20-30 minutes signing up for both services, but the workshop handles that for everyone so the call works on the first try.\n\n**What comes next:** In Chapter 2 the agent takes its first call. That is where you will actually hear it.",
+                "**You can skip ahead whenever you're ready.** 'The Builder' is busy for a few minutes on this step.\n\n**What they are doing:** Typing their phone number into a small config file the agent reads at startup, so when the call is triggered later, it rings the right phone. They are also confirming the workshop's pre-shared Twilio and OpenAI keys landed correctly -- normally you would spend 20-30 minutes signing up for both services, but the workshop handles that for everyone so the call works on the first try.\n\n**What comes next:** In the next chapter the agent takes its first call. That is where you will actually hear it.",
         },
 
         { type: "page-break" },

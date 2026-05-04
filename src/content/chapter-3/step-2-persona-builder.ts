@@ -9,17 +9,16 @@ export default {
       audience: "explorer",
       title: "Now Pick the Character",
       content:
-        "Step 1 showed what a system prompt does. This step is where you decide who your agent actually is -- a friendly assistant, a polished concierge, a casual helper, or something you write yourself. Same mechanics, completely different experience on the call.",
+        "The previous page showed what a system prompt does. This step is where you decide who your agent actually is -- a friendly assistant, a polished concierge, a casual helper, or something you write yourself. Same mechanics, completely different experience on the call.",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "Step 1 covered the mechanics -- what a system prompt is, how to write one for voice, and how to wire it into `conversationHistory`. This step is where you pick a persona and commit. Below are three presets that apply the Step 1 rules (short, conversational, no markdown), each with a different character and scope.",
+        "The previous page covered the mechanics -- what a system prompt is, how to write one for voice, and how to wire it into `conversationHistory`. This step is where you pick a persona and commit. Below are three presets that apply those rules (short, conversational, no markdown), each with a different character and scope.",
     },
 
-    { type: "page-break" },
 
     { type: "section", title: "Persona Examples" },
 
@@ -27,7 +26,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Each preset below is a complete `SYSTEM_PROMPT` you can drop in — three variants of the same shape, different persona text inside. Pick the one that matches the agent you want to build (or use them as a starting point for your own) and skip past the other two. **Replace the `SYSTEM_PROMPT` constant from Step 1** with your chosen text.",
+        "Each preset below is a complete `SYSTEM_PROMPT` you can drop in — three variants of the same shape, different persona text inside. Pick the one that matches the agent you want to build (or use them as a starting point for your own) and skip past the other two. **Replace the `SYSTEM_PROMPT` constant you added earlier** with your chosen text.",
     },
 
     {

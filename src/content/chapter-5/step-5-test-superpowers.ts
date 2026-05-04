@@ -130,7 +130,7 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
       audience: "explorer",
       title: "Optional Test: Multi-Tool Call",
       content:
-        'Try a question that needs two lookups in one breath: "What is the weather in Seattle, and can you check order ORD-12345?" The agent should answer both parts in a single reply. This test only works when both tools are on in the Step 2 picker -- if one is off, the agent can only answer the half it still has a tool for.',
+        'Try a question that needs two lookups in one breath: "What is the weather in Seattle, and can you check order ORD-12345?" The agent should answer both parts in a single reply. This test only works when both tools are on in the tool picker -- if one is off, the agent can only answer the half it still has a tool for.',
     },
 
     {
@@ -138,7 +138,7 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
       audience: "builder",
       title: "Optional Test: Joke Tool",
       content:
-        'Ask the agent: "Tell me a joke." The agent should call your `tell_joke` handler and come back with one of the strings you defined in Step 2. It is the simplest tool shape in the chapter -- a `function` with an empty `parameters` object and a handler that picks a random string -- so if it fires correctly, tool dispatch is wired end-to-end.',
+        'Ask the agent: "Tell me a joke." The agent should call your `tell_joke` handler and come back with one of the strings you defined earlier. It is the simplest tool shape in the chapter -- a `function` with an empty `parameters` object and a handler that picks a random string -- so if it fires correctly, tool dispatch is wired end-to-end.',
     },
 
     {
@@ -146,7 +146,7 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
       audience: "explorer",
       title: "Optional Test: Joke Tool",
       content:
-        'Ask the agent: "Tell me a joke." The agent should use its **Tell a Joke** tool and come back with a short one-liner. This test only works when Tell a Joke is on in the Step 2 picker -- if it is off, the agent will either make one up or explain it can not.',
+        'Ask the agent: "Tell me a joke." The agent should use its **Tell a Joke** tool and come back with a short one-liner. This test only works when Tell a Joke is on in the tool picker -- if it is off, the agent will either make one up or explain it can not.',
     },
 
     { type: "section", title: "Test 3: Handoff" },
@@ -162,7 +162,7 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
       type: "prose",
       audience: "explorer",
       content:
-        'Say: "I need to speak with a real person." What happens next depends on your Live Handoff toggle from Step 4. If Handoff is **on**, the agent should acknowledge the request and start the transfer. If Handoff is **off** (the default), the agent should politely decline and keep trying to help -- both outcomes are correct, depending on the toggle.',
+        'Say: "I need to speak with a real person." What happens next depends on your Live Handoff toggle. If Handoff is **on**, the agent should acknowledge the request and start the transfer. If Handoff is **off** (the default), the agent should politely decline and keep trying to help -- both outcomes are correct, depending on the toggle.',
     },
 
     {
@@ -196,10 +196,10 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
       question:
         "Did the agent use its tools and hand off when asked — weather, order, and live handoff?",
       troubleshooting: [
-        "Weather answer sounded made up? The agent ignored its tool. Head back to Pick Your Tools on Step 2 and confirm Check Weather is toggled on",
+        "Weather answer sounded made up? The agent ignored its tool. Head back to Pick Your Tools and confirm Check Weather is toggled on",
         "Order lookup didn't return the real shipping info? Same thing — check that Look Up Order is on, and try the exact order number ORD-12345",
         "Agent only answered half of a two-part question? That's normal on the first try — phone it again and say both parts in one sentence",
-        "Asked for a human and nothing happened? Handoff is off by default -- the toggle on Step 4 controls it",
+        "Asked for a human and nothing happened? Handoff is off by default -- the Live Handoff toggle controls it",
         "Call never connected? Re-enter your phone number in the Call Me box and try again",
       ],
     },

@@ -26,7 +26,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**Heads up -- this step is a refactor, not an add.** Before you paste the code further down, do these three things:\n\n- **Delete** `const conversationHistory = [...]` from inside `wss.on(\"connection\", ...)`.\n- **Delete** the entire `streamLLMResponse` function from Chapter 2.\n- **Keep** the `sendText(ws, token, last = false)` helper from Chapter 2 -- the new code uses it as-is (double-check the signature matches if you modified it).\n- **Paste** the new module-scope code at the **top of `server.js`**, outside any handler.\n\nIf you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and the interrupt handler -- plus Chapter 5's tool loop -- will write to the wrong array.",
+        "**Heads up -- this step is a refactor, not an add.** Before you paste the code further down, do these three things:\n\n- **Delete** `const conversationHistory = [...]` from inside `wss.on(\"connection\", ...)`.\n- **Delete** the entire `streamLLMResponse` function you wrote earlier.\n- **Keep** the `sendText(ws, token, last = false)` helper you already have -- the new code uses it as-is (double-check the signature matches if you modified it).\n- **Paste** the new module-scope code at the **top of `server.js`**, outside any handler.\n\nIf you paste additively without removing the old declarations, the per-connection variable shadows the module-scope one and the interrupt handler -- plus the tool loop coming later -- will write to the wrong array.",
     },
 
     { type: "section", title: "How Barge-In Works", audience: "builder" },
@@ -231,7 +231,7 @@ function handleMessage(ws, data) {
       audience: "builder",
       variant: "info",
       content:
-        "**Keep your persona.** The solution below uses a generic `SYSTEM_PROMPT` (\"helpful voice assistant for Acme Corp\") as the default. If you picked a specific persona in Chapter 3 Step 2 (Sam, Ms. Chen, or Jake), paste *your* `SYSTEM_PROMPT` from that step here instead -- the rest of the code does not change.",
+        "**Keep your persona.** The solution below uses a generic `SYSTEM_PROMPT` (\"helpful voice assistant for Acme Corp\") as the default. If you picked a specific persona when you built the agent's identity (Sam, Ms. Chen, or Jake), paste *your* `SYSTEM_PROMPT` here instead -- the rest of the code does not change.",
     },
 
     {
@@ -240,7 +240,7 @@ function handleMessage(ws, data) {
       file: "server.js",
       language: "javascript",
       explanation:
-        "The complete server after the Chapter 4 refactor: conversationHistory and activeStream move to module scope, streamResponse replaces streamLLMResponse with AbortController support, and handlePrompt/handleInterrupt/handleMessage are introduced.",
+        "The complete server after this refactor: conversationHistory and activeStream move to module scope, streamResponse replaces streamLLMResponse with AbortController support, and handlePrompt/handleInterrupt/handleMessage are introduced.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");

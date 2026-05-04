@@ -62,7 +62,7 @@ ws.send(JSON.stringify({
     {
       type: "prose",
       content:
-        "Dynamic language switching was introduced in Chapter 4. A multilingual agent can go further:",
+        "Dynamic language switching was covered earlier. A multilingual agent can go further:",
     },
 
     {

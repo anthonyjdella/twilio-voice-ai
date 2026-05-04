@@ -113,7 +113,7 @@ export default {
             audience: "builder",
             variant: "info",
             content:
-                "**Env vars used below.** The code references four environment variables, all pre-loaded in your Codespace:\n\n- `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` -- identify your Twilio account when placing outbound calls\n- `TWILIO_PHONE_NUMBER` -- the number calls originate from\n- `MY_PHONE_NUMBER` -- your personal number (set in Ch1 Step 4) that Twilio calls during testing\n\nUsing your own Twilio account later? Grab the SID/token from [console.twilio.com](https://console.twilio.com) and a voice-capable number from Phone Numbers.",
+                "**Env vars used below.** The code references four environment variables, all pre-loaded in your Codespace:\n\n- `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` -- identify your Twilio account when placing outbound calls\n- `TWILIO_PHONE_NUMBER` -- the number calls originate from\n- `MY_PHONE_NUMBER` -- your personal number (you set this during Codespace setup) that Twilio calls during testing\n\nUsing your own Twilio account later? Grab the SID/token from [console.twilio.com](https://console.twilio.com) and a voice-capable number from Phone Numbers.",
         },
 
         {
@@ -184,7 +184,7 @@ const server = http.createServer(async (req, res) => {
             audience: "explorer",
             title: "The Dials Already Turned",
             content:
-                "The instruction Twilio receives also carries a few settings such as which voice the agent speaks with (default is ElevenLabs), which service listens to the caller (default is Deepgram), and whether the caller is allowed to interrupt the AI mid-sentence (default is yes, by either voice or keypad). Chapter 3 is where the voice and transcription choices open up, and Chapter 4 is where interruption gets a full workout.",
+                "The instruction Twilio receives also carries a few settings such as which voice the agent speaks with (default is ElevenLabs), which service listens to the caller (default is Deepgram), and whether the caller is allowed to interrupt the AI mid-sentence (default is yes, by either voice or keypad). Voice and transcription choices open up in a later chapter, and interruption gets a full workout after that.",
         },
 
         {
@@ -225,7 +225,7 @@ const server = http.createServer(async (req, res) => {
             type: "prose",
             audience: "builder",
             content:
-                "**ttsProvider / transcriptionProvider** -- Defaults to **ElevenLabs** (text-to-speech) and **Deepgram** (speech-to-text) when omitted, which is why the TwiML above works without specifying them. You'll set these explicitly starting in Chapter 3 when you pick a voice and configure the language.",
+                "**ttsProvider / transcriptionProvider** -- Defaults to **ElevenLabs** (text-to-speech) and **Deepgram** (speech-to-text) when omitted, which is why the TwiML above works without specifying them. You'll set these explicitly later when you pick a voice and configure the language.",
         },
 
         {

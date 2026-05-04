@@ -33,7 +33,7 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "**Handoff is different from your other tools.** `check_weather` and `lookup_order` from Step 2 *continue* the conversation -- the AI gets data back and keeps talking. Handoff *ends* the AI session. Once the `end` message is sent, Twilio closes the WebSocket and the AI is out of the call entirely; the human picks up from there. You'll wire it into the same `tools` array for convenience, but mentally it belongs in its own category: a control-flow primitive, not a data lookup.",
+        "**Handoff is different from your other tools.** `check_weather` and `lookup_order` *continue* the conversation -- the AI gets data back and keeps talking. Handoff *ends* the AI session. Once the `end` message is sent, Twilio closes the WebSocket and the AI is out of the call entirely; the human picks up from there. You'll wire it into the same `tools` array for convenience, but mentally it belongs in its own category: a control-flow primitive, not a data lookup.",
     },
 
     { type: "page-break" },
@@ -115,7 +115,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**Update your existing `/twiml` response -- don't create a new one.** You already have a `<ConversationRelay>` element from Chapter 2. Add `action=\"/call-ended\"` to the surrounding `<Connect>` on *that* response, then add the `/call-ended` route below to the same `server.js`. If you forget the `action` attribute, Twilio has no URL to POST `handoffData` to when the session ends, and the `end` message will close the WebSocket without triggering any transfer TwiML -- the call will just hang up.",
+        "**Update your existing `/twiml` response -- don't create a new one.** You already have a `<ConversationRelay>` element from earlier. Add `action=\"/call-ended\"` to the surrounding `<Connect>` on *that* response, then add the `/call-ended` route below to the same `server.js`. If you forget the `action` attribute, Twilio has no URL to POST `handoffData` to when the session ends, and the `end` message will close the WebSocket without triggering any transfer TwiML -- the call will just hang up.",
     },
 
     {
@@ -129,7 +129,7 @@ export default {
      ttsProvider, welcomeGreeting, language, interruptible, etc. — untouched;
      the snippet below just shows where the new attribute goes. The
      Chirp3 / Google values are example placeholders only — do NOT swap
-     your Chapter 3 voice and ttsProvider picks for these. -->
+     the voice and ttsProvider picks you made earlier for these. -->
 <Response>
   <Connect action="/call-ended">
     <ConversationRelay
@@ -229,7 +229,7 @@ if (req.url === "/call-ended" && req.method === "POST") {
       type: "prose",
       audience: "builder",
       content:
-        "The cleanest approach is to give the AI a `transfer_to_agent` tool. Add this to the `tools` array and `toolHandlers` object in `tool-handlers.js` (alongside the tools from Step 2). When the AI decides the caller needs a human, it uses this tool, and your code sends the handoff message:",
+        "The cleanest approach is to give the AI a `transfer_to_agent` tool. Add this to the `tools` array and `toolHandlers` object in `tool-handlers.js` (alongside the tools you defined earlier). When the AI decides the caller needs a human, it uses this tool, and your code sends the handoff message:",
     },
 
     {

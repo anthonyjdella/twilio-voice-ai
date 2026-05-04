@@ -24,7 +24,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "On the protocol side this is a streamed sequence of outbound `text` JSON messages -- your server fires each chunk across the WebSocket as the LLM generates it, rather than buffering the full reply and sending it at the end. Conversation Relay's TTS provider starts speaking as it has enough text to synthesize a phrase, which is what keeps time to first word well below the full-response latency. You will send your first `text` JSON messages later in **Chapter 2 Step 4**.",
+        "On the protocol side this is a streamed sequence of outbound `text` JSON messages -- your server fires each chunk across the WebSocket as the LLM generates it, rather than buffering the full reply and sending it at the end. Conversation Relay's TTS provider starts speaking as it has enough text to synthesize a phrase, which is what keeps time to first word well below the full-response latency.",
     },
 
     { type: "section", title: "2. You Can Interrupt It" },
@@ -41,7 +41,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "The caller can cut the agent off mid-sentence. When that happens, Twilio sends you an `interrupt` JSON message with an `utteranceUntilInterrupt` field -- a string containing the fragment of your reply the caller actually heard before cutting in. Less than the full reply you sent, since the rest never finished playing. Your server has to remember that shorter version, not what it streamed, so the agent's next reply lines up with what the caller actually heard. The full handler is in **Chapter 4 Step 1**.",
+        "The caller can cut the agent off mid-sentence. When that happens, Twilio sends you an `interrupt` JSON message with an `utteranceUntilInterrupt` field -- a string containing the fragment of your reply the caller actually heard before cutting in. Less than the full reply you sent, since the rest never finished playing. Your server has to remember that shorter version, not what it streamed, so the agent's next reply lines up with what the caller actually heard. The full handler comes later in the workshop.",
     },
 
     { type: "section", title: "3. The Whole Round Trip Takes Under Two Seconds" },
@@ -58,7 +58,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Sub-2-second turn latency depends on Twilio and your server keeping a single **WebSocket** open for the entire call -- no fresh HTTP handshake per message, no reconnect delay between turns. The alternative, traditional HTTP webhooks, adds network round-trips per message cycle and makes token streaming impractical. You will open that WebSocket in **Chapter 2 Step 1**.",
+        "Sub-2-second turn latency depends on Twilio and your server keeping a single **WebSocket** open for the entire call -- no fresh HTTP handshake per message, no reconnect delay between turns. The alternative, traditional HTTP webhooks, adds network round-trips per message cycle and makes token streaming impractical.",
     },
   ],
 } satisfies StepDefinition;

@@ -44,7 +44,7 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "**Before you paste the code below, make these four changes to `server.js`:**\n\n- [ ] **Add** `const { tools, toolHandlers } = require(\"./tool-handlers.js\");` near the top with your other `require` statements\n- [ ] **Delete** the `handlePrompt` function (added in Chapter 4)\n- [ ] **Delete** your current `streamResponse` function (renamed from Chapter 2's `streamLLMResponse` back in Ch4 Step 1) -- the new `streamResponse` below replaces it\n- [ ] **Update** the `prompt` case inside `handleMessage` to call `streamResponse(ws)` directly -- see the diff below\n\nThe warnings below explain *why* each change matters. If anything behaves unexpectedly during Step 5 testing, come back to this checklist first.",
+        "**Before you paste the code below, make these four changes to `server.js`:**\n\n- [ ] **Add** `const { tools, toolHandlers } = require(\"./tool-handlers.js\");` near the top with your other `require` statements\n- [ ] **Delete** the `handlePrompt` function (added earlier)\n- [ ] **Delete** your current `streamResponse` function (renamed from the original `streamLLMResponse` when you added interrupts) -- the new `streamResponse` below replaces it\n- [ ] **Update** the `prompt` case inside `handleMessage` to call `streamResponse(ws)` directly -- see the diff below\n\nThe warnings below explain *why* each change matters. If anything behaves unexpectedly during the test call, come back to this checklist first.",
     },
 
     {
@@ -52,7 +52,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**Replace, don't append.** The `streamResponse(ws)` function below **replaces two things** from earlier chapters:\n\n1. **Delete `handlePrompt`** (from Chapter 4). The prompt case now pushes the user turn inline and calls `streamResponse(ws)` directly -- see the diff below.\n2. **Delete your current `streamResponse`** (renamed from Chapter 2's `streamLLMResponse` in Ch4 Step 1). The new `streamResponse` below is its successor -- same streaming idea, but with tool-call handling on top of what Ch4 built.\n\nIf you leave either old function in place alongside the new `streamResponse`, you'll have two `for await` loops fighting over the same `conversationHistory` and `activeStream` -- the tool-call branch will never fire because the old function gets the prompt first. `conversationHistory` and `activeStream` stay at module scope (set up in Chapter 4); only the stream loop itself is swapped.",
+        "**Replace, don't append.** The `streamResponse(ws)` function below **replaces two things** from earlier:\n\n1. **Delete `handlePrompt`**. The prompt case now pushes the user turn inline and calls `streamResponse(ws)` directly -- see the diff below.\n2. **Delete your current `streamResponse`** (renamed from the original `streamLLMResponse` when you added interrupts). The new `streamResponse` below is its successor -- same streaming idea, but with tool-call handling on top of what you already built.\n\nIf you leave either old function in place alongside the new `streamResponse`, you'll have two `for await` loops fighting over the same `conversationHistory` and `activeStream` -- the tool-call branch will never fire because the old function gets the prompt first. `conversationHistory` and `activeStream` stay at module scope (set up earlier); only the stream loop itself is swapped.",
     },
 
     {
@@ -164,7 +164,7 @@ async function streamResponse(ws, iteration = 0) {
         // Flush whole sentences through processLLMResponse so any
         // [LANG:xx-XX] marker is stripped and the language switch
         // message reaches Twilio before the text is spoken. If you
-        // skipped Ch4 Step 4 (language switching), processLLMResponse
+        // skipped the language-switching step, processLLMResponse
         // is still defined there -- either port the function over or
         // simplify this branch to just sendText(ws, delta.content).
         const match = textBuffer.match(/[.!?](\\s|$)/);
@@ -293,7 +293,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
         result = { error: \`Unknown tool: \${fnName}\` };
       } else {
         // Pass ws so handlers that need to send messages mid-call
-        // (e.g. transfer_to_agent in step 4) can reach the socket.
+        // (e.g. the transfer tool added later) can reach the socket.
         result = await handler(fnArgs, ws);
       }
     } catch (err) {
@@ -353,7 +353,7 @@ async function handleToolCalls(ws, toolCalls, iteration = 0) {
       file: "server.js",
       language: "javascript",
       explanation:
-        "The complete `server.js` at the end of this step. Building on Chapter 4 Step 4: `tool-handlers.js` is required at the top, `streamLLMResponse`/`handlePrompt` are gone, `streamResponse` passes `tools` to OpenAI and accumulates tool-call deltas, `handleToolCalls` dispatches each call through `toolHandlers`, and the `prompt` case in `handleMessage` now pushes the user turn and calls `streamResponse(ws)` directly. `MAX_TOOL_ITERATIONS` bounds recursion and `SLOW_TOOLS` triggers a filler message so the caller hears something during slow lookups.",
+        "The complete `server.js` at the end of this step. Building on the language-switching step: `tool-handlers.js` is required at the top, `streamLLMResponse`/`handlePrompt` are gone, `streamResponse` passes `tools` to OpenAI and accumulates tool-call deltas, `handleToolCalls` dispatches each call through `toolHandlers`, and the `prompt` case in `handleMessage` now pushes the user turn and calls `streamResponse(ws)` directly. `MAX_TOOL_ITERATIONS` bounds recursion and `SLOW_TOOLS` triggers a filler message so the caller hears something during slow lookups.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");

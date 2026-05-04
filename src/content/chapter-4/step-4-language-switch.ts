@@ -109,7 +109,7 @@ LANGUAGE DETECTION:
       audience: "builder",
       variant: "info",
       content:
-        "**This is a new function.** Add `processLLMResponse` to your `server.js`; it does not replace anything from Step 1.",
+        "**This is a new function.** Add `processLLMResponse` to your `server.js`; it does not replace anything else.",
     },
 
     {
@@ -169,7 +169,7 @@ function processLLMResponse(ws, text) {
       type: "prose",
       audience: "builder",
       content:
-        "**Replace your Step 1 `streamResponse` with this version.** The old one sent every token to Twilio the moment it arrived, which would speak the `[LANG:xx-XX]` marker out loud before the helper had a chance to strip it. The fix is to buffer tokens until a sentence ends, then run each full sentence through `processLLMResponse` before speaking it.",
+        "**Replace your existing `streamResponse` with this version.** The old one sent every token to Twilio the moment it arrived, which would speak the `[LANG:xx-XX]` marker out loud before the helper had a chance to strip it. The fix is to buffer tokens until a sentence ends, then run each full sentence through `processLLMResponse` before speaking it.",
     },
 
     {
@@ -177,7 +177,7 @@ function processLLMResponse(ws, text) {
       audience: "builder",
       variant: "warning",
       content:
-        "**This is a full replacement.** If you paste it next to your Step 1 `streamResponse` without deleting the old one, both functions will run and the caller will hear duplicated or overlapping audio.",
+        "**This is a full replacement.** If you paste it next to your existing `streamResponse` without deleting the old one, both functions will run and the caller will hear duplicated or overlapping audio.",
     },
 
     {
@@ -289,7 +289,7 @@ function processLLMResponse(ws, text) {
       file: "server.js",
       language: "javascript",
       explanation:
-        "Builds on step 3 by adding a LANGUAGE DETECTION section to the system prompt, a LANG_MARKER_REGEX constant, currentLanguage tracking, and a processLLMResponse function that detects language markers and sends a language switch message to Twilio. streamResponse now buffers tokens into whole sentences and routes each through processLLMResponse, so the [LANG:xx-XX] marker is stripped and the language message reaches Twilio before the new-language text is spoken.",
+        "Builds on the previous step by adding a LANGUAGE DETECTION section to the system prompt, a LANG_MARKER_REGEX constant, currentLanguage tracking, and a processLLMResponse function that detects language markers and sends a language switch message to Twilio. streamResponse now buffers tokens into whole sentences and routes each through processLLMResponse, so the [LANG:xx-XX] marker is stripped and the language message reaches Twilio before the new-language text is spoken.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");

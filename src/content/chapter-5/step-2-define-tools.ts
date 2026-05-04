@@ -54,7 +54,7 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "Create a new file `tool-handlers.js` in the same folder as `server.js`. We'll build it up in two passes: first the `tools` schema array (below), then the `toolHandlers` dispatch map. Everything exported from this one file so `server.js` can `require(\"./tool-handlers.js\")` in Step 3.",
+        "Create a new file `tool-handlers.js` in the same folder as `server.js`. We'll build it up in two passes: first the `tools` schema array (below), then the `toolHandlers` dispatch map. Everything exported from this one file so `server.js` can `require(\"./tool-handlers.js\")` on the next page.",
     },
 
     {
@@ -199,7 +199,7 @@ export default {
       file: "tool-handlers.js",
       code: `// Map of tool name -> handler function
 // Every handler accepts (args, ws). Most only use args; transfer_to_agent
-// in step 4 also uses ws to send an "end" message mid-call.
+// (added later) also uses ws to send an "end" message mid-call.
 const toolHandlers = {
   // The schema also declares a "unit" parameter (fahrenheit|celsius);
   // this teaching version ignores it for clarity. The solution at the
@@ -297,7 +297,7 @@ module.exports = { tools, toolHandlers };`,
       type: "solution",
       audience: "builder",
       explanation:
-        "`tool-handlers.js` holds the `tools` schema plus the `toolHandlers` dispatch map and exports both. `server.js` requires that module and passes the `tools` array into every `openai.chat.completions.create` call. Switch between the two files with the tabs above the code.\n\nHeads-up on the `streamResponse` function in this solution: it is the baseline for Step 2 only. Step 3 replaces it with a tool-aware version that handles tool calls and recursion. Do not invest time polishing the Step 2 version -- you will overwrite it next step.",
+        "`tool-handlers.js` holds the `tools` schema plus the `toolHandlers` dispatch map and exports both. `server.js` requires that module and passes the `tools` array into every `openai.chat.completions.create` call. Switch between the two files with the tabs above the code.\n\nHeads-up on the `streamResponse` function in this solution: it is the baseline for this page only. The next page replaces it with a tool-aware version that handles tool calls and recursion. Do not invest time polishing this version -- you will overwrite it next.",
       files: [
         {
           file: "tool-handlers.js",

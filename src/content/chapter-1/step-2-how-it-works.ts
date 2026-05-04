@@ -162,7 +162,7 @@ export default {
             type: "prose",
             audience: "builder",
             content:
-                "That's the map at the component level. The next step zooms into what **one conversational turn** actually looks like -- streaming, interruption, latency -- so you have a clear picture of the moving parts before you start writing the code in Chapter 2.",
+                "That's the map at the component level. The next step zooms into what **one conversational turn** actually looks like -- streaming, interruption, latency -- so you have a clear picture of the moving parts before you start writing code.",
         },
     ],
 } satisfies StepDefinition;

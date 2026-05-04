@@ -188,7 +188,7 @@ if (req.url === "/twiml" && req.method === "POST") {
       type: "callout",
       variant: "tip",
       content:
-        "Match the voice to the persona you picked in Step 2. **Professional Concierge** pairs with a polished, clear voice. **Casual Helper** sounds best with something warmer and more relaxed. **Friendly Assistant** sits in between -- any of the defaults will land well.",
+        "Match the voice to the persona you picked earlier. **Professional Concierge** pairs with a polished, clear voice. **Casual Helper** sounds best with something warmer and more relaxed. **Friendly Assistant** sits in between -- any of the defaults will land well.",
     },
 
     {
@@ -225,7 +225,7 @@ if (req.url === "/twiml" && req.method === "POST") {
       file: "server.js",
       language: "javascript",
       explanation:
-        "The complete `server.js` at the end of this step. The only change from Chapter 3 Step 1 is inside the `/twiml` handler: the `ConversationRelay` element now declares `voice=\"21m00Tcm4TlvDq8ikWAM\"` (Rachel's ElevenLabs voice ID) and `ttsProvider=\"ElevenLabs\"` so Twilio uses that voice for the whole call. Swap in any voice/provider combo from the tables above.",
+        "The complete `server.js` at the end of this step. The only change from the previous step is inside the `/twiml` handler: the `ConversationRelay` element now declares `voice=\"21m00Tcm4TlvDq8ikWAM\"` (Rachel's ElevenLabs voice ID) and `ttsProvider=\"ElevenLabs\"` so Twilio uses that voice for the whole call. Swap in any voice/provider combo from the tables above.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");

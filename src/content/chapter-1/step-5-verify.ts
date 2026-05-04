@@ -7,7 +7,7 @@ export default {
             audience: "explorer",
             illustration: "/images/illustrations/lego-building.svg",
             context:
-                "**You can skip ahead to Chapter 2 whenever you are ready.** 'The Builder' is finishing a quick setup check before the first phone call.\n\n**What they are doing:** Confirming that their server's network port is publicly reachable so Twilio can deliver the call. It is usually public already, but sometimes needs to be flipped in a tab in their code editor. Takes less than a minute.\n\n**What comes next:** In Chapter 2 the agent takes its first call. That is where you will actually hear it.",
+                "**You can skip ahead whenever you are ready.** 'The Builder' is finishing a quick setup check before the first phone call.\n\n**What they are doing:** Confirming that their server's network port is publicly reachable so Twilio can deliver the call. It is usually public already, but sometimes needs to be flipped in a tab in their code editor. Takes less than a minute.\n\n**What comes next:** In the next chapter the agent takes its first call. That is where you will actually hear it.",
         },
 
         {
@@ -20,7 +20,7 @@ export default {
             type: "prose",
             audience: "builder",
             content:
-                "Twilio needs to reach your server over the internet. Port 8080 (the one your server will listen on in Chapter 2) is configured to be **Public** automatically -- but on some GitHub accounts or org policies, it can come up Private on first boot. Take 30 seconds to confirm, and flip it to Public if needed.",
+                "Twilio needs to reach your server over the internet. Port 8080 (the one your server will listen on) is configured to be **Public** automatically -- but on some GitHub accounts or org policies, it can come up Private on first boot. Take 30 seconds to confirm, and flip it to Public if needed.",
         },
 
         {

@@ -69,7 +69,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**Finding Your WebSocket URL.** In your Codespace, open the **Ports** tab and copy the forwarded URL for port 8080 -- it looks like `https://fluffy-octopus-abc123-8080.app.github.dev/`. In the widget below, swap `https://` for `wss://` and append `/ws` at the end. Final format: `wss://fluffy-octopus-abc123-8080.app.github.dev/ws`. The `/ws` path is required -- that's the route your WebSocket server is listening on from Chapter 2 Step 1.",
+        "**Finding Your WebSocket URL.** In your Codespace, open the **Ports** tab and copy the forwarded URL for port 8080 -- it looks like `https://fluffy-octopus-abc123-8080.app.github.dev/`. In the widget below, swap `https://` for `wss://` and append `/ws` at the end. Final format: `wss://fluffy-octopus-abc123-8080.app.github.dev/ws`. The `/ws` path is required -- that's the route your WebSocket server is listening on.",
     },
 
     { type: "call-me" },
@@ -84,7 +84,7 @@ export default {
       type: "prose",
       audience: "explorer",
       content:
-        "Try speaking while the AI is talking -- it will pause. In Chapter 4, you will see how the agent handles interruptions cleanly.",
+        "Try speaking while the AI is talking -- it will pause. Later in the workshop, you'll see how the agent handles interruptions cleanly.",
     },
 
     {

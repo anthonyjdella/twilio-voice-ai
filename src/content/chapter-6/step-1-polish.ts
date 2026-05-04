@@ -64,7 +64,7 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "**Apply this to your persona.** The \"Ava\" example below is one worked version of the checklist -- use it as a reference pattern, not a replacement for the persona you picked in Chapter 3. Keep your agent's name and company, then layer on the missing pieces (capabilities, boundaries, tone specifics) using this as the template.",
+        "**Apply this to your persona.** The \"Ava\" example below is one worked version of the checklist -- use it as a reference pattern, not a replacement for the persona you picked earlier. Keep your agent's name and company, then layer on the missing pieces (capabilities, boundaries, tone specifics) using this as the template.",
     },
 
     {
@@ -115,7 +115,7 @@ VOICE GUIDELINES:
       audience: "builder",
       variant: "info",
       content:
-        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** -- don't paste it as a second route. You already have a TwiML response with `dtmfDetection`, `interruptible`, and `reportInputDuringAgentSpeech` from Chapter 4, plus `language`, `transcriptionProvider`, and `speechModel` from Chapter 3 Step 4; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`.",
+        "**This replaces the `<ConversationRelay>` element in your existing `/twiml` handler** -- don't paste it as a second route. You already have a TwiML response with `dtmfDetection`, `interruptible`, and `reportInputDuringAgentSpeech` from the reflexes chapter, plus `language`, `transcriptionProvider`, and `speechModel` from the language configuration step; this step adds new attributes (`voice`, `ttsProvider`, `interruptSensitivity`, `welcomeGreetingInterruptible`, `hints`) onto the same element and introduces `action=\"/call-ended\"` on `<Connect>`.",
     },
 
     {
@@ -283,7 +283,7 @@ VOICE GUIDELINES:
       file: "server.js",
       language: "javascript",
       explanation:
-        "The complete polished server.js with everything from all chapters: tool calling, interruptions, DTMF, silence detection, language switching, handoff support, and error handling.",
+        "The complete polished server.js with everything from the workshop: tool calling, interruptions, DTMF, silence detection, language switching, handoff support, and error handling.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");
@@ -303,12 +303,12 @@ const twilioClient = twilio(
 );
 
 // --- System prompt ---
-// Paste your Chapter 3 persona's SYSTEM_PROMPT here, layered with the
+// Paste your persona's SYSTEM_PROMPT here, layered with the
 // PERSONALITY / CAPABILITIES / BOUNDARIES / VOICE GUIDELINES / LANGUAGE
 // DETECTION structure shown in the Ava example above. Don't overwrite
-// your Ch3 persona with the example verbatim.
+// your persona with the example verbatim.
 
-const SYSTEM_PROMPT = \`<-- paste your Chapter 3 SYSTEM_PROMPT here -->\`;
+const SYSTEM_PROMPT = \`<-- paste your SYSTEM_PROMPT here -->\`;
 
 // --- Module-scope state (single-caller workshop server) ---
 

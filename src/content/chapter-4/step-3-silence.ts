@@ -143,7 +143,7 @@ function handleSilence(ws) {
       type: "prose",
       audience: "builder",
       content:
-        "Second, inside your **existing** `wss.on(\"connection\", ...)` callback from Chapter 2, add a `ws.on(\"close\", ...)` handler that clears the timer when the call ends. Don't paste a second `wss.on(\"connection\")` -- nest the new close handler alongside the `ws.on(\"message\", ...)` you already have:",
+        "Second, inside your **existing** `wss.on(\"connection\", ...)` callback, add a `ws.on(\"close\", ...)` handler that clears the timer when the call ends. Don't paste a second `wss.on(\"connection\")` -- nest the new close handler alongside the `ws.on(\"message\", ...)` you already have:",
     },
 
     {
@@ -221,7 +221,7 @@ function handleSilence(ws) {
       file: "server.js",
       language: "javascript",
       explanation:
-        "Builds on step 2 by adding silence detection constants, a resetSilenceTimer/handleSilence pair, integrating timer resets into every handleMessage case, and clearing the timer on WebSocket close.",
+        "Builds on the previous step by adding silence detection constants, a resetSilenceTimer/handleSilence pair, integrating timer resets into every handleMessage case, and clearing the timer on WebSocket close.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");

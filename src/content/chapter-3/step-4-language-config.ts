@@ -83,7 +83,7 @@ export default {
             type: "prose",
             audience: "builder",
             content:
-                "Here is the same configuration using Google as the speech recognition provider, with Spanish as the language. Notice that `voice` and `ttsProvider` also switch to Google here -- ElevenLabs' Spanish voice coverage is narrower than Google's, so for non-English you often pair Google STT with a Google TTS voice. If you are staying in English, keep your ElevenLabs voice from Step 3.",
+                "Here is the same configuration using Google as the speech recognition provider, with Spanish as the language. Notice that `voice` and `ttsProvider` also switch to Google here -- ElevenLabs' Spanish voice coverage is narrower than Google's, so for non-English you often pair Google STT with a Google TTS voice. If you are staying in English, keep the ElevenLabs voice you picked earlier.",
         },
 
         {
@@ -208,7 +208,7 @@ if (req.url === "/twiml" && req.method === "POST") {
             file: "server.js",
             language: "javascript",
             explanation:
-                'The complete `server.js` at the end of this step. Building on Chapter 3 Step 3, the `/twiml` handler now also declares `language="en-US"`, `transcriptionProvider="Deepgram"`, and `speechModel="nova-3-general"` so the speech recognizer is tuned for English phone audio. Swap the language code and provider to match the caller\'s language.',
+                'The complete `server.js` at the end of this step. Building on the voice-selection step, the `/twiml` handler now also declares `language="en-US"`, `transcriptionProvider="Deepgram"`, and `speechModel="nova-3-general"` so the speech recognizer is tuned for English phone audio. Swap the language code and provider to match the caller\'s language.',
             code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");

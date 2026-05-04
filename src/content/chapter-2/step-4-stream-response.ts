@@ -125,7 +125,7 @@ const openai = new OpenAI({
       audience: "builder",
       variant: "info",
       content:
-        "**Heads up — this function will evolve.** You'll build `streamLLMResponse` here as the simplest possible version: take a prompt, stream a reply. Over the next three chapters it gets refactored (Ch4 Step 1 moves it to module scope and renames it `streamResponse`) and replaced twice (Ch4 Step 4 for language switching, Ch5 Step 3 for tool calling). That's expected — every refactor is signposted where it happens. Start with the small version here.",
+        "**Heads up — this function will evolve.** You'll build `streamLLMResponse` here as the simplest possible version: take a prompt, stream a reply. Over the next few chapters it gets refactored (later it moves to module scope and is renamed `streamResponse`) and replaced twice (once for language switching, once for tool calling). That's expected — every refactor is signposted where it happens. Start with the small version here.",
     },
 
     {
@@ -192,7 +192,7 @@ async function streamLLMResponse(ws, conversationHistory) {
       type: "prose",
       audience: "builder",
       content:
-        "Find the `case \"prompt\":` block in your `wss.on(\"message\", ...)` handler (look for the `// TODO: Send to LLM and stream response back` comment from Step 3) and replace the whole block with this -- the highlighted line is the new call to your streaming function:",
+        "Find the `case \"prompt\":` block in your `wss.on(\"message\", ...)` handler (look for the `// TODO: Send to LLM and stream response back` comment you added earlier) and replace the whole block with this -- the highlighted line is the new call to your streaming function:",
     },
 
     {

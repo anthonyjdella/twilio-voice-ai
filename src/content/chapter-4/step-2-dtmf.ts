@@ -79,7 +79,7 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "**Using `streamResponse` from Step 1.** The `case \"1\":` branch below pushes a synthetic user turn into `conversationHistory` and calls `streamResponse(ws)` -- the helper extracted in Step 1. `streamResponse` reads from module-scope `conversationHistory`, so you don't pass it explicitly.",
+        "**Using `streamResponse`.** The `case \"1\":` branch below pushes a synthetic user turn into `conversationHistory` and calls `streamResponse(ws)` -- the helper extracted earlier in this chapter. `streamResponse` reads from module-scope `conversationHistory`, so you don't pass it explicitly.",
     },
 
     {
@@ -156,7 +156,7 @@ function handleDtmfInput(ws, digit) {
       audience: "builder",
       variant: "info",
       content:
-        "**Adapting the menu to your persona.** The example uses \"check my order status\" because that is a common support flow. If you picked a different persona back in Chapter 3, swap the synthetic prompt so the keypad shortcut fits your agent:\n\n- **Sam (Sunny Day Travel)** -- `\"Can you give me an update on my trip?\"`\n- **Ms. Chen (Hotel Concierge)** -- `\"What's the status of my reservation?\"`\n- **Jake (Pete's Pizza)** -- `\"Where is my pizza order?\"`\n\nOption 2 (speak to a human) and option 0 (main menu) stay the same across personas.",
+        "**Adapting the menu to your persona.** The example uses \"check my order status\" because that is a common support flow. If you picked a different persona earlier, swap the synthetic prompt so the keypad shortcut fits your agent:\n\n- **Sam (Sunny Day Travel)** -- `\"Can you give me an update on my trip?\"`\n- **Ms. Chen (Hotel Concierge)** -- `\"What's the status of my reservation?\"`\n- **Jake (Pete's Pizza)** -- `\"Where is my pizza order?\"`\n\nOption 2 (speak to a human) and option 0 (main menu) stay the same across personas.",
     },
 
     { type: "page-break" },
@@ -252,7 +252,7 @@ sendDigits(ws, "3");  // Press 3 for billing`,
       file: "server.js",
       language: "javascript",
       explanation:
-        "Builds on step 1 by adding handleDtmfInput with a menu system, a sendDigits helper for outbound tones, and routing the dtmf message type to handleDtmfInput. DTMF is an always-available shortcut -- the welcomeGreeting already greeted the caller, so we do not auto-play a spoken menu on setup.",
+        "Builds on the previous step by adding handleDtmfInput with a menu system, a sendDigits helper for outbound tones, and routing the dtmf message type to handleDtmfInput. DTMF is an always-available shortcut -- the welcomeGreeting already greeted the caller, so we do not auto-play a spoken menu on setup.",
       code: `require("dotenv").config();
 const { WebSocketServer } = require("ws");
 const http = require("http");

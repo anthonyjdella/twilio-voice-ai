@@ -95,7 +95,7 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
       type: "prose",
       audience: "builder",
       content:
-        "The agent does not speak a menu -- DTMF is a silent shortcut wired up in `handleDtmfInput`. With the code from Step 2 you should see:\n\n- **1** -- the agent starts talking about your order status (a synthetic user turn is pushed into `conversationHistory` and sent to the LLM).\n- **2** -- the agent offers to transfer you to a representative.\n- **0** -- the agent reads out the keypad options.\n- any other digit -- the agent says it didn't recognize that option.",
+        "The agent does not speak a menu -- DTMF is a silent shortcut wired up in `handleDtmfInput`. With the DTMF code in place you should see:\n\n- **1** -- the agent starts talking about your order status (a synthetic user turn is pushed into `conversationHistory` and sent to the LLM).\n- **2** -- the agent offers to transfer you to a representative.\n- **0** -- the agent reads out the keypad options.\n- any other digit -- the agent says it didn't recognize that option.",
     },
 
     {
@@ -146,7 +146,7 @@ $ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"
       audience: "builder",
       variant: "tip",
       content:
-        "Language switching is the most optional feature in this chapter. If you skipped Step 4 or the LLM does not reliably produce the language marker, that is OK -- the other three tests are the critical ones.",
+        "Language switching is the most optional feature in this chapter. If you skipped the language-switching step or the LLM does not reliably produce the language marker, that is OK -- the other three tests are the critical ones.",
     },
 
     {
