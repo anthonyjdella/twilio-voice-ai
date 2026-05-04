@@ -156,7 +156,7 @@ function handleDtmfInput(ws, digit) {
       audience: "builder",
       variant: "info",
       content:
-        "**Adapting the menu to your persona.** The example uses \"check my order status\" because that is a common support flow. If you picked a different persona earlier, swap the synthetic prompt so the keypad shortcut fits your agent:\n\n- **Sam (Sunny Day Travel)** -- `\"Can you give me an update on my trip?\"`\n- **Ms. Chen (Hotel Concierge)** -- `\"What's the status of my reservation?\"`\n- **Jake (Pete's Pizza)** -- `\"Where is my pizza order?\"`\n\nOption 2 (speak to a human) and option 0 (main menu) stay the same across personas.",
+        "**Adapting the menu to your persona.** The example uses \"check my order status\" because that is a common support flow. If you picked a different persona earlier, swap the synthetic prompt so the keypad shortcut fits your agent:\n\n- **Sam (Twilio Airways)** -- `\"Can you give me an update on my flight?\"`\n- **Ms. Chen (Twilio Grand Hotel)** -- `\"What's the status of my reservation?\"`\n- **Jake (Twilio Pizza Co.)** -- `\"Where is my pizza order?\"`\n\nOption 2 (speak to a human) and option 0 (main menu) stay the same across personas.",
     },
 
     { type: "page-break" },
