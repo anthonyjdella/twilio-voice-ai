@@ -79,7 +79,7 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "**Using `streamResponse`.** The `case \"1\":` branch below pushes a synthetic user turn into `conversationHistory` and calls `streamResponse(ws)` -- the helper extracted earlier in this chapter. `streamResponse` reads from module-scope `conversationHistory`, so you don't pass it explicitly.",
+        "**Why push a fake user turn?** The `case \"1\":` branch writes `\"I want to check my order status.\"` to `conversationHistory` as if the caller had said it, then calls `streamResponse(ws)`. This lets the LLM respond to a button press using the same conversational path it uses for speech -- no separate DTMF branch in the prompt.",
     },
 
     {
