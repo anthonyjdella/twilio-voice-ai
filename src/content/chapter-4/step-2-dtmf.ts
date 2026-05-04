@@ -10,7 +10,7 @@ export default {
       audience: "explorer",
       title: "Keypad = Accessibility + Accuracy",
       content:
-        "DTMF is the old-school phone keypad -- the beeps when you press 1, 2, 3. It's still the most reliable way to capture exact info: credit card digits, account numbers, a menu selection in a noisy room. Supporting the keypad alongside natural speech makes the agent work for callers who can't speak (or just shouldn't, in a meeting) without losing the conversational feel for everyone else.",
+        "DTMF (**D**ual-**T**one **M**ulti-**F**requency) is the old-school phone keypad -- the beeps when you press 1, 2, 3. It's still the most reliable way to capture exact info: credit card digits, account numbers, a menu selection in a noisy room. Supporting the keypad alongside natural speech makes the agent work for callers who can't speak (or just shouldn't, in a meeting) without losing the conversational feel for everyone else.",
     },
 
     {
@@ -24,7 +24,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "When a caller presses keys on their phone keypad (like \"press 1 for support\"), those are DTMF tones. Twilio detects these keypresses and sends a WebSocket message with the digit, so you can build menu options alongside the AI conversation.",
+        "When a caller presses keys on their phone keypad (like \"press 1 for support\"), those are **DTMF** (**D**ual-**T**one **M**ulti-**F**requency) tones -- the two-tone beeps the phone system has used since the 1960s to signal digits across the line. Twilio detects these keypresses and sends a WebSocket message with the digit, so you can build menu options alongside the AI conversation.",
     },
 
     {
