@@ -64,7 +64,7 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "**Apply this to your persona.** The \"Ava\" example below is one worked version of the checklist -- use it as a reference pattern, not a replacement for the persona you picked earlier. Keep your agent's name and company, then layer on the missing pieces (capabilities, boundaries, tone specifics) using this as the template.",
+        "**Apply this to your persona.** The \"Jake\" example below is one worked version of the checklist -- use it as a reference pattern, not a replacement for the persona you picked earlier. Keep your agent's name and company, then layer on the missing pieces (capabilities, boundaries, tone specifics) using this as the template.",
     },
 
     {
@@ -72,7 +72,7 @@ export default {
       audience: "builder",
       language: "javascript",
       file: "server.js",
-      code: `const systemPrompt = \`You are Ava, a customer service agent for Twilio-Mart.
+      code: `const systemPrompt = \`You are Jake from Twilio Pizza Co.
 
 PERSONALITY:
 - Warm, professional, and concise
@@ -88,7 +88,7 @@ CAPABILITIES:
 BOUNDARIES:
 - Never make promises about refunds or policy exceptions
 - Do not share internal pricing or systems information
-- If asked about competitors, politely redirect to Twilio-Mart services
+- If asked about competitors, politely redirect to Twilio Pizza Co.
 - For account changes (password, email, billing), always transfer to a human
 
 VOICE GUIDELINES:
@@ -139,7 +139,7 @@ VOICE GUIDELINES:
       welcomeGreeting="Hello! How can I help you today?"
       welcomeGreetingInterruptible="speech"
       reportInputDuringAgentSpeech="dtmf"
-      hints="Twilio-Mart, order status, transfer, refund"
+      hints="Twilio Pizza Co., order status, transfer, refund"
     />
   </Connect>
 </Response>`,
@@ -305,7 +305,7 @@ const twilioClient = twilio(
 // --- System prompt ---
 // Paste your persona's SYSTEM_PROMPT here, layered with the
 // PERSONALITY / CAPABILITIES / BOUNDARIES / VOICE GUIDELINES / LANGUAGE
-// DETECTION structure shown in the Ava example above. Don't overwrite
+// DETECTION structure shown in the Jake example above. Don't overwrite
 // your persona with the example verbatim.
 
 const SYSTEM_PROMPT = \`<-- paste your SYSTEM_PROMPT here -->\`;
@@ -627,7 +627,7 @@ const server = http.createServer(async (req, res) => {
       welcomeGreeting="Hello! How can I help you today?"
       welcomeGreetingInterruptible="speech"
       reportInputDuringAgentSpeech="dtmf"
-      hints="Twilio-Mart, order status, transfer, refund"
+      hints="Twilio Pizza Co., order status, transfer, refund"
     />
   </Connect>
 </Response>\`;
