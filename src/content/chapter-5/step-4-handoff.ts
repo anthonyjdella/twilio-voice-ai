@@ -88,7 +88,7 @@ export default {
       messageType: "end",
       code: `{
   "type": "end",
-  "handoffData": "{\\"reasonCode\\":\\"live-agent-handoff\\",\\"reason\\":\\"billing_dispute\\",\\"summary\\":\\"Caller wants to dispute a charge of $49.99 on order ORD-12345. AI was unable to process the refund.\\",\\"callerId\\":\\"+15551234567\\"}"
+  "handoffData": "{\\"reasonCode\\":\\"live-agent-handoff\\",\\"reason\\":\\"billing_dispute\\",\\"summary\\":\\"Caller wants to dispute a charge of $49.99 on order 123. AI was unable to process the refund.\\",\\"callerId\\":\\"+15551234567\\"}"
 }`,
     },
 
@@ -359,7 +359,7 @@ transfer_to_agent: async ({ reason, department, summary }, ws) => {
         properties: {
           order_id: {
             type: "string",
-            description: "The order ID, e.g. 'ORD-12345'"
+            description: "The order ID, e.g. '123'"
           }
         },
         required: ["order_id"]
@@ -419,8 +419,8 @@ const toolHandlers = {
 
   lookup_order: async ({ order_id }, _ws) => {
     const mockOrders = {
-      "ORD-12345": { status: "shipped", tracking: "1Z999AA10123456784", eta: "March 15, 2026" },
-      "ORD-67890": { status: "processing", tracking: null, eta: "March 20, 2026" },
+      "123": { status: "shipped", tracking: "1Z999AA10123456784", eta: "May 7, 2026" },
+      "456": { status: "processing", tracking: null, eta: "May 7, 2026" },
     };
     const order = mockOrders[order_id];
     if (!order) {

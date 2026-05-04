@@ -98,19 +98,19 @@ Server listening on port 8080`,
     {
       type: "prose",
       content:
-        "The workshop pre-loaded a few sample orders you can ask about (`ORD-12345`, `ORD-67890`, `ORD-11111`). Any of them work — they are fake orders built into the workshop's tool so every attendee gets a live lookup without needing a real database behind the agent.",
+        "The workshop pre-loaded a few sample orders you can ask about (`123`, `456`, `789`). Any of them work — they are fake orders built into the workshop's tool so every attendee gets a live lookup without needing a real database behind the agent.",
     },
 
     {
       type: "prose",
       content:
-        'Try: "Can you check the status of order ORD-12345?"',
+        'Try: "Can you check the status of order 123?"',
     },
 
     {
       type: "prose",
       content:
-        'The agent should look up the order and report the shipping status and tracking number. Then try an order that does not exist: "What about order ORD-99999?" The agent should let the caller know it could not find that order.',
+        'The agent should look up the order and report the shipping status and delivery date. Then try an order that does not exist: "What about order 999?" The agent should let the caller know that order is not in the mock data.',
     },
 
     { type: "page-break" },
@@ -120,7 +120,7 @@ Server listening on port 8080`,
       audience: "builder",
       title: "Optional Test: Multi-Tool Call",
       content:
-        'Ask a question that needs multiple lookups at once: "What is the weather in Seattle, and can you check order ORD-67890?" The agent should answer both questions in one response. If it only answers half, make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again.',
+        'Ask a question that needs multiple lookups at once: "What is the weather in Seattle, and can you check order 456?" The agent should answer both questions in one response. If it only answers half, make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again.',
     },
 
     {
@@ -128,7 +128,7 @@ Server listening on port 8080`,
       audience: "explorer",
       title: "Optional Test: Multi-Tool Call",
       content:
-        'Try a question that needs two lookups in one breath: "What is the weather in Seattle, and can you check order ORD-12345?" The agent should answer both parts in a single reply. This test only works when both tools are on in the tool picker -- if one is off, the agent can only answer the half it still has a tool for.',
+        'Try a question that needs two lookups in one breath: "What is the weather in Seattle, and can you check order 123?" The agent should answer both parts in a single reply. This test only works when both tools are on in the tool picker -- if one is off, the agent can only answer the half it still has a tool for.',
     },
 
     {
@@ -195,7 +195,7 @@ Server listening on port 8080`,
         "Did the agent use its tools and hand off when asked — weather, order, and live handoff?",
       troubleshooting: [
         "Weather answer sounded made up? The agent ignored its tool. Head back to Pick Your Tools and confirm Check Weather is toggled on",
-        "Order lookup didn't return the real shipping info? Same thing — check that Look Up Order is on, and try the exact order number ORD-12345",
+        "Order lookup didn't return the real shipping info? Same thing — check that Look Up Order is on, and try the exact order number 123",
         "Agent only answered half of a two-part question? That's normal on the first try — phone it again and say both parts in one sentence",
         "Asked for a human and nothing happened? Handoff is off by default -- the Live Handoff toggle controls it",
         "Call never connected? Re-enter your phone number in the Call Me box and try again",

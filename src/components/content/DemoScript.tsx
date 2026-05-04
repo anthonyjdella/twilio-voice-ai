@@ -9,7 +9,7 @@ const TOOL_SCRIPT: Record<string, { label: string; line: string }> = {
   },
   lookup_order: {
     label: "Order lookup",
-    line: '"Can you check the status of order ORD-12345?"',
+    line: '"Can you check the status of order 123?"',
   },
   tell_joke: {
     label: "Joke",

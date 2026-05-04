@@ -158,7 +158,7 @@ export default {
         properties: {
           order_id: {
             type: "string",
-            description: "The order ID, e.g. 'ORD-12345'"
+            description: "The order ID, e.g. '123'"
           }
         },
         required: ["order_id"]
@@ -227,21 +227,21 @@ const toolHandlers = {
   lookup_order: async ({ order_id }, _ws) => {
     // In production: query your orders database
     const mockOrders = {
-      "ORD-12345": {
+      "123": {
         status: "shipped",
         tracking: "1Z999AA10123456784",
-        eta: "March 15, 2026"
+        eta: "May 7, 2026"
       },
-      "ORD-67890": {
+      "456": {
         status: "processing",
         tracking: null,
-        eta: "March 20, 2026"
+        eta: "May 7, 2026"
       }
     };
 
     const order = mockOrders[order_id];
     if (!order) {
-      return { error: "Order not found: " + order_id };
+      return { error: \`"\${order_id}" is not in the workshop mock data. Supported order numbers: 123, 456, or 789.\` };
     }
     return { order_id, ...order };
   },
@@ -250,10 +250,10 @@ const toolHandlers = {
   // Good template for any zero-input action (random fact, quote of the day, etc).
   tell_joke: async (_args, _ws) => {
     const jokes = [
-      "Why don't scientists trust atoms? Because they make up everything.",
-      "I told my computer I needed a break, and it said: no problem, I'll go to sleep.",
+      "Why did the phone break up with the WebSocket? It just could not handle the constant connection.",
+      "I asked Twilio how it handles rejection. It said, 'I just send another SMS.'",
       "Why did the developer go broke? Because they used up all their cache.",
-      "Parallel lines have so much in common. It's a shame they'll never meet."
+      "A SQL query walks into a bar, goes up to two tables and asks: can I join you?"
     ];
     return { joke: jokes[Math.floor(Math.random() * jokes.length)] };
   }
@@ -338,7 +338,7 @@ module.exports = { tools, toolHandlers };`,
         properties: {
           order_id: {
             type: "string",
-            description: "The order ID, e.g. 'ORD-12345'"
+            description: "The order ID, e.g. '123'"
           }
         },
         required: ["order_id"]
@@ -379,22 +379,22 @@ const toolHandlers = {
 
   lookup_order: async ({ order_id }, _ws) => {
     const mockOrders = {
-      "ORD-12345": { status: "shipped", tracking: "1Z999AA10123456784", eta: "March 15, 2026" },
-      "ORD-67890": { status: "processing", tracking: null, eta: "March 20, 2026" },
+      "123": { status: "shipped", tracking: "1Z999AA10123456784", eta: "May 7, 2026" },
+      "456": { status: "processing", tracking: null, eta: "May 7, 2026" },
     };
     const order = mockOrders[order_id];
     if (!order) {
-      return { error: "Order not found: " + order_id };
+      return { error: \`"\${order_id}" is not in the workshop mock data. Supported order numbers: 123, 456, or 789.\` };
     }
     return { order_id, ...order };
   },
 
   tell_joke: async (_args, _ws) => {
     const jokes = [
-      "Why don't scientists trust atoms? Because they make up everything.",
-      "I told my computer I needed a break, and it said: no problem, I'll go to sleep.",
+      "Why did the phone break up with the WebSocket? It just could not handle the constant connection.",
+      "I asked Twilio how it handles rejection. It said, 'I just send another SMS.'",
       "Why did the developer go broke? Because they used up all their cache.",
-      "Parallel lines have so much in common. It's a shame they'll never meet."
+      "A SQL query walks into a bar, goes up to two tables and asks: can I join you?"
     ];
     return { joke: jokes[Math.floor(Math.random() * jokes.length)] };
   }

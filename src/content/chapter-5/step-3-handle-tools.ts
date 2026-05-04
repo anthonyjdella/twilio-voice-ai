@@ -84,13 +84,13 @@ export default {
           icon: "/images/icons/voice-wave.svg",
           title: "Caller asks a question",
           description:
-            '**Caller:** "Where is my order, ORD-12345?"',
+            '**Caller:** "Where is my order, 123?"',
         },
         {
           icon: "/images/icons/robot.svg",
           title: "AI pauses and requests a tool",
           description:
-            'Instead of guessing, the AI signals: _"I need to run `lookup_order` with order number ORD-12345."_ No words go to the caller yet.',
+            'Instead of guessing, the AI signals: _"I need to run `lookup_order` with order number 123."_ No words go to the caller yet.',
         },
         {
           icon: "/images/icons/wrench.svg",

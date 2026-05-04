@@ -13,7 +13,7 @@ const TOOLS = [
     id: "lookup_order",
     name: "Look Up Order",
     desc: "Finds the status of a customer order by its order number.",
-    tryThis: 'Say: "Where is order ORD-12345?"',
+    tryThis: 'Say: "Where is order 123?"',
   },
   {
     id: "tell_joke",
