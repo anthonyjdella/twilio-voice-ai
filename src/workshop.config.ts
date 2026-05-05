@@ -3,7 +3,7 @@ import type { WorkshopConfig } from "@/lib/workshop-config";
 const workshopConfig: WorkshopConfig = {
   id: "voice-ai",
   title: "Build a Voice AI Agent",
-  shortTitle: "Voice AI Workshop",
+  shortTitle: "twil.io/voice-workshop",
   description:
     "A guided workshop where you build a real conversational AI voice application using Twilio Conversation Relay",
   duration: "90 minutes",

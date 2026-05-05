@@ -98,15 +98,20 @@ function HomeContent() {
         animate="visible"
         variants={stagger}
       >
-        {/* Brand logo */}
-        <motion.div variants={fadeUp} className="mb-10">
+        {/* Brand logo + short URL */}
+        <motion.div
+          variants={fadeUp}
+          className="mb-10 flex items-center justify-center gap-3"
+        >
           <img
             src={branding.logo?.src ?? "/images/twilio-bug-red.svg"}
             alt={branding.logo?.alt ?? "Logo"}
             width={56}
             height={56}
-            className="mx-auto"
           />
+          <span className="font-mono text-lg md:text-xl text-text-secondary">
+            twil.io/voice-workshop
+          </span>
         </motion.div>
 
         {/* Title */}
@@ -171,34 +176,9 @@ function HomeContent() {
           </span>
         </motion.div>
 
-        {/* CTA button */}
-        <motion.div variants={fadeUp}>
-          <button
-            onClick={handleStartClick}
-            className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-full bg-twilio-blue text-white font-display font-extrabold text-lg transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
-            style={{
-              boxShadow: `0 0 40px rgba(24, 102, 238, 0.3), 0 4px 20px rgba(0,0,0,0.2)`,
-            }}
-          >
-            {hero.ctaText}
-            <svg
-              className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </button>
-        </motion.div>
-
         {/* Chapter grid */}
         <motion.div
-          className="mt-20 grid grid-cols-2 md:grid-cols-3 gap-3 text-left"
+          className="grid grid-cols-2 md:grid-cols-3 gap-3 text-left"
           variants={stagger}
         >
           {chapters.map((ch) => (
@@ -229,6 +209,31 @@ function HomeContent() {
               </div>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* CTA button */}
+        <motion.div variants={fadeUp} className="mt-10">
+          <button
+            onClick={handleStartClick}
+            className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-full bg-twilio-blue text-white font-display font-extrabold text-lg transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
+            style={{
+              boxShadow: `0 0 40px rgba(24, 102, 238, 0.3), 0 4px 20px rgba(0,0,0,0.2)`,
+            }}
+          >
+            {hero.ctaText}
+            <svg
+              className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </button>
         </motion.div>
 
         {/* Footer — configurable "Powered by" brand badge. Omitted entirely
