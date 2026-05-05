@@ -173,7 +173,7 @@ export default {
       audience: "builder",
       variant: "info",
       content:
-        "The handoff TwiML below dials a `<Queue>support</Queue>` as a placeholder. If your Twilio account does not have a queue by that name, the `<Dial>` verb will fail and the call will hang up -- which is exactly what you want for workshop testing. In production, swap `<Queue>support</Queue>` for a real destination: a `<Number>+1...</Number>` of an agent, a SIP endpoint, or a TaskRouter `<Enqueue workflowSid=\"...\">` for skills-based routing.",
+        "The handoff TwiML below dials `process.env.HANDOFF_PHONE_NUMBER` if it's set -- for the workshop, that's a real phone that will actually ring -- and falls back to `<Queue>support</Queue>` otherwise (which fails cleanly on accounts without that queue). In production, swap the fallback for a real destination: a specific `<Number>+1...</Number>`, a SIP endpoint, or a TaskRouter `<Enqueue workflowSid=\"...\">` for skills-based routing.",
     },
 
     {
@@ -201,16 +201,17 @@ if (req.url === "/call-ended" && req.method === "POST") {
       console.log("Handoff requested:", data.reason);
       console.log("Summary:", data.summary);
 
-      // Swap this Dial target for your own: a phone number, a SIP
-      // endpoint, a TaskRouter workflow, or a <Queue> you've set up.
-      // "support" is used here as a placeholder — in a Twilio account
-      // with no queue of that name, the Dial will fail and the call
-      // will simply hang up, which is fine for workshop testing.
+      // Dial HANDOFF_PHONE_NUMBER if it's set; otherwise fall back to a
+      // <Queue> placeholder that fails cleanly. For the workshop, the env
+      // var is pre-configured so transfers actually ring a real phone.
+      const dialTarget = process.env.HANDOFF_PHONE_NUMBER
+        ? \`<Number>\${process.env.HANDOFF_PHONE_NUMBER}</Number>\`
+        : "<Queue>support</Queue>";
       twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say>Please hold while I transfer you to a representative.</Say>
   <Dial>
-    <Queue>support</Queue>
+    \${dialTarget}
   </Dial>
 </Response>\`;
     } else {
@@ -821,13 +822,17 @@ const server = http.createServer(async (req, res) => {
         console.log("Handoff requested:", data.reason);
         console.log("Summary:", data.summary);
 
-        // Swap <Queue>support</Queue> for a real destination in production:
-        // a <Number>+1...</Number>, a SIP endpoint, or a TaskRouter workflow.
+        // Dial HANDOFF_PHONE_NUMBER if set; otherwise fall back to the
+        // <Queue> placeholder. Swap the fallback for a real TaskRouter
+        // workflow, SIP endpoint, or specific <Number> in production.
+        const dialTarget = process.env.HANDOFF_PHONE_NUMBER
+          ? \`<Number>\${process.env.HANDOFF_PHONE_NUMBER}</Number>\`
+          : "<Queue>support</Queue>";
         twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say>Please hold while I transfer you to a representative.</Say>
   <Dial>
-    <Queue>support</Queue>
+    \${dialTarget}
   </Dial>
 </Response>\`;
       } else {

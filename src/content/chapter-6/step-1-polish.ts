@@ -808,11 +808,14 @@ const server = http.createServer(async (req, res) => {
         console.log("Handoff requested:", data.reason);
         console.log("Summary:", data.summary);
 
+        const dialTarget = process.env.HANDOFF_PHONE_NUMBER
+          ? \`<Number>\${process.env.HANDOFF_PHONE_NUMBER}</Number>\`
+          : "<Queue>support</Queue>";
         twiml = \`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say>Please hold while I transfer you to a representative.</Say>
   <Dial>
-    <Queue>support</Queue>
+    \${dialTarget}
   </Dial>
 </Response>\`;
       } else {
