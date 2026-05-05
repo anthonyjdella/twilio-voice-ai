@@ -58,7 +58,7 @@ export default {
 
         {
             type: "section",
-            title: "Set Your Phone Number",
+            title: "Fill In Your .env File",
             audience: "builder",
         },
 
@@ -66,46 +66,53 @@ export default {
             type: "prose",
             audience: "builder",
             content:
-                "Your Codespace comes with shared Twilio and OpenAI credentials already configured -- you do not need to sign up for either service. The only thing you need to do is set your personal phone number so the agent can call you during testing.",
+                "Your Codespace creates a `workshop/.env` file on first boot with the right keys but **empty values** -- you'll paste the real values in now. Open it from the file explorer on the left; if you don't see `workshop/.env` yet, give the Codespace another minute to finish initializing.",
+        },
+
+        {
+            type: "callout",
+            variant: "warning",
+            audience: "builder",
+            content:
+                "**Your facilitator will show the credentials on a slide.** Copy them from the slide and paste them into `workshop/.env`, replacing the empty values. You do not need to sign up for Twilio or OpenAI -- the facilitator is providing shared credentials for the workshop.",
         },
 
         {
             type: "prose",
             audience: "builder",
             content:
-                "The `workshop/` folder is at the repo root, and `workshop/.env` is generated for you on first boot of the Codespace (pre-filled with the shared Twilio and OpenAI keys). Open it from the file explorer on the left -- if you don't see `workshop/.env` yet, give the Codespace another minute to finish initializing. You can also confirm the expected keys are set from your terminal:",
-        },
-
-        {
-            type: "terminal",
-            audience: "builder",
-            commands: `$ cat workshop/.env
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_PHONE_NUMBER=+1xxxxxxxxxx
-OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-OPENAI_MODEL=gpt-5.4-nano
-
-# Set this to your personal phone number in E.164 format
-MY_PHONE_NUMBER=+15551234567`,
-        },
-
-        {
-            type: "prose",
-            audience: "builder",
-            content:
-                "Update `MY_PHONE_NUMBER` with your real phone number in E.164 format (international format, e.g. `+12065551234`):",
+                "Here is what the file will look like after you paste the values (your actual values will be different):",
         },
 
         {
             type: "code",
             audience: "builder",
-            code: `# Everything above this line is already configured for you
+            code: `# Paste these values from the slide (do not change the keys)
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_PHONE_NUMBER=+1xxxxxxxxxx
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+HANDOFF_PHONE_NUMBER=+1xxxxxxxxxx
 
-# Update this to YOUR phone number (include country code)
-MY_PHONE_NUMBER=+12065551234`,
+# Set this to YOUR phone number (include country code, e.g. +12065551234)
+MY_PHONE_NUMBER=+15551234567`,
             language: "bash",
             file: "workshop/.env",
+        },
+
+        {
+            type: "prose",
+            audience: "builder",
+            content:
+                "Then update `MY_PHONE_NUMBER` with your real phone number in E.164 format (international format — country code plus number, no spaces or dashes, e.g. `+12065551234`). This is the number the agent will call during testing.",
+        },
+
+        {
+            type: "callout",
+            variant: "tip",
+            audience: "builder",
+            content:
+                "**Save the file** (Cmd/Ctrl + S) after pasting. The workshop server reads `.env` at startup, so anything you forget to save won't take effect.",
         },
 
         {
@@ -113,7 +120,7 @@ MY_PHONE_NUMBER=+12065551234`,
             variant: "error",
             audience: "builder",
             content:
-                "The shared API keys are active only during this workshop session. They will be revoked immediately after the workshop ends.",
+                "The shared API keys are active only during this workshop session. They will be revoked immediately after the workshop ends. Do not commit them to git or share them outside the room.",
         },
 
         {
