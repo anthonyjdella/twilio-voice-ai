@@ -7,7 +7,7 @@ export default {
     {
       type: "concept-card",
       audience: "explorer",
-      title: "What a Great Voice Agent Feels Like",
+      title: "",
       content:
         "A great voice agent sounds like a person who happens to be helpful, not a bot following a script. It has a clear personality you can sense within a sentence or two. It responds quickly. It handles interruptions without losing its place. It knows what it can and cannot do, and when it should hand off to a human. Everything you have seen in this workshop -- the persona, the reflexes, the tools, the handoff -- is what adds up to that feeling.",
     },
@@ -37,31 +37,6 @@ export default {
 
     { type: "demo-script", audience: "builder" },
 
-    {
-      type: "prose",
-      audience: "explorer",
-      content:
-        "The Builder is running a few live calls to exercise what the agent can do. Each one tests a different capability -- a simple question, a tool-driven answer, an interrupt, a handoff request. You can listen along if you are near the phone.",
-    },
-
-    { type: "page-break" },
-
-    { type: "section", title: "Let Others Try It" },
-
-    {
-      type: "prose",
-      audience: "builder",
-      content:
-        "Hand the phone to someone who has not heard the agent yet. Every voice agent sounds different the first time someone unfamiliar calls it -- they will ask questions you never thought to test, and that is where you find out what the agent actually feels like. Two builders starting from the same workshop code but different personas and tool choices will produce strikingly different agents. That is the point.",
-    },
-
-    {
-      type: "prose",
-      audience: "explorer",
-      content:
-        "This is the moment the Builder hands the phone to someone new. The first unfamiliar caller always surfaces things nobody thought to test -- an odd question, a regional accent, a long pause. Two builders starting from the same workshop code with different personas and tool picks produce strikingly different agents on that first call. That is the point.",
-    },
-
     { type: "page-break" },
 
     { type: "section", title: "The Four Qualities" },
@@ -80,11 +55,6 @@ export default {
       question:
         "Have you tried your agent end-to-end with at least one test call?",
     },
-
-    {
-      type: "prose",
-      content:
-        "That is the capstone. One more step to close out the workshop.",
-    },
+  
   ],
 } satisfies StepDefinition;
