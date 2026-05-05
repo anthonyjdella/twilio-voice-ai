@@ -71,10 +71,10 @@ export default {
 
         {
             type: "callout",
-            variant: "warning",
+            variant: "info",
             audience: "builder",
             content:
-                "**Your facilitator will show the credentials on a slide.** Copy them from the slide and paste them into `workshop/.env`, replacing the empty values. You do not need to sign up for Twilio or OpenAI -- the facilitator is providing shared credentials for the workshop.",
+                "**Grab the credentials at [twil.io/keys](https://twil.io/keys).** Copy the values from that page and paste them into `workshop/.env`, replacing the empty values. Your facilitator will also show them on a slide in the room. You do not need to sign up for Twilio or OpenAI -- the facilitator is providing shared credentials for the workshop.",
         },
 
         {
