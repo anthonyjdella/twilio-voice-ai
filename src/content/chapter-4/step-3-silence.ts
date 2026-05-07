@@ -71,7 +71,7 @@ function handleSilence(ws) {
 
   silencePromptCount++;
 
-  if (silencePromptCount > MAX_SILENCE_PROMPTS) {
+  if (silencePromptCount >= MAX_SILENCE_PROMPTS) {
     // Too many silences -- end the call gracefully
     sendText(ws, "It seems like you may have stepped away. " +
       "I'll end the call for now. Feel free to call back anytime!", true);
@@ -274,7 +274,7 @@ function handleSilence(ws) {
 
   silencePromptCount++;
 
-  if (silencePromptCount > MAX_SILENCE_PROMPTS) {
+  if (silencePromptCount >= MAX_SILENCE_PROMPTS) {
     sendText(ws, "It seems like you may have stepped away. " +
       "I'll end the call for now. Feel free to call back anytime!", true);
     ws.send(JSON.stringify({ type: "end" }));

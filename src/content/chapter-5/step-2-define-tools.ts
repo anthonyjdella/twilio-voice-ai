@@ -236,6 +236,11 @@ const toolHandlers = {
         status: "processing",
         tracking: null,
         eta: "May 7, 2026"
+      },
+      "789": {
+        status: "delivered",
+        tracking: "1Z999AA10987654321",
+        eta: "Delivered May 2, 2026"
       }
     };
 
@@ -381,6 +386,7 @@ const toolHandlers = {
     const mockOrders = {
       "123": { status: "shipped", tracking: "1Z999AA10123456784", eta: "May 7, 2026" },
       "456": { status: "processing", tracking: null, eta: "May 7, 2026" },
+      "789": { status: "delivered", tracking: "1Z999AA10987654321", eta: "Delivered May 2, 2026" },
     };
     const order = mockOrders[order_id];
     if (!order) {

@@ -332,6 +332,15 @@ VOICE GUIDELINES:
   {
     type: "function",
     function: {
+      name: "tell_joke",
+      description: "Tell the caller a short, friendly joke. " +
+        "Use when the caller asks for a joke, wants to laugh, or asks you to be funny.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
       name: "transfer_to_agent",
       description: "Transfer the caller to a live human agent. " +
         "Use this when the caller explicitly requests a human, " +
@@ -384,12 +393,23 @@ const toolHandlers = {
     const mockOrders = {
       "123": { status: "shipped", tracking: "1Z999AA10123456784", eta: "May 7, 2026" },
       "456": { status: "processing", tracking: null, eta: "May 7, 2026" },
+      "789": { status: "delivered", tracking: "1Z999AA10987654321", eta: "Delivered May 2, 2026" },
     };
     const order = mockOrders[order_id];
     if (!order) {
-      return { error: "Order not found: " + order_id };
+      return { error: \`"\${order_id}" is not in the workshop mock data. Supported order numbers: 123, 456, or 789.\` };
     }
     return { order_id, ...order };
+  },
+
+  tell_joke: async (_args, _ws) => {
+    const jokes = [
+      "Why did the phone break up with the WebSocket? It just could not handle the constant connection.",
+      "I asked Twilio how it handles rejection. It said, 'I just send another SMS.'",
+      "Why did the developer go broke? Because they used up all their cache.",
+      "A SQL query walks into a bar, goes up to two tables and asks: can I join you?"
+    ];
+    return { joke: jokes[Math.floor(Math.random() * jokes.length)] };
   },
 
   transfer_to_agent: async ({ reason, department, summary }, ws) => {
