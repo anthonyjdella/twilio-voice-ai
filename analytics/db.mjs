@@ -5,7 +5,10 @@ import { join } from "node:path";
 let db = null;
 
 function getDbPath() {
-  const dir = join(process.cwd(), "data");
+  // In production (Azure Container Apps), DATA_MOUNT points at the Azure
+  // Files volume that survives deploys. Locally it's unset and we fall back
+  // to a per-checkout ./data directory.
+  const dir = process.env.DATA_MOUNT || join(process.cwd(), "data");
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   return join(dir, "analytics.db");
 }

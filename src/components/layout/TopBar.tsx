@@ -9,6 +9,7 @@ import { useTheme } from "@/lib/ThemeContext";
 import { useProgressContext } from "./ProgressContext";
 import { Code, Eye, ChevronDown, Check, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FeedbackButton } from "@/components/FeedbackButton";
 
 const MODE_INFO: Record<AudienceMode, { icon: typeof Code; label: string; description: string }> = {
   builder: {
@@ -154,6 +155,9 @@ export function TopBar() {
           )}
         </button>
       )}
+
+      {/* Feedback */}
+      <FeedbackButton />
 
       {/* Audience mode toggle with popover */}
       {config.features.audienceToggle && (

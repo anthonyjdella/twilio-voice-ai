@@ -1,5 +1,6 @@
 export function renderAdminPage(data) {
-  const { overview, funnel, chapters, audience, calls, agentConfig, pacing, timePerChapter, hourlyActivity, skipAhead, engagement, shares, recent } = data;
+  const { range, overview, funnel, chapters, audience, calls, agentConfig, pacing, timePerChapter, hourlyActivity, skipAhead, engagement, shares, feedback, recent } = data;
+  const rangeLabel = range === 'today' ? 'Today' : 'All time';
   const completionRate = overview.totalSessions > 0
     ? Math.round((overview.totalCompleted / overview.totalSessions) * 100) : 0;
   const callRate = overview.totalSessions > 0
@@ -135,17 +136,21 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); }
   <div class="header-left">
     <img src="/images/twilio-bug-red.svg" alt="Twilio">
     <h1>Workshop Analytics</h1>
+    <div style="display:inline-flex;border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden">
+      <a href="/admin?range=today" class="btn ${range === 'today' ? 'btn-red' : 'btn-outline'}" style="border-radius:0;border:0;font-size:12px;padding:6px 12px" title="Show only events from today (server time)">Today</a>
+      <a href="/admin?range=all" class="btn ${range === 'all' ? 'btn-red' : 'btn-outline'}" style="border-radius:0;border:0;font-size:12px;padding:6px 12px" title="Show all-time totals across every workshop run">All time</a>
+    </div>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
     <div class="header-meta">
-      <span><span class="dot"></span> Live</span>
+      <span><span class="dot"></span> ${rangeLabel}</span>
       <span id="lastUpdate"></span>
     </div>
     <a href="/" class="btn btn-outline" title="Back to workshop home">Home</a>
     <button id="resetProgressBtn" class="btn btn-outline" title="Clears this browser's workshop progress (localStorage). Does not affect other attendees or server analytics.">Reset My Progress</button>
     <button id="resetAllBtn" class="btn btn-outline" style="border-color:rgba(239,34,58,0.5);color:#ff8a9a" title="DESTRUCTIVE: wipes every analytics event from the server. Use this before a workshop to start with a clean dashboard.">Reset All Sessions</button>
     <a href="/slides" class="btn btn-outline" title="Open the workshop slide deck. Visiting /admin also enables the presenter-only backslash (\\) shortcut for toggling slides ⇄ workshop anywhere in the app.">View Slides</a>
-    <a href="/admin/report" class="btn btn-red">Download PDF Report</a>
+    <a href="/admin/report?range=${range}" class="btn btn-red">Download PDF Report</a>
   </div>
 </div>
 
@@ -384,6 +389,41 @@ ${hourlyActivity.length > 0 ? `<div class="section">
           <span class="value">${r.clicks}</span>
         </li>`).join('')
       }</ul>`}
+    </div>
+  </div>
+</div>
+
+<div class="two-col section">
+  <div>
+    <div class="section-title">Feedback Score</div>
+    <div class="panel">
+      <ul class="kv-list">
+        <li class="kv-row"><span class="label">Responses</span><span class="value">${feedback.total}</span></li>
+        <li class="kv-row"><span class="label">Average rating</span><span class="value">${feedback.total > 0 ? `${feedback.avgNps} / 10` : '—'}</span></li>
+        <li class="kv-row"><span class="label">NPS score</span><span class="value">${feedback.total > 0 ? feedback.npsScore : '—'}</span></li>
+        <li class="kv-row"><span class="label">Promoters (9–10)</span><span class="value">${feedback.promoters}</span></li>
+        <li class="kv-row"><span class="label">Passives (7–8)</span><span class="value">${feedback.passives}</span></li>
+        <li class="kv-row"><span class="label">Detractors (0–6)</span><span class="value">${feedback.detractors}</span></li>
+      </ul>
+    </div>
+  </div>
+  <div>
+    <div class="section-title">Recent Comments</div>
+    <div class="panel scroll-table" style="max-height:340px;overflow-y:auto">
+      ${feedback.items.length === 0 ? '<p class="empty">No feedback yet</p>' : feedback.items.map(item => {
+        const headerBits = [
+          typeof item.nps === 'number' ? `<span class="value">${item.nps}/10</span>` : '',
+          item.name ? `<span class="label">${esc(item.name)}</span>` : '',
+          item.email ? `<span class="label" style="font-family:var(--font-mono);font-size:11px">${esc(item.email)}</span>` : '',
+        ].filter(Boolean).join(' · ');
+        return `<div style="padding:10px 0;border-bottom:1px solid var(--border-subtle)">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:4px">
+            <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">${headerBits}</div>
+            <span class="label" style="font-size:11px;white-space:nowrap">${esc(item.createdAt)}</span>
+          </div>
+          ${item.comment ? `<div style="font-size:13px;color:var(--text-secondary);line-height:1.5;white-space:pre-wrap">${esc(item.comment)}</div>` : '<div class="empty" style="font-size:12px">(no comment)</div>'}
+        </div>`;
+      }).join('')}
     </div>
   </div>
 </div>

@@ -53,7 +53,9 @@ app.prepare().then(() => {
 
     if (pathname === "/admin/report") {
       try {
-        const data = getAllMetrics();
+        const url = new URL(req.url || "/", `http://${req.headers.host}`);
+        const range = url.searchParams.get("range") === "today" ? "today" : "all";
+        const data = getAllMetrics(range);
         const doc = generateReport(data);
         const filename = `workshop-analytics-${new Date().toISOString().slice(0, 10)}.pdf`;
         res.writeHead(200, {
@@ -72,7 +74,9 @@ app.prepare().then(() => {
     const cleanPath = pathname.replace(/\/+$/, "");
     if (cleanPath === "/admin" || cleanPath === "/admin/data") {
       try {
-        const data = getAllMetrics();
+        const url = new URL(req.url || "/", `http://${req.headers.host}`);
+        const range = url.searchParams.get("range") === "all" ? "all" : "today";
+        const data = getAllMetrics(range);
         if (cleanPath === "/admin/data") {
           res.writeHead(200, { "Content-Type": "application/json" });
           res.end(JSON.stringify(data));
