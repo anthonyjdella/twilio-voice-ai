@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+URL_FILE=/tmp/cloudflared-url
+if [ -s "$URL_FILE" ]; then
+  echo "$(cat "$URL_FILE")/twiml"
+else
+  echo "Tunnel not running. Start it with: bash /workspaces/$(basename "$PWD")/.devcontainer/start-tunnel.sh" >&2
+  exit 1
+fi

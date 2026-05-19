@@ -12,7 +12,7 @@ export default {
 
         {
             type: "section",
-            title: "Confirm Port 8080 Is Public",
+            title: "Get Your Public Tunnel URL",
             audience: "builder",
         },
 
@@ -20,67 +20,37 @@ export default {
             type: "prose",
             audience: "builder",
             content:
-                "Twilio needs to reach your server over the internet. Port 8080 (the one your server will listen on) is configured to be **Public** automatically -- but on some GitHub accounts or org policies, it can come up Private on first boot. Take 30 seconds to confirm, and flip it to Public if needed.",
+                "Twilio needs a public URL to reach your server. Your Codespace boots a Cloudflare tunnel automatically -- it forwards a free `https://*.trycloudflare.com` URL to port 8080 inside your Codespace. No signup, no port-visibility settings to fiddle with.",
         },
 
         {
-            type: "visual-step",
+            type: "prose",
             audience: "builder",
-            steps: [
-                {
-                    icon: "/images/icons/connectivity.svg",
-                    title: "Open the Ports tab",
-                    description:
-                        'In your Codespace, click the **Ports** tab at the bottom panel (next to Terminal). You should see port 8080 listed with the label "Workshop Server."',
-                },
-            ],
+            content:
+                "The tunnel URL was printed in your terminal when the Codespace started. Run this any time to print it again:",
         },
 
         {
-            type: "image",
+            type: "terminal",
             audience: "builder",
-            src: "/images/codespace-ports-tab.png",
-            alt: "Codespace Ports tab showing port 8080",
-            caption:
-                "The Ports tab in your Codespace -- click it at the bottom panel.",
-        },
-
-        {
-            type: "visual-step",
-            audience: "builder",
-            startFrom: 2,
-            steps: [
-                {
-                    icon: "/images/icons/globe.svg",
-                    title: "Check that Visibility is Public",
-                    description:
-                        "The Visibility column for port 8080 should say **Public**. If it says **Private**, right-click port 8080 → **Port Visibility** → **Public** to change it. Twilio cannot authenticate with GitHub, so the port has to be publicly accessible.",
-                },
-            ],
-        },
-
-        {
-            type: "image",
-            audience: "builder",
-            src: "/images/codespace-port-public.png",
-            alt: "Port 8080 shown with Public visibility in Codespace",
-            caption:
-                "Port 8080 with Public visibility -- this is what you should see once it is set correctly.",
+            commands: `$ tunnel-url
+https://random-words-abc123.trycloudflare.com/twiml`,
         },
 
         {
             type: "callout",
             audience: "builder",
-            variant: "warning",
+            variant: "tip",
             content:
-                "**Port must be Public, not Private.** If you leave it Private, Twilio's calls to your server will fail silently with a 401 -- the phone will ring but the agent never hears you.",
+                "**Save this URL** -- you'll paste it into the Call Me widget in the next chapter. The URL stays the same as long as the Codespace is running. If you restart the Codespace, you'll get a new one (just run `tunnel-url` again).",
         },
 
         {
-            type: "prose",
+            type: "deep-dive",
             audience: "builder",
+            title: "Why a tunnel and not the Codespace's own URL?",
             content:
-                "Your Codespace URL becomes two things: an `https://` URL for TwiML webhooks and a `wss://` URL for WebSocket connections. Your Codespace URL stays the same for the entire session, so you don't need to update configurations when you restart your server.",
+                "GitHub Codespaces does forward port 8080 to a `https://<codespace>-8080.app.github.dev` URL, but GitHub serves an HTML \"You are about to access a development port\" warning page on the first request -- meant to protect humans from phishing links. Twilio is a server, not a human; it can't click \"Continue,\" so the warning blocks every webhook. Cloudflare Tunnel skips that interstitial entirely: it forwards `https://*.trycloudflare.com` straight to `localhost:8080` inside your Codespace, and the response Twilio gets is your TwiML XML, not GitHub's warning page.",
         },
 
         {
@@ -88,7 +58,7 @@ export default {
             audience: "builder",
             title: "Fallback: Local Dev + ngrok",
             content:
-                "If Codespaces is unavailable or you prefer local development, you can run everything on your machine instead. Install Node.js 18+, clone the [repository](https://github.com/anthonyjdella/twilio-voice-ai), run `npm install`, and use **ngrok** to expose your local server:\n\n```\nnpm install -g ngrok\nngrok http 8080\n```\n\nngrok creates a public URL that tunnels to your localhost. Use the `https://` URL from ngrok as your public server address. Note: ngrok free tier limits you to 3 concurrent connections, and the URL changes every time you restart.",
+                "If Codespaces is unavailable or you prefer local development, you can run everything on your machine instead. Install Node.js 18+, clone the [repository](https://github.com/anthonyjdella/twilio-voice-ai), run `npm install`, and use **ngrok** to expose your local server:\n\n```\nnpm install -g ngrok\nngrok http 8080\n```\n\nngrok creates a public URL that tunnels to your localhost. Use the `https://` URL from ngrok as your public server address. Note: ngrok free tier requires an account/authtoken and the URL changes every time you restart.",
         },
 
         { type: "page-break" },

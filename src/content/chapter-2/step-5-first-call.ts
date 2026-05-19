@@ -26,14 +26,14 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**1.** Port `8080` is set to **Public** in the Codespace Ports tab.",
+        "**1.** `MY_PHONE_NUMBER` is set in `workshop/.env` (the Twilio and OpenAI keys are pre-configured in your Codespace).",
     },
 
     {
       type: "prose",
       audience: "builder",
       content:
-        "**2.** `MY_PHONE_NUMBER` is set in `workshop/.env` (the Twilio and OpenAI keys are pre-configured in your Codespace).",
+        "**2.** Your Cloudflare tunnel is running. Run `tunnel-url` in the terminal to print your public TwiML URL -- you'll need it in the widget below.",
     },
 
     {
@@ -69,7 +69,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**Finding Your TwiML URL.** In your Codespace, open the **Ports** tab and copy the forwarded URL for port 8080 -- it looks like `https://fluffy-octopus-abc123-8080.app.github.dev/`. Append `/twiml` to the end and paste it into the widget below. Final format: `https://fluffy-octopus-abc123-8080.app.github.dev/twiml`. That's the route you wrote earlier in this chapter -- Twilio will fetch it the moment the call connects, and the TwiML in your `server.js` (voice, greeting, the `wss://...` for `/ws`, and everything you add in later chapters) is what runs on the call.",
+        "**Finding Your TwiML URL.** Run `tunnel-url` in your Codespace terminal -- it prints your public TwiML URL, something like `https://random-words-abc123.trycloudflare.com/twiml`. Copy that and paste it into the widget below. That's the `/twiml` route you wrote earlier in this chapter -- Twilio will fetch it the moment the call connects, and the TwiML in your `server.js` (voice, greeting, the `wss://...` for `/ws`, and everything you add in later chapters) is what runs on the call.",
     },
 
     { type: "call-me" },
@@ -111,7 +111,7 @@ export default {
       audience: "builder",
       variant: "warning",
       content:
-        "**Call not working?** Check: (1) port 8080 is Public, (2) server is running, (3) `.env` values are set, (4) phone number is in E.164 format like `+15551234567`.",
+        "**Call not working?** Check: (1) `tunnel-url` prints a `trycloudflare.com` URL, (2) server is running, (3) `.env` values are set, (4) phone number is in E.164 format like `+15551234567`.",
     },
 
     {
@@ -120,10 +120,10 @@ export default {
       question: "Did you hear the AI respond to your voice?",
       troubleshooting: [
         "Watch your terminal while you call -- you should see logs for `📞 New WebSocket connection`, `✅ Call started`, and `🗣️ Caller: ...`",
-        "No WebSocket connection logged? Port 8080 is probably not Public in the Codespace Ports tab",
-        "Call connects but greeting plays then silence? The server probably isn't receiving `prompt` messages -- check port 8080 is Public and the terminal shows `🗣️ Caller: ...` logs",
+        "No WebSocket connection logged? Make sure your server is running on port 8080 (`node server.js`) and `tunnel-url` returns a `trycloudflare.com` URL",
+        "Call connects but greeting plays then silence? The server probably isn't receiving `prompt` messages -- check that the terminal shows `🗣️ Caller: ...` logs and the WebSocket stayed open",
         "Hearing the fallback apology message? That's the OpenAI catch block -- check `OPENAI_API_KEY` and the terminal for LLM errors",
-        "Call never rings? Make sure the URL ends in `/twiml`, port 8080 is Public, and your server logs show `POST /twiml` when you click Call Me -- if Twilio can't fetch your TwiML, the phone won't ring",
+        "Call never rings? Make sure the URL ends in `/twiml`, your server logs show `POST /twiml` when you click Call Me, and the tunnel URL still resolves -- restart it with `bash .devcontainer/start-tunnel.sh` if needed",
         "Number format must be E.164 (`+15551234567`) in both `MY_PHONE_NUMBER` and the Call Me input",
         "Trial accounts can only call verified numbers -- verify `MY_PHONE_NUMBER` in the Twilio Console if you're on a trial",
       ],

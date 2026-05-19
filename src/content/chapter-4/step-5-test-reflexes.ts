@@ -16,7 +16,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Time to put the agent's reflexes to the test. Make sure the server is running and port 8080 is set to **Public** in the Codespace's Ports tab.",
+        "Time to put the agent's reflexes to the test. Make sure the server is running and `tunnel-url` still prints your `trycloudflare.com` URL.",
     },
 
     {
@@ -156,7 +156,7 @@ Server listening on port 8080`,
         "No response to keypad presses? Confirm `dtmfDetection=\"true\"`, `interruptible=\"any\"`, and `reportInputDuringAgentSpeech=\"any\"` are all on your `<ConversationRelay>`, and that your server handles the `dtmf` WebSocket message",
         "Silence didn't trigger a prompt? Make sure the silence timer starts after setup and resets on every prompt/interrupt/dtmf message",
         "Didn't switch to Spanish? Language switching is optional — check that the LLM produced a [LANG:es-ES] marker and your server sent a language WebSocket message",
-        "Nothing happening at all? Make sure your server is running (node server.js) and port 8080 is set to Public in the Codespace Ports tab",
+        "Nothing happening at all? Make sure your server is running (`node server.js`) and `tunnel-url` returns a `trycloudflare.com` URL",
       ],
     },
 

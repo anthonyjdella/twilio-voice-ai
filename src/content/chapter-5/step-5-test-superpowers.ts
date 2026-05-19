@@ -23,7 +23,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Your agent now has real capabilities. Let us test tool calling and handoff to make sure everything is wired up correctly. Make sure your server is running and port 8080 is set to **Public** in your Codespace's Ports tab.",
+        "Your agent now has real capabilities. Let us test tool calling and handoff to make sure everything is wired up correctly. Make sure your server is running and `tunnel-url` prints your `trycloudflare.com` URL.",
     },
 
     {
@@ -183,7 +183,7 @@ Server listening on port 8080`,
         "Order lookup returned nothing? Check the terminal for `Tool call: lookup_order` — if missing, the LLM isn't picking the tool. Tighten the tool description",
         "Handoff didn't trigger? Verify the `transfer_to_agent` tool is in your `tools` array and its handler is sending the `end` message with `handoffData`",
         "Second turn crashes with an OpenAI 400 error about missing tool responses? You're skipping the `role: \"tool\"` message with `tool_call_id` — OpenAI requires exactly one per tool call before the next request",
-        "Nothing happening at all? Restart your server and confirm port 8080 is Public in the Codespace Ports tab",
+        "Nothing happening at all? Restart your server and confirm `tunnel-url` returns a `trycloudflare.com` URL",
         "Tried the optional multi-tool test and only got half an answer? Make sure `handleToolCalls` loops over every entry in `toolCalls` before calling `streamResponse` again",
       ],
     },

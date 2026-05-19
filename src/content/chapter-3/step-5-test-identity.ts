@@ -27,7 +27,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Make sure port 8080 is set to **Public** in your Codespace's Ports tab so Twilio can reach your server.",
+        "Make sure your server is running and `tunnel-url` prints your `trycloudflare.com` URL so Twilio can reach your server.",
     },
 
     {
