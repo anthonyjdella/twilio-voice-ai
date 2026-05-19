@@ -10,7 +10,6 @@ type Status = "idle" | "submitting" | "submitted" | "error";
 
 export function FeedbackButton() {
   const { sessionId } = useAnalyticsContext();
-  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [nps, setNps] = useState<number | null>(null);
   const [comment, setComment] = useState("");
@@ -18,10 +17,6 @@ export function FeedbackButton() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -255,7 +250,7 @@ export function FeedbackButton() {
       >
         <MessageSquarePlus className="w-4 h-4 text-text-secondary" />
       </button>
-      {mounted && createPortal(overlay, document.body)}
+      {typeof document !== "undefined" && createPortal(overlay, document.body)}
     </>
   );
 }
