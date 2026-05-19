@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { MessageSquarePlus, X, Check, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAnalyticsContext } from "@/lib/AnalyticsContext";
@@ -9,6 +10,7 @@ type Status = "idle" | "submitting" | "submitted" | "error";
 
 export function FeedbackButton() {
   const { sessionId } = useAnalyticsContext();
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [nps, setNps] = useState<number | null>(null);
   const [comment, setComment] = useState("");
@@ -16,6 +18,10 @@ export function FeedbackButton() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -71,18 +77,8 @@ export function FeedbackButton() {
     }
   }
 
-  return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        aria-label="Share feedback"
-        title="Click to share feedback"
-        className="shrink-0 ml-2 flex items-center justify-center w-8 h-8 rounded-lg bg-surface-2 border border-navy-border hover:bg-surface-3 transition-colors"
-      >
-        <MessageSquarePlus className="w-4 h-4 text-text-secondary" />
-      </button>
-
-      <AnimatePresence>
+  const overlay = (
+    <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -247,6 +243,19 @@ export function FeedbackButton() {
           </motion.div>
         )}
       </AnimatePresence>
+  );
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        aria-label="Share feedback"
+        title="Click to share feedback"
+        className="shrink-0 ml-2 flex items-center justify-center w-8 h-8 rounded-lg bg-surface-2 border border-navy-border hover:bg-surface-3 transition-colors"
+      >
+        <MessageSquarePlus className="w-4 h-4 text-text-secondary" />
+      </button>
+      {mounted && createPortal(overlay, document.body)}
     </>
   );
 }
