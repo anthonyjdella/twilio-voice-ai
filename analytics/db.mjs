@@ -5,10 +5,12 @@ import { join } from "node:path";
 let db = null;
 
 function getDbPath() {
-  // In production (Azure Container Apps), DATA_MOUNT points at the Azure
-  // Files volume that survives deploys. Locally it's unset and we fall back
-  // to a per-checkout ./data directory.
-  const dir = process.env.DATA_MOUNT || join(process.cwd(), "data");
+  // SQLite needs a real local filesystem -- Azure Files (SMB) doesn't honor
+  // the fcntl/mmap locking semantics SQLite relies on, so the DB throws
+  // SQLITE_BUSY ("database is locked") on every read. We deliberately keep
+  // the DB on local container disk; it resets on each deploy, which is
+  // acceptable for the workshop dashboard.
+  const dir = join(process.cwd(), "data");
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   return join(dir, "analytics.db");
 }
@@ -18,12 +20,7 @@ export function getDb() {
 
   const dbPath = getDbPath();
   const instance = new Database(dbPath);
-  // WAL mode requires fcntl/mmap semantics that Azure Files (SMB) can't
-  // honor, which causes SQLITE_BUSY ("database is locked") errors as soon
-  // as concurrent reads/writes happen. DELETE journaling uses the simpler
-  // file-locking primitives that work across SMB.
-  const useWal = !process.env.DATA_MOUNT;
-  instance.pragma(useWal ? "journal_mode = WAL" : "journal_mode = DELETE");
+  instance.pragma("journal_mode = WAL");
   instance.pragma("synchronous = NORMAL");
   instance.pragma("busy_timeout = 5000");
 
