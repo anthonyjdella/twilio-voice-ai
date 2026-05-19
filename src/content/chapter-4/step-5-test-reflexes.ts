@@ -51,7 +51,7 @@ Server listening on port 8080`,
       type: "prose",
       audience: "explorer",
       content:
-        "You can test all four reflexes on a **single** call. When the phone rings, answer it and try each in turn: (1) ask a long question, then cut the agent off mid-reply; (2) press **1** on the keypad while the agent is speaking; (3) stay completely silent for about ten seconds; (4) say a short Spanish phrase like \"Hola, cómo estás?\" You're listening for liveliness, not perfection.",
+        "You can test all four reflexes on a **single** call. When the phone rings, answer it and try each in turn: (1) ask a long question, then cut the agent off mid-reply; (2) press **1** on the keypad while the agent is speaking; (3) stay completely silent for about ten seconds; (4) say a short Spanish phrase like \"Hola, ¿cómo estás?\" You're listening for liveliness, not perfection.",
     },
 
     { type: "section", title: "Test 1: Interruption", audience: "builder" },
@@ -127,7 +127,7 @@ Server listening on port 8080`,
       type: "prose",
       audience: "builder",
       content:
-        'Trigger another call. Start speaking in English, then say something in Spanish like "Hola, cómo estás?" The agent should respond in Spanish with a natural-sounding Spanish voice.',
+        'Trigger another call. Start speaking in English, then say something in Spanish like "Hola, ¿cómo estás?" The agent should respond in Spanish with a natural-sounding Spanish voice.',
     },
 
     {
