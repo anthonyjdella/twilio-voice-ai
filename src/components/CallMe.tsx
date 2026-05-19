@@ -136,7 +136,7 @@ export function CallMe() {
               type="url"
               value={twimlUrl}
               onChange={(e) => setTwimlUrl(e.target.value)}
-              placeholder="https://your-codespace-url.app.github.dev/twiml"
+              placeholder="https://your-tunnel.trycloudflare.com/twiml"
               disabled={useBuiltIn}
               className="w-full px-3 py-2 rounded-lg bg-surface-2 border border-navy-border text-sm text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:ring-1 focus:ring-twilio-red/50 disabled:opacity-50"
             />

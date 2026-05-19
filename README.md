@@ -93,4 +93,5 @@ Merges to `main` deploy to Azure Container Apps via `.github/workflows/deploy.ym
 | [Deepgram](https://deepgram.com/) (via Twilio) | Default speech-to-text provider. Bundled into ConversationRelay — no separate API key. |
 | [OpenAI Chat Completions](https://platform.openai.com/docs/api-reference/chat) | Streams LLM responses for natural, low-latency conversation. |
 | [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) | Persistent bidirectional connection between Twilio and your server. |
-| [GitHub Codespaces](https://github.com/features/codespaces) | Cloud dev environment with built-in port forwarding. Zero local setup for attendees. |
+| [GitHub Codespaces](https://github.com/features/codespaces) | Cloud dev environment for attendees. Zero local setup. |
+| [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/) | Free public URL (`*.trycloudflare.com`) for the attendee's server, no signup. Booted automatically by the devcontainer. |

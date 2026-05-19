@@ -3,6 +3,12 @@ URL_FILE=/tmp/cloudflared-url
 if [ -s "$URL_FILE" ]; then
   echo "$(cat "$URL_FILE")/twiml"
 else
-  echo "Tunnel not running. Start it with: bash /workspaces/$(basename "$PWD")/.devcontainer/start-tunnel.sh" >&2
+  # Find the repo root by locating the .devcontainer directory under /workspaces.
+  TUNNEL_SCRIPT=$(find /workspaces -maxdepth 3 -type f -name start-tunnel.sh 2>/dev/null | head -1)
+  if [ -n "$TUNNEL_SCRIPT" ]; then
+    echo "Tunnel not running. Start it with: bash $TUNNEL_SCRIPT" >&2
+  else
+    echo "Tunnel not running. Start it with: bash <repo-root>/.devcontainer/start-tunnel.sh" >&2
+  fi
   exit 1
 fi

@@ -7,7 +7,7 @@ export default {
             audience: "explorer",
             illustration: "/images/illustrations/lego-building.svg",
             context:
-                "**You can skip ahead whenever you are ready.** 'The Builder' is finishing a quick setup check before the first phone call.\n\n**What they are doing:** Confirming that their server's network port is publicly reachable so Twilio can deliver the call. It is usually public already, but sometimes needs to be flipped in a tab in their code editor. Takes less than a minute.\n\n**What comes next:** In the next chapter the agent takes its first call. That is where you will actually hear it.",
+                "**You can skip ahead whenever you are ready.** 'The Builder' is finishing a quick setup check before the first phone call.\n\n**What they are doing:** Grabbing the public URL of their tunnel -- a small program that the Codespace started automatically and that gives Twilio a way to reach their server. They just need to copy the URL from their terminal. Takes less than a minute.\n\n**What comes next:** In the next chapter the agent takes its first call. That is where you will actually hear it.",
         },
 
         {
@@ -96,6 +96,13 @@ https://random-words-abc123.trycloudflare.com/twiml`,
         },
 
         {
+            type: "prose",
+            audience: "builder",
+            content:
+                "**4. Tunnel is running** -- Run `tunnel-url` in the terminal. You should get back a `https://*.trycloudflare.com/twiml` URL. If it says \"Tunnel not running,\" run `bash .devcontainer/start-tunnel.sh` from the repo root.",
+        },
+
+        {
             type: "callout",
             audience: "builder",
             variant: "tip",
@@ -116,11 +123,12 @@ https://random-words-abc123.trycloudflare.com/twiml`,
             type: "verify",
             audience: "builder",
             question:
-                "Is your Codespace running with credentials loaded and a phone nearby to receive calls?",
+                "Is your Codespace running with credentials loaded, a tunnel URL ready, and a phone nearby to receive calls?",
             troubleshooting: [
                 "Codespace not loading? Try refreshing the browser tab or reopening from github.com/codespaces",
                 "Credentials missing? Check that workshop/.env has real values, not placeholders like ACxxxxxxxx",
                 "MY_PHONE_NUMBER not set? Open workshop/.env and update it to your real number (e.g., +12065551234)",
+                "`tunnel-url` says \"Tunnel not running\"? Run `bash .devcontainer/start-tunnel.sh` from the repo root, wait a few seconds, then try `tunnel-url` again",
             ],
         },
     ],

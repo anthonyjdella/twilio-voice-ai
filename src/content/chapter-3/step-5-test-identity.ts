@@ -57,13 +57,13 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "Or run this from your Codespace terminal -- `$CODESPACE_NAME` is set automatically, so the command works as-is. If you're not in a Codespace, grab the forwarded URL from the **Ports** tab instead.",
+        "Or trigger your own `/call` endpoint from the terminal. Since the server is listening on port 8080 inside the Codespace, you can hit it on `localhost`:",
     },
 
     {
       type: "terminal",
       audience: "builder",
-      commands: `$ curl -X POST "https://\${CODESPACE_NAME}-8080.app.github.dev/call"`,
+      commands: `$ curl -X POST http://localhost:8080/call`,
     },
 
     { type: "page-break" },
@@ -96,6 +96,7 @@ export default {
       question:
         "Does your agent respond with the right personality and voice?",
       troubleshooting: [
+        "Phone never rings? Check that your server is running (`node server.js`) and `tunnel-url` returns a `trycloudflare.com` URL",
         "Voice sounds wrong? Revisit the voice picker — your choice takes effect on the next call, not the current one",
         "Agent using a different name or tone? Your system prompt probably needs stronger wording about the persona",
         "Agent breaks character on off-topic questions? Add explicit boundaries to the system prompt about what it should refuse",

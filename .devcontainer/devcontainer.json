@@ -11,6 +11,9 @@
     }
   },
   "customizations": {
+    "codespaces": {
+      "openFiles": []
+    },
     "vscode": {
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
