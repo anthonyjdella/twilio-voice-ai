@@ -13,9 +13,18 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev, hostname: "0.0.0.0", port });
 const handle = app.getRequestHandler();
 
+function safeParseUrl(req) {
+  try {
+    const host = req.headers.host || "localhost";
+    return new URL(req.url || "/", `http://${host}`);
+  } catch {
+    return new URL("/", "http://localhost");
+  }
+}
+
 app.prepare().then(() => {
   const server = createServer((req, res) => {
-    const { pathname } = new URL(req.url || "/", `http://${req.headers.host}`);
+    const { pathname } = safeParseUrl(req);
 
     if (pathname === "/api/events" && req.method === "POST") {
       let body = "";
@@ -53,7 +62,7 @@ app.prepare().then(() => {
 
     if (pathname === "/admin/report") {
       try {
-        const url = new URL(req.url || "/", `http://${req.headers.host}`);
+        const url = safeParseUrl(req);
         const range = url.searchParams.get("range") === "today" ? "today" : "all";
         const data = getAllMetrics(range);
         const doc = generateReport(data);
@@ -74,7 +83,7 @@ app.prepare().then(() => {
     const cleanPath = pathname.replace(/\/+$/, "");
     if (cleanPath === "/admin" || cleanPath === "/admin/data") {
       try {
-        const url = new URL(req.url || "/", `http://${req.headers.host}`);
+        const url = safeParseUrl(req);
         const range = url.searchParams.get("range") === "all" ? "all" : "today";
         const data = getAllMetrics(range);
         if (cleanPath === "/admin/data") {
@@ -103,7 +112,7 @@ app.prepare().then(() => {
   });
 
   server.on("upgrade", (req, socket, head) => {
-    const { pathname } = new URL(req.url || "/", `http://${req.headers.host}`);
+    const { pathname } = safeParseUrl(req);
     if (pathname === "/ws") {
       wss.handleUpgrade(req, socket, head, (ws) => {
         wss.emit("connection", ws, req);

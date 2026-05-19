@@ -18,8 +18,14 @@ export function getDb() {
 
   const dbPath = getDbPath();
   const instance = new Database(dbPath);
-  instance.pragma("journal_mode = WAL");
+  // WAL mode requires fcntl/mmap semantics that Azure Files (SMB) can't
+  // honor, which causes SQLITE_BUSY ("database is locked") errors as soon
+  // as concurrent reads/writes happen. DELETE journaling uses the simpler
+  // file-locking primitives that work across SMB.
+  const useWal = !process.env.DATA_MOUNT;
+  instance.pragma(useWal ? "journal_mode = WAL" : "journal_mode = DELETE");
   instance.pragma("synchronous = NORMAL");
+  instance.pragma("busy_timeout = 5000");
 
   instance.exec(`
     CREATE TABLE IF NOT EXISTS events (
