@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
   let body: {
     phoneNumber?: string;
-    wsUrl?: string;
+    twimlUrl?: string;
     sessionId?: string;
     agentConfig?: {
       agentName?: string;
@@ -50,29 +50,40 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const host = request.headers.get("host") || "localhost:8080";
-  const protocol = host.includes("localhost") ? "http" : "https";
-  const twimlBaseUrl = `${protocol}://${host}/api/twiml`;
+  let twimlUrl: string;
+  if (body.twimlUrl && isValidHttpUrl(body.twimlUrl)) {
+    // Builder track: hand Twilio the user's own /twiml endpoint so their
+    // server.js owns the entire TwiML response (voice, greeting, language,
+    // ConversationRelay attributes, custom parameters, the WebSocket URL).
+    // The website never wraps or rewrites it.
+    twimlUrl = body.twimlUrl;
+  } else {
+    // Explorer track (or Builder using the built-in server): the website
+    // builds the TwiML, forwarding the picker selections as query params.
+    const host = request.headers.get("host") || "localhost:8080";
+    const protocol = host.includes("localhost") ? "http" : "https";
+    const twimlBaseUrl = `${protocol}://${host}/api/twiml`;
 
-  const twimlParams = new URLSearchParams();
-  if (body.wsUrl) twimlParams.set("wsUrl", body.wsUrl);
-  if (body.agentConfig?.voice) twimlParams.set("voice", body.agentConfig.voice);
-  if (body.agentConfig?.ttsProvider)
-    twimlParams.set("ttsProvider", body.agentConfig.ttsProvider);
-  if (body.agentConfig?.language)
-    twimlParams.set("language", body.agentConfig.language);
-  if (body.agentConfig?.agentName)
-    twimlParams.set("agentName", body.agentConfig.agentName);
-  if (body.agentConfig?.personality)
-    twimlParams.set("personality", body.agentConfig.personality);
-  if (body.agentConfig?.welcomeGreeting)
-    twimlParams.set("welcomeGreeting", body.agentConfig.welcomeGreeting);
-  if (body.agentConfig?.enabledTools)
-    twimlParams.set("enabledTools", body.agentConfig.enabledTools);
-  if (body.agentConfig?.handoffEnabled)
-    twimlParams.set("handoffEnabled", body.agentConfig.handoffEnabled);
+    const twimlParams = new URLSearchParams();
+    if (body.agentConfig?.voice) twimlParams.set("voice", body.agentConfig.voice);
+    if (body.agentConfig?.ttsProvider)
+      twimlParams.set("ttsProvider", body.agentConfig.ttsProvider);
+    if (body.agentConfig?.language)
+      twimlParams.set("language", body.agentConfig.language);
+    if (body.agentConfig?.agentName)
+      twimlParams.set("agentName", body.agentConfig.agentName);
+    if (body.agentConfig?.personality)
+      twimlParams.set("personality", body.agentConfig.personality);
+    if (body.agentConfig?.welcomeGreeting)
+      twimlParams.set("welcomeGreeting", body.agentConfig.welcomeGreeting);
+    if (body.agentConfig?.enabledTools)
+      twimlParams.set("enabledTools", body.agentConfig.enabledTools);
+    if (body.agentConfig?.handoffEnabled)
+      twimlParams.set("handoffEnabled", body.agentConfig.handoffEnabled);
 
-  const twimlUrl = `${twimlBaseUrl}?${twimlParams.toString()}`;
+    const qs = twimlParams.toString();
+    twimlUrl = qs ? `${twimlBaseUrl}?${qs}` : twimlBaseUrl;
+  }
 
   try {
     const client = twilio(accountSid, authToken);
@@ -101,5 +112,14 @@ export async function POST(request: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("[api/call] Failed to create call:", message);
     return Response.json({ error: message }, { status: 500 });
+  }
+}
+
+function isValidHttpUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
   }
 }

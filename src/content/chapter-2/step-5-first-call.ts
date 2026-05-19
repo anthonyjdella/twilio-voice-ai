@@ -69,7 +69,7 @@ export default {
       type: "prose",
       audience: "builder",
       content:
-        "**Finding Your WebSocket URL.** In your Codespace, open the **Ports** tab and copy the forwarded URL for port 8080 -- it looks like `https://fluffy-octopus-abc123-8080.app.github.dev/`. In the widget below, swap `https://` for `wss://` and append `/ws` at the end. Final format: `wss://fluffy-octopus-abc123-8080.app.github.dev/ws`. The `/ws` path is required -- that's the route your WebSocket server is listening on.",
+        "**Finding Your TwiML URL.** In your Codespace, open the **Ports** tab and copy the forwarded URL for port 8080 -- it looks like `https://fluffy-octopus-abc123-8080.app.github.dev/`. Append `/twiml` to the end and paste it into the widget below. Final format: `https://fluffy-octopus-abc123-8080.app.github.dev/twiml`. That's the route you wrote earlier in this chapter -- Twilio will fetch it the moment the call connects, and the TwiML in your `server.js` (voice, greeting, the `wss://...` for `/ws`, and everything you add in later chapters) is what runs on the call.",
     },
 
     { type: "call-me" },
@@ -123,7 +123,7 @@ export default {
         "No WebSocket connection logged? Port 8080 is probably not Public in the Codespace Ports tab",
         "Call connects but greeting plays then silence? The server probably isn't receiving `prompt` messages -- check port 8080 is Public and the terminal shows `🗣️ Caller: ...` logs",
         "Hearing the fallback apology message? That's the OpenAI catch block -- check `OPENAI_API_KEY` and the terminal for LLM errors",
-        "Call never rings? Check the `/call` response in the terminal and verify `TWILIO_PHONE_NUMBER` is a voice-capable number you own",
+        "Call never rings? Make sure the URL ends in `/twiml`, port 8080 is Public, and your server logs show `POST /twiml` when you click Call Me -- if Twilio can't fetch your TwiML, the phone won't ring",
         "Number format must be E.164 (`+15551234567`) in both `MY_PHONE_NUMBER` and the Call Me input",
         "Trial accounts can only call verified numbers -- verify `MY_PHONE_NUMBER` in the Twilio Console if you're on a trial",
       ],

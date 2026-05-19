@@ -8,7 +8,7 @@ import { useAnalyticsContext } from "@/lib/AnalyticsContext";
 
 type CallStatus = "idle" | "calling" | "connected" | "ended" | "error";
 
-const WS_URL_KEY = "workshop-builder-ws-url";
+const TWIML_URL_KEY = "workshop-builder-twiml-url";
 
 export function CallMe() {
   const { isBuilder } = useAudienceMode();
@@ -19,7 +19,7 @@ export function CallMe() {
   const [phoneNumber, setPhoneNumber] = useState(
     () => progress.workshopState.phoneNumber || ""
   );
-  const [wsUrl, setWsUrl] = useState("");
+  const [twimlUrl, setTwimlUrl] = useState("");
   const [useBuiltIn, setUseBuiltIn] = useState(false);
   const [status, setStatus] = useState<CallStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -27,16 +27,16 @@ export function CallMe() {
 
   useEffect(() => {
     if (isBuilder) {
-      const stored = localStorage.getItem(WS_URL_KEY) || "";
-      queueMicrotask(() => setWsUrl(stored));
+      const stored = localStorage.getItem(TWIML_URL_KEY) || "";
+      queueMicrotask(() => setTwimlUrl(stored));
     }
   }, [isBuilder]);
 
   useEffect(() => {
-    if (isBuilder && wsUrl) {
-      localStorage.setItem(WS_URL_KEY, wsUrl);
+    if (isBuilder && twimlUrl) {
+      localStorage.setItem(TWIML_URL_KEY, twimlUrl);
     }
-  }, [isBuilder, wsUrl]);
+  }, [isBuilder, twimlUrl]);
 
   async function handleCall() {
     if (!phoneNumber.trim()) return;
@@ -62,8 +62,8 @@ export function CallMe() {
       },
     };
 
-    if (isBuilder && wsUrl && !useBuiltIn) {
-      body.wsUrl = wsUrl;
+    if (isBuilder && twimlUrl && !useBuiltIn) {
+      body.twimlUrl = twimlUrl;
     }
 
     try {
@@ -126,17 +126,17 @@ export function CallMe() {
         {isBuilder && (
           <div>
             <label
-              htmlFor="ws-url"
+              htmlFor="twiml-url"
               className="block text-xs text-text-muted mb-1"
             >
-              Your WebSocket URL
+              Your TwiML URL
             </label>
             <input
-              id="ws-url"
+              id="twiml-url"
               type="url"
-              value={wsUrl}
-              onChange={(e) => setWsUrl(e.target.value)}
-              placeholder="wss://your-codespace-url.app.github.dev/ws"
+              value={twimlUrl}
+              onChange={(e) => setTwimlUrl(e.target.value)}
+              placeholder="https://your-codespace-url.app.github.dev/twiml"
               disabled={useBuiltIn}
               className="w-full px-3 py-2 rounded-lg bg-surface-2 border border-navy-border text-sm text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:ring-1 focus:ring-twilio-red/50 disabled:opacity-50"
             />
