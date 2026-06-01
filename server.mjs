@@ -26,6 +26,15 @@ app.prepare().then(() => {
   const server = createServer((req, res) => {
     const { pathname } = safeParseUrl(req);
 
+    // Liveness probe for the deploy smoke test + ACA health checks. Matches the
+    // /health route taught in chapter-6 (status + uptime). Unauthenticated, no
+    // dependency — just confirms the server is alive.
+    if (pathname === "/health" && req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ status: "ok", uptime: process.uptime() }));
+      return;
+    }
+
     if (pathname === "/api/events" && req.method === "POST") {
       let body = "";
       req.on("data", (chunk) => (body += chunk));
