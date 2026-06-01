@@ -1,62 +1,93 @@
 name: CI
 
+# Parallel jobs feeding a single `Validate` aggregator.
+# NOTE: no top-level `concurrency:` and no `permissions:` blocks — this file is
+# invoked by deploy.yml via `workflow_call`, where either block causes a
+# startup_failure under the read-only caller token (setup-ci invariant #5).
+# This repo is PUBLIC, so CodeQL/dependency-review are free and kept.
+
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_call:
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
-  validate:
-    name: Typecheck, Lint & Build
+  lint-typecheck:
+    name: Lint & Typecheck
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Build
-        run: pnpm build
-
-      # Surfaces known vulnerabilities but does not block merges.
-      # Transitive dependency vulns are common in the Next.js ecosystem
-      # and often have no available fix. The dependency-review job below
-      # is the actual gate — it blocks PRs that introduce NEW vulns.
-      - name: Audit dependencies
-        run: pnpm audit --audit-level=high || true
-
-  dependency-review:
-    name: Dependency Review
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # `next build` is the build-integrity gate (catches RSC/bundler errors).
+      - run: pnpm build
 
-      - name: Review dependency changes
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # dependency-review only runs on PRs (needs the base/head diff).
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0          # gitleaks scans full history
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: pnpm audit (advisory)
+        run: pnpm audit --audit-level=high || true
+      - name: Dependency review (PRs only; public repo = free)
+        if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
+      - name: gitleaks (hard gate)
+        run: |
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:v8.21.2 \
+            detect --source=/repo --redact --verbose
+
+  # Aggregator: the deploy gate + Dependabot auto-merge poller key off `Validate`.
+  Validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [lint-typecheck, build, security]
+    if: ${{ !cancelled() }}
+    steps:
+      - name: Confirm all required jobs passed
+        run: |
+          echo "lint-typecheck: ${{ needs.lint-typecheck.result }}"
+          echo "build:          ${{ needs.build.result }}"
+          echo "security:       ${{ needs.security.result }}"
+          if [ "${{ needs.lint-typecheck.result }}" != "success" ] || \
+             [ "${{ needs.build.result }}" != "success" ] || \
+             [ "${{ needs.security.result }}" != "success" ]; then
+            echo "::error::One or more CI jobs failed — Validate fails."
+            exit 1
+          fi
+          echo "All CI jobs passed."

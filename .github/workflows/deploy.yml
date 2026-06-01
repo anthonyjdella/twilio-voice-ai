@@ -1,222 +1,149 @@
 name: Deploy to Azure Container Apps
 
+# CI-gated deploy to Azure Container Apps. Auth is OIDC (no stored cloud creds).
+# One-time provisioning + the GitHub vars/secrets are in docs/INFRA_SETUP.md —
+# this workflow does NOT create infrastructure (RG / ACR / env / storage are
+# provisioned once by scripts/provision-azure.sh).
+#
+# The app uses a containerapp.yaml manifest + an Azure Files mount for the
+# analytics SQLite DB; both are preserved here. App secrets are synced
+# skip-on-unset before the manifest is applied.
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false   # never cancel a half-applied prod deploy
+
 env:
-  RESOURCE_GROUP: rg-voice-ai-workshop
-  APP_NAME: voice-ai-workshop
-  LOCATION: centralus
-  ACR_NAME: voiceaiworkshop
-  ENV_NAME: voiceaiworkshop
-  STORAGE_ACCOUNT: voiceaiworkshop
-  FILE_SHARE: voiceaidata
-  IMAGE_TAG: voice-ai-workshop:${{ github.sha }}
+  ACR_NAME: ${{ vars.ACR_NAME }}
+  ACR_REPO: voice-ai-workshop
+  ACA_NAME: ${{ vars.ACA_NAME }}
+  ACA_RESOURCE_GROUP: ${{ vars.ACA_RESOURCE_GROUP }}
 
 jobs:
   ci:
-    uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/ci.yml   # no `secrets: inherit`
 
-  build-and-deploy:
+  build-and-push:
     needs: ci
-    if: needs.ci.result == 'success'
+    if: ${{ needs.ci.result == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Login to Azure
+      - uses: actions/checkout@v6
+      - name: Compute image tag
+        id: meta
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          SHORT_SHA="${SHA:0:7}"
+          echo "image=${ACR_NAME}.azurecr.io/${ACR_REPO}:${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+      - name: Azure login (OIDC)
         uses: azure/login@v3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: ACR login
+        run: az acr login --name "$ACR_NAME"
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Build & push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.image }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      # --- Infrastructure (idempotent — safe to run every time) ---
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      IMAGE: ${{ needs.build-and-push.outputs.image }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Azure login (OIDC)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Ensure Resource Group
+      # App secrets sync — skip-on-unset so a missing source never blanks live
+      # config. The manifest references these by secretRef.
+      - name: Sync app secrets
+        env:
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_PHONE_NUMBER: ${{ secrets.TWILIO_PHONE_NUMBER }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          WORKSHOP_SLIDES_EMBED_URL: ${{ secrets.WORKSHOP_SLIDES_EMBED_URL }}
+          HANDOFF_PHONE_NUMBER: ${{ secrets.HANDOFF_PHONE_NUMBER }}
         run: |
-          az group create \
-            --name ${{ env.RESOURCE_GROUP }} \
-            --location ${{ env.LOCATION }} \
-            --tags created_by=anthonyjdella
-
-      - name: Ensure Container Registry
-        run: |
-          if ! az acr show --name ${{ env.ACR_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} &>/dev/null; then
-            echo "Creating ACR..."
-            az acr create \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.ACR_NAME }} \
-              --sku Basic \
-              --admin-enabled true \
-              --tags created_by=anthonyjdella
+          set -euo pipefail
+          declare -a secrets=()
+          add() { [ -n "$2" ] && secrets+=("$1=$2") || echo "$3 unset — leaving live value untouched."; }
+          add twilio-account-sid          "$TWILIO_ACCOUNT_SID"          TWILIO_ACCOUNT_SID
+          add twilio-auth-token           "$TWILIO_AUTH_TOKEN"           TWILIO_AUTH_TOKEN
+          add twilio-phone-number         "$TWILIO_PHONE_NUMBER"         TWILIO_PHONE_NUMBER
+          add openai-api-key              "$OPENAI_API_KEY"              OPENAI_API_KEY
+          add workshop-slides-embed-url   "$WORKSHOP_SLIDES_EMBED_URL"   WORKSHOP_SLIDES_EMBED_URL
+          add handoff-phone-number        "$HANDOFF_PHONE_NUMBER"        HANDOFF_PHONE_NUMBER
+          if [ ${#secrets[@]} -gt 0 ]; then
+            az containerapp secret set --name "$ACA_NAME" --resource-group "$ACA_RESOURCE_GROUP" \
+              --secrets "${secrets[@]}" >/dev/null
+            echo "Synced ${#secrets[@]} secret(s)."
           else
-            echo "ACR already exists"
-          fi
-          # Verify ACR is accessible
-          az acr show --name ${{ env.ACR_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --query "loginServer" -o tsv
-
-      - name: Ensure Log Analytics Workspace
-        run: |
-          if ! az monitor log-analytics workspace show --workspace-name law-${{ env.ENV_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} &>/dev/null; then
-            echo "Creating Log Analytics workspace..."
-            az monitor log-analytics workspace create \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --workspace-name law-${{ env.ENV_NAME }} \
-              --location ${{ env.LOCATION }} \
-              --tags created_by=anthonyjdella
-          else
-            echo "Log Analytics workspace already exists"
-          fi
-
-      - name: Ensure Container Apps Environment
-        run: |
-          if ! az containerapp env show --name ${{ env.ENV_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} &>/dev/null; then
-            LOG_ID=$(az monitor log-analytics workspace show \
-              --workspace-name law-${{ env.ENV_NAME }} \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --query customerId -o tsv)
-            LOG_KEY=$(az monitor log-analytics workspace get-shared-keys \
-              --workspace-name law-${{ env.ENV_NAME }} \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --query primarySharedKey -o tsv)
-            echo "Creating Container Apps Environment..."
-            az containerapp env create \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.ENV_NAME }} \
-              --location ${{ env.LOCATION }} \
-              --logs-workspace-id "$LOG_ID" \
-              --logs-workspace-key "$LOG_KEY" \
-              --tags created_by=anthonyjdella
-          else
-            echo "Container Apps Environment already exists"
+            echo "No secrets to sync."
           fi
 
-      - name: Ensure Storage Account
+      - name: Apply Container App manifest (image via envsubst)
+        env:
+          APP_NAME: ${{ vars.ACA_NAME }}
+          CONTAINER_IMAGE: ${{ needs.build-and-push.outputs.image }}
         run: |
-          az storage account show --name ${{ env.STORAGE_ACCOUNT }} --resource-group ${{ env.RESOURCE_GROUP }} 2>/dev/null || \
-          az storage account create \
-            --name ${{ env.STORAGE_ACCOUNT }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --location ${{ env.LOCATION }} \
-            --sku Standard_LRS \
-            --tags created_by=anthonyjdella \
-            --output none
-
-      - name: Ensure File Share
-        run: |
-          STORAGE_KEY=$(az storage account keys list \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --account-name ${{ env.STORAGE_ACCOUNT }} \
-            --query '[0].value' -o tsv)
-          az storage share create \
-            --name ${{ env.FILE_SHARE }} \
-            --account-name ${{ env.STORAGE_ACCOUNT }} \
-            --account-key "$STORAGE_KEY" \
-            --quota 10 \
-            --output none 2>/dev/null || true
-
-      - name: Configure Azure Files storage mount
-        run: |
-          STORAGE_KEY=$(az storage account keys list \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --account-name ${{ env.STORAGE_ACCOUNT }} \
-            --query '[0].value' -o tsv)
-          az containerapp env storage set \
-            --name ${{ env.ENV_NAME }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --storage-name appdata \
-            --azure-file-account-name ${{ env.STORAGE_ACCOUNT }} \
-            --azure-file-account-key "$STORAGE_KEY" \
-            --azure-file-share-name ${{ env.FILE_SHARE }} \
-            --access-mode ReadWrite \
-            --output none
-
-      # --- Build ---
-
-      - name: Build and push image to ACR
-        run: |
-          az acr build \
-            --registry ${{ env.ACR_NAME }} \
-            --image ${{ env.IMAGE_TAG }} \
-            --image twilio-voice-ai:latest \
-            .
-
-      # --- Deploy ---
-
-      - name: Get ACR credentials
-        id: acr
-        run: |
-          echo "server=${{ env.ACR_NAME }}.azurecr.io" >> $GITHUB_OUTPUT
-          echo "username=$(az acr credential show --name ${{ env.ACR_NAME }} --query username -o tsv)" >> $GITHUB_OUTPUT
-          echo "password=$(az acr credential show --name ${{ env.ACR_NAME }} --query passwords[0].value -o tsv)" >> $GITHUB_OUTPUT
-
-      - name: Set secrets
-        run: |
-          az containerapp secret set \
-            --name ${{ env.APP_NAME }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --secrets \
-              "twilio-account-sid=${{ secrets.TWILIO_ACCOUNT_SID }}" \
-              "twilio-auth-token=${{ secrets.TWILIO_AUTH_TOKEN }}" \
-              "twilio-phone-number=${{ secrets.TWILIO_PHONE_NUMBER }}" \
-              "openai-api-key=${{ secrets.OPENAI_API_KEY }}" \
-              "workshop-slides-embed-url=${{ secrets.WORKSHOP_SLIDES_EMBED_URL }}" \
-              "handoff-phone-number=${{ secrets.HANDOFF_PHONE_NUMBER }}" \
-            --output none 2>/dev/null || true
-
-      - name: Deploy Container App
-        run: |
-          export APP_NAME="${{ env.APP_NAME }}"
-          export CONTAINER_IMAGE="${{ steps.acr.outputs.server }}/${{ env.IMAGE_TAG }}"
+          set -euo pipefail
           envsubst < .github/containerapp.yaml > /tmp/containerapp.yaml
+          az containerapp update \
+            --name "$ACA_NAME" \
+            --resource-group "$ACA_RESOURCE_GROUP" \
+            --yaml /tmp/containerapp.yaml \
+            --output none
 
-          if az containerapp show --name ${{ env.APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} 2>/dev/null; then
-            echo "Updating existing container app..."
-            az containerapp update \
-              --name ${{ env.APP_NAME }} \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --yaml /tmp/containerapp.yaml \
-              --output none
-          else
-            echo "Creating new Container App..."
-            az containerapp create \
-              --name ${{ env.APP_NAME }} \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --environment ${{ env.ENV_NAME }} \
-              --tags created_by=anthonyjdella \
-              --registry-server ${{ steps.acr.outputs.server }} \
-              --registry-username ${{ steps.acr.outputs.username }} \
-              --registry-password ${{ steps.acr.outputs.password }} \
-              --yaml /tmp/containerapp.yaml \
-              --output none
-
-            az containerapp secret set \
-              --name ${{ env.APP_NAME }} \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --secrets \
-                "twilio-account-sid=${{ secrets.TWILIO_ACCOUNT_SID }}" \
-                "twilio-auth-token=${{ secrets.TWILIO_AUTH_TOKEN }}" \
-                "twilio-phone-number=${{ secrets.TWILIO_PHONE_NUMBER }}" \
-                "openai-api-key=${{ secrets.OPENAI_API_KEY }}" \
-                "workshop-slides-embed-url=${{ secrets.WORKSHOP_SLIDES_EMBED_URL }}" \
-                "handoff-phone-number=${{ secrets.HANDOFF_PHONE_NUMBER }}" \
-                --output none
-          fi
-
-      - name: Print app URL
+      - name: Resolve app FQDN
+        id: fqdn
         run: |
           FQDN=$(az containerapp show \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --name ${{ env.APP_NAME }} \
-            --query "properties.configuration.ingress.fqdn" -o tsv)
-          echo ""
-          echo "=========================================="
-          echo "  Deployment complete!"
-          echo "=========================================="
-          echo "  App URL:     https://${FQDN}"
-          echo "  WebSocket:   wss://${FQDN}/ws"
-          echo "  Call API:    https://${FQDN}/api/call"
-          echo "  TwiML:       https://${FQDN}/api/twiml"
-          echo "=========================================="
+            --name "$ACA_NAME" \
+            --resource-group "$ACA_RESOURCE_GROUP" \
+            --query properties.configuration.ingress.fqdn -o tsv)
+          if [ -z "$FQDN" ]; then echo "Could not resolve container app FQDN."; exit 1; fi
+          echo "fqdn=$FQDN" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test /health
+        env:
+          FQDN: ${{ steps.fqdn.outputs.fqdn }}
+        run: |
+          for i in $(seq 1 30); do
+            CODE=$(curl -s -o /tmp/health.json -w "%{http_code}" "https://$FQDN/health" || true)
+            if [ "$CODE" = "200" ]; then
+              echo "Healthz OK after attempt $i"; cat /tmp/health.json; echo
+              echo "Deployed: https://$FQDN"
+              exit 0
+            fi
+            echo "Attempt $i: status=$CODE — retrying in 10s"; sleep 10
+          done
+          echo "::error::/health never returned 200 after 5 minutes."; exit 1
