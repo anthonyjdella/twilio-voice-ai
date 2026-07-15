@@ -99,10 +99,17 @@ APP_ID=$(az ad app list --display-name "$ACA-gha-deploy" --query '[0].appId' -o 
 az ad sp show --id "$APP_ID" -o none 2>/dev/null || az ad sp create --id "$APP_ID" -o none
 az role assignment create --assignee "$APP_ID" --role AcrPush --scope "$(az acr show -n "$ACR" --query id -o tsv)" -o none 2>/dev/null || true
 az role assignment create --assignee "$APP_ID" --role Contributor --scope "$(az group show -n "$RG" --query id -o tsv)" -o none 2>/dev/null || true
-if ! az ad app federated-credential list --id "$APP_ID" --query "[?name=='gha-main']" -o tsv | grep -q .; then
+OIDC_SUBJECT="repo:${REPO}:ref:refs/heads/main"
+CURRENT_OIDC_SUBJECT=$(az ad app federated-credential list --id "$APP_ID" --query "[?name=='gha-main'].subject | [0]" -o tsv)
+if [ -z "$CURRENT_OIDC_SUBJECT" ]; then
   az ad app federated-credential create --id "$APP_ID" --parameters "{
     \"name\":\"gha-main\",\"issuer\":\"https://token.actions.githubusercontent.com\",
-    \"subject\":\"repo:${REPO}:ref:refs/heads/main\",\"audiences\":[\"api://AzureADTokenExchange\"]}" -o none
+    \"subject\":\"${OIDC_SUBJECT}\",\"audiences\":[\"api://AzureADTokenExchange\"]}" -o none
+elif [ "$CURRENT_OIDC_SUBJECT" != "$OIDC_SUBJECT" ]; then
+  echo "    Updating OIDC subject: $CURRENT_OIDC_SUBJECT -> $OIDC_SUBJECT"
+  az ad app federated-credential update --id "$APP_ID" --federated-credential-id gha-main --parameters "{
+    \"issuer\":\"https://token.actions.githubusercontent.com\",
+    \"subject\":\"${OIDC_SUBJECT}\",\"audiences\":[\"api://AzureADTokenExchange\"]}" -o none
 fi
 
 gh variable set ACR_NAME --body "$ACR"

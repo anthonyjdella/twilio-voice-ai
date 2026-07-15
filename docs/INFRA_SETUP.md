@@ -37,6 +37,9 @@ GitHub **secrets**: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID
 `WORKSHOP_SLIDES_EMBED_URL`, `HANDOFF_PHONE_NUMBER`.
 
 ## Notes
+- **Repository rename or transfer:** rerun `./scripts/provision-azure.sh`. It updates
+  the existing `gha-main` federated credential to trust the repository's current
+  `OWNER/REPO` subject.
 - **Tenant tag policy:** every resource gets a `created_by` tag (RGs exempt);
   the script handles this, including a pre-created tagged Log Analytics workspace.
 - **Workshop coupling:** the `/health` route the deploy smoke-tests is the same
