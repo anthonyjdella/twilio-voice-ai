@@ -8,6 +8,7 @@ import workshopConfig from "@/workshop.config";
 import { AudienceProvider, useAudienceMode } from "@/lib/AudienceContext";
 import { ThemeProvider, useTheme } from "@/lib/ThemeContext";
 import { OnboardingModal } from "@/components/layout/OnboardingModal";
+import { MagicHat } from "@/components/MagicHat";
 
 const stagger = {
   hidden: {},
@@ -60,6 +61,8 @@ function HomeContent() {
     <>
     <OnboardingModal open={showModal} onComplete={handleOnboardingComplete} />
     <div className="min-h-screen flex flex-col items-center justify-center bg-navy relative overflow-hidden">
+      <MagicHat />
+
       {/* Theme toggle */}
       {features.themeToggle && (
         <button
